@@ -20,24 +20,47 @@
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item"><a class="nav-link" href="index.html"><i class="bi bi-house-door"></i> Inicio</a></li>
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="bi bi-box-seam"></i> Módulos</a>
+                            <a class="nav-link dropdown-toggle active" href="#" role="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-gear"></i> Administración
+                            </a>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="salidas-index.html"><i class="bi bi-clipboard-check"></i> Salidas de Material</a></li>
-                            </ul>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle active" href="#" role="button" data-bs-toggle="dropdown"><i class="bi bi-gear"></i> Administración</a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="admin-dashboard.html"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
                                 <li><a class="dropdown-item" href="admin-usuarios.html"><i class="bi bi-people"></i> Usuarios</a></li>
                                 <li><a class="dropdown-item" href="admin-roles.html"><i class="bi bi-shield-lock"></i> Roles</a></li>
                                 <li><a class="dropdown-item" href="admin-modulos.html"><i class="bi bi-box-seam"></i> Módulos</a></li>
-                                <li><a class="dropdown-item" href="admin-empresas.html"><i class="bi bi-building"></i> Empresas</a></li>
-                                <li><a class="dropdown-item" href="admin-tipos-empresa.html"><i class="bi bi-tags"></i> Tipos de Empresa</a></li>
+                                <li class="dropdown-submenu">
+                                    <a class="dropdown-item dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                        <i class="bi bi-building"></i> Empresas
+                                    </a>
+                                    <ul class="dropdown-menu">
+                                        <li>
+                                            <a class="dropdown-item" href="admin-empresas.html">
+                                                <i class="bi bi-building"></i> Empresas
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="admin-tipos-empresa.html">
+                                                <i class="bi bi-tags"></i> Tipos de empresa
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
                                 <li><a class="dropdown-item" href="admin-unidades.html"><i class="bi bi-rulers"></i> Unidades</a></li>
                                 <li><a class="dropdown-item" href="admin-departamentos.html"><i class="bi bi-diagram-3"></i> Departamentos</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="admin-logs.html"><i class="bi bi-journal-text"></i> Logs</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-box-seam"></i> Módulos
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="salidas-index.html"><i class="bi bi-clipboard-check"></i> Salidas de Material</a></li>
+                                <!--
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-muted" href="#"><i class="bi bi-box"></i> Control de EPP <span class="badge bg-secondary ms-2">Próximamente</span></a></li>
+                                -->
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
@@ -57,8 +80,13 @@
                             </a>
                         </li>
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="bi bi-person-circle"></i> Juan Pérez</a>
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-person-circle"></i> Juan Pérez
+                            </a>
                             <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="mi-perfil.html"><i class="bi bi-person"></i> Mi perfil</a></li>
+                                <li><a class="dropdown-item" href="configuracion.html"><i class="bi bi-gear"></i> Configuración</a></li>
+                                <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item text-danger" href="superadmin-login.html"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</a></li>
                             </ul>
                         </li>
@@ -71,7 +99,9 @@
     <div class="container-fluid mt-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2><i class="bi bi-building"></i> Gestión de Empresas</h2>
-            <a href="admin-empresas-crear.html" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Nueva Empresa</a>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalEmpresa" id="btnNuevaEmpresa">
+                <i class="bi bi-plus-circle"></i> Nueva Empresa
+            </button>
         </div>
 
         <div class="card mb-4">
@@ -117,8 +147,13 @@
                             <td><span class="badge bg-primary">Proveedor</span></td>
                             <td><span class="badge bg-success">Activo</span></td>
                             <td class="text-center">
-                                <a href="admin-empresas-editar.html" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
-                                <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-lock"></i></button>
+                                <button type="button" class="btn btn-sm btn-outline-primary btn-editar-empresa"
+                                        data-bs-toggle="modal" data-bs-target="#modalEmpresa"
+                                        data-id="1" data-codigo="EMP-001" data-nombre="XEROX, S.A. DE C.V."
+                                        data-contacto="Juan Hernández" data-tipo="1" data-activo="true">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary" title="Desactivar"><i class="bi bi-lock"></i></button>
                             </td>
                         </tr>
                         <tr>
@@ -128,8 +163,13 @@
                             <td><span class="badge bg-primary">Proveedor</span></td>
                             <td><span class="badge bg-success">Activo</span></td>
                             <td class="text-center">
-                                <a href="admin-empresas-editar.html" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
-                                <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-lock"></i></button>
+                                <button type="button" class="btn btn-sm btn-outline-primary btn-editar-empresa"
+                                        data-bs-toggle="modal" data-bs-target="#modalEmpresa"
+                                        data-id="2" data-codigo="EMP-002" data-nombre="HEWLETT PACKARD"
+                                        data-contacto="María López" data-tipo="1" data-activo="true">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary" title="Desactivar"><i class="bi bi-lock"></i></button>
                             </td>
                         </tr>
                         <tr>
@@ -139,12 +179,176 @@
                             <td><span class="badge bg-info">Filial</span></td>
                             <td><span class="badge bg-success">Activo</span></td>
                             <td class="text-center">
-                                <a href="admin-empresas-editar.html" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
-                                <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-lock"></i></button>
+                                <button type="button" class="btn btn-sm btn-outline-primary btn-editar-empresa"
+                                        data-bs-toggle="modal" data-bs-target="#modalEmpresa"
+                                        data-id="3" data-codigo="EMP-003" data-nombre="SWCORA FILIAL NORTE"
+                                        data-contacto="Carlos Ruiz" data-tipo="3" data-activo="true">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary" title="Desactivar"><i class="bi bi-lock"></i></button>
                             </td>
                         </tr>
                     </tbody>
                 </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================= -->
+    <!-- MODAL: CREAR / EDITAR EMPRESA                   -->
+    <!-- ============================================= -->
+    <div class="modal fade" id="modalEmpresa" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: var(--cora-accent); color: white;">
+                    <h5 class="modal-title" id="modalEmpresaTitulo">
+                        <i class="bi bi-plus-circle"></i> Nueva Empresa
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formEmpresa">
+                        <input type="hidden" id="empresaId">
+
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label">Código <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="empresaCodigo" placeholder="Ej: EMP-001" maxlength="50" required>
+                                <small class="text-muted">Único en el sistema.</small>
+                            </div>
+                            <div class="col-md-8">
+                                <label class="form-label">Nombre <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="empresaNombre" placeholder="Nombre de la empresa" maxlength="200" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Contacto</label>
+                                <input type="text" class="form-control" id="empresaContacto" placeholder="Nombre del contacto principal" maxlength="200">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Tipo de Empresa <span class="text-danger">*</span></label>
+                                <div class="select-with-action">
+                                    <select class="form-select" id="empresaTipo" required>
+                                        <option value="">Seleccionar tipo...</option>
+                                        <option value="1">Proveedor</option>
+                                        <option value="2">Cliente</option>
+                                        <option value="3">Filial</option>
+                                        <option value="4">Interno</option>
+                                    </select>
+                                    <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalTiposEmpresa" title="Ver todos los tipos">
+                                        <i class="bi bi-list"></i> Ver todos
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="empresaActivo" checked>
+                                    <label class="form-check-label" for="empresaActivo">Empresa activa</label>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle"></i> Cancelar
+                    </button>
+                    <button type="button" class="btn btn-primary" id="btnGuardarEmpresa">
+                        <i class="bi bi-save"></i> Guardar Empresa
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================= -->
+    <!-- MODAL: TIPOS DE EMPRESA (anidado)              -->
+    <!-- ============================================= -->
+    <div class="modal fade" id="modalTiposEmpresa" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: var(--cora-accent); color: white;">
+                    <h5 class="modal-title"><i class="bi bi-tags"></i> Tipos de Empresa</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="d-flex justify-content-between mb-3">
+                        <input type="text" class="form-control me-2" placeholder="Buscar tipo...">
+                        <button class="btn btn-primary" id="btnNuevoTipoEmpresa">
+                            <i class="bi bi-plus-circle"></i> Agregar Nuevo Tipo
+                        </button>
+                    </div>
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Estado</th>
+                                <th class="text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Proveedor</td>
+                                <td><span class="badge bg-success">Activo</span></td>
+                                <td class="text-center">
+                                    <button class="btn btn-sm btn-outline-primary" title="Editar"><i class="bi bi-pencil"></i></button>
+                                    <button class="btn btn-sm btn-outline-secondary" title="Desactivar"><i class="bi bi-lock"></i></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Cliente</td>
+                                <td><span class="badge bg-success">Activo</span></td>
+                                <td class="text-center">
+                                    <button class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></button>
+                                    <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-lock"></i></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Filial</td>
+                                <td><span class="badge bg-success">Activo</span></td>
+                                <td class="text-center">
+                                    <button class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></button>
+                                    <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-lock"></i></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Interno</td>
+                                <td><span class="badge bg-success">Activo</span></td>
+                                <td class="text-center">
+                                    <button class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></button>
+                                    <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-lock"></i></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================= -->
+    <!-- MODAL: NUEVO TIPO (anidado dentro de Tipos)    -->
+    <!-- ============================================= -->
+    <div class="modal fade" id="modalNuevoTipo" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title"><i class="bi bi-plus-circle"></i> Nuevo Tipo de Empresa</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Nombre <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" placeholder="Ej: Distribuidor" maxlength="50" required>
+                    </div>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="nuevoTipoActivo" checked>
+                        <label class="form-check-label" for="nuevoTipoActivo">Activo</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary"><i class="bi bi-save"></i> Guardar</button>
+                </div>
             </div>
         </div>
     </div>

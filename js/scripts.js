@@ -190,4 +190,151 @@ document.addEventListener('DOMContentLoaded', function () {
         console.warn('Toggle Retorno Esperado no inicializado:',
             { esDefinitiva: !!esDefinitiva, wrapperRetornoEsperado: !!wrapperRetornoEsperado });
     }
+
+    const modalCerrarSesionIndividual = document.getElementById('modalCerrarSesionIndividual');
+        if (modalCerrarSesionIndividual) {
+            modalCerrarSesionIndividual.addEventListener('show.bs.modal', function (event) {
+                const button = event.relatedTarget;
+                if (!button) return;
+
+                const dispositivo = button.getAttribute('data-dispositivo') || '—';
+                const usuario = button.getAttribute('data-usuario') || '—';
+
+                this.querySelector('#cerrarDispositivo').textContent = dispositivo;
+                this.querySelector('#cerrarUsuario').textContent = usuario;
+            });
+        }
+
+            // =============================================
+    // Recuperar contraseña del Superusuario
+    // =============================================
+    const linkRecuperarPassword = document.getElementById('linkRecuperarPassword');
+    const modalRecuperarPasswordEl = document.getElementById('modalRecuperarPassword');
+    const btnConfirmarRecuperar = document.getElementById('btnConfirmarRecuperar');
+    const toastRecuperarPasswordEl = document.getElementById('toastRecuperarPassword');
+
+    if (linkRecuperarPassword && modalRecuperarPasswordEl) {
+        // Abrir modal al hacer clic en "¿Olvidaste tu contraseña?"
+        linkRecuperarPassword.addEventListener('click', function (e) {
+            e.preventDefault();
+            const modal = new bootstrap.Modal(modalRecuperarPasswordEl);
+            modal.show();
+        });
+    }
+
+    if (btnConfirmarRecuperar) {
+        // Al confirmar: cerrar modal y mostrar toast
+        btnConfirmarRecuperar.addEventListener('click', function () {
+            // Cerrar el modal
+            const modalInstance = bootstrap.Modal.getInstance(modalRecuperarPasswordEl);
+            if (modalInstance) modalInstance.hide();
+
+            // Mostrar toast de confirmación simulada
+            if (toastRecuperarPasswordEl) {
+                const toast = new bootstrap.Toast(toastRecuperarPasswordEl, { delay: 5000 });
+                toast.show();
+            }
+        });
+    }
+
+        // =============================================
+    // Modal Empresa: Crear / Editar
+    // =============================================
+    const modalEmpresaEl = document.getElementById('modalEmpresa');
+    const btnNuevaEmpresa = document.getElementById('btnNuevaEmpresa');
+    const modalEmpresaTitulo = document.getElementById('modalEmpresaTitulo');
+    const formEmpresa = document.getElementById('formEmpresa');
+
+    if (modalEmpresaEl) {
+        // Al abrir el modal: detectar si es crear o editar
+        modalEmpresaEl.addEventListener('show.bs.modal', function (event) {
+            const trigger = event.relatedTarget;
+
+            // Resetear form
+            if (formEmpresa) formEmpresa.reset();
+
+            // Si el trigger es el botón "Nueva Empresa" o no viene de un botón de edición → modo CREAR
+            if (!trigger || trigger.id === 'btnNuevaEmpresa') {
+                modalEmpresaTitulo.innerHTML = '<i class="bi bi-plus-circle"></i> Nueva Empresa';
+                document.getElementById('empresaId').value = '';
+                document.getElementById('empresaCodigo').readOnly = false;
+                document.getElementById('empresaCodigo').value = '';
+                document.getElementById('empresaNombre').value = '';
+                document.getElementById('empresaContacto').value = '';
+                document.getElementById('empresaTipo').value = '';
+                document.getElementById('empresaActivo').checked = true;
+                return;
+            }
+
+            // Modo EDITAR: leer data attributes del botón
+            const id = trigger.getAttribute('data-id') || '';
+            const codigo = trigger.getAttribute('data-codigo') || '';
+            const nombre = trigger.getAttribute('data-nombre') || '';
+            const contacto = trigger.getAttribute('data-contacto') || '';
+            const tipo = trigger.getAttribute('data-tipo') || '';
+            const activo = trigger.getAttribute('data-activo') === 'true';
+
+            modalEmpresaTitulo.innerHTML = '<i class="bi bi-pencil"></i> Editar Empresa';
+            document.getElementById('empresaId').value = id;
+            document.getElementById('empresaCodigo').value = codigo;
+            document.getElementById('empresaCodigo').readOnly = true; // el código no se edita
+            document.getElementById('empresaNombre').value = nombre;
+            document.getElementById('empresaContacto').value = contacto;
+            document.getElementById('empresaTipo').value = tipo;
+            document.getElementById('empresaActivo').checked = activo;
+        });
+
+        // Al hacer clic en "Guardar Empresa"
+        const btnGuardarEmpresa = document.getElementById('btnGuardarEmpresa');
+        if (btnGuardarEmpresa) {
+            btnGuardarEmpresa.addEventListener('click', function () {
+                const id = document.getElementById('empresaId').value;
+                const codigo = document.getElementById('empresaCodigo').value.trim();
+                const nombre = document.getElementById('empresaNombre').value.trim();
+                const tipo = document.getElementById('empresaTipo').value;
+
+                // Validación mínima
+                if (!codigo || !nombre || !tipo) {
+                    alert('Por favor completa los campos obligatorios.');
+                    return;
+                }
+
+                const esEdicion = !!id;
+                const mensaje = esEdicion
+                    ? '✅ Empresa actualizada correctamente.'
+                    : '✅ Empresa creada correctamente.';
+
+                // Simular guardado: cerrar modal y mostrar alerta (en mockup)
+                const modalInstance = bootstrap.Modal.getInstance(modalEmpresaEl);
+                if (modalInstance) modalInstance.hide();
+
+                // Aquí en el sistema real se haría un fetch POST
+                console.log(esEdicion ? 'EDITAR' : 'CREAR', {
+                    id, codigo, nombre, tipo
+                });
+
+                // Feedback visual
+                setTimeout(function () { alert(mensaje); }, 300);
+            });
+        }
+    }
+
+    // =============================================
+    // Modal Tipos de Empresa: abrir "Nuevo Tipo"
+    // =============================================
+    const btnNuevoTipoEmpresa = document.getElementById('btnNuevoTipoEmpresa');
+    const modalTiposEmpresaEl = document.getElementById('modalTiposEmpresa');
+    const modalNuevoTipoEl = document.getElementById('modalNuevoTipo');
+
+    if (btnNuevoTipoEmpresa && modalTiposEmpresaEl && modalNuevoTipoEl) {
+        btnNuevoTipoEmpresa.addEventListener('click', function () {
+            // Cerrar el modal de tipos y abrir el de nuevo tipo
+            const instance = bootstrap.Modal.getInstance(modalTiposEmpresaEl);
+            if (instance) instance.hide();
+
+            const nuevoTipoModal = new bootstrap.Modal(modalNuevoTipoEl);
+            nuevoTipoModal.show();
+        });
+    }
+
 });

@@ -13,79 +13,191 @@
         <nav class="navbar navbar-expand-sm">
             <div class="container-fluid">
                 <a class="navbar-brand" href="index.html"><i class="bi bi-lightning-charge-fill"></i> SWCORA</a>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item"><a class="nav-link" href="index.html"><i class="bi bi-house-door"></i> Inicio</a></li>
+                        <li class="nav-item"><a class="nav-link active" href="salidas-index.html"><i class="bi bi-clipboard-check"></i> Salidas</a></li>
+                    </ul>
+                </div>
             </div>
         </nav>
     </header>
 
     <div class="container-fluid mt-4">
+        <!-- Header con acciones a la derecha del botón Volver -->
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2><i class="bi bi-pencil"></i> Editar Salida (Borrador)</h2>
-            <a href="salidas-index.html" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Volver</a>
+            <div class="d-flex gap-2">
+                <a href="salidas-index.html" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Volver</a>
+                <button class="btn btn-outline-primary" type="button"><i class="bi bi-save"></i> Guardar Cambios</button>
+                <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#modalEnviarAprobacion">
+                    <i class="bi bi-send"></i> Guardar y Enviar a Aprobación
+                </button>
+            </div>
         </div>
 
         <div class="alert alert-info">
             <i class="bi bi-info-circle"></i> Esta salida está en estado <strong>"Borrador"</strong>. Puedes modificarla y enviarla a aprobación cuando esté lista.
         </div>
 
-        <div class="card mb-4">
-            <div class="card-header"><h5 class="mb-0"><i class="bi bi-info-circle"></i> Información General</h5></div>
-            <div class="card-body">
-                <div class="row g-3">
-                    <div class="col-md-3"><label class="form-label">Fecha</label><input type="date" class="form-control" value="2026-09-18" readonly></div>
-                    <div class="col-md-3"><label class="form-label">Departamento</label><input type="text" class="form-control" value="Sistemas" readonly></div>
-                    <div class="col-md-3"><label class="form-label">Retorno Esperado</label><input type="date" class="form-control" value="2026-10-15"></div>
-                    <div class="col-md-3 d-flex align-items-end">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="esDefinitiva">
-                            <label class="form-check-label" for="esDefinitiva">Salida Definitiva</label>
+        <!-- Layout 70% izquierda / 30% derecha -->
+        <div class="salida-form-grid">
+
+            <!-- ============================================= -->
+            <!-- COLUMNA IZQUIERDA (70%): Materiales          -->
+            <!-- ============================================= -->
+            <div class="col-left">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="bi bi-box"></i> Materiales</h5>
+                        <div>
+                            <button class="btn btn-sm btn-outline-primary" type="button"><i class="bi bi-plus-circle"></i> Agregar</button>
+                            <button class="btn btn-sm btn-outline-info" type="button"><i class="bi bi-file-earmark-arrow-up"></i> CSV</button>
+                            <button class="btn btn-sm btn-outline-secondary" type="button"><i class="bi bi-clipboard"></i> Plantilla</button>
                         </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table mb-0">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 50px;">NL</th>
+                                        <th style="width: 110px;">Cantidad</th>
+                                        <th style="width: 110px;">Unidad</th>
+                                        <th>Descripción</th>
+                                        <th style="width: 160px;">Comentario</th>
+                                        <th style="width: 50px;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbodyMateriales">
+                                    <tr class="material-row">
+                                        <td class="numero-linea">1</td>
+                                        <td><input type="number" class="form-control form-control-sm" value="2.00" step="0.01" min="0.01"></td>
+                                        <td>
+                                            <select class="form-select form-select-sm">
+                                                <option>PZS</option>
+                                                <option>KG</option>
+                                                <option>MTS</option>
+                                                <option>LTS</option>
+                                                <option>CJA</option>
+                                            </select>
+                                        </td>
+                                        <td><input type="text" class="form-control form-control-sm" value="Workcentre 7220"></td>
+                                        <td><input type="text" class="form-control form-control-sm" placeholder="Opcional"></td>
+                                        <td class="text-center">
+                                            <button class="btn btn-sm btn-outline-danger" type="button" onclick="this.closest('tr').remove()">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <small class="text-muted">Máximo 50 materiales. No se permiten descripciones duplicadas.</small>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="card mb-4">
-            <div class="card-header"><h5 class="mb-0"><i class="bi bi-box"></i> Materiales</h5></div>
-            <div class="card-body p-0">
-                <table class="table mb-0">
-                    <thead>
-                        <tr>
-                            <th>NL</th>
-                            <th>Cantidad</th>
-                            <th>Unidad</th>
-                            <th>Descripción</th>
-                            <th>Comentario</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td><input type="number" class="form-control form-control-sm" value="2.00"></td>
-                            <td><select class="form-select form-select-sm"><option>PZS</option></select></td>
-                            <td><input type="text" class="form-control form-control-sm" value="Workcentre 7220"></td>
-                            <td><input type="text" class="form-control form-control-sm"></td>
-                            <td><button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+            <!-- ============================================= -->
+            <!-- COLUMNA DERECHA (30%): Acordeón exclusivo -->
+            <!-- ============================================= -->
+            <div class="col-right" id="accordionSalida">
 
-        <div class="card">
-            <div class="card-body">
-                <div class="d-flex justify-content-end gap-2">
-                    <a href="salidas-index.html" class="btn btn-outline-secondary">Cancelar</a>
-                    <button class="btn btn-outline-primary"><i class="bi bi-save"></i> Guardar Cambios</button>
-                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalEnviarAprobacion">
-                        <i class="bi bi-send"></i> Guardar y Enviar a Aprobación
-                    </button>
+                <!-- Destinatario (abierto por defecto) -->
+                <div class="card card-collapsible" data-section="destinatario">
+                    <div class="card-header" data-bs-toggle="collapse" data-bs-target="#collapseDestinatario" data-bs-parent="#accordionSalida" role="button">
+                        <h5 class="mb-0"><i class="bi bi-building"></i> Destinatario</h5>
+                        <i class="bi bi-chevron-down toggle-icon"></i>
+                    </div>
+                    <div class="collapse show" id="collapseDestinatario">
+                        <div class="card-body-wrapper">
+                            <div class="card-body">
+                                <div class="row g-3">
+
+                                    <!-- Salida Definitiva (primero) -->
+                                    <div class="col-12">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="esDefinitiva">
+                                            <label class="form-check-label" for="esDefinitiva">Salida Definitiva</label>
+                                        </div>
+                                        <small class="text-muted d-block mt-1">Si no es definitiva, se espera el retorno del material.</small>
+                                    </div>
+
+                                    <!-- Retorno Esperado (condicional, oculto por defecto) -->
+                                    <div class="col-12 d-none" id="wrapperRetornoEsperado">
+                                        <label class="form-label">Retorno Esperado <span class="text-danger">*</span></label>
+                                        <input type="date" class="form-control" id="retornoEsperado" value="2026-10-15">
+                                        <small class="text-muted">Fecha en que se espera el retorno del material.</small>
+                                    </div>
+
+                                    <!-- Empresa -->
+                                    <div class="col-12">
+                                        <label class="form-label">Empresa <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="selectEmpresa" required>
+                                            <option value="">Seleccionar empresa...</option>
+                                            <option data-contacto="Juan Hernández" selected>XEROX, S.A. DE C.V. (Proveedor)</option>
+                                            <option data-contacto="María López">HEWLETT PACKARD (Proveedor)</option>
+                                            <option data-contacto="Carlos Ruiz">SWCORA FILIAL NORTE (Filial)</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Contacto -->
+                                    <div class="col-12">
+                                        <label class="form-label">Contacto <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="contactoInput" value="Juan Hernández" required>
+                                            <button type="button" class="btn btn-outline-danger" id="btnLimpiarContacto" title="Limpiar">
+                                                <i class="bi bi-x-circle"></i>
+                                            </button>
+                                        </div>
+                                        <small class="text-muted">Se carga automáticamente. Puede modificarlo.</small>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+
+                <!-- Descripción -->
+                <div class="card card-collapsible" data-section="descripcion">
+                    <div class="card-header" data-bs-toggle="collapse" data-bs-target="#collapseDescripcion" data-bs-parent="#accordionSalida" role="button">
+                        <h5 class="mb-0"><i class="bi bi-file-text"></i> Descripción</h5>
+                        <i class="bi bi-chevron-down toggle-icon"></i>
+                    </div>
+                    <div class="collapse" id="collapseDescripcion">
+                        <div class="card-body-wrapper">
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    <div class="col-12">
+                                        <label class="form-label">Descripción <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" value="Devolución a proveedor" required>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Causa / Motivo <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" value="Salidas de planta" required>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Categoría <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" value="Devolución de equipos a proveedor" required>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Comentarios <span class="text-danger">*</span></label>
+                                        <textarea class="form-control" rows="3" placeholder="Comentarios adicionales..." required>Equipos con falla de fábrica.</textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
 
-    <!-- Modal Enviar a Aprobación (idéntico al de crear) -->
+    <!-- Modal Enviar a Aprobación -->
     <div class="modal fade" id="modalEnviarAprobacion" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">

@@ -54,6 +54,12 @@
                             <button type="submit" class="btn btn-primary w-100 py-2">
                                 <i class="bi bi-box-arrow-in-right"></i> Iniciar Sesión
                             </button>
+
+                            <div class="text-center mt-3">
+                                <a href="#" id="linkRecuperarPassword" class="text-decoration-none small" style="color: var(--cora-accent);">
+                                    <i class="bi bi-question-circle"></i> ¿Olvidaste tu contraseña?
+                                </a>
+                            </div>
                         </form>
 
                         <hr class="my-4">
@@ -67,6 +73,51 @@
                 <p class="text-center text-muted mt-3">
                     &copy; 2026 SWCORA - Sistema Web de Control de Recursos y Activos
                 </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================= -->
+    <!-- MODAL: RECUPERAR CONTRASEÑA                     -->
+    <!-- ============================================= -->
+    <div class="modal fade" id="modalRecuperarPassword" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: var(--cora-accent); color: white;">
+                    <h5 class="modal-title"><i class="bi bi-key"></i> Recuperar Contraseña</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <i class="bi bi-shield-exclamation fs-1 mb-3" style="color: var(--cora-warning);"></i>
+                    <p class="mb-2"><strong>¿Realmente desea iniciar el proceso de recuperación de contraseña del Superusuario?</strong></p>
+                    <p class="text-muted small mb-0">
+                        Se enviará una contraseña temporal al correo electrónico registrado para el Superusuario.
+                    </p>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle"></i> No
+                    </button>
+                    <button type="button" class="btn btn-primary" id="btnConfirmarRecuperar">
+                        <i class="bi bi-check-circle"></i> Sí, enviar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================= -->
+    <!-- TOAST: CONFIRMACIÓN                             -->
+    <!-- ============================================= -->
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1090;">
+        <div id="toastRecuperarPassword" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header bg-success text-white">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                <strong class="me-auto">Correo enviado</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body">
+                <i class="bi bi-envelope-check"></i> La contraseña del Superusuario ha sido enviada al email registrado.
             </div>
         </div>
     </div>
