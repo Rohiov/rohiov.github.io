@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Roles - SWCORA</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="index.html"><i class="bi bi-lightning-charge-fill"></i> SWCORA</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item"><a class="nav-link" href="index.html"><i class="bi bi-house-door"></i> Inicio</a></li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="bi bi-box-seam"></i> Módulos</a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="salidas-index.html"><i class="bi bi-clipboard-check"></i> Salidas de Material</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle active" href="#" role="button" data-bs-toggle="dropdown"><i class="bi bi-gear"></i> Administración</a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="admin-dashboard.html"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+                                <li><a class="dropdown-item" href="admin-usuarios.html"><i class="bi bi-people"></i> Usuarios</a></li>
+                                <li><a class="dropdown-item" href="admin-roles.html"><i class="bi bi-shield-lock"></i> Roles</a></li>
+                                <li><a class="dropdown-item" href="admin-modulos.html"><i class="bi bi-box-seam"></i> Módulos</a></li>
+                                <li><a class="dropdown-item" href="admin-empresas.html"><i class="bi bi-building"></i> Empresas</a></li>
+                                <li><a class="dropdown-item" href="admin-tipos-empresa.html"><i class="bi bi-tags"></i> Tipos de Empresa</a></li>
+                                <li><a class="dropdown-item" href="admin-unidades.html"><i class="bi bi-rulers"></i> Unidades</a></li>
+                                <li><a class="dropdown-item" href="admin-departamentos.html"><i class="bi bi-diagram-3"></i> Departamentos</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="admin-logs.html"><i class="bi bi-journal-text"></i> Logs</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="bi bi-key"></i> Acceso a Módulos</a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="acceso-solicitar.html"><i class="bi bi-pencil-square"></i> Solicitar acceso</a></li>
+                                <li><a class="dropdown-item" href="acceso-mis-solicitudes.html"><i class="bi bi-list-check"></i> Mis solicitudes</a></li>
+                                <li><a class="dropdown-item" href="acceso-aprobar.html"><i class="bi bi-check2-circle"></i> Solicitudes pendientes</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link position-relative" href="notificaciones.html">
+                                <i class="bi bi-bell"></i>
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">3</span>
+                            </a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="bi bi-person-circle"></i> Juan Pérez</a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item text-danger" href="superadmin-login.html"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container-fluid mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="bi bi-shield-lock"></i> Gestión de Roles</h2>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalCrearRol">
+                <i class="bi bi-plus-circle"></i> Nuevo Rol
+            </button>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label">Tipo</label>
+                        <select class="form-select">
+                            <option>Todos</option>
+                            <option>Global</option>
+                            <option>Local</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Módulo</label>
+                        <select class="form-select">
+                            <option>Todos</option>
+                            <option>Salidas de Material</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Buscar</label>
+                        <input type="text" class="form-control" placeholder="Nombre del rol...">
+                    </div>
+                    <div class="col-md-3 d-flex align-items-end">
+                        <button class="btn btn-outline-primary w-100"><i class="bi bi-search"></i> Filtrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Tipo</th>
+                                <th>Módulo</th>
+                                <th>Código</th>
+                                <th>Nombre</th>
+                                <th>Nivel</th>
+                                <th>Puede Aprobar</th>
+                                <th>Origen</th>
+                                <th>Estado</th>
+                                <th class="text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="badge" style="background-color: var(--cora-accent);">🌐 Global</span></td>
+                                <td>—</td>
+                                <td><code>Superusuario</code></td>
+                                <td>Superusuario</td>
+                                <td>0</td>
+                                <td><span class="badge bg-secondary">No</span></td>
+                                <td><span class="badge bg-dark">Sistema</span></td>
+                                <td><span class="badge bg-success">Activo</span></td>
+                                <td class="text-center"><button class="btn btn-sm btn-outline-secondary" disabled><i class="bi bi-lock"></i></button></td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge" style="background-color: var(--cora-accent);">🌐 Global</span></td>
+                                <td>—</td>
+                                <td><code>Administrador</code></td>
+                                <td>Administrador</td>
+                                <td>1</td>
+                                <td><span class="badge bg-success">Sí</span></td>
+                                <td><span class="badge bg-dark">Sistema</span></td>
+                                <td><span class="badge bg-success">Activo</span></td>
+                                <td class="text-center"><button class="btn btn-sm btn-outline-secondary" disabled><i class="bi bi-lock"></i></button></td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge bg-info">📦 Local</span></td>
+                                <td>Salidas de Material</td>
+                                <td><code>Generador</code></td>
+                                <td>Generador de Salidas</td>
+                                <td>1</td>
+                                <td><span class="badge bg-secondary">No</span></td>
+                                <td><span class="badge bg-info">Precargado</span></td>
+                                <td><span class="badge bg-success">Activo</span></td>
+                                <td class="text-center">
+                                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalCrearRol"><i class="bi bi-pencil"></i></button>
+                                    <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-lock"></i></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge bg-info">📦 Local</span></td>
+                                <td>Salidas de Material</td>
+                                <td><code>Aprobador</code></td>
+                                <td>Aprobador de Salidas</td>
+                                <td>2</td>
+                                <td><span class="badge bg-success">Sí</span></td>
+                                <td><span class="badge bg-info">Precargado</span></td>
+                                <td><span class="badge bg-success">Activo</span></td>
+                                <td class="text-center">
+                                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalCrearRol"><i class="bi bi-pencil"></i></button>
+                                    <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-lock"></i></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge bg-info">📦 Local</span></td>
+                                <td>Salidas de Material</td>
+                                <td><code>Auditor</code></td>
+                                <td>Auditor de Salidas</td>
+                                <td>1</td>
+                                <td><span class="badge bg-secondary">No</span></td>
+                                <td><span class="badge bg-secondary">Personalizado</span></td>
+                                <td><span class="badge bg-success">Activo</span></td>
+                                <td class="text-center">
+                                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalCrearRol"><i class="bi bi-pencil"></i></button>
+                                    <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-lock"></i></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Crear/Editar Rol -->
+    <div class="modal fade" id="modalCrearRol" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: var(--cora-accent); color: white;">
+                    <h5 class="modal-title"><i class="bi bi-plus-circle"></i> Crear / Editar Rol</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <h6 class="border-bottom pb-2 mb-3">📌 Información Básica</h6>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label">Tipo de Rol</label>
+                            <div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="tipoRol" id="tipoGlobal">
+                                    <label class="form-check-label" for="tipoGlobal"><i class="bi bi-globe"></i> Global</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="tipoRol" id="tipoLocal" checked>
+                                    <label class="form-check-label" for="tipoLocal"><i class="bi bi-box"></i> Local</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Módulo</label>
+                            <select class="form-select">
+                                <option>Salidas de Material</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Código</label>
+                            <input type="text" class="form-control" placeholder="Ej: Auditor">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Nombre</label>
+                            <input type="text" class="form-control" placeholder="Ej: Auditor de Salidas">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Nivel</label>
+                            <input type="number" class="form-control" value="1">
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="puedeAprobar">
+                                <label class="form-check-label" for="puedeAprobar">Puede Aprobar</label>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Descripción</label>
+                            <textarea class="form-control" rows="2" placeholder="Descripción del rol..."></textarea>
+                        </div>
+                    </div>
+
+                    <h6 class="border-bottom pb-2 mb-3">🌳 Árbol de Permisos</h6>
+                    <div class="mb-2">
+                        <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrows-expand"></i> Expandir</button>
+                        <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrows-collapse"></i> Colapsar</button>
+                        <button class="btn btn-sm btn-outline-primary"><i class="bi bi-check-all"></i> Seleccionar todo</button>
+                        <button class="btn btn-sm btn-outline-danger"><i class="bi bi-x-circle"></i> Deseleccionar</button>
+                    </div>
+                    <div class="tree-container">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="nodo1">
+                            <label class="form-check-label fw-bold" for="nodo1"><i class="bi bi-globe"></i> SWCORA (Sistema)</label>
+                        </div>
+                        <ul>
+                            <li>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="nodo2">
+                                    <label class="form-check-label fw-bold" for="nodo2"><i class="bi bi-box-seam"></i> Módulos</label>
+                                </div>
+                                <ul>
+                                    <li>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="nodo10">
+                                            <label class="form-check-label fw-bold" for="nodo10"><i class="bi bi-clipboard-check"></i> Salidas de Material</label>
+                                        </div>
+                                        <ul>
+                                            <li><div class="form-check"><input class="form-check-input" type="checkbox" id="p100"><label class="form-check-label" for="p100">➕ Crear salida</label></div></li>
+                                            <li><div class="form-check"><input class="form-check-input" type="checkbox" id="p101"><label class="form-check-label" for="p101">✏️ Editar salida</label></div></li>
+                                            <li><div class="form-check"><input class="form-check-input" type="checkbox" id="p102" checked><label class="form-check-label" for="p102">👁️ Ver listado</label></div></li>
+                                            <li><div class="form-check"><input class="form-check-input" type="checkbox" id="p103" checked><label class="form-check-label" for="p103">👁️ Ver detalles</label></div></li>
+                                            <li><div class="form-check"><input class="form-check-input" type="checkbox" id="p104"><label class="form-check-label" for="p104">✅ Aprobar salida</label></div></li>
+                                            <li><div class="form-check"><input class="form-check-input" type="checkbox" id="p105"><label class="form-check-label" for="p105">❌ Rechazar salida</label></div></li>
+                                            <li><div class="form-check"><input class="form-check-input" type="checkbox" id="p106"><label class="form-check-label" for="p106">🚫 Cancelar salida</label></div></li>
+                                            <li><div class="form-check"><input class="form-check-input" type="checkbox" id="p107"><label class="form-check-label" for="p107">📄 Descargar PDF</label></div></li>
+                                            <li><div class="form-check"><input class="form-check-input" type="checkbox" id="p108"><label class="form-check-label" for="p108">📋 Clonar salida</label></div></li>
+                                            <li><div class="form-check"><input class="form-check-input" type="checkbox" id="p109"><label class="form-check-label" for="p109">🗑️ Eliminar borrador</label></div></li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="nodo3">
+                                    <label class="form-check-label fw-bold" for="nodo3"><i class="bi bi-key"></i> Acceso a Módulos</label>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="nodo4">
+                                    <label class="form-check-label fw-bold" for="nodo4"><i class="bi bi-gear"></i> Administración</label>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="nodo5">
+                                    <label class="form-check-label fw-bold" for="nodo5"><i class="bi bi-bell"></i> Notificaciones</label>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary"><i class="bi bi-save"></i> Guardar Rol</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container text-center">
+            &copy; 2026 SWCORA - Sistema Web de Control de Recursos y Activos | v1.0.0
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/scripts.js"></script>
+</body>
+</html>

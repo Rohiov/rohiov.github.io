@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Aprobar Solicitudes - SWCORA</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="index.html"><i class="bi bi-lightning-charge-fill"></i> SWCORA</a>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item"><a class="nav-link" href="index.html"><i class="bi bi-house-door"></i> Inicio</a></li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="bi bi-key"></i> Acceso a Módulos</a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="acceso-solicitar.html"><i class="bi bi-pencil-square"></i> Solicitar acceso</a></li>
+                                <li><a class="dropdown-item" href="acceso-mis-solicitudes.html"><i class="bi bi-list-check"></i> Mis solicitudes</a></li>
+                                <li><a class="dropdown-item" href="acceso-aprobar.html"><i class="bi bi-check2-circle"></i> Solicitudes pendientes</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="bi bi-person-circle"></i> María Gómez</a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item text-danger" href="superadmin-login.html"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container-fluid mt-4">
+        <h2 class="mb-4"><i class="bi bi-check2-circle"></i> Solicitudes de Acceso Pendientes</h2>
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-check-all"></i> Seleccionar Todas</button>
+                <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-x-circle"></i> Deseleccionar</button>
+            </div>
+            <div>
+                <button class="btn btn-success"><i class="bi bi-check-circle"></i> Aprobar Seleccionadas (0)</button>
+                <button class="btn btn-danger"><i class="bi bi-x-circle"></i> Rechazar Seleccionadas (0)</button>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <div class="card card-border-left-warning">
+                    <div class="card-header" style="background-color: #FBF4E6;">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="sol1">
+                            <label class="form-check-label fw-bold" for="sol1">Juan Pérez</label>
+                            <span class="badge bg-secondary float-end">Salidas de Material</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-1"><strong>Rol solicitado:</strong> Generador</p>
+                        <p class="mb-1"><strong>Motivo:</strong> Necesito crear solicitudes de salida.</p>
+                        <p class="text-muted small mb-3"><strong>Solicitado:</strong> 20/09/2026 10:30</p>
+                        <hr>
+                        <div class="row g-2">
+                            <div class="col-6"><button class="btn btn-success btn-sm w-100" data-bs-toggle="modal" data-bs-target="#modalAprobar"><i class="bi bi-check"></i> Aprobar</button></div>
+                            <div class="col-6"><button class="btn btn-danger btn-sm w-100" data-bs-toggle="modal" data-bs-target="#modalRechazar"><i class="bi bi-x"></i> Rechazar</button></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <div class="card card-border-left-warning">
+                    <div class="card-header" style="background-color: #FBF4E6;">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="sol2">
+                            <label class="form-check-label fw-bold" for="sol2">Carlos Ruiz</label>
+                            <span class="badge bg-secondary float-end">Salidas de Material</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-1"><strong>Rol solicitado:</strong> Generador</p>
+                        <p class="mb-1"><strong>Motivo:</strong> —</p>
+                        <p class="text-muted small mb-3"><strong>Solicitado:</strong> 19/09/2026 15:45</p>
+                        <hr>
+                        <div class="row g-2">
+                            <div class="col-6"><button class="btn btn-success btn-sm w-100" data-bs-toggle="modal" data-bs-target="#modalAprobar"><i class="bi bi-check"></i> Aprobar</button></div>
+                            <div class="col-6"><button class="btn btn-danger btn-sm w-100" data-bs-toggle="modal" data-bs-target="#modalRechazar"><i class="bi bi-x"></i> Rechazar</button></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Aprobar -->
+    <div class="modal fade" id="modalAprobar" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title"><i class="bi bi-check-circle"></i> Aprobar Solicitud</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Confirmas aprobar esta solicitud de acceso?</p>
+                    <div class="mb-3">
+                        <label class="form-label">Comentario (opcional)</label>
+                        <textarea class="form-control" rows="2" placeholder="Puedes agregar un comentario..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-success">Aprobar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Rechazar -->
+    <div class="modal fade" id="modalRechazar" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title"><i class="bi bi-x-circle"></i> Rechazar Solicitud</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Confirmas rechazar esta solicitud de acceso?</p>
+                    <div class="mb-3">
+                        <label class="form-label">Motivo del rechazo <span class="text-danger">*</span></label>
+                        <textarea class="form-control" rows="3" placeholder="Explica el motivo del rechazo..." required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger">Rechazar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container text-center">
+            &copy; 2026 SWCORA - Sistema Web de Control de Recursos y Activos | v1.0.0
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/scripts.js"></script>
+</body>
+</html>

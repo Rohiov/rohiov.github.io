@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Solicitar Acceso - SWCORA</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="index.html"><i class="bi bi-lightning-charge-fill"></i> SWCORA</a>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item"><a class="nav-link" href="index.html"><i class="bi bi-house-door"></i> Inicio</a></li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="bi bi-key"></i> Acceso a Módulos</a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="acceso-solicitar.html"><i class="bi bi-pencil-square"></i> Solicitar acceso</a></li>
+                                <li><a class="dropdown-item" href="acceso-mis-solicitudes.html"><i class="bi bi-list-check"></i> Mis solicitudes</a></li>
+                                <li><a class="dropdown-item" href="acceso-aprobar.html"><i class="bi bi-check2-circle"></i> Solicitudes pendientes</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="bi bi-person-circle"></i> Juan Pérez</a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item text-danger" href="superadmin-login.html"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container mt-4">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header" style="background-color: var(--cora-accent); color: white;">
+                        <h4 class="mb-0"><i class="bi bi-key"></i> Solicitar Acceso a Módulo</h4>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i> Completa el formulario para solicitar acceso a un módulo.
+                        </div>
+
+                        <div class="alert alert-warning">
+                            <i class="bi bi-exclamation-triangle"></i> <strong>Nota:</strong> Solo puedes solicitar el rol <strong>Generador</strong>. Los roles <em>Aprobador</em> y <em>Administrador</em> se asignan directamente por el Administrador.
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">📦 Módulo</label>
+                            <select class="form-select">
+                                <option>Seleccionar módulo...</option>
+                                <option>Salidas de Material</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">👤 Rol Solicitado</label>
+                            <select class="form-select" disabled>
+                                <option>Generador</option>
+                            </select>
+                            <small class="text-muted">El rol se asigna automáticamente según el módulo.</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">✅ Aprobador</label>
+                            <select class="form-select">
+                                <option>Seleccionar aprobador...</option>
+                                <option>María Gómez (Administrador)</option>
+                                <option>Pedro López (Administrador)</option>
+                            </select>
+                            <small class="text-muted">Selecciona a quién le solicitas el acceso.</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">📝 Motivo (opcional)</label>
+                            <textarea class="form-control" rows="3" placeholder="Explica brevemente por qué necesitas este acceso..."></textarea>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="index.html" class="btn btn-outline-secondary">Cancelar</a>
+                            <button class="btn btn-primary"><i class="bi bi-send"></i> Enviar Solicitud</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container text-center">
+            &copy; 2026 SWCORA - Sistema Web de Control de Recursos y Activos | v1.0.0
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/scripts.js"></script>
+</body>
+</html>
