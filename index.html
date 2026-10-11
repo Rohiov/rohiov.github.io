@@ -42,8 +42,23 @@
                                 <li><a class="dropdown-item" href="admin-usuarios.html"><i class="bi bi-people"></i> Usuarios</a></li>
                                 <li><a class="dropdown-item" href="admin-roles.html"><i class="bi bi-shield-lock"></i> Roles</a></li>
                                 <li><a class="dropdown-item" href="admin-modulos.html"><i class="bi bi-box-seam"></i> Módulos</a></li>
-                                <li><a class="dropdown-item" href="admin-empresas.html"><i class="bi bi-building"></i> Empresas</a></li>
-                                <li><a class="dropdown-item" href="admin-tipos-empresa.html"><i class="bi bi-tags"></i> Tipos de Empresa</a></li>
+                                <li class="dropdown-submenu">
+                                    <a class="dropdown-item dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                        <i class="bi bi-building"></i> Empresas
+                                    </a>
+                                    <ul class="dropdown-menu">
+                                        <li>
+                                            <a class="dropdown-item" href="admin-empresas.html">
+                                                <i class="bi bi-building"></i> Empresas
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="admin-tipos-empresa.html">
+                                                <i class="bi bi-tags"></i> Tipos de empresa
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>   
                                 <li><a class="dropdown-item" href="admin-unidades.html"><i class="bi bi-rulers"></i> Unidades</a></li>
                                 <li><a class="dropdown-item" href="admin-departamentos.html"><i class="bi bi-diagram-3"></i> Departamentos</a></li>
                                 <li><hr class="dropdown-divider"></li>
@@ -86,19 +101,13 @@
     </header>
 
     <div class="container mt-5">
-        <div class="text-center mb-5">
-            <h1 class="display-3 fw-bold" style="color: var(--cora-dark);">
-                <i class="bi bi-lightning-charge-fill" style="color: var(--cora-accent);"></i> SWCORA
-            </h1>
-            <p class="lead" style="color: var(--cora-gray);">Sistema Web de Control de Recursos y Activos</p>
-        </div>
 
         <div class="alert alert-info mb-4">
             <div class="d-flex align-items-center">
                 <i class="bi bi-info-circle-fill fs-1 me-3"></i>
                 <div>
                     <h5 class="mb-1">Bienvenido, Juan Pérez</h5>
-                    <p class="mb-0">Tienes acceso a 1 módulo. Tu último acceso fue el 20/09/2026 a las 10:30.</p>
+                    <p class="mb-0">Último acceso fue el 20/09/2026 a las 10:30.</p>
                 </div>
             </div>
         </div>

@@ -16,6 +16,25 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    const submenus = document.querySelectorAll('.dropdown-submenu > .dropdown-item');
+        submenus.forEach(function (el) {
+            el.addEventListener('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const submenu = this.nextElementSibling;
+
+                // Cerrar otros submenús abiertos al mismo nivel
+                document.querySelectorAll('.dropdown-submenu > .dropdown-menu.show').forEach(function (open) {
+                    if (open !== submenu) open.classList.remove('show');
+                });
+
+                submenu.classList.toggle('show');
+            });
+        });
+
+
+
     // Toggle mostrar/ocultar contraseña
     const btnTogglePassword = document.getElementById('btnTogglePassword');
     if (btnTogglePassword) {

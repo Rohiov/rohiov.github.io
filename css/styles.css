@@ -775,3 +775,48 @@ body > main {
         min-height: auto;
     }
 }
+
+/* Submenús anidados en el navbar */
+.dropdown-submenu {
+    position: relative;
+}
+
+.dropdown-submenu > .dropdown-menu {
+    top: 0;
+    left: 100%;
+    margin-top: -0.5rem;
+    margin-left: 0.1rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(31, 35, 40, 0.12);
+}
+
+/* Mostrar al pasar el mouse (desktop) */
+.dropdown-submenu:hover > .dropdown-menu {
+    display: block;
+}
+
+/* Flecha hacia la derecha */
+.dropdown-submenu > .dropdown-item::after {
+    content: "\F285"; /* chevron-right de Bootstrap Icons */
+    font-family: "bootstrap-icons";
+    position: absolute;
+    right: 1rem;
+    font-size: 0.75rem;
+    color: var(--cora-gray);
+}
+
+/* Quitar la flecha por defecto de Bootstrap en el item padre */
+.dropdown-submenu > .dropdown-item.dropdown-toggle::after {
+    display: none;
+}
+
+/* En móvil, que se muestre como un submenú indentado */
+@media (max-width: 576px) {
+    .dropdown-submenu > .dropdown-menu {
+        position: static;
+        margin-left: 1rem;
+        border: none;
+        box-shadow: none;
+        background-color: transparent;
+    }
+}
