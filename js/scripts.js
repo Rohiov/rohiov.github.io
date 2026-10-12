@@ -389,9 +389,10 @@ document.addEventListener('DOMContentLoaded', function () {
             const cantidadNumerica = parseFloat(cantidad);
             const cantidadDistintaDeUno = !isNaN(cantidadNumerica) && cantidadNumerica !== 1;
 
-            const confirmar = confirm('¿Deseas eliminar esta fila y su contenido?');
-            if (!confirmar) return;
-
+            if (cantidadDistintaDeUno || descripcion !== '' || comentario !== '') {
+                const confirmar = confirm('¿Deseas eliminar esta fila y su contenido?');
+                
+            }
 
             fila.remove();
             renumerarFilas();
