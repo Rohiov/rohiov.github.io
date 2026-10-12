@@ -677,6 +677,7 @@ code {
 
 .tree-container li {
     padding: 0.15rem 0;
+    list-style: none;
 }
 
 /* Resaltar fila seleccionada */
@@ -821,16 +822,68 @@ body > main {
     }
 }
 
-/* Árbol de permisos: plegado/desplegado */
+/* =============================================
+   Árbol de permisos: plegado individual
+   ============================================= */
+
+/* Ocultar subárboles colapsados */
 #arbolPermisos ul.nodo-colapsado {
     display: none;
 }
 
-#arbolPermisos li > .form-check {
-    position: relative;
+/* Flecha clickeable al lado del checkbox */
+#arbolPermisos .toggle-nodo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.25rem;
+    height: 1.25rem;
+    margin-right: 0.35rem;
+    cursor: pointer;
+    color: var(--cora-gray);
+    font-size: 0.7rem;
+    vertical-align: middle;
+    user-select: none;
+    transition: color 0.15s ease;
 }
 
-/* Cursor de "clickeable" en los labels de nodos padre */
-#arbolPermisos li:has(> ul) > .form-check > .form-check-label {
+#arbolPermisos .toggle-nodo:hover {
+    color: var(--cora-accent);
+}
+
+#arbolPermisos .toggle-nodo i {
+    transition: transform 0.2s ease;
+}
+
+/* Cuando está colapsado, la flecha apunta a la derecha (0°) */
+#arbolPermisos .toggle-nodo.colapsado i {
+    transform: rotate(0deg);
+}
+
+/* Cuando está expandido, la flecha apunta hacia abajo (90°) */
+#arbolPermisos .toggle-nodo:not(.colapsado) i {
+    transform: rotate(90deg);
+}
+
+/* Placeholder para alinear nodos hoja con los padres */
+#arbolPermisos .toggle-nodo.placeholder {
+    cursor: default;
+    pointer-events: none;
+    visibility: hidden;
+}
+
+/* El form-check debe quedar en la misma línea que la flecha */
+#arbolPermisos li > .form-check {
+    display: inline-flex;
+    align-items: center;
+    vertical-align: middle;
+}
+
+#arbolPermisos li > .form-check .form-check-input {
+    margin-top: 0;
+    margin-right: 0.4rem;
+}
+
+#arbolPermisos li > .form-check .form-check-label {
     cursor: pointer;
 }

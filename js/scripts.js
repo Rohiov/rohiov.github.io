@@ -136,7 +136,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // =============================================
     // Acordeón exclusivo: gestionado por Bootstrap
-    // Sincroniza la clase .collapsed del card para el chevron
     // =============================================
     document.querySelectorAll('.card-collapsible .collapse').forEach(function (collapseEl) {
         const card = collapseEl.closest('.card-collapsible');
@@ -333,11 +332,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-            // Clonar la primera fila como plantilla
             const plantilla = filas[0];
             const nuevaFila = plantilla.cloneNode(true);
 
-            // Limpiar valores de la nueva fila
             nuevaFila.querySelector('.input-cantidad').value = '1.00';
             nuevaFila.querySelector('.input-unidad').selectedIndex = 0;
             nuevaFila.querySelector('.input-descripcion').value = '';
@@ -348,10 +345,7 @@ document.addEventListener('DOMContentLoaded', function () {
             renumerarFilas();
             actualizarContadorYEstado();
 
-            // Foco automático en la descripción de la nueva fila
             nuevaFila.querySelector('.input-descripcion').focus();
-
-            // Scroll suave hacia la nueva fila
             nuevaFila.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         });
 
@@ -378,12 +372,10 @@ document.addEventListener('DOMContentLoaded', function () {
             const valor = e.target.value.trim().toLowerCase();
             const inputs = tbodyMateriales.querySelectorAll('.input-descripcion');
 
-            // Resetear estilos
             inputs.forEach(i => i.classList.remove('is-invalid'));
 
             if (!valor) return;
 
-            // Marcar duplicados
             let duplicados = 0;
             inputs.forEach(function (input) {
                 if (input.value.trim().toLowerCase() === valor) {
@@ -417,73 +409,106 @@ document.addEventListener('DOMContentLoaded', function () {
             btnAgregarMaterial.disabled = total >= MAX_MATERIALES;
         }
 
-        // Inicializar contador
         actualizarContadorYEstado();
     }
 
     // =============================================
-// Árbol de permisos: Expandir / Colapsar / Todo / Nada
-// =============================================
-const arbolPermisos = document.getElementById('arbolPermisos');
+    // Árbol de permisos: plegado individual + acciones globales
+    // =============================================
+    const arbolPermisos = document.getElementById('arbolPermisos');
 
-if (arbolPermisos) {
-    const btnExpandirArbol = document.getElementById('btnExpandirArbol');
-    const btnColapsarArbol = document.getElementById('btnColapsarArbol');
-    const btnSeleccionarTodo = document.getElementById('btnSeleccionarTodo');
-    const btnDeseleccionarTodo = document.getElementById('btnDeseleccionarTodo');
+    if (arbolPermisos) {
+        const btnExpandirArbol = document.getElementById('btnExpandirArbol');
+        const btnColapsarArbol = document.getElementById('btnColapsarArbol');
+        const btnSeleccionarTodo = document.getElementById('btnSeleccionarTodo');
+        const btnDeseleccionarTodo = document.getElementById('btnDeseleccionarTodo');
 
-    // ---------- Expandir todo ----------
-    if (btnExpandirArbol) {
-        btnExpandirArbol.addEventListener('click', function () {
-            arbolPermisos.querySelectorAll('ul.nodo-colapsado').forEach(function (ul) {
-                ul.classList.remove('nodo-colapsado');
-            });
-        });
-    }
+        // ---------- 1. Insertar flechas de plegado en cada <li> padre ----------
+        arbolPermisos.querySelectorAll('li').forEach(function (li) {
+            const subUl = li.querySelector(':scope > ul');
+            const formCheck = li.querySelector(':scope > .form-check');
 
-    // ---------- Colapsar todo ----------
-    if (btnColapsarArbol) {
-        btnColapsarArbol.addEventListener('click', function () {
-            // Solo colapsamos los UL anidados, no el UL raíz
-            arbolPermisos.querySelectorAll('ul ul').forEach(function (ul) {
-                ul.classList.add('nodo-colapsado');
-            });
-        });
-    }
+            if (!formCheck) return;
 
-    // ---------- Seleccionar todo ----------
-    if (btnSeleccionarTodo) {
-        btnSeleccionarTodo.addEventListener('click', function () {
-            arbolPermisos.querySelectorAll('input[type="checkbox"]').forEach(function (cb) {
-                cb.checked = true;
-                cb.indeterminate = false;
-            });
-        });
-    }
+            // Evitar duplicar si el script corre dos veces
+            if (li.querySelector(':scope > .toggle-nodo')) return;
 
-    // ---------- Deseleccionar todo ----------
-    if (btnDeseleccionarTodo) {
-        btnDeseleccionarTodo.addEventListener('click', function () {
-            arbolPermisos.querySelectorAll('input[type="checkbox"]').forEach(function (cb) {
-                cb.checked = false;
-                cb.indeterminate = false;
-            });
-        });
-    }
+            const toggle = document.createElement('span');
+            toggle.className = 'toggle-nodo' + (subUl ? '' : ' placeholder');
+            toggle.setAttribute('role', 'button');
 
-    // ---------- Plegado por clic en el label del padre ----------
-    arbolPermisos.querySelectorAll('li:has(> ul) > .form-check > .form-check-label').forEach(function (label) {
-        label.addEventListener('click', function (e) {
-            // No interferir con el clic normal del checkbox
-            if (e.target.tagName === 'INPUT') return;
-
-            const li = label.closest('li');
-            const subUl = li ? li.querySelector(':scope > ul') : null;
             if (subUl) {
-                subUl.classList.toggle('nodo-colapsado');
+                toggle.innerHTML = '<i class="bi bi-caret-right-fill"></i>';
+                toggle.setAttribute('aria-label', 'Expandir o colapsar');
+            } else {
+                toggle.setAttribute('aria-hidden', 'true');
+            }
+
+            li.insertBefore(toggle, formCheck);
+
+            // Si tiene hijos, arrancar colapsado
+            if (subUl) {
+                subUl.classList.add('nodo-colapsado');
+                toggle.classList.add('colapsado');
             }
         });
-    });
-}
+
+        // ---------- 2. Plegado individual al hacer clic en la flecha ----------
+        arbolPermisos.addEventListener('click', function (e) {
+            const toggle = e.target.closest('.toggle-nodo');
+            if (!toggle || toggle.classList.contains('placeholder')) return;
+
+            const li = toggle.closest('li');
+            const subUl = li ? li.querySelector(':scope > ul') : null;
+            if (!subUl) return;
+
+            subUl.classList.toggle('nodo-colapsado');
+            toggle.classList.toggle('colapsado');
+        });
+
+        // ---------- 3. Expandir todo ----------
+        if (btnExpandirArbol) {
+            btnExpandirArbol.addEventListener('click', function () {
+                arbolPermisos.querySelectorAll('ul.nodo-colapsado').forEach(function (ul) {
+                    ul.classList.remove('nodo-colapsado');
+                });
+                arbolPermisos.querySelectorAll('.toggle-nodo.colapsado').forEach(function (t) {
+                    t.classList.remove('colapsado');
+                });
+            });
+        }
+
+        // ---------- 4. Colapsar todo ----------
+        if (btnColapsarArbol) {
+            btnColapsarArbol.addEventListener('click', function () {
+                arbolPermisos.querySelectorAll('ul ul').forEach(function (ul) {
+                    ul.classList.add('nodo-colapsado');
+                });
+                arbolPermisos.querySelectorAll('.toggle-nodo').forEach(function (t) {
+                    if (!t.classList.contains('placeholder')) t.classList.add('colapsado');
+                });
+            });
+        }
+
+        // ---------- 5. Seleccionar todo ----------
+        if (btnSeleccionarTodo) {
+            btnSeleccionarTodo.addEventListener('click', function () {
+                arbolPermisos.querySelectorAll('input[type="checkbox"]').forEach(function (cb) {
+                    cb.checked = true;
+                    cb.indeterminate = false;
+                });
+            });
+        }
+
+        // ---------- 6. Deseleccionar todo ----------
+        if (btnDeseleccionarTodo) {
+            btnDeseleccionarTodo.addEventListener('click', function () {
+                arbolPermisos.querySelectorAll('input[type="checkbox"]').forEach(function (cb) {
+                    cb.checked = false;
+                    cb.indeterminate = false;
+                });
+            });
+        }
+    }
 
 });
