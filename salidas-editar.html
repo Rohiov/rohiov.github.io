@@ -24,14 +24,13 @@
     </header>
 
     <div class="container-fluid mt-4">
-        <!-- Header con acciones -->
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2><i class="bi bi-pencil"></i> Editar Salida (Borrador)</h2>
             <div class="d-flex gap-2">
                 <a href="salidas-index.html" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Volver</a>
-                <button class="btn btn-outline-primary" type="button"><i class="bi bi-save"></i> Guardar Cambios</button>
-                <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#modalEnviarAprobacion">
-                    <i class="bi bi-send"></i> Guardar y Enviar a Aprobación
+                <button class="btn btn-outline-info" type="button"><i class="bi bi-save"></i> Guardar Cambios</button>
+                <button class="btn btn-success" type="button" data-bs-toggle="modal" data-bs-target="#modalEnviarAprobacion">
+                    <i class="bi bi-send"></i> Enviar a Aprobación
                 </button>
             </div>
         </div>
@@ -40,22 +39,22 @@
             <i class="bi bi-info-circle"></i> Esta salida está en estado <strong>"Borrador"</strong>. Puedes modificarla y enviarla a aprobación cuando esté lista.
         </div>
 
-        <!-- Layout 70% / 30% -->
         <div class="salida-form-grid">
 
-            <!-- ============================================= -->
-            <!-- COLUMNA IZQUIERDA (70%): Materiales          -->
-            <!-- ============================================= -->
             <div class="col-left">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="mb-0"><i class="bi bi-box"></i> Materiales</h5>
                         <div>
-                            <button class="btn btn-sm btn-outline-primary" type="button" id="btnAgregarMaterial">
-                                <i class="bi bi-plus-circle"></i> Agregar
+                            <button class="btn btn-sm btn-outline-secondary" type="button" id="btnPlantillas">
+                                <i class="bi bi-clipboard"></i> Plantillas
                             </button>
-                            <button class="btn btn-sm btn-outline-info" type="button"><i class="bi bi-file-earmark-arrow-up"></i> CSV</button>
-                            <button class="btn btn-sm btn-outline-secondary" type="button"><i class="bi bi-clipboard"></i> Plantilla</button>
+                            <button class="btn btn-sm btn-outline-info" type="button">
+                                <i class="bi bi-file-earmark-arrow-up"></i> Importar Lista CSV
+                            </button>
+                            <button class="btn btn-sm btn-outline-success" type="button" id="btnAgregarMaterial">
+                                <i class="bi bi-plus-circle"></i> Agregar Línea
+                            </button>
                         </div>
                     </div>
                     <div class="card-body p-0">
@@ -63,7 +62,7 @@
                             <table class="table mb-0">
                                 <thead>
                                     <tr>
-                                        <th style="width: 50px;">NL</th>
+                                        <th style="width: 50px;">Línea</th>
                                         <th style="width: 110px;">Cantidad</th>
                                         <th style="width: 110px;">Unidad</th>
                                         <th>Descripción</th>
@@ -103,12 +102,8 @@
                 </div>
             </div>
 
-            <!-- ============================================= -->
-            <!-- COLUMNA DERECHA (30%): Acordeón exclusivo     -->
-            <!-- ============================================= -->
             <div class="col-right" id="accordionSalida">
 
-                <!-- Destinatario (abierto por defecto) -->
                 <div class="card card-collapsible" data-section="destinatario">
                     <div class="card-header" data-bs-toggle="collapse" data-bs-target="#collapseDestinatario" role="button">
                         <h5 class="mb-0"><i class="bi bi-building"></i> Destinatario</h5>
@@ -119,7 +114,6 @@
                             <div class="card-body">
                                 <div class="row g-3">
 
-                                    <!-- Salida Definitiva -->
                                     <div class="col-12">
                                         <div class="form-check">
                                             <input class="form-check-input" type="checkbox" id="esDefinitiva">
@@ -128,14 +122,12 @@
                                         <small class="text-muted d-block mt-1">Si no es definitiva, se espera el retorno del material.</small>
                                     </div>
 
-                                    <!-- Retorno Esperado (condicional) -->
                                     <div class="col-12 d-none" id="wrapperRetornoEsperado">
                                         <label class="form-label">Retorno Esperado <span class="text-danger">*</span></label>
                                         <input type="date" class="form-control" id="retornoEsperado" value="2026-10-15">
                                         <small class="text-muted">Fecha en que se espera el retorno del material.</small>
                                     </div>
 
-                                    <!-- Empresa -->
                                     <div class="col-12">
                                         <label class="form-label">Empresa <span class="text-danger">*</span></label>
                                         <select class="form-select" id="selectEmpresa" required>
@@ -146,7 +138,6 @@
                                         </select>
                                     </div>
 
-                                    <!-- Contacto -->
                                     <div class="col-12">
                                         <label class="form-label">Contacto <span class="text-danger">*</span></label>
                                         <div class="input-group">
@@ -164,7 +155,6 @@
                     </div>
                 </div>
 
-                <!-- Descripción -->
                 <div class="card card-collapsible" data-section="descripcion">
                     <div class="card-header" data-bs-toggle="collapse" data-bs-target="#collapseDescripcion" role="button">
                         <h5 class="mb-0"><i class="bi bi-file-text"></i> Descripción</h5>
@@ -200,11 +190,101 @@
         </div>
     </div>
 
+    <!-- MODAL: Plantillas (idéntico a salidas-crear.html) -->
+    <div class="modal fade" id="modalPlantillas" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: var(--cora-success); color: white;">
+                    <h5 class="modal-title"><i class="bi bi-clipboard"></i> Plantillas de Materiales</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <ul class="nav nav-pills mb-3" id="tabsPlantillas" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="tabAplicar-btn" data-bs-toggle="pill" data-bs-target="#tabAplicar" type="button" role="tab">
+                                <i class="bi bi-download"></i> Aplicar Plantilla
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="tabCrear-btn" data-bs-toggle="pill" data-bs-target="#tabCrear" type="button" role="tab">
+                                <i class="bi bi-plus-circle"></i> Crear Plantilla
+                            </button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active" id="tabAplicar" role="tabpanel">
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle"></i> Selecciona una plantilla para reemplazar los materiales actuales.
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Nombre</th>
+                                            <th style="width: 100px;">Líneas</th>
+                                            <th style="width: 200px;">Última modificación</th>
+                                            <th style="width: 200px;" class="text-center">Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbodyPlantillas"></tbody>
+                                </table>
+                            </div>
+                            <div class="text-muted small mt-2">
+                                <i class="bi bi-info-circle"></i> Las plantillas se guardan localmente (en este mockup). En producción se almacenarían en el backend.
+                            </div>
+                        </div>
+
+                        <div class="tab-pane fade" id="tabCrear" role="tabpanel">
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle"></i> Guarda los materiales actuales como una nueva plantilla reutilizable.
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Nombre de la plantilla <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="inputNombrePlantilla" placeholder="Ej: Devolución de equipos Xerox" maxlength="60">
+                                <small class="text-muted">Máximo 60 caracteres.</small>
+                                <div class="invalid-feedback">
+                                    Debes escribir un nombre.
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Descripción (opcional)</label>
+                                <textarea class="form-control" id="inputDescripcionPlantilla" rows="2" placeholder="Breve descripción de la plantilla..." maxlength="200"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Resumen de materiales a guardar</label>
+                                <div class="border rounded p-3" style="background-color: var(--cora-bg);">
+                                    <div class="d-flex justify-content-between">
+                                        <span>Total de líneas:</span>
+                                        <strong id="resumenLineasPlantilla">0</strong>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <span>Líneas con descripción:</span>
+                                        <strong id="resumenLineasConDesc">0</strong>
+                                    </div>
+                                </div>
+                                <small class="text-muted d-block mt-2">
+                                    <i class="bi bi-exclamation-triangle text-warning"></i> Solo se guardarán las líneas con descripción no vacía.
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-success" id="btnGuardarPlantilla" style="display: none;">
+                        <i class="bi bi-save"></i> Guardar Plantilla
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal Enviar a Aprobación -->
     <div class="modal fade" id="modalEnviarAprobacion" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header" style="background-color: var(--cora-accent); color: white;">
+                <div class="modal-header" style="background-color: var(--cora-success); color: white;">
                     <h5 class="modal-title"><i class="bi bi-send"></i> Enviar a Aprobación</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
@@ -223,10 +303,22 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary"><i class="bi bi-send"></i> Confirmar Envío</button>
+                    <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-success"><i class="bi bi-send"></i> Confirmar Envío</button>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Toast genérico -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="toastGenerico" class="toast" role="alert" data-bs-delay="3500">
+            <div class="toast-header" id="toastGenericoHeader">
+                <i class="bi bi-info-circle me-2" id="toastGenericoIcono"></i>
+                <strong class="me-auto" id="toastGenericoTitulo">Aviso</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body" id="toastGenericoMensaje">—</div>
         </div>
     </div>
 

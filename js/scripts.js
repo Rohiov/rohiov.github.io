@@ -335,7 +335,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const plantilla = filas[0];
             const nuevaFila = plantilla.cloneNode(true);
 
-            nuevaFila.querySelector('.input-cantidad').value = '1.00';
+            nuevaFila.querySelector('.input-cantidad').value = '1';
             nuevaFila.querySelector('.input-unidad').selectedIndex = 0;
             nuevaFila.querySelector('.input-descripcion').value = '';
             nuevaFila.querySelector('.input-comentario').value = '';
@@ -349,18 +349,32 @@ document.addEventListener('DOMContentLoaded', function () {
             nuevaFila.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         });
 
-        // ---------- Eliminar fila (delegación) ----------
+        // ---------- Eliminar fila (delegación) con validación ----------
         tbodyMateriales.addEventListener('click', function (e) {
             const btn = e.target.closest('.btn-eliminar-material');
             if (!btn) return;
 
+            const fila = btn.closest('tr');
             const filas = tbodyMateriales.querySelectorAll('.material-row');
+
             if (filas.length === 1) {
                 alert('Debe haber al menos un material.');
                 return;
             }
 
-            btn.closest('tr').remove();
+            const cantidad = fila.querySelector('.input-cantidad').value.trim();
+            const descripcion = fila.querySelector('.input-descripcion').value.trim();
+            const comentario = fila.querySelector('.input-comentario').value.trim();
+
+            const cantidadNumerica = parseFloat(cantidad);
+            const cantidadDistintaDeUno = !isNaN(cantidadNumerica) && cantidadNumerica !== 1;
+
+            if (cantidadDistintaDeUno || descripcion !== '' || comentario !== '') {
+                alert('Primero elimine el contenido del campo.');
+                return;
+            }
+
+            fila.remove();
             renumerarFilas();
             actualizarContadorYEstado();
         });
@@ -410,6 +424,13 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         actualizarContadorYEstado();
+
+        // Exponer para que el módulo de plantillas pueda reusar
+        window.SWCORA_materiales = {
+            tbody: tbodyMateriales,
+            renumerar: renumerarFilas,
+            actualizarContador: actualizarContadorYEstado
+        };
     }
 
     // =============================================
@@ -430,7 +451,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if (!formCheck) return;
 
-            // Evitar duplicar si el script corre dos veces
             if (li.querySelector(':scope > .toggle-nodo')) return;
 
             const toggle = document.createElement('span');
@@ -446,7 +466,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
             li.insertBefore(toggle, formCheck);
 
-            // Si tiene hijos, arrancar colapsado
             if (subUl) {
                 subUl.classList.add('nodo-colapsado');
                 toggle.classList.add('colapsado');
@@ -511,4 +530,571 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    // =============================================
+    // APROBAR SOLICITUDES: filtros + selección múltiple + CSV
+    // =============================================
+    const tbodySolicitudes = document.getElementById('tbodySolicitudes');
+
+    if (tbodySolicitudes) {
+        const filtroEstado = document.getElementById('filtroEstado');
+        const filtroModulo = document.getElementById('filtroModulo');
+        const filtroBuscar = document.getElementById('filtroBuscar');
+        const btnFiltrar = document.getElementById('btnFiltrar');
+        const btnLimpiarFiltros = document.getElementById('btnLimpiarFiltros');
+
+        const btnSeleccionarTodas = document.getElementById('btnSeleccionarTodas');
+        const btnDeseleccionarTodas = document.getElementById('btnDeseleccionarTodas');
+        const checkTodos = document.getElementById('checkTodos');
+
+        const btnAprobarSeleccionadas = document.getElementById('btnAprobarSeleccionadas');
+        const btnRechazarSeleccionadas = document.getElementById('btnRechazarSeleccionadas');
+        const contadorAprobar = document.getElementById('contadorAprobar');
+        const contadorRechazar = document.getElementById('contadorRechazar');
+
+        const contadorResultados = document.getElementById('contadorResultados');
+        const contadorMostrados = document.getElementById('contadorMostrados');
+
+        const btnExportarCSV = document.getElementById('btnExportarCSV');
+
+        const filas = tbodySolicitudes.querySelectorAll('.solicitud-row');
+
+        function aplicarFiltros() {
+            const estado = filtroEstado.value;
+            const modulo = filtroModulo.value;
+            const buscar = filtroBuscar.value.trim().toLowerCase();
+
+            let visibles = 0;
+
+            filas.forEach(function (fila) {
+                const filaEstado = fila.getAttribute('data-estado');
+                const filaModulo = fila.getAttribute('data-modulo');
+                const filaUsuario = (fila.getAttribute('data-usuario') || '').toLowerCase();
+
+                const coincideEstado = (estado === 'todas') || (filaEstado === estado);
+                const coincideModulo = (modulo === 'todos') || (filaModulo === modulo);
+                const coincideBuscar = !buscar || filaUsuario.includes(buscar);
+
+                if (coincideEstado && coincideModulo && coincideBuscar) {
+                    fila.classList.remove('d-none');
+                    visibles++;
+                } else {
+                    fila.classList.add('d-none');
+                    const check = fila.querySelector('.check-solicitud');
+                    if (check && !check.disabled) check.checked = false;
+                }
+            });
+
+            if (contadorResultados) contadorResultados.textContent = visibles;
+            if (contadorMostrados) contadorMostrados.textContent = visibles;
+
+            actualizarContadoresSeleccion();
+            actualizarCheckTodos();
+        }
+
+        function actualizarContadoresSeleccion() {
+            const seleccionadas = tbodySolicitudes.querySelectorAll('.check-solicitud:checked:not(:disabled)').length;
+
+            if (contadorAprobar) contadorAprobar.textContent = seleccionadas;
+            if (contadorRechazar) contadorRechazar.textContent = seleccionadas;
+
+            if (btnAprobarSeleccionadas) btnAprobarSeleccionadas.disabled = seleccionadas === 0;
+            if (btnRechazarSeleccionadas) btnRechazarSeleccionadas.disabled = seleccionadas === 0;
+        }
+
+        function actualizarCheckTodos() {
+            if (!checkTodos) return;
+
+            const visiblesSeleccionables = Array.from(
+                tbodySolicitudes.querySelectorAll('.solicitud-row:not(.d-none) .check-solicitud:not(:disabled)')
+            );
+
+            if (visiblesSeleccionables.length === 0) {
+                checkTodos.checked = false;
+                checkTodos.indeterminate = false;
+                return;
+            }
+
+            const marcados = visiblesSeleccionables.filter(c => c.checked).length;
+
+            if (marcados === 0) {
+                checkTodos.checked = false;
+                checkTodos.indeterminate = false;
+            } else if (marcados === visiblesSeleccionables.length) {
+                checkTodos.checked = true;
+                checkTodos.indeterminate = false;
+            } else {
+                checkTodos.checked = false;
+                checkTodos.indeterminate = true;
+            }
+        }
+
+        if (btnFiltrar) btnFiltrar.addEventListener('click', aplicarFiltros);
+        if (filtroEstado) filtroEstado.addEventListener('change', aplicarFiltros);
+        if (filtroModulo) filtroModulo.addEventListener('change', aplicarFiltros);
+        if (filtroBuscar) filtroBuscar.addEventListener('input', aplicarFiltros);
+
+        if (btnLimpiarFiltros) {
+            btnLimpiarFiltros.addEventListener('click', function () {
+                filtroEstado.value = 'pendiente';
+                filtroModulo.value = 'todos';
+                filtroBuscar.value = '';
+                aplicarFiltros();
+            });
+        }
+
+        tbodySolicitudes.addEventListener('change', function (e) {
+            if (!e.target.classList.contains('check-solicitud')) return;
+            actualizarContadoresSeleccion();
+            actualizarCheckTodos();
+        });
+
+        if (btnSeleccionarTodas) {
+            btnSeleccionarTodas.addEventListener('click', function () {
+                tbodySolicitudes.querySelectorAll('.solicitud-row:not(.d-none) .check-solicitud:not(:disabled)').forEach(function (cb) {
+                    cb.checked = true;
+                });
+                actualizarContadoresSeleccion();
+                actualizarCheckTodos();
+            });
+        }
+
+        if (btnDeseleccionarTodas) {
+            btnDeseleccionarTodas.addEventListener('click', function () {
+                tbodySolicitudes.querySelectorAll('.check-solicitud').forEach(function (cb) {
+                    cb.checked = false;
+                });
+                actualizarContadoresSeleccion();
+                actualizarCheckTodos();
+            });
+        }
+
+        if (checkTodos) {
+            checkTodos.addEventListener('change', function () {
+                const marcar = this.checked;
+                tbodySolicitudes.querySelectorAll('.solicitud-row:not(.d-none) .check-solicitud:not(:disabled)').forEach(function (cb) {
+                    cb.checked = marcar;
+                });
+                actualizarContadoresSeleccion();
+            });
+        }
+
+        const modalAprobarEl = document.getElementById('modalAprobar');
+        if (modalAprobarEl) {
+            modalAprobarEl.addEventListener('show.bs.modal', function (event) {
+                const btn = event.relatedTarget;
+                const usuario = btn ? btn.getAttribute('data-usuario') : '—';
+                this.querySelector('#aprobarUsuario').textContent = usuario || '—';
+            });
+        }
+
+        const modalRechazarEl = document.getElementById('modalRechazar');
+        if (modalRechazarEl) {
+            modalRechazarEl.addEventListener('show.bs.modal', function (event) {
+                const btn = event.relatedTarget;
+                const usuario = btn ? btn.getAttribute('data-usuario') : '—';
+                this.querySelector('#rechazarUsuario').textContent = usuario || '—';
+            });
+        }
+
+        aplicarFiltros();
+    }
+
+    // =============================================
+    // SOLICITAR ACCESO: modal elegir aprobador
+    // =============================================
+    const btnEnviarSolicitud = document.getElementById('btnEnviarSolicitud');
+
+    if (btnEnviarSolicitud) {
+        const selectModuloSolicitud = document.getElementById('selectModuloSolicitud');
+        const textareaMotivo = document.getElementById('textareaMotivo');
+
+        const modalElegirAprobadorEl = document.getElementById('modalElegirAprobador');
+        const selectAprobador = document.getElementById('selectAprobador');
+        const btnConfirmarEnvio = document.getElementById('btnConfirmarEnvio');
+
+        const resumenModulo = document.getElementById('resumenModulo');
+        const resumenMotivo = document.getElementById('resumenMotivo');
+
+        const toastSolicitudEnviadaEl = document.getElementById('toastSolicitudEnviada');
+
+        btnEnviarSolicitud.addEventListener('click', function () {
+            if (!selectModuloSolicitud.value) {
+                selectModuloSolicitud.classList.add('is-invalid');
+                selectModuloSolicitud.focus();
+                alert('Por favor selecciona un módulo antes de enviar la solicitud.');
+                return;
+            }
+            selectModuloSolicitud.classList.remove('is-invalid');
+
+            resumenModulo.textContent = selectModuloSolicitud.value;
+            const motivoTexto = textareaMotivo.value.trim();
+            resumenMotivo.textContent = motivoTexto || '—';
+
+            selectAprobador.classList.remove('is-invalid');
+            selectAprobador.value = '';
+
+            const modal = new bootstrap.Modal(modalElegirAprobadorEl);
+            modal.show();
+        });
+
+        selectAprobador.addEventListener('change', function () {
+            if (this.value) this.classList.remove('is-invalid');
+        });
+
+        btnConfirmarEnvio.addEventListener('click', function () {
+            if (!selectAprobador.value) {
+                selectAprobador.classList.add('is-invalid');
+                selectAprobador.focus();
+                return;
+            }
+
+            const payload = {
+                modulo: selectModuloSolicitud.value,
+                rol: 'Generador',
+                motivo: textareaMotivo.value.trim(),
+                aprobador: selectAprobador.value
+            };
+
+            console.log('📤 ENVIAR SOLICITUD:', payload);
+
+            const modalInstance = bootstrap.Modal.getInstance(modalElegirAprobadorEl);
+            if (modalInstance) modalInstance.hide();
+
+            if (toastSolicitudEnviadaEl) {
+                const toast = new bootstrap.Toast(toastSolicitudEnviadaEl);
+                toast.show();
+            }
+
+            selectModuloSolicitud.value = '';
+            textareaMotivo.value = '';
+
+            setTimeout(function () {
+                window.location.href = 'acceso-mis-solicitudes.html';
+            }, 2000);
+        });
+    }
+
+    // =============================================
+    // PLANTILLAS de materiales
+    // =============================================
+    const btnPlantillas = document.getElementById('btnPlantillas');
+
+    if (btnPlantillas && tbodyMateriales) {
+        const modalPlantillasEl = document.getElementById('modalPlantillas');
+        const tbodyPlantillas = document.getElementById('tbodyPlantillas');
+        const inputNombrePlantilla = document.getElementById('inputNombrePlantilla');
+        const inputDescripcionPlantilla = document.getElementById('inputDescripcionPlantilla');
+        const btnGuardarPlantilla = document.getElementById('btnGuardarPlantilla');
+
+        const resumenLineasPlantilla = document.getElementById('resumenLineasPlantilla');
+        const resumenLineasConDesc = document.getElementById('resumenLineasConDesc');
+
+        const tabAplicarBtn = document.getElementById('tabAplicar-btn');
+        const tabCrearBtn = document.getElementById('tabCrear-btn');
+
+        const toastGenericoEl = document.getElementById('toastGenerico');
+
+        const STORAGE_KEY = 'swcora_plantillas_materiales';
+
+        function leerPlantillas() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                return raw ? JSON.parse(raw) : [];
+            } catch (e) {
+                console.error('Error leyendo plantillas:', e);
+                return [];
+            }
+        }
+
+        function escribirPlantillas(lista) {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(lista));
+            } catch (e) {
+                console.error('Error guardando plantillas:', e);
+            }
+        }
+
+        function mostrarToast(titulo, mensaje, tipo) {
+            if (!toastGenericoEl) return;
+
+            const header = document.getElementById('toastGenericoHeader');
+            const icono = document.getElementById('toastGenericoIcono');
+
+            header.style.backgroundColor = tipo === 'error' ? 'var(--cora-accent)' :
+                                            tipo === 'warning' ? 'var(--cora-warning)' :
+                                            'var(--cora-success)';
+            header.style.color = tipo === 'warning' ? 'var(--cora-dark)' : 'white';
+
+            icono.className = 'bi me-2 ' + (
+                tipo === 'error' ? 'bi-x-circle' :
+                tipo === 'warning' ? 'bi-exclamation-triangle' :
+                'bi-check-circle'
+            );
+
+            document.getElementById('toastGenericoTitulo').textContent = titulo;
+            document.getElementById('toastGenericoMensaje').textContent = mensaje;
+
+            const toast = new bootstrap.Toast(toastGenericoEl);
+            toast.show();
+        }
+
+        function leerMaterialesActuales() {
+            const filas = tbodyMateriales.querySelectorAll('.material-row');
+            const materiales = [];
+
+            filas.forEach(function (fila) {
+                const cantidad = parseFloat(fila.querySelector('.input-cantidad').value) || 0;
+                const unidad = fila.querySelector('.input-unidad').value;
+                const descripcion = fila.querySelector('.input-descripcion').value.trim();
+                const comentario = fila.querySelector('.input-comentario').value.trim();
+
+                if (descripcion === '') return;
+
+                materiales.push({ cantidad, unidad, descripcion, comentario });
+            });
+
+            return materiales;
+        }
+
+        function actualizarResumenCrear() {
+            const filas = tbodyMateriales.querySelectorAll('.material-row');
+
+            let conDesc = 0;
+
+            filas.forEach(function (fila) {
+                const descripcion = fila.querySelector('.input-descripcion').value.trim();
+                if (descripcion !== '') conDesc++;
+            });
+
+            if (resumenLineasPlantilla) resumenLineasPlantilla.textContent = filas.length;
+            if (resumenLineasConDesc) resumenLineasConDesc.textContent = conDesc;
+        }
+
+        function renderizarPlantillas() {
+            const plantillas = leerPlantillas();
+
+            if (plantillas.length === 0) {
+                tbodyPlantillas.innerHTML =
+                    '<tr><td colspan="4" class="text-center text-muted py-4">' +
+                    '<i class="bi bi-inbox fs-1 d-block mb-2"></i>' +
+                    'No hay plantillas guardadas todavía.' +
+                    '</td></tr>';
+                return;
+            }
+
+            tbodyPlantillas.innerHTML = '';
+
+            plantillas.forEach(function (plantilla) {
+                const tr = document.createElement('tr');
+                tr.innerHTML =
+                    '<td>' +
+                        '<strong>' + escapeHtml(plantilla.nombre) + '</strong>' +
+                        (plantilla.descripcion ? '<br><small class="text-muted">' + escapeHtml(plantilla.descripcion) + '</small>' : '') +
+                    '</td>' +
+                    '<td>' + plantilla.materiales.length + '</td>' +
+                    '<td>' + formatearFecha(plantilla.fechaModificacion) + '</td>' +
+                    '<td class="text-center">' +
+                        '<button type="button" class="btn btn-sm btn-outline-primary btn-aplicar-plantilla" data-id="' + plantilla.id + '" title="Aplicar">' +
+                            '<i class="bi bi-download"></i> Aplicar' +
+                        '</button> ' +
+                        '<button type="button" class="btn btn-sm btn-outline-danger btn-eliminar-plantilla" data-id="' + plantilla.id + '" title="Eliminar">' +
+                            '<i class="bi bi-trash"></i>' +
+                        '</button>' +
+                    '</td>';
+
+                tbodyPlantillas.appendChild(tr);
+            });
+        }
+
+        tbodyPlantillas.addEventListener('click', function (e) {
+            const btnAplicar = e.target.closest('.btn-aplicar-plantilla');
+            const btnEliminar = e.target.closest('.btn-eliminar-plantilla');
+
+            if (btnAplicar) {
+                const id = btnAplicar.getAttribute('data-id');
+                const plantillas = leerPlantillas();
+                const plantilla = plantillas.find(p => String(p.id) === String(id));
+
+                if (!plantilla) {
+                    mostrarToast('Error', 'No se encontró la plantilla.', 'error');
+                    return;
+                }
+
+                if (plantilla.materiales.length === 0) {
+                    mostrarToast('Plantilla vacía', 'Esta plantilla no tiene materiales.', 'warning');
+                    return;
+                }
+
+                const filasActuales = tbodyMateriales.querySelectorAll('.material-row').length;
+                const mensaje = 'Se reemplazarán los ' + filasActuales + ' materiales actuales por ' +
+                                plantilla.materiales.length + ' de la plantilla "' + plantilla.nombre + '". ¿Continuar?';
+
+                if (!confirm(mensaje)) return;
+
+                tbodyMateriales.innerHTML = '';
+
+                plantilla.materiales.forEach(function (mat) {
+                    const tr = document.createElement('tr');
+                    tr.className = 'material-row';
+                    tr.innerHTML =
+                        '<td class="numero-linea"></td>' +
+                        '<td><input type="number" class="form-control form-control-sm input-cantidad" value="' + mat.cantidad + '" step="1" min="1"></td>' +
+                        '<td>' +
+                            '<select class="form-select form-select-sm input-unidad">' +
+                                ['PZS','KG','MTS','LTS','CJA'].map(function (u) {
+                                    return '<option' + (u === mat.unidad ? ' selected' : '') + '>' + u + '</option>';
+                                }).join('') +
+                            '</select>' +
+                        '</td>' +
+                        '<td><input type="text" class="form-control form-control-sm input-descripcion" value="' + escapeAttr(mat.descripcion) + '"></td>' +
+                        '<td><input type="text" class="form-control form-control-sm input-comentario" value="' + escapeAttr(mat.comentario) + '" placeholder="Opcional"></td>' +
+                        '<td class="text-center">' +
+                            '<button type="button" class="btn btn-sm btn-outline-danger btn-eliminar-material" title="Eliminar">' +
+                                '<i class="bi bi-trash"></i>' +
+                            '</button>' +
+                        '</td>';
+                    tbodyMateriales.appendChild(tr);
+                });
+
+                if (window.SWCORA_materiales) {
+                    window.SWCORA_materiales.renumerar();
+                    window.SWCORA_materiales.actualizarContador();
+                }
+
+                const modalInstance = bootstrap.Modal.getInstance(modalPlantillasEl);
+                if (modalInstance) modalInstance.hide();
+
+                mostrarToast('Plantilla aplicada', 'Se cargaron ' + plantilla.materiales.length + ' materiales.', 'success');
+                return;
+            }
+
+            if (btnEliminar) {
+                const id = btnEliminar.getAttribute('data-id');
+                const plantillas = leerPlantillas();
+                const plantilla = plantillas.find(p => String(p.id) === String(id));
+
+                if (!plantilla) return;
+
+                if (!confirm('¿Eliminar la plantilla "' + plantilla.nombre + '"? Esta acción no se puede deshacer.')) {
+                    return;
+                }
+
+                const nuevaLista = plantillas.filter(p => String(p.id) !== String(id));
+                escribirPlantillas(nuevaLista);
+                renderizarPlantillas();
+                mostrarToast('Plantilla eliminada', 'Se eliminó "' + plantilla.nombre + '".', 'success');
+            }
+        });
+
+        btnPlantillas.addEventListener('click', function () {
+            if (inputNombrePlantilla) {
+                inputNombrePlantilla.value = '';
+                inputNombrePlantilla.classList.remove('is-invalid');
+            }
+            if (inputDescripcionPlantilla) inputDescripcionPlantilla.value = '';
+
+            if (tabAplicarBtn) {
+                const tab = new bootstrap.Tab(tabAplicarBtn);
+                tab.show();
+            }
+
+            renderizarPlantillas();
+            actualizarResumenCrear();
+
+            const modal = new bootstrap.Modal(modalPlantillasEl);
+            modal.show();
+        });
+
+        if (tabAplicarBtn) {
+            tabAplicarBtn.addEventListener('shown.bs.tab', function () {
+                if (btnGuardarPlantilla) btnGuardarPlantilla.style.display = 'none';
+            });
+        }
+
+        if (tabCrearBtn) {
+            tabCrearBtn.addEventListener('shown.bs.tab', function () {
+                if (btnGuardarPlantilla) btnGuardarPlantilla.style.display = 'inline-block';
+                actualizarResumenCrear();
+            });
+        }
+
+        if (btnGuardarPlantilla) {
+            btnGuardarPlantilla.addEventListener('click', function () {
+                const nombre = inputNombrePlantilla.value.trim();
+
+                if (!nombre) {
+                    inputNombrePlantilla.classList.add('is-invalid');
+                    inputNombrePlantilla.focus();
+                    return;
+                }
+                inputNombrePlantilla.classList.remove('is-invalid');
+
+                const materiales = leerMaterialesActuales();
+
+                if (materiales.length === 0) {
+                    mostrarToast('Sin materiales', 'Agrega al menos una línea con descripción antes de guardar la plantilla.', 'warning');
+                    return;
+                }
+
+                const plantillas = leerPlantillas();
+
+                const duplicada = plantillas.some(p => p.nombre.toLowerCase() === nombre.toLowerCase());
+                if (duplicada) {
+                    if (!confirm('Ya existe una plantilla con el nombre "' + nombre + '". ¿Sobrescribirla?')) {
+                        return;
+                    }
+                    const filtradas = plantillas.filter(p => p.nombre.toLowerCase() !== nombre.toLowerCase());
+                    escribirPlantillas(filtradas);
+                }
+
+                const nueva = {
+                    id: Date.now(),
+                    nombre: nombre,
+                    descripcion: inputDescripcionPlantilla.value.trim(),
+                    materiales: materiales,
+                    fechaModificacion: new Date().toISOString()
+                };
+
+                const listaActual = leerPlantillas();
+                listaActual.push(nueva);
+                escribirPlantillas(listaActual);
+
+                inputNombrePlantilla.value = '';
+                inputDescripcionPlantilla.value = '';
+
+                renderizarPlantillas();
+                if (tabAplicarBtn) {
+                    const tab = new bootstrap.Tab(tabAplicarBtn);
+                    tab.show();
+                }
+
+                mostrarToast('Plantilla guardada', 'Se guardó "' + nombre + '" con ' + materiales.length + ' materiales.', 'success');
+            });
+        }
+
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function escapeAttr(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/"/g, '&quot;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+        }
+
+        function formatearFecha(iso) {
+            if (!iso) return '—';
+            const d = new Date(iso);
+            const pad = n => String(n).padStart(2, '0');
+            return pad(d.getDate()) + '/' + pad(d.getMonth() + 1) + '/' + d.getFullYear() +
+                   ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+        }
+    }
 });

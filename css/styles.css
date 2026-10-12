@@ -31,6 +31,9 @@ body {
     line-height: 1.6;
     margin: 0;
     padding: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -104,6 +107,33 @@ h4 { font-size: 1.25rem; }
 .navbar .dropdown-item i {
     color: var(--cora-gray);
     margin-right: 0.5rem;
+}
+
+/* =============================================
+   Nav pills (tabs) — usar paleta de marca
+   ============================================= */
+.nav-pills .nav-link {
+    color: var(--cora-gray);
+    font-weight: 500;
+    border-radius: 8px;
+    transition: all 0.15s ease;
+}
+
+.nav-pills .nav-link:hover {
+    color: var(--cora-success);
+    background-color: var(--cora-bg);
+}
+
+.nav-pills .nav-link.active,
+.nav-pills .show > .nav-link {
+    background-color: var(--cora-success);
+    color: var(--cora-white);
+    font-weight: 600;
+}
+
+.nav-pills .nav-link.active i,
+.nav-pills .nav-link.active:hover i {
+    color: var(--cora-white);
 }
 
 /* Badges */
@@ -406,8 +436,8 @@ h4 { font-size: 1.25rem; }
 }
 
 .form-check-input:checked {
-    background-color: var(--cora-accent);
-    border-color: var(--cora-accent);
+    background-color: var(--cora-success);
+    border-color: var(--cora-success);
 }
 
 /* Footer */
@@ -417,6 +447,12 @@ h4 { font-size: 1.25rem; }
     padding: 1.5rem 0;
     margin-top: 3rem;
     font-size: 0.85rem;
+    position: static;
+    width: 100%;
+    margin-top: auto;
+    flex-shrink: 0;
+    white-space: normal;
+    line-height: 1.6;
 }
 
 .footer a {
@@ -439,15 +475,15 @@ h4 { font-size: 1.25rem; }
 }
 
 .pagination .page-item.active .page-link {
-    background-color: var(--cora-accent);
-    border-color: var(--cora-accent);
+    background-color: var(--cora-gray);
+    border-color: var(--cora-gray);
     color: var(--cora-white);
 }
 
 .pagination .page-link:hover {
     background-color: var(--cora-bg);
-    border-color: var(--cora-accent);
-    color: var(--cora-accent);
+    border-color: var(--cora-gray);
+    color: var(--cora-gray);
 }
 
 /* Login Superusuario */
@@ -458,7 +494,7 @@ h4 { font-size: 1.25rem; }
 }
 
 .login-header {
-    background: linear-gradient(135deg, var(--cora-accent) 0%, #A62641 100%);
+    background: linear-gradient(135deg, var(--cora-gray) 0%);
     color: var(--cora-white);
     padding: 2rem;
     text-align: center;
@@ -688,26 +724,11 @@ tr.selected {
 /* =============================================
    Sticky footer con flexbox
    ============================================= */
-body {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-}
-
 body > header,
 body > .container,
 body > .container-fluid,
 body > main {
     flex: 1 0 auto;
-}
-
-.footer {
-    position: static;
-    width: 100%;
-    margin-top: auto;
-    flex-shrink: 0;
-    white-space: normal;
-    line-height: 1.6;
 }
 
 /* =============================================
@@ -791,14 +812,12 @@ body > main {
     box-shadow: 0 4px 20px rgba(31, 35, 40, 0.12);
 }
 
-/* Mostrar al pasar el mouse (desktop) */
 .dropdown-submenu:hover > .dropdown-menu {
     display: block;
 }
 
-/* Flecha hacia la derecha */
 .dropdown-submenu > .dropdown-item::after {
-    content: "\F285"; /* chevron-right de Bootstrap Icons */
+    content: "\F285";
     font-family: "bootstrap-icons";
     position: absolute;
     right: 1rem;
@@ -806,12 +825,10 @@ body > main {
     color: var(--cora-gray);
 }
 
-/* Quitar la flecha por defecto de Bootstrap en el item padre */
 .dropdown-submenu > .dropdown-item.dropdown-toggle::after {
     display: none;
 }
 
-/* En móvil, que se muestre como un submenú indentado */
 @media (max-width: 576px) {
     .dropdown-submenu > .dropdown-menu {
         position: static;
@@ -826,12 +843,10 @@ body > main {
    Árbol de permisos: plegado individual
    ============================================= */
 
-/* Ocultar subárboles colapsados */
 #arbolPermisos ul.nodo-colapsado {
     display: none;
 }
 
-/* Flecha clickeable al lado del checkbox */
 #arbolPermisos .toggle-nodo {
     display: inline-flex;
     align-items: center;
@@ -855,24 +870,20 @@ body > main {
     transition: transform 0.2s ease;
 }
 
-/* Cuando está colapsado, la flecha apunta a la derecha (0°) */
 #arbolPermisos .toggle-nodo.colapsado i {
     transform: rotate(0deg);
 }
 
-/* Cuando está expandido, la flecha apunta hacia abajo (90°) */
 #arbolPermisos .toggle-nodo:not(.colapsado) i {
     transform: rotate(90deg);
 }
 
-/* Placeholder para alinear nodos hoja con los padres */
 #arbolPermisos .toggle-nodo.placeholder {
     cursor: default;
     pointer-events: none;
     visibility: hidden;
 }
 
-/* El form-check debe quedar en la misma línea que la flecha */
 #arbolPermisos li > .form-check {
     display: inline-flex;
     align-items: center;

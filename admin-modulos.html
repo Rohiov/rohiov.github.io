@@ -27,23 +27,7 @@
                                 <li><a class="dropdown-item" href="admin-usuarios.html"><i class="bi bi-people"></i> Usuarios</a></li>
                                 <li><a class="dropdown-item" href="admin-roles.html"><i class="bi bi-shield-lock"></i> Roles</a></li>
                                 <li><a class="dropdown-item" href="admin-modulos.html"><i class="bi bi-box-seam"></i> Módulos</a></li>
-                                <li class="dropdown-submenu">
-                                    <a class="dropdown-item dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                        <i class="bi bi-building"></i> Empresas
-                                    </a>
-                                    <ul class="dropdown-menu">
-                                        <li>
-                                            <a class="dropdown-item" href="admin-empresas.html">
-                                                <i class="bi bi-building"></i> Empresas
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item" href="admin-tipos-empresa.html">
-                                                <i class="bi bi-tags"></i> Tipos de empresa
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </li>   
+                                <li><a class="dropdown-item" href="admin-empresas.html"><i class="bi bi-building"></i> Empresas</a></li>
                                 <li><a class="dropdown-item" href="admin-unidades.html"><i class="bi bi-rulers"></i> Unidades</a></li>
                                 <li><a class="dropdown-item" href="admin-departamentos.html"><i class="bi bi-diagram-3"></i> Departamentos</a></li>
                                 <li><hr class="dropdown-divider"></li>
@@ -99,7 +83,7 @@
     <div class="container-fluid mt-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2><i class="bi bi-box-seam"></i> Gestión de Módulos</h2>
-            <button class="btn btn-primary"><i class="bi bi-arrow-clockwise"></i> Recargar Módulos</button>
+            <button class="btn btn-success"><i class="bi bi-arrow-clockwise"></i> Recargar Módulos</button>
         </div>
 
         <div class="card">
@@ -115,7 +99,6 @@
                             <th>Versión</th>
                             <th>Roles</th>
                             <th>Estado</th>
-                            <th>Cargado</th>
                             <th>Última Actualización</th>
                             <th class="text-center">Acciones</th>
                         </tr>
@@ -127,7 +110,6 @@
                             <td>1.0.0</td>
                             <td><span class="badge bg-info">2 roles</span></td>
                             <td><span class="badge bg-success">Activo</span></td>
-                            <td><span class="badge bg-success">✅ Cargado</span></td>
                             <td>20/09/2026 10:30</td>
                             <td class="text-center">
                                 <button class="btn btn-sm btn-outline-info" title="Ver roles" data-bs-toggle="modal" data-bs-target="#modalRolesModulo"><i class="bi bi-shield-lock"></i></button>
@@ -145,7 +127,7 @@
     <div class="modal fade" id="modalRolesModulo" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header" style="background-color: var(--cora-accent); color: white;">
+                <div class="modal-header" style="background-color: var(--cora-success); color: white;">
                     <h5 class="modal-title"><i class="bi bi-shield-lock"></i> Roles del Módulo: Salidas de Material</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>

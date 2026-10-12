@@ -25,23 +25,7 @@
                                 <li><a class="dropdown-item" href="admin-usuarios.html"><i class="bi bi-people"></i> Usuarios</a></li>
                                 <li><a class="dropdown-item" href="admin-roles.html"><i class="bi bi-shield-lock"></i> Roles</a></li>
                                 <li><a class="dropdown-item" href="admin-modulos.html"><i class="bi bi-box-seam"></i> Módulos</a></li>
-                                <li class="dropdown-submenu">
-                                    <a class="dropdown-item dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                        <i class="bi bi-building"></i> Empresas
-                                    </a>
-                                    <ul class="dropdown-menu">
-                                        <li>
-                                            <a class="dropdown-item" href="admin-empresas.html">
-                                                <i class="bi bi-building"></i> Empresas
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item" href="admin-tipos-empresa.html">
-                                                <i class="bi bi-tags"></i> Tipos de empresa
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </li>   
+                                <li><a class="dropdown-item" href="admin-empresas.html"><i class="bi bi-building"></i> Empresas</a></li>
                                 <li><a class="dropdown-item" href="admin-unidades.html"><i class="bi bi-rulers"></i> Unidades</a></li>
                                 <li><a class="dropdown-item" href="admin-departamentos.html"><i class="bi bi-diagram-3"></i> Departamentos</a></li>
                                 <li><hr class="dropdown-divider"></li>
@@ -55,8 +39,10 @@
                             </a>
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="salidas-index.html"><i class="bi bi-clipboard-check"></i> Salidas de Material</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item text-muted" href="#"><i class="bi bi-box"></i> Control de EPP <span class="badge bg-secondary ms-2">Próximamente</span></a></li>
+                                <!--<li>
+                                    <hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item text-muted" href="#"><i class="bi bi-box"></i> Control de EPP <span class="badge bg-secondary ms-2">Próximamente</span></a></li>
+                                -->
                             </ul>
                         </li>
                                                 
@@ -65,7 +51,7 @@
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="acceso-solicitar.html"><i class="bi bi-pencil-square"></i> Solicitar acceso</a></li>
                                 <li><a class="dropdown-item" href="acceso-mis-solicitudes.html"><i class="bi bi-list-check"></i> Mis solicitudes</a></li>
-                                <li><a class="dropdown-item" href="acceso-aprobar.html"><i class="bi bi-check2-circle"></i> Solicitudes pendientes</a></li>
+                                <li><a class="dropdown-item" href="acceso-aprobar.html"><i class="bi bi-check2-circle"></i> Aprobaciones pendientes</a></li>
                             </ul>
                         </li>
                     </ul>
@@ -118,7 +104,7 @@
                             <td>María Gómez</td>
                             <td><span class="badge bg-success">✅ Aprobada</span></td>
                             <td><small class="text-muted">Rol asignado correctamente</small></td>
-                            <td class="text-center"><button class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></button></td>
+                            <td></td>
                         </tr>
                         <tr>
                             <td>15/09/2026 09:00</td>
@@ -128,7 +114,6 @@
                             <td><span class="badge bg-warning text-dark">⏳ Pendiente</span></td>
                             <td><small class="text-muted">En revisión</small></td>
                             <td class="text-center">
-                                <button class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></button>
                                 <button class="btn btn-sm btn-outline-danger" title="Cancelar"><i class="bi bi-dash-circle"></i></button>
                             </td>
                         </tr>
@@ -139,7 +124,7 @@
                             <td>María Gómez</td>
                             <td><span class="badge bg-danger">❌ Rechazada</span></td>
                             <td><small class="text-danger">Motivo: Ya tienes acceso otorgado.</small></td>
-                            <td class="text-center"><button class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></button></td>
+                            <td></td>
                         </tr>
                     </tbody>
                 </table>
