@@ -313,6 +313,26 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // =============================================
+    // PLANTILLAS: mostrar/ocultar "Guardar Plantilla"
+    // según la pestaña activa (Aplicar / Crear)
+    // =============================================
+    const tabAplicarBtn = document.getElementById('tabAplicar-btn');
+    const tabCrearBtn = document.getElementById('tabCrear-btn');
+    const btnGuardarPlantilla = document.getElementById('btnGuardarPlantilla');
+
+    if (tabAplicarBtn && tabCrearBtn && btnGuardarPlantilla) {
+        // Al mostrar la pestaña "Aplicar Plantilla" → ocultar botón
+        tabAplicarBtn.addEventListener('shown.bs.tab', function () {
+            btnGuardarPlantilla.style.display = 'none';
+        });
+
+        // Al mostrar la pestaña "Crear Plantilla" → mostrar botón
+        tabCrearBtn.addEventListener('shown.bs.tab', function () {
+            btnGuardarPlantilla.style.display = 'inline-block';
+        });
+    }
+
+    // =============================================
     // NUEVA SALIDA: Materiales dinámicos
     // =============================================
     const tbodyMateriales = document.getElementById('tbodyMateriales');
