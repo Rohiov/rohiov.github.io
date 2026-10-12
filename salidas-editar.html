@@ -46,7 +46,8 @@
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="mb-0"><i class="bi bi-box"></i> Materiales</h5>
                         <div>
-                            <button class="btn btn-sm btn-outline-secondary" type="button" id="btnPlantillas">
+                            <button class="btn btn-sm btn-outline-secondary" type="button"
+                                    data-bs-toggle="modal" data-bs-target="#modalPlantillas">
                                 <i class="bi bi-clipboard"></i> Plantillas
                             </button>
                             <button class="btn btn-sm btn-outline-info" type="button">
@@ -86,7 +87,7 @@
                                         <td><input type="text" class="form-control form-control-sm input-descripcion" value="Workcentre 7220"></td>
                                         <td><input type="text" class="form-control form-control-sm input-comentario" placeholder="Opcional"></td>
                                         <td class="text-center">
-                                            <button class="btn btn-sm btn-outline-danger btn-eliminar-material" type="button" title="Eliminar">
+                                            <button type="button" class="btn btn-sm btn-outline-danger btn-eliminar-material" title="Eliminar">
                                                 <i class="bi bi-trash"></i>
                                             </button>
                                         </td>
@@ -190,7 +191,9 @@
         </div>
     </div>
 
-    <!-- MODAL: Plantillas (idéntico a salidas-crear.html) -->
+    <!-- ============================================= -->
+    <!-- MODAL: Plantillas (solo UI, sin funcionalidad) -->
+    <!-- ============================================= -->
     <div class="modal fade" id="modalPlantillas" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -199,6 +202,7 @@
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
+
                     <ul class="nav nav-pills mb-3" id="tabsPlantillas" role="tablist">
                         <li class="nav-item" role="presentation">
                             <button class="nav-link active" id="tabAplicar-btn" data-bs-toggle="pill" data-bs-target="#tabAplicar" type="button" role="tab">
@@ -213,10 +217,16 @@
                     </ul>
 
                     <div class="tab-content">
+
+                        <!-- ============================================= -->
+                        <!-- TAB: APLICAR PLANTILLA                        -->
+                        <!-- ============================================= -->
                         <div class="tab-pane fade show active" id="tabAplicar" role="tabpanel">
+
                             <div class="alert alert-info">
                                 <i class="bi bi-info-circle"></i> Selecciona una plantilla para reemplazar los materiales actuales.
                             </div>
+
                             <div class="table-responsive">
                                 <table class="table table-hover mb-0">
                                     <thead>
@@ -227,18 +237,42 @@
                                             <th style="width: 200px;" class="text-center">Acciones</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="tbodyPlantillas"></tbody>
+                                    <tbody id="tbodyPlantillas">
+                                        <!-- Plantilla de ejemplo (sin funcionalidad) -->
+                                        <tr>
+                                            <td>
+                                                <strong>Devolución de equipos Xerox</strong>
+                                                <br><small class="text-muted">Plantilla de ejemplo</small>
+                                            </td>
+                                            <td>3</td>
+                                            <td>20/09/2026 10:30</td>
+                                            <td class="text-center">
+                                                <button type="button" class="btn btn-sm btn-outline-success" title="Aplicar">
+                                                    <i class="bi bi-download"></i> Aplicar
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-outline-danger" title="Eliminar">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
                                 </table>
                             </div>
+
                             <div class="text-muted small mt-2">
                                 <i class="bi bi-info-circle"></i> Las plantillas se guardan localmente (en este mockup). En producción se almacenarían en el backend.
                             </div>
                         </div>
 
+                        <!-- ============================================= -->
+                        <!-- TAB: CREAR PLANTILLA                          -->
+                        <!-- ============================================= -->
                         <div class="tab-pane fade" id="tabCrear" role="tabpanel">
+
                             <div class="alert alert-info">
-                                <i class="bi bi-info-circle"></i> Guarda los materiales actuales como una nueva plantilla reutilizable.
+                                <i class="bi bi-info-circle"></i> Se guardarán los materiales del borrador actual.
                             </div>
+
                             <div class="mb-3">
                                 <label class="form-label">Nombre de la plantilla <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="inputNombrePlantilla" placeholder="Ej: Devolución de equipos Xerox" maxlength="60">
@@ -247,26 +281,29 @@
                                     Debes escribir un nombre.
                                 </div>
                             </div>
+
                             <div class="mb-3">
                                 <label class="form-label">Descripción (opcional)</label>
                                 <textarea class="form-control" id="inputDescripcionPlantilla" rows="2" placeholder="Breve descripción de la plantilla..." maxlength="200"></textarea>
                             </div>
+
                             <div class="mb-3">
                                 <label class="form-label">Resumen de materiales a guardar</label>
                                 <div class="border rounded p-3" style="background-color: var(--cora-bg);">
                                     <div class="d-flex justify-content-between">
                                         <span>Total de líneas:</span>
-                                        <strong id="resumenLineasPlantilla">0</strong>
+                                        <strong id="resumenLineasPlantilla">1</strong>
                                     </div>
                                     <div class="d-flex justify-content-between">
                                         <span>Líneas con descripción:</span>
-                                        <strong id="resumenLineasConDesc">0</strong>
+                                        <strong id="resumenLineasConDesc">1</strong>
                                     </div>
                                 </div>
                                 <small class="text-muted d-block mt-2">
                                     <i class="bi bi-exclamation-triangle text-warning"></i> Solo se guardarán las líneas con descripción no vacía.
                                 </small>
                             </div>
+
                         </div>
                     </div>
                 </div>
@@ -307,18 +344,6 @@
                     <button type="button" class="btn btn-success"><i class="bi bi-send"></i> Confirmar Envío</button>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <!-- Toast genérico -->
-    <div class="toast-container position-fixed bottom-0 end-0 p-3">
-        <div id="toastGenerico" class="toast" role="alert" data-bs-delay="3500">
-            <div class="toast-header" id="toastGenericoHeader">
-                <i class="bi bi-info-circle me-2" id="toastGenericoIcono"></i>
-                <strong class="me-auto" id="toastGenericoTitulo">Aviso</strong>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
-            </div>
-            <div class="toast-body" id="toastGenericoMensaje">—</div>
         </div>
     </div>
 

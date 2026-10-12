@@ -494,7 +494,7 @@ h4 { font-size: 1.25rem; }
 }
 
 .login-header {
-    background: linear-gradient(135deg, var(--cora-gray) 0%);
+    background: linear-gradient(135deg, var(--cora-accent) 0%);
     color: var(--cora-white);
     padding: 2rem;
     text-align: center;
@@ -728,7 +728,12 @@ body > header,
 body > .container,
 body > .container-fluid,
 body > main {
-    flex: 1 0 auto;
+    flex: 0 0 auto;
+}
+
+/* Solo el footer empuja al fondo */
+body > .footer {
+    margin-top: auto;
 }
 
 /* =============================================

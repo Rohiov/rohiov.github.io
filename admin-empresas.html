@@ -99,8 +99,8 @@
                             <option>Todos los tipos</option>
                             <option>Proveedor</option>
                             <option>Cliente</option>
+                            <option>Mensajería</option>
                             <option>Filial</option>
-                            <option>Interno</option>
                         </select>
                     </div>
                     <div class="col-md-2">
@@ -219,8 +219,8 @@
                                         <option value="">Seleccionar tipo...</option>
                                         <option value="1">Proveedor</option>
                                         <option value="2">Cliente</option>
-                                        <option value="3">Filial</option>
-                                        <option value="4">Interno</option>
+                                        <option value="3">Mensajería</option>
+                                        <option value="4">Filial</option>
                                     </select>
                                     <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#modalTiposEmpresa" title="Ver todos los tipos">
                                         <i class="bi bi-list"></i> Ver todos
@@ -261,7 +261,7 @@
                 <div class="modal-body">
                     <div class="d-flex justify-content-between mb-3">
                         <input type="text" class="form-control me-2" placeholder="Buscar tipo...">
-                        <button class="btn btn-success" id="btnNuevoTipoEmpresa">
+                        <button class="btn btn-success" id="btnNuevoTipoEmpresa" style="width: 200px;">
                             <i class="bi bi-plus-circle"></i> Agregar Tipo
                         </button>
                     </div>
@@ -291,7 +291,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td>Filial</td>
+                                <td>Mensajería</td>
                                 <td><span class="badge bg-success">Activo</span></td>
                                 <td class="text-center">
                                     <button class="btn btn-sm btn-outline-info" title="Editar"><i class="bi bi-pencil"></i></button>
@@ -299,7 +299,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td>Interno</td>
+                                <td>Filial</td>
                                 <td><span class="badge bg-success">Activo</span></td>
                                 <td class="text-center">
                                     <button class="btn btn-sm btn-outline-info" title="Editar"><i class="bi bi-pencil"></i></button>

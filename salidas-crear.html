@@ -45,7 +45,8 @@
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="mb-0"><i class="bi bi-box"></i> Materiales</h5>
                         <div>
-                            <button class="btn btn-sm btn-outline-secondary" type="button" id="btnPlantillas">
+                            <button class="btn btn-sm btn-outline-secondary" type="button"
+                                    data-bs-toggle="modal" data-bs-target="#modalPlantillas">
                                 <i class="bi bi-clipboard"></i> Plantillas
                             </button>
                             <button class="btn btn-sm btn-outline-info" type="button">
@@ -62,8 +63,8 @@
                                 <thead>
                                     <tr>
                                         <th style="width: 50px;">Línea</th>
-                                        <th style="width: 110px;">Cantidad</th>
-                                        <th style="width: 110px;">Unidad</th>
+                                        <th style="width: 120px;">Cantidad</th>
+                                        <th style="width: 150px;">Unidad</th>
                                         <th>Descripción</th>
                                         <th style="width: 400px;">Comentario</th>
                                         <th style="width: 50px;"></th>
@@ -75,11 +76,13 @@
                                         <td><input type="number" class="form-control form-control-sm input-cantidad" value="1" step="1" min="1"></td>
                                         <td>
                                             <select class="form-select form-select-sm input-unidad">
-                                                <option>PZS</option>
-                                                <option>KG</option>
-                                                <option>MTS</option>
-                                                <option>LTS</option>
-                                                <option>CJA</option>
+                                                <option>Piezas</option>
+                                                <option>Kilogramos</option>
+                                                <option>Metros</option>
+                                                <option>Litros</option>
+                                                <option>Cajas</option>
+                                                <option>Libras</option>
+                                                <option>Toneladas</option>
                                             </select>
                                         </td>
                                         <td><input type="text" class="form-control form-control-sm input-descripcion" placeholder="Descripción del material..."></td>
@@ -193,7 +196,7 @@
     </div>
 
     <!-- ============================================= -->
-    <!-- MODAL: Plantillas                              -->
+    <!-- MODAL: Plantillas (solo UI, sin funcionalidad) -->
     <!-- ============================================= -->
     <div class="modal fade" id="modalPlantillas" tabindex="-1">
         <div class="modal-dialog modal-lg">
@@ -204,7 +207,6 @@
                 </div>
                 <div class="modal-body">
 
-                    <!-- Tabs: Aplicar primero (activo), Crear después -->
                     <ul class="nav nav-pills mb-3" id="tabsPlantillas" role="tablist">
                         <li class="nav-item" role="presentation">
                             <button class="nav-link active" id="tabAplicar-btn" data-bs-toggle="pill" data-bs-target="#tabAplicar" type="button" role="tab">
@@ -240,7 +242,23 @@
                                         </tr>
                                     </thead>
                                     <tbody id="tbodyPlantillas">
-                                        <!-- Se llena dinámicamente -->
+                                        <!-- Plantilla de ejemplo (sin funcionalidad) -->
+                                        <tr>
+                                            <td>
+                                                <strong>Devolución de equipos Xerox</strong>
+                                                <br><small class="text-muted">Plantilla de ejemplo</small>
+                                            </td>
+                                            <td>3</td>
+                                            <td>20/09/2026 10:30</td>
+                                            <td class="text-center">
+                                                <button type="button" class="btn btn-sm btn-outline-success" title="Aplicar">
+                                                    <i class="bi bi-download"></i> Aplicar
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-outline-danger" title="Eliminar">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -278,7 +296,7 @@
                                 <div class="border rounded p-3" style="background-color: var(--cora-bg);">
                                     <div class="d-flex justify-content-between">
                                         <span>Total de líneas:</span>
-                                        <strong id="resumenLineasPlantilla">0</strong>
+                                        <strong id="resumenLineasPlantilla">1</strong>
                                     </div>
                                     <div class="d-flex justify-content-between">
                                         <span>Líneas con descripción:</span>
@@ -330,18 +348,6 @@
                     <button type="button" class="btn btn-success"><i class="bi bi-send"></i> Confirmar Envío</button>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <!-- Toast genérico para notificaciones -->
-    <div class="toast-container position-fixed bottom-0 end-0 p-3">
-        <div id="toastGenerico" class="toast" role="alert" data-bs-delay="3500">
-            <div class="toast-header" id="toastGenericoHeader">
-                <i class="bi bi-info-circle me-2" id="toastGenericoIcono"></i>
-                <strong class="me-auto" id="toastGenericoTitulo">Aviso</strong>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
-            </div>
-            <div class="toast-body" id="toastGenericoMensaje">—</div>
         </div>
     </div>
 
