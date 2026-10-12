@@ -68,7 +68,7 @@
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="acceso-solicitar.html"><i class="bi bi-pencil-square"></i> Solicitar acceso</a></li>
                                 <li><a class="dropdown-item" href="acceso-mis-solicitudes.html"><i class="bi bi-list-check"></i> Mis solicitudes</a></li>
-                                <li><a class="dropdown-item" href="acceso-aprobar.html"><i class="bi bi-check2-circle"></i> Solicitudes pendientes</a></li>
+                                <li><a class="dropdown-item" href="acceso-aprobar.html"><i class="bi bi-check2-circle"></i> Aprobaciones pendientes</a></li>
                             </ul>
                         </li>
                     </ul>
@@ -125,6 +125,10 @@
         </div>
 
         <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-list-ul"></i> Departamentos</h5>
+                <button class="btn btn-sm btn-outline-success"><i class="bi bi-file-excel"></i> Exportar CSV</button>
+            </div>
             <div class="card-body p-0">
                 <table class="table table-hover mb-0">
                     <thead>
@@ -143,8 +147,8 @@
                             <td>Departamento de TI</td>
                             <td><span class="badge bg-success">Activo</span></td>
                             <td class="text-center">
-                                <button class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></button>
-                                <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-lock"></i></button>
+                                <button class="btn btn-sm btn-outline-info" title="Editar"><i class="bi bi-pencil"></i></button>
+                                <button class="btn btn-sm btn-outline-primary" title="Desactivar"><i class="bi bi-power"></i></button>
                             </td>
                         </tr>
                         <tr>
@@ -153,8 +157,8 @@
                             <td>Gestión de personal</td>
                             <td><span class="badge bg-success">Activo</span></td>
                             <td class="text-center">
-                                <button class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></button>
-                                <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-lock"></i></button>
+                                <button class="btn btn-sm btn-outline-info" title="Editar"><i class="bi bi-pencil"></i></button>
+                                <button class="btn btn-sm btn-outline-primary" title="Desactivar"><i class="bi bi-power"></i></button>
                             </td>
                         </tr>
                         <tr>
@@ -163,8 +167,8 @@
                             <td>Control de inventario</td>
                             <td><span class="badge bg-success">Activo</span></td>
                             <td class="text-center">
-                                <button class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></button>
-                                <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-lock"></i></button>
+                                <button class="btn btn-sm btn-outline-info" title="Editar"><i class="bi bi-pencil"></i></button>
+                                <button class="btn btn-sm btn-outline-primary" title="Desactivar"><i class="bi bi-power"></i></button>
                             </td>
                         </tr>
                     </tbody>

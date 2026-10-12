@@ -24,7 +24,7 @@
     </header>
 
     <div class="container-fluid mt-4">
-        <!-- Header con acciones a la derecha del botón Volver -->
+        <!-- Header con acciones -->
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2><i class="bi bi-plus-circle"></i> Nueva Salida de Material</h2>
             <div class="d-flex gap-2">
@@ -36,7 +36,7 @@
             </div>
         </div>
 
-        <!-- Layout 70% izquierda / 30% derecha -->
+        <!-- Layout 70% / 30% -->
         <div class="salida-form-grid">
 
             <!-- ============================================= -->
@@ -47,7 +47,9 @@
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="mb-0"><i class="bi bi-box"></i> Materiales</h5>
                         <div>
-                            <button class="btn btn-sm btn-outline-primary" type="button"><i class="bi bi-plus-circle"></i> Agregar</button>
+                            <button class="btn btn-sm btn-outline-primary" type="button" id="btnAgregarMaterial">
+                                <i class="bi bi-plus-circle"></i> Agregar
+                            </button>
                             <button class="btn btn-sm btn-outline-info" type="button"><i class="bi bi-file-earmark-arrow-up"></i> CSV</button>
                             <button class="btn btn-sm btn-outline-secondary" type="button"><i class="bi bi-clipboard"></i> Plantilla</button>
                         </div>
@@ -61,16 +63,16 @@
                                         <th style="width: 110px;">Cantidad</th>
                                         <th style="width: 110px;">Unidad</th>
                                         <th>Descripción</th>
-                                        <th style="width: 160px;">Comentario</th>
+                                        <th style="width: 400px;">Comentario</th>
                                         <th style="width: 50px;"></th>
                                     </tr>
                                 </thead>
                                 <tbody id="tbodyMateriales">
                                     <tr class="material-row">
                                         <td class="numero-linea">1</td>
-                                        <td><input type="number" class="form-control form-control-sm" value="1.00" step="0.01" min="0.01"></td>
+                                        <td><input type="number" class="form-control form-control-sm input-cantidad" value="1" step="1" min="1"></td>
                                         <td>
-                                            <select class="form-select form-select-sm">
+                                            <select class="form-select form-select-sm input-unidad">
                                                 <option>PZS</option>
                                                 <option>KG</option>
                                                 <option>MTS</option>
@@ -78,10 +80,10 @@
                                                 <option>CJA</option>
                                             </select>
                                         </td>
-                                        <td><input type="text" class="form-control form-control-sm" placeholder="Descripción del material..."></td>
-                                        <td><input type="text" class="form-control form-control-sm" placeholder="Opcional"></td>
+                                        <td><input type="text" class="form-control form-control-sm input-descripcion" placeholder="Descripción del material..."></td>
+                                        <td><input type="text" class="form-control form-control-sm input-comentario" placeholder="Opcional"></td>
                                         <td class="text-center">
-                                            <button class="btn btn-sm btn-outline-danger" type="button" onclick="this.closest('tr').remove()">
+                                            <button class="btn btn-sm btn-outline-danger btn-eliminar-material" type="button" title="Eliminar">
                                                 <i class="bi bi-trash"></i>
                                             </button>
                                         </td>
@@ -90,14 +92,15 @@
                             </table>
                         </div>
                     </div>
-                    <div class="card-footer">
+                    <div class="card-footer d-flex justify-content-between align-items-center">
                         <small class="text-muted">Máximo 50 materiales. No se permiten descripciones duplicadas.</small>
+                        <small class="text-muted"><span id="contadorMateriales">1</span> / 50</small>
                     </div>
                 </div>
             </div>
 
             <!-- ============================================= -->
-            <!-- COLUMNA DERECHA (30%): Acordeón exclusivo -->
+            <!-- COLUMNA DERECHA (30%): Acordeón exclusivo     -->
             <!-- ============================================= -->
             <div class="col-right" id="accordionSalida">
 
@@ -112,7 +115,6 @@
                             <div class="card-body">
                                 <div class="row g-3">
 
-                                    <!-- Salida Definitiva (primero) -->
                                     <div class="col-12">
                                         <div class="form-check">
                                             <input class="form-check-input" type="checkbox" id="esDefinitiva">
@@ -121,14 +123,12 @@
                                         <small class="text-muted d-block mt-1">Marque la casilla si no se espera el retorno del material.</small>
                                     </div>
 
-                                    <!-- Retorno Esperado (condicional, oculto por defecto) -->
                                     <div class="col-12 d-none" id="wrapperRetornoEsperado">
                                         <label class="form-label">Retorno Esperado <span class="text-danger">*</span></label>
                                         <input type="date" class="form-control" id="retornoEsperado">
                                         <small class="text-muted">Fecha en que se espera el retorno del material.</small>
                                     </div>
 
-                                    <!-- Empresa -->
                                     <div class="col-12">
                                         <label class="form-label">Empresa <span class="text-danger">*</span></label>
                                         <select class="form-select" id="selectEmpresa" required>
@@ -139,7 +139,6 @@
                                         </select>
                                     </div>
 
-                                    <!-- Contacto -->
                                     <div class="col-12">
                                         <label class="form-label">Contacto <span class="text-danger">*</span></label>
                                         <div class="input-group">

@@ -16,26 +16,28 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    // =============================================
+    // Submenús anidados en el navbar
+    // =============================================
     const submenus = document.querySelectorAll('.dropdown-submenu > .dropdown-item');
-        submenus.forEach(function (el) {
-            el.addEventListener('click', function (e) {
-                e.preventDefault();
-                e.stopPropagation();
+    submenus.forEach(function (el) {
+        el.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
 
-                const submenu = this.nextElementSibling;
+            const submenu = this.nextElementSibling;
 
-                // Cerrar otros submenús abiertos al mismo nivel
-                document.querySelectorAll('.dropdown-submenu > .dropdown-menu.show').forEach(function (open) {
-                    if (open !== submenu) open.classList.remove('show');
-                });
-
-                submenu.classList.toggle('show');
+            document.querySelectorAll('.dropdown-submenu > .dropdown-menu.show').forEach(function (open) {
+                if (open !== submenu) open.classList.remove('show');
             });
+
+            submenu.classList.toggle('show');
         });
+    });
 
-
-
+    // =============================================
     // Toggle mostrar/ocultar contraseña
+    // =============================================
     const btnTogglePassword = document.getElementById('btnTogglePassword');
     if (btnTogglePassword) {
         btnTogglePassword.addEventListener('click', function () {
@@ -134,27 +136,22 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // =============================================
     // Acordeón exclusivo: gestionado por Bootstrap
-    // El estado inicial lo define el HTML (clase "show")
-    // Este JS solo sincroniza la clase .collapsed del card
-    // para que el ícono chevron rote correctamente
+    // Sincroniza la clase .collapsed del card para el chevron
     // =============================================
     document.querySelectorAll('.card-collapsible .collapse').forEach(function (collapseEl) {
         const card = collapseEl.closest('.card-collapsible');
         if (!card) return;
 
-        // Estado inicial: si no tiene "show", marcar como colapsado
         if (!collapseEl.classList.contains('show')) {
             card.classList.add('collapsed');
         } else {
             card.classList.remove('collapsed');
         }
 
-        // Al abrir
         collapseEl.addEventListener('show.bs.collapse', function () {
             card.classList.remove('collapsed');
         });
 
-        // Al cerrar
         collapseEl.addEventListener('hide.bs.collapse', function () {
             card.classList.add('collapsed');
         });
@@ -162,7 +159,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // =============================================
     // Toggle condicional: Retorno Esperado
-    // Solo se muestra si "Salida Definitiva" NO está marcada
     // =============================================
     const esDefinitiva = document.getElementById('esDefinitiva');
     const wrapperRetornoEsperado = document.getElementById('wrapperRetornoEsperado');
@@ -186,26 +182,23 @@ document.addEventListener('DOMContentLoaded', function () {
 
         actualizarRetornoEsperado();
         esDefinitiva.addEventListener('change', actualizarRetornoEsperado);
-    } else {
-        console.warn('Toggle Retorno Esperado no inicializado:',
-            { esDefinitiva: !!esDefinitiva, wrapperRetornoEsperado: !!wrapperRetornoEsperado });
     }
 
     const modalCerrarSesionIndividual = document.getElementById('modalCerrarSesionIndividual');
-        if (modalCerrarSesionIndividual) {
-            modalCerrarSesionIndividual.addEventListener('show.bs.modal', function (event) {
-                const button = event.relatedTarget;
-                if (!button) return;
+    if (modalCerrarSesionIndividual) {
+        modalCerrarSesionIndividual.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            if (!button) return;
 
-                const dispositivo = button.getAttribute('data-dispositivo') || '—';
-                const usuario = button.getAttribute('data-usuario') || '—';
+            const dispositivo = button.getAttribute('data-dispositivo') || '—';
+            const usuario = button.getAttribute('data-usuario') || '—';
 
-                this.querySelector('#cerrarDispositivo').textContent = dispositivo;
-                this.querySelector('#cerrarUsuario').textContent = usuario;
-            });
-        }
+            this.querySelector('#cerrarDispositivo').textContent = dispositivo;
+            this.querySelector('#cerrarUsuario').textContent = usuario;
+        });
+    }
 
-            // =============================================
+    // =============================================
     // Recuperar contraseña del Superusuario
     // =============================================
     const linkRecuperarPassword = document.getElementById('linkRecuperarPassword');
@@ -214,7 +207,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const toastRecuperarPasswordEl = document.getElementById('toastRecuperarPassword');
 
     if (linkRecuperarPassword && modalRecuperarPasswordEl) {
-        // Abrir modal al hacer clic en "¿Olvidaste tu contraseña?"
         linkRecuperarPassword.addEventListener('click', function (e) {
             e.preventDefault();
             const modal = new bootstrap.Modal(modalRecuperarPasswordEl);
@@ -223,13 +215,10 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     if (btnConfirmarRecuperar) {
-        // Al confirmar: cerrar modal y mostrar toast
         btnConfirmarRecuperar.addEventListener('click', function () {
-            // Cerrar el modal
             const modalInstance = bootstrap.Modal.getInstance(modalRecuperarPasswordEl);
             if (modalInstance) modalInstance.hide();
 
-            // Mostrar toast de confirmación simulada
             if (toastRecuperarPasswordEl) {
                 const toast = new bootstrap.Toast(toastRecuperarPasswordEl, { delay: 5000 });
                 toast.show();
@@ -237,23 +226,19 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-        // =============================================
+    // =============================================
     // Modal Empresa: Crear / Editar
     // =============================================
     const modalEmpresaEl = document.getElementById('modalEmpresa');
-    const btnNuevaEmpresa = document.getElementById('btnNuevaEmpresa');
     const modalEmpresaTitulo = document.getElementById('modalEmpresaTitulo');
     const formEmpresa = document.getElementById('formEmpresa');
 
     if (modalEmpresaEl) {
-        // Al abrir el modal: detectar si es crear o editar
         modalEmpresaEl.addEventListener('show.bs.modal', function (event) {
             const trigger = event.relatedTarget;
 
-            // Resetear form
             if (formEmpresa) formEmpresa.reset();
 
-            // Si el trigger es el botón "Nueva Empresa" o no viene de un botón de edición → modo CREAR
             if (!trigger || trigger.id === 'btnNuevaEmpresa') {
                 modalEmpresaTitulo.innerHTML = '<i class="bi bi-plus-circle"></i> Nueva Empresa';
                 document.getElementById('empresaId').value = '';
@@ -266,7 +251,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-            // Modo EDITAR: leer data attributes del botón
             const id = trigger.getAttribute('data-id') || '';
             const codigo = trigger.getAttribute('data-codigo') || '';
             const nombre = trigger.getAttribute('data-nombre') || '';
@@ -277,14 +261,13 @@ document.addEventListener('DOMContentLoaded', function () {
             modalEmpresaTitulo.innerHTML = '<i class="bi bi-pencil"></i> Editar Empresa';
             document.getElementById('empresaId').value = id;
             document.getElementById('empresaCodigo').value = codigo;
-            document.getElementById('empresaCodigo').readOnly = true; // el código no se edita
+            document.getElementById('empresaCodigo').readOnly = true;
             document.getElementById('empresaNombre').value = nombre;
             document.getElementById('empresaContacto').value = contacto;
             document.getElementById('empresaTipo').value = tipo;
             document.getElementById('empresaActivo').checked = activo;
         });
 
-        // Al hacer clic en "Guardar Empresa"
         const btnGuardarEmpresa = document.getElementById('btnGuardarEmpresa');
         if (btnGuardarEmpresa) {
             btnGuardarEmpresa.addEventListener('click', function () {
@@ -293,7 +276,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 const nombre = document.getElementById('empresaNombre').value.trim();
                 const tipo = document.getElementById('empresaTipo').value;
 
-                // Validación mínima
                 if (!codigo || !nombre || !tipo) {
                     alert('Por favor completa los campos obligatorios.');
                     return;
@@ -304,16 +286,11 @@ document.addEventListener('DOMContentLoaded', function () {
                     ? '✅ Empresa actualizada correctamente.'
                     : '✅ Empresa creada correctamente.';
 
-                // Simular guardado: cerrar modal y mostrar alerta (en mockup)
                 const modalInstance = bootstrap.Modal.getInstance(modalEmpresaEl);
                 if (modalInstance) modalInstance.hide();
 
-                // Aquí en el sistema real se haría un fetch POST
-                console.log(esEdicion ? 'EDITAR' : 'CREAR', {
-                    id, codigo, nombre, tipo
-                });
+                console.log(esEdicion ? 'EDITAR' : 'CREAR', { id, codigo, nombre, tipo });
 
-                // Feedback visual
                 setTimeout(function () { alert(mensaje); }, 300);
             });
         }
@@ -328,7 +305,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (btnNuevoTipoEmpresa && modalTiposEmpresaEl && modalNuevoTipoEl) {
         btnNuevoTipoEmpresa.addEventListener('click', function () {
-            // Cerrar el modal de tipos y abrir el de nuevo tipo
             const instance = bootstrap.Modal.getInstance(modalTiposEmpresaEl);
             if (instance) instance.hide();
 
@@ -336,5 +312,178 @@ document.addEventListener('DOMContentLoaded', function () {
             nuevoTipoModal.show();
         });
     }
+
+    // =============================================
+    // NUEVA SALIDA: Materiales dinámicos
+    // =============================================
+    const tbodyMateriales = document.getElementById('tbodyMateriales');
+    const btnAgregarMaterial = document.getElementById('btnAgregarMaterial');
+    const contadorMateriales = document.getElementById('contadorMateriales');
+
+    const MAX_MATERIALES = 50;
+
+    if (tbodyMateriales && btnAgregarMaterial) {
+
+        // ---------- Agregar fila ----------
+        btnAgregarMaterial.addEventListener('click', function () {
+            const filas = tbodyMateriales.querySelectorAll('.material-row');
+
+            if (filas.length >= MAX_MATERIALES) {
+                alert('Máximo ' + MAX_MATERIALES + ' materiales permitidos.');
+                return;
+            }
+
+            // Clonar la primera fila como plantilla
+            const plantilla = filas[0];
+            const nuevaFila = plantilla.cloneNode(true);
+
+            // Limpiar valores de la nueva fila
+            nuevaFila.querySelector('.input-cantidad').value = '1.00';
+            nuevaFila.querySelector('.input-unidad').selectedIndex = 0;
+            nuevaFila.querySelector('.input-descripcion').value = '';
+            nuevaFila.querySelector('.input-comentario').value = '';
+
+            tbodyMateriales.appendChild(nuevaFila);
+
+            renumerarFilas();
+            actualizarContadorYEstado();
+
+            // Foco automático en la descripción de la nueva fila
+            nuevaFila.querySelector('.input-descripcion').focus();
+
+            // Scroll suave hacia la nueva fila
+            nuevaFila.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        });
+
+        // ---------- Eliminar fila (delegación) ----------
+        tbodyMateriales.addEventListener('click', function (e) {
+            const btn = e.target.closest('.btn-eliminar-material');
+            if (!btn) return;
+
+            const filas = tbodyMateriales.querySelectorAll('.material-row');
+            if (filas.length === 1) {
+                alert('Debe haber al menos un material.');
+                return;
+            }
+
+            btn.closest('tr').remove();
+            renumerarFilas();
+            actualizarContadorYEstado();
+        });
+
+        // ---------- Validación: descripciones duplicadas ----------
+        tbodyMateriales.addEventListener('input', function (e) {
+            if (!e.target.classList.contains('input-descripcion')) return;
+
+            const valor = e.target.value.trim().toLowerCase();
+            const inputs = tbodyMateriales.querySelectorAll('.input-descripcion');
+
+            // Resetear estilos
+            inputs.forEach(i => i.classList.remove('is-invalid'));
+
+            if (!valor) return;
+
+            // Marcar duplicados
+            let duplicados = 0;
+            inputs.forEach(function (input) {
+                if (input.value.trim().toLowerCase() === valor) {
+                    duplicados++;
+                }
+            });
+
+            if (duplicados > 1) {
+                inputs.forEach(function (input) {
+                    if (input.value.trim().toLowerCase() === valor) {
+                        input.classList.add('is-invalid');
+                    }
+                });
+            }
+        });
+
+        // ---------- Funciones auxiliares ----------
+        function renumerarFilas() {
+            tbodyMateriales.querySelectorAll('.material-row').forEach(function (fila, index) {
+                fila.querySelector('.numero-linea').textContent = index + 1;
+            });
+        }
+
+        function actualizarContadorYEstado() {
+            const total = tbodyMateriales.querySelectorAll('.material-row').length;
+
+            if (contadorMateriales) {
+                contadorMateriales.textContent = total;
+            }
+
+            btnAgregarMaterial.disabled = total >= MAX_MATERIALES;
+        }
+
+        // Inicializar contador
+        actualizarContadorYEstado();
+    }
+
+    // =============================================
+// Árbol de permisos: Expandir / Colapsar / Todo / Nada
+// =============================================
+const arbolPermisos = document.getElementById('arbolPermisos');
+
+if (arbolPermisos) {
+    const btnExpandirArbol = document.getElementById('btnExpandirArbol');
+    const btnColapsarArbol = document.getElementById('btnColapsarArbol');
+    const btnSeleccionarTodo = document.getElementById('btnSeleccionarTodo');
+    const btnDeseleccionarTodo = document.getElementById('btnDeseleccionarTodo');
+
+    // ---------- Expandir todo ----------
+    if (btnExpandirArbol) {
+        btnExpandirArbol.addEventListener('click', function () {
+            arbolPermisos.querySelectorAll('ul.nodo-colapsado').forEach(function (ul) {
+                ul.classList.remove('nodo-colapsado');
+            });
+        });
+    }
+
+    // ---------- Colapsar todo ----------
+    if (btnColapsarArbol) {
+        btnColapsarArbol.addEventListener('click', function () {
+            // Solo colapsamos los UL anidados, no el UL raíz
+            arbolPermisos.querySelectorAll('ul ul').forEach(function (ul) {
+                ul.classList.add('nodo-colapsado');
+            });
+        });
+    }
+
+    // ---------- Seleccionar todo ----------
+    if (btnSeleccionarTodo) {
+        btnSeleccionarTodo.addEventListener('click', function () {
+            arbolPermisos.querySelectorAll('input[type="checkbox"]').forEach(function (cb) {
+                cb.checked = true;
+                cb.indeterminate = false;
+            });
+        });
+    }
+
+    // ---------- Deseleccionar todo ----------
+    if (btnDeseleccionarTodo) {
+        btnDeseleccionarTodo.addEventListener('click', function () {
+            arbolPermisos.querySelectorAll('input[type="checkbox"]').forEach(function (cb) {
+                cb.checked = false;
+                cb.indeterminate = false;
+            });
+        });
+    }
+
+    // ---------- Plegado por clic en el label del padre ----------
+    arbolPermisos.querySelectorAll('li:has(> ul) > .form-check > .form-check-label').forEach(function (label) {
+        label.addEventListener('click', function (e) {
+            // No interferir con el clic normal del checkbox
+            if (e.target.tagName === 'INPUT') return;
+
+            const li = label.closest('li');
+            const subUl = li ? li.querySelector(':scope > ul') : null;
+            if (subUl) {
+                subUl.classList.toggle('nodo-colapsado');
+            }
+        });
+    });
+}
 
 });

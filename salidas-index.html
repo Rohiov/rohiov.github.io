@@ -61,7 +61,7 @@
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="acceso-solicitar.html"><i class="bi bi-pencil-square"></i> Solicitar acceso</a></li>
                                 <li><a class="dropdown-item" href="acceso-mis-solicitudes.html"><i class="bi bi-list-check"></i> Mis solicitudes</a></li>
-                                <li><a class="dropdown-item" href="acceso-aprobar.html"><i class="bi bi-check2-circle"></i> Solicitudes pendientes</a></li>
+                                <li><a class="dropdown-item" href="acceso-aprobar.html"><i class="bi bi-check2-circle"></i> Aprobaciones pendientes</a></li>
                             </ul>
                         </li>
                     </ul>
@@ -132,6 +132,10 @@
         </div>
 
         <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-list-ul"></i> Salidas</h5>
+                <button class="btn btn-sm btn-outline-success"><i class="bi bi-file-excel"></i> Exportar CSV</button>
+            </div>
             <div class="card-body p-0">
                 <table class="table table-hover mb-0">
                     <thead>
@@ -154,20 +158,20 @@
                             <td>Devolución a proveedor</td>
                             <td class="text-center"><span class="badge bg-secondary">5</span></td>
                             <td class="text-center">
-                                <a href="salidas-detalles.html" class="btn btn-sm btn-outline-primary" title="Ver"><i class="bi bi-eye"></i></a>
-                                <button class="btn btn-sm btn-outline-secondary" title="PDF"><i class="bi bi-file-pdf"></i></button>
-                                <button class="btn btn-sm btn-outline-info" title="Clonar"><i class="bi bi-files"></i></button>
+                                <a href="salidas-detalles.html" class="btn btn-sm btn-outline-info" title="Ver"><i class="bi bi-eye"></i></a>
+                                <button class="btn btn-sm btn-outline-success" title="Exportar PDF"><i class="bi bi-file-pdf"></i></button>
+                                <button class="btn btn-sm btn-outline-secondary" title="Clonar"><i class="bi bi-files"></i></button>
                             </td>
                         </tr>
                         <tr>
                             <td><strong>00000002</strong></td>
                             <td>19/09/2026</td>
-                            <td><span class="badge bg-warning text-dark">⏳ Pendiente</span></td>
+                            <td><span class="badge bg-warning text-dark">⏳ Pendiente (Aprobador)</span></td>
                             <td>María Gómez</td>
                             <td>Materiales de obra</td>
                             <td class="text-center"><span class="badge bg-secondary">3</span></td>
                             <td class="text-center">
-                                <a href="salidas-detalles.html" class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></a>
+                                <a href="salidas-detalles.html" class="btn btn-sm btn-outline-info" title="Ver"><i class="bi bi-eye"></i></a>
                                 <button class="btn btn-sm btn-outline-success" title="Aprobar"><i class="bi bi-check-circle"></i></button>
                                 <button class="btn btn-sm btn-outline-danger" title="Rechazar"><i class="bi bi-x-circle"></i></button>
                             </td>
@@ -180,8 +184,8 @@
                             <td>Equipos de cómputo</td>
                             <td class="text-center"><span class="badge bg-secondary">2</span></td>
                             <td class="text-center">
-                                <a href="salidas-detalles.html" class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></a>
-                                <a href="salidas-editar.html" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></a>
+                                <a href="salidas-detalles.html" class="btn btn-sm btn-outline-info" title="Ver"><i class="bi bi-eye"></i></a>
+                                <a href="salidas-editar.html" class="btn btn-sm btn-outline-secondary" title="Editar"><i class="bi bi-pencil"></i></a>
                                 <button class="btn btn-sm btn-outline-danger" title="Eliminar borrador"><i class="bi bi-trash"></i></button>
                             </td>
                         </tr>
@@ -193,8 +197,8 @@
                             <td>Material no autorizado</td>
                             <td class="text-center"><span class="badge bg-secondary">4</span></td>
                             <td class="text-center">
-                                <a href="salidas-detalles.html" class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></a>
-                                <button class="btn btn-sm btn-outline-info" title="Clonar"><i class="bi bi-files"></i></button>
+                                <a href="salidas-detalles.html" class="btn btn-sm btn-outline-info" title="Ver"><i class="bi bi-eye"></i></a>
+                                <button class="btn btn-sm btn-outline-secondary" title="Clonar"><i class="bi bi-files"></i></button>
                             </td>
                         </tr>
                         <tr>
@@ -205,8 +209,20 @@
                             <td>Salida cancelada</td>
                             <td class="text-center"><span class="badge bg-secondary">1</span></td>
                             <td class="text-center">
-                                <a href="salidas-detalles.html" class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></a>
-                                <button class="btn btn-sm btn-outline-info" title="Clonar"><i class="bi bi-files"></i></button>
+                                <a href="salidas-detalles.html" class="btn btn-sm btn-outline-info" title="Ver"><i class="bi bi-eye"></i></a>
+                                <button class="btn btn-sm btn-outline-secondary" title="Clonar"><i class="bi bi-files"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>00000006</strong></td>
+                            <td>19/09/2026</td>
+                            <td><span class="badge bg-warning text-dark">⏳ Pendiente</span></td>
+                            <td>María Gómez</td>
+                            <td>Materiales de obra</td>
+                            <td class="text-center"><span class="badge bg-secondary">3</span></td>
+                            <td class="text-center">
+                                <a href="salidas-detalles.html" class="btn btn-sm btn-outline-info" title="Ver"><i class="bi bi-eye"></i></a>
+                                <button class="btn btn-sm btn-outline-danger" title="Cancelar"><i class="bi bi-dash-circle"></i></button>
                             </td>
                         </tr>
                     </tbody>
@@ -214,7 +230,7 @@
             </div>
             <div class="card-footer">
                 <div class="d-flex justify-content-between align-items-center">
-                    <small class="text-muted">Mostrando 1-5 de 95 registros</small>
+                    <small class="text-muted">Mostrando 1-6 de 95 registros</small>
                     <nav>
                         <ul class="pagination pagination-sm mb-0">
                             <li class="page-item disabled"><a class="page-link" href="#">Anterior</a></li>

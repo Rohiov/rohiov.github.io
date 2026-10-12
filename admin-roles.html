@@ -68,7 +68,7 @@
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="acceso-solicitar.html"><i class="bi bi-pencil-square"></i> Solicitar acceso</a></li>
                                 <li><a class="dropdown-item" href="acceso-mis-solicitudes.html"><i class="bi bi-list-check"></i> Mis solicitudes</a></li>
-                                <li><a class="dropdown-item" href="acceso-aprobar.html"><i class="bi bi-check2-circle"></i> Solicitudes pendientes</a></li>
+                                <li><a class="dropdown-item" href="acceso-aprobar.html"><i class="bi bi-check2-circle"></i> Aprobaciones pendientes</a></li>
                             </ul>
                         </li>
                     </ul>
@@ -134,6 +134,10 @@
         </div>
 
         <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-list-ul"></i> Roles</h5>
+                <button class="btn btn-sm btn-outline-success"><i class="bi bi-file-excel"></i> Exportar CSV</button>
+            </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table table-hover mb-0">
@@ -160,7 +164,7 @@
                                 <td><span class="badge bg-secondary">No</span></td>
                                 <td><span class="badge bg-dark">Sistema</span></td>
                                 <td><span class="badge bg-success">Activo</span></td>
-                                <td class="text-center"><button class="btn btn-sm btn-outline-secondary" disabled><i class="bi bi-lock"></i></button></td>
+                                <td class="text-center"><button class="btn btn-sm btn-outline-secondary" disabled><i class="bi bi-power"></i></button></td>
                             </tr>
                             <tr>
                                 <td><span class="badge" style="background-color: var(--cora-accent);">🌐 Global</span></td>
@@ -171,7 +175,7 @@
                                 <td><span class="badge bg-success">Sí</span></td>
                                 <td><span class="badge bg-dark">Sistema</span></td>
                                 <td><span class="badge bg-success">Activo</span></td>
-                                <td class="text-center"><button class="btn btn-sm btn-outline-secondary" disabled><i class="bi bi-lock"></i></button></td>
+                                <td class="text-center"><button class="btn btn-sm btn-outline-secondary" disabled><i class="bi bi-power"></i></button></td>
                             </tr>
                             <tr>
                                 <td><span class="badge bg-info">📦 Local</span></td>
@@ -183,8 +187,8 @@
                                 <td><span class="badge bg-info">Precargado</span></td>
                                 <td><span class="badge bg-success">Activo</span></td>
                                 <td class="text-center">
-                                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalCrearRol"><i class="bi bi-pencil"></i></button>
-                                    <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-lock"></i></button>
+                                    <button class="btn btn-sm btn-outline-info" title="Editar" data-bs-toggle="modal" data-bs-target="#modalCrearRol"><i class="bi bi-pencil"></i></button>
+                                    <button class="btn btn-sm btn-outline-primary" title="Desactivar"><i class="bi bi-power"></i></button>
                                 </td>
                             </tr>
                             <tr>
@@ -197,8 +201,8 @@
                                 <td><span class="badge bg-info">Precargado</span></td>
                                 <td><span class="badge bg-success">Activo</span></td>
                                 <td class="text-center">
-                                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalCrearRol"><i class="bi bi-pencil"></i></button>
-                                    <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-lock"></i></button>
+                                    <button class="btn btn-sm btn-outline-info" title="Editar" data-bs-toggle="modal" data-bs-target="#modalCrearRol"><i class="bi bi-pencil"></i></button>
+                                    <button class="btn btn-sm btn-outline-primary" title="Desactivar"><i class="bi bi-power"></i></button>
                                 </td>
                             </tr>
                             <tr>
@@ -211,8 +215,8 @@
                                 <td><span class="badge bg-secondary">Personalizado</span></td>
                                 <td><span class="badge bg-success">Activo</span></td>
                                 <td class="text-center">
-                                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalCrearRol"><i class="bi bi-pencil"></i></button>
-                                    <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-lock"></i></button>
+                                    <button class="btn btn-sm btn-outline-info" title="Editar" data-bs-toggle="modal" data-bs-target="#modalCrearRol"><i class="bi bi-pencil"></i></button>
+                                    <button class="btn btn-sm btn-outline-primary" title="Desactivar"><i class="bi bi-power"></i></button>
                                 </td>
                             </tr>
                         </tbody>
@@ -253,22 +257,8 @@
                             </select>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">Código</label>
-                            <input type="text" class="form-control" placeholder="Ej: Auditor">
-                        </div>
-                        <div class="col-md-4">
                             <label class="form-label">Nombre</label>
                             <input type="text" class="form-control" placeholder="Ej: Auditor de Salidas">
-                        </div>
-                        <div class="col-md-2">
-                            <label class="form-label">Nivel</label>
-                            <input type="number" class="form-control" value="1">
-                        </div>
-                        <div class="col-md-2 d-flex align-items-end">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="puedeAprobar">
-                                <label class="form-check-label" for="puedeAprobar">Puede Aprobar</label>
-                            </div>
                         </div>
                         <div class="col-12">
                             <label class="form-label">Descripción</label>
@@ -278,62 +268,494 @@
 
                     <h6 class="border-bottom pb-2 mb-3">🌳 Árbol de Permisos</h6>
                     <div class="mb-2">
-                        <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrows-expand"></i> Expandir</button>
-                        <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrows-collapse"></i> Colapsar</button>
-                        <button class="btn btn-sm btn-outline-primary"><i class="bi bi-check-all"></i> Seleccionar todo</button>
-                        <button class="btn btn-sm btn-outline-danger"><i class="bi bi-x-circle"></i> Deseleccionar</button>
+                        <button class="btn btn-sm btn-outline-secondary" type="button" id="btnExpandirArbol">
+                            <i class="bi bi-arrows-expand"></i> Expandir
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary" type="button" id="btnColapsarArbol">
+                            <i class="bi bi-arrows-collapse"></i> Colapsar
+                        </button>
+                        <button class="btn btn-sm btn-outline-primary" type="button" id="btnSeleccionarTodo">
+                            <i class="bi bi-check-all"></i> Seleccionar todo
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" type="button" id="btnDeseleccionarTodo">
+                            <i class="bi bi-x-circle"></i> Deseleccionar
+                        </button>
                     </div>
-                    <div class="tree-container">
+                    <div class="tree-container" id="arbolPermisos">
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="nodo1">
                             <label class="form-check-label fw-bold" for="nodo1"><i class="bi bi-globe"></i> SWCORA (Sistema)</label>
                         </div>
                         <ul>
-                            <li>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="nodo2">
-                                    <label class="form-check-label fw-bold" for="nodo2"><i class="bi bi-box-seam"></i> Módulos</label>
-                                </div>
-                                <ul>
-                                    <li>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="nodo10">
-                                            <label class="form-check-label fw-bold" for="nodo10"><i class="bi bi-clipboard-check"></i> Salidas de Material</label>
-                                        </div>
-                                        <ul>
-                                            <li><div class="form-check"><input class="form-check-input" type="checkbox" id="p100"><label class="form-check-label" for="p100">➕ Crear salida</label></div></li>
-                                            <li><div class="form-check"><input class="form-check-input" type="checkbox" id="p101"><label class="form-check-label" for="p101">✏️ Editar salida</label></div></li>
-                                            <li><div class="form-check"><input class="form-check-input" type="checkbox" id="p102" checked><label class="form-check-label" for="p102">👁️ Ver listado</label></div></li>
-                                            <li><div class="form-check"><input class="form-check-input" type="checkbox" id="p103" checked><label class="form-check-label" for="p103">👁️ Ver detalles</label></div></li>
-                                            <li><div class="form-check"><input class="form-check-input" type="checkbox" id="p104"><label class="form-check-label" for="p104">✅ Aprobar salida</label></div></li>
-                                            <li><div class="form-check"><input class="form-check-input" type="checkbox" id="p105"><label class="form-check-label" for="p105">❌ Rechazar salida</label></div></li>
-                                            <li><div class="form-check"><input class="form-check-input" type="checkbox" id="p106"><label class="form-check-label" for="p106">🚫 Cancelar salida</label></div></li>
-                                            <li><div class="form-check"><input class="form-check-input" type="checkbox" id="p107"><label class="form-check-label" for="p107">📄 Descargar PDF</label></div></li>
-                                            <li><div class="form-check"><input class="form-check-input" type="checkbox" id="p108"><label class="form-check-label" for="p108">📋 Clonar salida</label></div></li>
-                                            <li><div class="form-check"><input class="form-check-input" type="checkbox" id="p109"><label class="form-check-label" for="p109">🗑️ Eliminar borrador</label></div></li>
-                                        </ul>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="nodo3">
-                                    <label class="form-check-label fw-bold" for="nodo3"><i class="bi bi-key"></i> Acceso a Módulos</label>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="nodo4">
-                                    <label class="form-check-label fw-bold" for="nodo4"><i class="bi bi-gear"></i> Administración</label>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="nodo5">
-                                    <label class="form-check-label fw-bold" for="nodo5"><i class="bi bi-bell"></i> Notificaciones</label>
-                                </div>
-                            </li>
-                        </ul>
+                                <!-- ============================================= -->
+                                <!-- MÓDULOS                                       -->
+                                <!-- ============================================= -->
+                                <li>
+                                    <div class="form-check">
+                                        <input class="form-check-input permiso-checkbox" type="checkbox" id="p-modulos" data-nivel="1">
+                                        <label class="form-check-label fw-bold" for="p-modulos">
+                                            <i class="bi bi-box-seam"></i> Módulos
+                                        </label>
+                                    </div>
+                                    <ul>
+                                        <li>
+                                            <div class="form-check">
+                                                <input class="form-check-input permiso-checkbox" type="checkbox" id="p-salidas" data-nivel="2">
+                                                <label class="form-check-label fw-bold" for="p-salidas">
+                                                    <i class="bi bi-clipboard-check"></i> Salidas de Material
+                                                </label>
+                                            </div>
+                                            <ul>
+                                                <li>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input permiso-checkbox" type="checkbox" id="p-salidas-crear">
+                                                        <label class="form-check-label" for="p-salidas-crear">➕ Crear salida</label>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input permiso-checkbox" type="checkbox" id="p-salidas-editar">
+                                                        <label class="form-check-label" for="p-salidas-editar">✏️ Editar salida</label>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input permiso-checkbox" type="checkbox" id="p-salidas-ver">
+                                                        <label class="form-check-label" for="p-salidas-ver">👁️ Ver salidas (Listado)</label>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input permiso-checkbox" type="checkbox" id="p-salidas-detalles">
+                                                        <label class="form-check-label" for="p-salidas-detalles">👁️ Ver detalles de salida</label>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input permiso-checkbox" type="checkbox" id="p-salidas-aprobar">
+                                                        <label class="form-check-label" for="p-salidas-aprobar">✅ Aprobar salida</label>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input permiso-checkbox" type="checkbox" id="p-salidas-rechazar">
+                                                        <label class="form-check-label" for="p-salidas-rechazar">❌ Rechazar salida</label>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input permiso-checkbox" type="checkbox" id="p-salidas-cancelar">
+                                                        <label class="form-check-label" for="p-salidas-cancelar">🗑️ Cancelar salida</label>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input permiso-checkbox" type="checkbox" id="p-salidas-clonar">
+                                                        <label class="form-check-label" for="p-salidas-clonar">📋 Clonar salida</label>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input permiso-checkbox" type="checkbox" id="p-salidas-pdf">
+                                                        <label class="form-check-label" for="p-salidas-pdf">📄 Descargar PDF</label>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input permiso-checkbox" type="checkbox" id="p-salidas-exportar">
+                                                        <label class="form-check-label" for="p-salidas-exportar">📊 Exportar CSV</label>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input permiso-checkbox" type="checkbox" id="p-salidas-importar">
+                                                        <label class="form-check-label" for="p-salidas-importar">📤 Importar CSV</label>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input permiso-checkbox" type="checkbox" id="p-salidas-plantillas">
+                                                        <label class="form-check-label" for="p-salidas-plantillas">📋 Gestionar plantillas</label>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input permiso-checkbox" type="checkbox" id="p-salidas-eliminar">
+                                                        <label class="form-check-label" for="p-salidas-eliminar">🗑️ Eliminar borrador</label>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </li>
+
+                                <!-- ============================================= -->
+                                <!-- ACCESO A MÓDULOS                              -->
+                                <!-- ============================================= -->
+                                <li>
+                                    <div class="form-check">
+                                        <input class="form-check-input permiso-checkbox" type="checkbox" id="p-acceso" data-nivel="1">
+                                        <label class="form-check-label fw-bold" for="p-acceso">
+                                            <i class="bi bi-key"></i> Acceso a Módulos
+                                        </label>
+                                    </div>
+                                    <ul>
+                                        <li>
+                                            <div class="form-check">
+                                                <input class="form-check-input permiso-checkbox" type="checkbox" id="p-acceso-solicitar">
+                                                <label class="form-check-label" for="p-acceso-solicitar">📝 Solicitar acceso</label>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div class="form-check">
+                                                <input class="form-check-input permiso-checkbox" type="checkbox" id="p-acceso-mis">
+                                                <label class="form-check-label" for="p-acceso-mis">📋 Ver mis solicitudes</label>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div class="form-check">
+                                                <input class="form-check-input permiso-checkbox" type="checkbox" id="p-acceso-mis">
+                                                <label class="form-check-label" for="p-acceso-mis">📋 Ver Aprobaciones Pendientes</label>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div class="form-check">
+                                                <input class="form-check-input permiso-checkbox" type="checkbox" id="p-acceso-aprobar">
+                                                <label class="form-check-label" for="p-acceso-aprobar">✅ Aprobar solicitudes</label>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div class="form-check">
+                                                <input class="form-check-input permiso-checkbox" type="checkbox" id="p-acceso-rechazar">
+                                                <label class="form-check-label" for="p-acceso-rechazar">❌ Rechazar solicitudes</label>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div class="form-check">
+                                                <input class="form-check-input permiso-checkbox" type="checkbox" id="p-acceso-cancelar">
+                                                <label class="form-check-label" for="p-acceso-cancelar">🗑️ Cancelar solicitudes</label>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div class="form-check">
+                                                <input class="form-check-input permiso-checkbox" type="checkbox" id="p-acceso-informe">
+                                                <label class="form-check-label" for="p-acceso-informe">📊 Exportar CSV</label>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </li>
+
+                                <!-- ============================================= -->
+                                <!-- ADMINISTRACIÓN                                -->
+                                <!-- ============================================= -->
+                                <li>
+                                    <div class="form-check">
+                                        <input class="form-check-input permiso-checkbox" type="checkbox" id="p-admin" data-nivel="1">
+                                        <label class="form-check-label fw-bold" for="p-admin">
+                                            <i class="bi bi-gear"></i> Administración
+                                        </label>
+                                    </div>
+                                    <ul>
+                                        <!-- Usuarios -->
+                                        <li>
+                                            <div class="form-check">
+                                                <input class="form-check-input permiso-checkbox" type="checkbox" id="p-admin-usuarios" data-nivel="2">
+                                                <label class="form-check-label fw-bold" for="p-admin-usuarios">
+                                                    <i class="bi bi-people"></i> Usuarios
+                                                </label>
+                                            </div>
+                                            <ul>
+                                                <li>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input permiso-checkbox" type="checkbox" id="p-admin-usuarios-ver">
+                                                        <label class="form-check-label" for="p-admin-usuarios-ver">👁️ Ver usuarios</label>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input permiso-checkbox" type="checkbox" id="p-admin-usuarios-editar">
+                                                        <label class="form-check-label" for="p-admin-usuarios-editar">✏️ Editar usuario</label>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input permiso-checkbox" type="checkbox" id="p-admin-usuarios-roles">
+                                                        <label class="form-check-label" for="p-admin-usuarios-roles">🔐 Asignar roles</label>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input permiso-checkbox" type="checkbox" id="p-admin-usuarios-modulos">
+                                                        <label class="form-check-label" for="p-admin-usuarios-modulos">📦 Asignar módulos</label>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input permiso-checkbox" type="checkbox" id="p-admin-usuarios-estado">
+                                                        <label class="form-check-label" for="p-admin-usuarios-estado">🔒 Activar/Desactivar usuario</label>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input permiso-checkbox" type="checkbox" id="p-admin-usuarios-informe">
+                                                        <label class="form-check-label" for="p-admin-usuarios-informe">📊 Exportar CSV</label>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                        </li>
+
+                                        <!-- Roles -->
+                                        <li>
+                                            <div class="form-check">
+                                                <input class="form-check-input permiso-checkbox" type="checkbox" id="p-admin-roles" data-nivel="2">
+                                                <label class="form-check-label fw-bold" for="p-admin-roles">
+                                                    <i class="bi bi-shield-lock"></i> Roles
+                                                </label>
+                                            </div>
+                                            <ul>
+                                                <li>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input permiso-checkbox" type="checkbox" id="p-admin-roles-ver">
+                                                        <label class="form-check-label" for="p-admin-roles-ver">👁️ Ver roles</label>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input permiso-checkbox" type="checkbox" id="p-admin-roles-crear">
+                                                        <label class="form-check-label" for="p-admin-roles-crear">➕ Crear rol</label>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input permiso-checkbox" type="checkbox" id="p-admin-roles-editar">
+                                                        <label class="form-check-label" for="p-admin-roles-editar">✏️ Editar rol</label>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input permiso-checkbox" type="checkbox" id="p-admin-roles-estado">
+                                                        <label class="form-check-label" for="p-admin-roles-estado">🔒 Activar/Desactivar rol</label>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input permiso-checkbox" type="checkbox" id="p-admin-roles-informe">
+                                                        <label class="form-check-label" for="p-admin-roles-informe">📊 Exportar CSV</label>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                        </li>
+
+                                        <!-- Módulos -->
+                                        <li>
+                                            <div class="form-check">
+                                                <input class="form-check-input permiso-checkbox" type="checkbox" id="p-admin-modulos" data-nivel="2">
+                                                <label class="form-check-label fw-bold" for="p-admin-modulos">
+                                                    <i class="bi bi-box-seam"></i> Módulos
+                                                </label>
+                                            </div>
+                                            <ul>
+                                                <li>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input permiso-checkbox" type="checkbox" id="p-admin-modulos-ver">
+                                                        <label class="form-check-label" for="p-admin-modulos-ver">👁️ Ver módulos</label>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input permiso-checkbox" type="checkbox" id="p-admin-modulos-estado">
+                                                        <label class="form-check-label" for="p-admin-modulos-estado">🔒 Activar/Desactivar módulo</label>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input permiso-checkbox" type="checkbox" id="p-admin-modulos-recargar">
+                                                        <label class="form-check-label" for="p-admin-modulos-recargar">🔄 Recargar módulos</label>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                        </li>
+
+                                        <!-- Empresas -->
+                                        <li>
+                                            <div class="form-check">
+                                                <input class="form-check-input permiso-checkbox" type="checkbox" id="p-admin-empresas" data-nivel="2">
+                                                <label class="form-check-label fw-bold" for="p-admin-empresas">
+                                                    <i class="bi bi-building"></i> Empresas
+                                                </label>
+                                            </div>
+                                            <ul>
+                                                <li>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input permiso-checkbox" type="checkbox" id="p-admin-empresas-ver">
+                                                        <label class="form-check-label" for="p-admin-empresas-ver">👁️ Ver empresas</label>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input permiso-checkbox" type="checkbox" id="p-admin-empresas-crear">
+                                                        <label class="form-check-label" for="p-admin-empresas-crear">➕ Crear empresa</label>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input permiso-checkbox" type="checkbox" id="p-admin-empresas-editar">
+                                                        <label class="form-check-label" for="p-admin-empresas-editar">✏️ Editar empresa</label>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input permiso-checkbox" type="checkbox" id="p-admin-empresas-estado">
+                                                        <label class="form-check-label" for="p-admin-empresas-estado">🔒 Activar/Desactivar empresa</label>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input permiso-checkbox" type="checkbox" id="p-admin-empresas-informe">
+                                                        <label class="form-check-label" for="p-admin-empresas-informe">📊 Exportar CSV</label>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input permiso-checkbox" type="checkbox" id="p-admin-tipos-empresa" data-nivel="3">
+                                                        <label class="form-check-label fw-bold" for="p-admin-tipos-empresa">
+                                                            <i class="bi bi-tags"></i> Tipos de Empresa
+                                                        </label>
+                                                    </div>
+                                                    <ul>
+                                                        <li>
+                                                            <div class="form-check">
+                                                                <input class="form-check-input permiso-checkbox" type="checkbox" id="p-admin-tipos-empresa-ver">
+                                                                <label class="form-check-label" for="p-admin-tipos-empresa-ver">👁️ Ver tipos</label>
+                                                            </div>
+                                                        </li>
+                                                        <li>
+                                                            <div class="form-check">
+                                                                <input class="form-check-input permiso-checkbox" type="checkbox" id="p-admin-tipos-empresa-crear">
+                                                                <label class="form-check-label" for="p-admin-tipos-empresa-crear">➕ Crear tipo</label>
+                                                            </div>
+                                                        </li>
+                                                        <li>
+                                                            <div class="form-check">
+                                                                <input class="form-check-input permiso-checkbox" type="checkbox" id="p-admin-tipos-empresa-editar">
+                                                                <label class="form-check-label" for="p-admin-tipos-empresa-editar">✏️ Editar tipo</label>
+                                                            </div>
+                                                        </li>
+                                                        <li>
+                                                            <div class="form-check">
+                                                                <input class="form-check-input permiso-checkbox" type="checkbox" id="p-admin-tipos-empresa-estado">
+                                                                <label class="form-check-label" for="p-admin-tipos-empresa-estado">🔒 Activar/Desactivar tipo</label>
+                                                            </div>
+                                                        </li>
+                                                    </ul>
+                                                </li>
+                                            </ul>
+                                        </li>
+
+                                        <!-- Unidades -->
+                                        <li>
+                                            <div class="form-check">
+                                                <input class="form-check-input permiso-checkbox" type="checkbox" id="p-admin-unidades" data-nivel="2">
+                                                <label class="form-check-label fw-bold" for="p-admin-unidades">
+                                                    <i class="bi bi-rulers"></i> Unidades
+                                                </label>
+                                            </div>
+                                            <ul>
+                                                <li>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input permiso-checkbox" type="checkbox" id="p-admin-unidades-ver">
+                                                        <label class="form-check-label" for="p-admin-unidades-ver">👁️ Ver unidades</label>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input permiso-checkbox" type="checkbox" id="p-admin-unidades-crear">
+                                                        <label class="form-check-label" for="p-admin-unidades-crear">➕ Crear unidad</label>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input permiso-checkbox" type="checkbox" id="p-admin-unidades-editar">
+                                                        <label class="form-check-label" for="p-admin-unidades-editar">✏️ Editar unidad</label>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input permiso-checkbox" type="checkbox" id="p-admin-unidades-estado">
+                                                        <label class="form-check-label" for="p-admin-unidades-estado">🔒 Activar/Desactivar unidad</label>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                        </li>
+
+                                        <!-- Departamentos -->
+                                        <li>
+                                            <div class="form-check">
+                                                <input class="form-check-input permiso-checkbox" type="checkbox" id="p-admin-departamentos" data-nivel="2">
+                                                <label class="form-check-label fw-bold" for="p-admin-departamentos">
+                                                    <i class="bi bi-diagram-3"></i> Departamentos
+                                                </label>
+                                            </div>
+                                            <ul>
+                                                <li>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input permiso-checkbox" type="checkbox" id="p-admin-departamentos-ver">
+                                                        <label class="form-check-label" for="p-admin-departamentos-ver">👁️ Ver departamentos</label>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input permiso-checkbox" type="checkbox" id="p-admin-departamentos-crear">
+                                                        <label class="form-check-label" for="p-admin-departamentos-crear">➕ Crear departamento</label>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input permiso-checkbox" type="checkbox" id="p-admin-departamentos-editar">
+                                                        <label class="form-check-label" for="p-admin-departamentos-editar">✏️ Editar departamento</label>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input permiso-checkbox" type="checkbox" id="p-admin-departamentos-estado">
+                                                        <label class="form-check-label" for="p-admin-departamentos-estado">🔒 Activar/Desactivar departamento</label>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input permiso-checkbox" type="checkbox" id="p-admin-departamentos-informe">
+                                                        <label class="form-check-label" for="p-admin-departamentos-informe">📊 Exportar CSV</label>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                        </li>
+
+                                        <!-- Logs -->
+                                        <li>
+                                            <div class="form-check">
+                                                <input class="form-check-input permiso-checkbox" type="checkbox" id="p-admin-logs" data-nivel="2">
+                                                <label class="form-check-label fw-bold" for="p-admin-logs">
+                                                    <i class="bi bi-journal-text"></i> Logs
+                                                </label>
+                                            </div>
+                                            <ul>
+                                                <li>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input permiso-checkbox" type="checkbox" id="p-admin-logs-ver">
+                                                        <label class="form-check-label" for="p-admin-logs-ver">👁️ Ver logs</label>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input permiso-checkbox" type="checkbox" id="p-admin-logs-informe">
+                                                        <label class="form-check-label" for="p-admin-logs-informe">📊 Exportar CSV</label>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </li>
+                            </ul>
                     </div>
                 </div>
                 <div class="modal-footer">

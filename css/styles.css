@@ -820,3 +820,17 @@ body > main {
         background-color: transparent;
     }
 }
+
+/* Árbol de permisos: plegado/desplegado */
+#arbolPermisos ul.nodo-colapsado {
+    display: none;
+}
+
+#arbolPermisos li > .form-check {
+    position: relative;
+}
+
+/* Cursor de "clickeable" en los labels de nodos padre */
+#arbolPermisos li:has(> ul) > .form-check > .form-check-label {
+    cursor: pointer;
+}
