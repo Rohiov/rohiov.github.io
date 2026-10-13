@@ -34,17 +34,12 @@
                                 <li><a class="dropdown-item" href="admin-logs.html"><i class="bi bi-journal-text"></i> Logs</a></li>
                             </ul>
                         </li>
-
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                                 <i class="bi bi-box-seam"></i> Módulos
                             </a>
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="salidas-index.html"><i class="bi bi-clipboard-check"></i> Salidas de Material</a></li>
-                                <!--
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item text-muted" href="#"><i class="bi bi-box"></i> Control de EPP <span class="badge bg-secondary ms-2">Próximamente</span></a></li>
-                                -->
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
@@ -78,7 +73,7 @@
         </nav>
     </header>
 
-    <div class="container mt-4" style="max-width: 960px;">
+    <div class="container mt-4" style="max-width: 1100px;">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
                 <h2><i class="bi bi-person-circle"></i> Mi Perfil</h2>
@@ -87,111 +82,107 @@
         </div>
 
         <!-- ============================================= -->
-        <!-- DATOS PERSONALES (solo lectura)                -->
+        <!-- GRID 60/40                                     -->
+        <!-- Izquierda: Datos Personales                    -->
+        <!-- Derecha: Seguridad + Roles y Accesos           -->
         <!-- ============================================= -->
-        <div class="card mb-4">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0"><i class="bi bi-person-badge"></i> Datos Personales</h5>
-                <span class="badge bg-info">
-                    <i class="bi bi-info-circle"></i> Sincronizado con Windows/AD
-                </span>
+        <div class="perfil-form-grid mb-4">
+
+            <!-- ============================================= -->
+            <!-- COLUMNA IZQUIERDA (60%)                        -->
+            <!-- ============================================= -->
+            <div class="perfil-col-left">
+
+                <!-- Datos Personales -->
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="bi bi-person-badge"></i> Datos Personales</h5>
+                        <span class="badge bg-info">
+                            <i class="bi bi-info-circle"></i> Sincronizado con AD
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Usuario Windows</label>
+                                <input type="text" class="form-control" value="DOMINIO\juan.perez" readonly>
+                                <small class="text-muted">Este dato no se puede modificar.</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Nombre completo</label>
+                                <input type="text" class="form-control" value="Juan Pérez" readonly>
+                                <small class="text-muted">Proviene del Directorio Activo.</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-control" value="juan.perez@empresa.com" readonly>
+                                <small class="text-muted">Proviene del Directorio Activo.</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Departamento</label>
+                                <input type="text" class="form-control" value="Sistemas" readonly>
+                                <small class="text-muted">Asignado por el Administrador.</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Último acceso</label>
+                                <input type="text" class="form-control" value="20/09/2026 10:30" readonly>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Fecha de registro</label>
+                                <input type="text" class="form-control" value="15/01/2026" readonly>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
-            <div class="card-body">
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <label class="form-label">Usuario Windows</label>
-                        <input type="text" class="form-control" value="DOMINIO\juan.perez" readonly>
-                        <small class="text-muted">Este dato no se puede modificar.</small>
+
+            <!-- ============================================= -->
+            <!-- COLUMNA DERECHA (40%)                          -->
+            <!-- ============================================= -->
+            <div class="perfil-col-right">
+
+                <!-- Seguridad -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-lock"></i> Seguridad</h5>
                     </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Nombre completo</label>
-                        <input type="text" class="form-control" value="Juan Pérez" readonly>
-                        <small class="text-muted">Proviene del Directorio Activo.</small>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Email</label>
-                        <input type="email" class="form-control" value="juan.perez@empresa.com" readonly>
-                        <small class="text-muted">Proviene del Directorio Activo.</small>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Departamento</label>
-                        <input type="text" class="form-control" value="Sistemas" readonly>
-                        <small class="text-muted">Asignado por el Administrador.</small>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Último acceso</label>
-                        <input type="text" class="form-control" value="20/09/2026 10:30" readonly>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Fecha de registro</label>
-                        <input type="text" class="form-control" value="15/01/2026" readonly>
+                    <div class="card-body">
+                        <!-- Cambiar contraseña -->
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>Cambiar contraseña</strong>
+                                <p class="text-muted small mb-0">Actualiza la contraseña de tu cuenta.</p>
+                            </div>
+                            <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalCambiarPassword">
+                                <i class="bi bi-key"></i> Cambiar
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <!-- ============================================= -->
-        <!-- ROLES Y ACCESOS                                -->
-        <!-- ============================================= -->
-        <div class="card mb-4">
-            <div class="card-header"><h5 class="mb-0"><i class="bi bi-shield-check"></i> Roles y Accesos</h5></div>
-            <div class="card-body">
-                <h6 class="text-muted mb-2">Rol Global</h6>
-                <p class="mb-3"><span class="badge bg-secondary">Sin rol global</span></p>
-
-                <h6 class="text-muted mb-2">Accesos a Módulos</h6>
-                <div class="mb-0">
-                    <span class="badge bg-primary mb-1">Salidas.Generador</span>
-                    <span class="badge bg-info mb-1">Salidas.Aprobador</span>
-                </div>
-                <small class="text-muted d-block mt-2">
-                    Para solicitar acceso a más módulos, ve a
-                    <a href="acceso-solicitar.html">Solicitar acceso</a>.
-                </small>
-            </div>
-        </div>
-
-        <!-- ============================================= -->
-        <!-- SEGURIDAD (solo Superadmin)                    -->
-        <!-- ============================================= -->
-        <div class="card mb-4">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0"><i class="bi bi-lock"></i> Seguridad</h5>
-                <span class="badge bg-warning text-dark">
-                    <i class="bi bi-lock-fill"></i> Solo Superusuario
-                </span>
-            </div>
-            <div class="card-body">
-                <div class="alert alert-info mb-3">
-                    <i class="bi bi-info-circle"></i> Las siguientes opciones solo están disponibles para la cuenta de Superusuario.
-                </div>
-
-                <!-- Cambiar contraseña -->
-                <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-3">
-                    <div>
-                        <strong>Cambiar contraseña</strong>
-                        <p class="text-muted small mb-0">Actualiza la contraseña de tu cuenta de Superusuario.</p>
+                <!-- Roles y Accesos -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-shield-check"></i> Roles y Accesos</h5>
                     </div>
-                    <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalCambiarPassword">
-                        <i class="bi bi-key"></i> Cambiar
-                    </button>
+                    <div class="card-body">
+                        <h6 class="text-muted mb-2">Rol Global</h6>
+                        <p class="mb-3"><span class="badge bg-secondary">Sin rol global</span></p>
+
+                        <h6 class="text-muted mb-2">Accesos a Módulos</h6>
+                        <div class="mb-0">
+                            <span class="badge bg-primary mb-1">Salidas.Generador</span>
+                            <span class="badge bg-info mb-1">Salidas.Aprobador</span>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Cerrar sesiones remotas -->
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <strong>Cerrar todas las sesiones activas</strong>
-                        <p class="text-muted small mb-0">Cierra la sesión en todos los dispositivos donde esté abierta tu cuenta.</p>
-                    </div>
-                    <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modalCerrarSesiones">
-                        <i class="bi bi-box-arrow-right"></i> Cerrar sesiones
-                    </button>
-                </div>
             </div>
         </div>
 
         <!-- ============================================= -->
-        <!-- SESIONES ACTIVAS                                -->
+        <!-- SESIONES ACTIVAS (ancho completo)              -->
         <!-- ============================================= -->
         <div class="card mb-4">
             <div class="card-header d-flex justify-content-between align-items-center">
@@ -254,7 +245,7 @@
                                 </td>
                             </tr>
 
-                            <!-- Sesión de OTRO usuario con cuenta Superadmin (o cualquier usuario con acceso) -->
+                            <!-- Sesión de otro usuario -->
                             <tr>
                                 <td><i class="bi bi-pc-display"></i> PC-ALMACEN-05</td>
                                 <td>
@@ -277,11 +268,10 @@
             </div>
             <div class="card-footer">
                 <small class="text-muted">
-                    <i class="bi bi-info-circle"></i> Aquí se muestran todas las sesiones activas de la cuenta de Superusuario, incluyendo las abiertas desde otros dispositivos o por otros usuarios autorizados.
+                    <i class="bi bi-info-circle"></i> Aquí se muestran todas las sesiones activas de la cuenta de Superusuario, incluyendo las abiertas desde otros dispositivos o por otros usuarios.
                 </small>
             </div>
         </div>
-
     </div>
 
     <!-- ============================================= -->
@@ -290,28 +280,33 @@
     <div class="modal fade" id="modalCambiarPassword" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header" style="background-color: var(--cora-accent); color: white;">
-                    <h5 class="modal-title"><i class="bi bi-key"></i> Cambiar Contraseña</h5>
+                <div class="modal-header" style="background-color: var(--cora-success); color: white;">
+                    <h5 class="modal-title" style="color: var(--cora-white);"><i class="bi bi-key"></i> Cambiar Contraseña</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label">Contraseña actual <span class="text-danger">*</span></label>
-                        <input type="password" class="form-control" required>
+                        <input type="password" class="form-control" id="inputPasswordActual" required>
+                        <div class="invalid-feedback">Debes ingresar tu contraseña actual.</div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Nueva contraseña <span class="text-danger">*</span></label>
-                        <input type="password" class="form-control" required>
-                        <small class="text-muted">Mínimo 8 caracteres, con al menos una mayúscula y un número.</small>
+                        <input type="password" class="form-control" id="inputPasswordNueva" required>
+                        <small class="text-muted">Mínimo 8 caracteres.</small>
+                        <div class="invalid-feedback">La contraseña debe tener al menos 8 caracteres.</div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Confirmar nueva contraseña <span class="text-danger">*</span></label>
-                        <input type="password" class="form-control" required>
+                        <input type="password" class="form-control" id="inputPasswordConfirmar" required>
+                        <div class="invalid-feedback">Las contraseñas no coinciden.</div>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary"><i class="bi bi-save"></i> Guardar</button>
+                    <button type="button" class="btn btn-primary" id="btnGuardarPassword">
+                        <i class="bi bi-save"></i> Guardar
+                    </button>
                 </div>
             </div>
         </div>
@@ -323,7 +318,7 @@
     <div class="modal fade" id="modalCerrarSesionIndividual" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header bg-danger text-white">
+                <div class="modal-header bg-success text-white">
                     <h5 class="modal-title"><i class="bi bi-exclamation-triangle"></i> Cerrar Sesión</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
@@ -343,7 +338,9 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-danger"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</button>
+                    <button type="button" class="btn btn-danger" id="btnConfirmarCerrarSesion">
+                        <i class="bi bi-box-arrow-right"></i> Cerrar sesión
+                    </button>
                 </div>
             </div>
         </div>
@@ -355,7 +352,7 @@
     <div class="modal fade" id="modalCerrarTodasSesiones" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header bg-danger text-white">
+                <div class="modal-header bg-success text-white">
                     <h5 class="modal-title"><i class="bi bi-exclamation-triangle"></i> Cerrar Todas las Sesiones</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
@@ -367,8 +364,39 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-danger"><i class="bi bi-box-arrow-right"></i> Cerrar todas</button>
+                    <button type="button" class="btn btn-danger" id="btnConfirmarCerrarTodas">
+                        <i class="bi bi-box-arrow-right"></i> Cerrar todas
+                    </button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================= -->
+    <!-- TOAST: Sesión cerrada con éxito                -->
+    <!-- ============================================= -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1090;">
+        <!-- Toast: Contraseña actualizada -->
+        <div id="toastPasswordActualizada" class="toast" role="alert" data-bs-delay="4000">
+            <div class="toast-header" style="background-color: var(--cora-success); color: white;">
+                <i class="bi bi-check-circle me-2"></i>
+                <strong class="me-auto">Contraseña actualizada</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body">
+                Tu contraseña ha sido actualizada con éxito.
+            </div>
+        </div>
+
+        <!-- Toast: Sesión Cerrada -->
+        <div id="toastSesionCerrada" class="toast" role="alert" data-bs-delay="4000">
+            <div class="toast-header" style="background-color: var(--cora-success); color: white;">
+                <i class="bi bi-check-circle me-2"></i>
+                <strong class="me-auto">Sesión cerrada</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body">
+                Se ha cerrado con éxito.
             </div>
         </div>
     </div>

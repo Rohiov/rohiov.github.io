@@ -77,18 +77,38 @@
     <div class="container mt-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2><i class="bi bi-bell"></i> Notificaciones</h2>
-            <button class="btn btn-outline-primary"><i class="bi bi-check-all"></i> Marcar todas como leídas</button>
+            <button class="btn btn-outline-primary" id="btnMarcarTodasLeidas">
+                <i class="bi bi-check-all"></i> Marcar todas como leídas
+            </button>
         </div>
 
-        <ul class="nav nav-pills mb-3">
-            <li class="nav-item"><a class="nav-link active" href="#">Todas (4)</a></li>
-            <li class="nav-item"><a class="nav-link" href="#">No leídas (3)</a></li>
-            <li class="nav-item"><a class="nav-link" href="#">Leídas (1)</a></li>
+        <!-- Tabs de filtro -->
+        <ul class="nav nav-pills mb-3" id="tabsNotificaciones">
+            <li class="nav-item">
+                <a class="nav-link active" href="#" data-filtro="todas">
+                    Todas (<span id="contadorTodas">0</span>)
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-filtro="no-leidas">
+                    No leídas (<span id="contadorNoLeidas">0</span>)
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-filtro="leidas">
+                    Leídas (<span id="contadorLeidas">0</span>)
+                </a>
+            </li>
         </ul>
 
+        <!-- Lista de notificaciones -->
         <div class="card">
-            <div class="list-group list-group-flush">
-                <div class="list-group-item d-flex align-items-start" style="background-color: var(--cora-bg);">
+            <div class="list-group list-group-flush" id="listaNotificaciones">
+
+                <!-- Notificación 1 (No leída) -->
+                <div class="list-group-item d-flex align-items-start notificacion-item no-leida"
+                    data-leida="false"
+                    style="background-color: var(--cora-bg);">
                     <i class="bi bi-check-circle-fill fs-3 me-3" style="color: var(--cora-success);"></i>
                     <div class="flex-grow-1">
                         <div class="d-flex justify-content-between">
@@ -97,10 +117,15 @@
                         </div>
                         <p class="mb-0 text-muted">Tu salida fue aprobada por María Gómez.</p>
                     </div>
-                    <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-check"></i></button>
+                    <button class="btn btn-sm btn-outline-secondary btn-marcar-leida" title="Marcar como leída">
+                        <i class="bi bi-check"></i>
+                    </button>
                 </div>
 
-                <div class="list-group-item d-flex align-items-start" style="background-color: var(--cora-bg);">
+                <!-- Notificación 2 (No leída) -->
+                <div class="list-group-item d-flex align-items-start notificacion-item no-leida"
+                    data-leida="false"
+                    style="background-color: var(--cora-bg);">
                     <i class="bi bi-file-text-fill fs-3 me-3" style="color: var(--cora-accent);"></i>
                     <div class="flex-grow-1">
                         <div class="d-flex justify-content-between">
@@ -109,10 +134,15 @@
                         </div>
                         <p class="mb-0 text-muted">Carlos Ruiz solicita acceso al módulo Salidas de Material con rol Generador.</p>
                     </div>
-                    <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-check"></i></button>
+                    <button class="btn btn-sm btn-outline-secondary btn-marcar-leida" title="Marcar como leída">
+                        <i class="bi bi-check"></i>
+                    </button>
                 </div>
 
-                <div class="list-group-item d-flex align-items-start" style="background-color: var(--cora-bg);">
+                <!-- Notificación 3 (No leída) -->
+                <div class="list-group-item d-flex align-items-start notificacion-item no-leida"
+                    data-leida="false"
+                    style="background-color: var(--cora-bg);">
                     <i class="bi bi-clock-fill fs-3 me-3" style="color: var(--cora-warning);"></i>
                     <div class="flex-grow-1">
                         <div class="d-flex justify-content-between">
@@ -121,10 +151,14 @@
                         </div>
                         <p class="mb-0 text-muted">El retorno esperado venció el 15/09/2026.</p>
                     </div>
-                    <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-check"></i></button>
+                    <button class="btn btn-sm btn-outline-secondary btn-marcar-leida" title="Marcar como leída">
+                        <i class="bi bi-check"></i>
+                    </button>
                 </div>
 
-                <div class="list-group-item d-flex align-items-start">
+                <!-- Notificación 4 (Ya leída) -->
+                <div class="list-group-item d-flex align-items-start notificacion-item leida"
+                    data-leida="true">
                     <i class="bi bi-x-circle-fill fs-3 me-3" style="color: var(--cora-accent);"></i>
                     <div class="flex-grow-1">
                         <div class="d-flex justify-content-between">
@@ -134,6 +168,7 @@
                         <p class="mb-0 text-muted">Motivo: Material no autorizado.</p>
                     </div>
                 </div>
+
             </div>
         </div>
     </div>

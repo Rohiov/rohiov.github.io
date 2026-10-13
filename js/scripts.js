@@ -2,6 +2,105 @@
 // SWCORA - Scripts del Mockup
 // =============================================
 
+// =============================================
+// UTILIDAD GLOBAL: Exportar tabla a CSV
+// Reutilizable en cualquier página.
+// Uso:
+//   exportarTablaACSV('#tablaUsuarios', 'usuarios');
+//   exportarTablaACSV(tablaElement, 'salidas', { omitirColumnas: [0, 6] });
+// =============================================
+function exportarTablaACSV(tablaSelector, nombreArchivo, opciones) {
+    opciones = opciones || {};
+
+    // 1. Resolver el elemento de la tabla
+    let tabla = null;
+    if (typeof tablaSelector === 'string') {
+        tabla = document.querySelector(tablaSelector);
+    } else if (tablaSelector instanceof HTMLElement) {
+        tabla = tablaSelector;
+    }
+    if (!tabla) {
+        console.warn('exportarTablaACSV: no se encontró la tabla', tablaSelector);
+        return;
+    }
+
+    // 2. Opciones
+    const omitirColumnas = opciones.omitirColumnas || []; // índices a omitir (0-based)
+    const incluirOcultas = opciones.incluirOcultas === true; // por defecto false: solo visibles
+    const separador = opciones.separador || ',';
+    const nombreBase = nombreArchivo || 'exportacion';
+
+    // 3. Encabezados
+    const ths = tabla.querySelectorAll('thead th');
+    const encabezados = [];
+    ths.forEach(function (th, index) {
+        if (omitirColumnas.includes(index)) return;
+        encabezados.push(limpiarTexto(th.textContent));
+    });
+
+    // 4. Filas
+    const filas = [];
+    tabla.querySelectorAll('tbody tr').forEach(function (tr) {
+        // Si está oculta por filtro, la saltamos (a menos que se indique lo contrario)
+        if (!incluirOcultas && tr.classList.contains('d-none')) return;
+
+        const celdas = tr.querySelectorAll('td');
+        const fila = [];
+        celdas.forEach(function (td, index) {
+            if (omitirColumnas.includes(index)) return;
+            fila.push(limpiarTexto(td.textContent));
+        });
+        filas.push(fila);
+    });
+
+    // 5. Generar contenido CSV
+    const lineas = [];
+    lineas.push(encabezados.map(escaparCSV).join(separador));
+    filas.forEach(function (fila) {
+        lineas.push(fila.map(escaparCSV).join(separador));
+    });
+
+    // 6. BOM UTF-8 para que Excel respete los acentos
+    const contenido = '\uFEFF' + lineas.join('\r\n');
+
+    // 7. Blob y descarga
+    const blob = new Blob([contenido], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+
+    const fecha = new Date();
+    const pad = n => String(n).padStart(2, '0');
+    const timestamp = fecha.getFullYear() + pad(fecha.getMonth() + 1) + pad(fecha.getDate()) +
+                      '_' + pad(fecha.getHours()) + pad(fecha.getMinutes());
+
+    const enlace = document.createElement('a');
+    enlace.href = url;
+    enlace.download = nombreBase + '_' + timestamp + '.csv';
+    enlace.style.display = 'none';
+    document.body.appendChild(enlace);
+    enlace.click();
+    document.body.removeChild(enlace);
+    URL.revokeObjectURL(url);
+
+    // ---- Helpers internos ----
+    function limpiarTexto(texto) {
+        return String(texto || '')
+            .replace(/\s+/g, ' ')   // colapsa espacios, saltos de línea, tabs
+            .trim();
+    }
+
+    function escaparCSV(valor) {
+        const texto = String(valor);
+        // Si contiene separador, comillas o salto de línea → entrecomillar
+        if (texto.indexOf(separador) !== -1 ||
+            texto.indexOf('"') !== -1 ||
+            texto.indexOf('\n') !== -1 ||
+            texto.indexOf('\r') !== -1) {
+            return '"' + texto.replace(/"/g, '""') + '"';
+        }
+        return texto;
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     console.log('SWCORA Mockup cargado correctamente');
 
@@ -321,12 +420,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const btnGuardarPlantilla = document.getElementById('btnGuardarPlantilla');
 
     if (tabAplicarBtn && tabCrearBtn && btnGuardarPlantilla) {
-        // Al mostrar la pestaña "Aplicar Plantilla" → ocultar botón
         tabAplicarBtn.addEventListener('shown.bs.tab', function () {
             btnGuardarPlantilla.style.display = 'none';
         });
 
-        // Al mostrar la pestaña "Crear Plantilla" → mostrar botón
         tabCrearBtn.addEventListener('shown.bs.tab', function () {
             btnGuardarPlantilla.style.display = 'inline-block';
         });
@@ -391,7 +488,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if (cantidadDistintaDeUno || descripcion !== '' || comentario !== '') {
                 const confirmar = confirm('¿Deseas eliminar esta fila y su contenido?');
-                
+                if (!confirmar) return;
             }
 
             fila.remove();
@@ -457,7 +554,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const btnSeleccionarTodo = document.getElementById('btnSeleccionarTodo');
         const btnDeseleccionarTodo = document.getElementById('btnDeseleccionarTodo');
 
-        // ---------- 1. Insertar flechas de plegado en cada <li> padre ----------
         arbolPermisos.querySelectorAll('li').forEach(function (li) {
             const subUl = li.querySelector(':scope > ul');
             const formCheck = li.querySelector(':scope > .form-check');
@@ -485,7 +581,6 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
 
-        // ---------- 2. Plegado individual al hacer clic en la flecha ----------
         arbolPermisos.addEventListener('click', function (e) {
             const toggle = e.target.closest('.toggle-nodo');
             if (!toggle || toggle.classList.contains('placeholder')) return;
@@ -498,7 +593,6 @@ document.addEventListener('DOMContentLoaded', function () {
             toggle.classList.toggle('colapsado');
         });
 
-        // ---------- 3. Expandir todo ----------
         if (btnExpandirArbol) {
             btnExpandirArbol.addEventListener('click', function () {
                 arbolPermisos.querySelectorAll('ul.nodo-colapsado').forEach(function (ul) {
@@ -510,7 +604,6 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
 
-        // ---------- 4. Colapsar todo ----------
         if (btnColapsarArbol) {
             btnColapsarArbol.addEventListener('click', function () {
                 arbolPermisos.querySelectorAll('ul ul').forEach(function (ul) {
@@ -522,7 +615,6 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
 
-        // ---------- 5. Seleccionar todo ----------
         if (btnSeleccionarTodo) {
             btnSeleccionarTodo.addEventListener('click', function () {
                 arbolPermisos.querySelectorAll('input[type="checkbox"]').forEach(function (cb) {
@@ -532,7 +624,6 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
 
-        // ---------- 6. Deseleccionar todo ----------
         if (btnDeseleccionarTodo) {
             btnDeseleccionarTodo.addEventListener('click', function () {
                 arbolPermisos.querySelectorAll('input[type="checkbox"]').forEach(function (cb) {
@@ -541,6 +632,130 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
             });
         }
+    }
+
+    // =============================================
+    // MI PERFIL: toast al cerrar sesión
+    // =============================================
+    const btnConfirmarCerrarSesion = document.getElementById('btnConfirmarCerrarSesion');
+    const btnConfirmarCerrarTodas = document.getElementById('btnConfirmarCerrarTodas');
+    const toastSesionCerradaEl = document.getElementById('toastSesionCerrada');
+    const modalCerrarSesionIndividualEl = document.getElementById('modalCerrarSesionIndividual');
+    const modalCerrarTodasSesionesEl = document.getElementById('modalCerrarTodasSesiones');
+
+    function mostrarToastSesionCerrada() {
+        if (!toastSesionCerradaEl) return;
+        const toast = new bootstrap.Toast(toastSesionCerradaEl);
+        toast.show();
+    }
+
+    if (btnConfirmarCerrarSesion && modalCerrarSesionIndividualEl) {
+        btnConfirmarCerrarSesion.addEventListener('click', function () {
+            const instance = bootstrap.Modal.getInstance(modalCerrarSesionIndividualEl);
+            if (instance) instance.hide();
+
+            modalCerrarSesionIndividualEl.addEventListener('hidden.bs.modal', function handler() {
+                mostrarToastSesionCerrada();
+                modalCerrarSesionIndividualEl.removeEventListener('hidden.bs.modal', handler);
+            });
+        });
+    }
+
+    // =============================================
+    // MI PERFIL: Cambiar contraseña con validación + toast
+    // =============================================
+    const btnGuardarPassword = document.getElementById('btnGuardarPassword');
+    const inputPasswordActual = document.getElementById('inputPasswordActual');
+    const inputPasswordNueva = document.getElementById('inputPasswordNueva');
+    const inputPasswordConfirmar = document.getElementById('inputPasswordConfirmar');
+    const toastPasswordActualizadaEl = document.getElementById('toastPasswordActualizada');
+    const modalCambiarPasswordEl = document.getElementById('modalCambiarPassword');
+
+    if (btnGuardarPassword && modalCambiarPasswordEl) {
+
+        [inputPasswordActual, inputPasswordNueva, inputPasswordConfirmar].forEach(function (input) {
+            if (!input) return;
+            input.addEventListener('input', function () {
+                this.classList.remove('is-invalid');
+            });
+        });
+
+        btnGuardarPassword.addEventListener('click', function () {
+            const actual = inputPasswordActual.value.trim();
+            const nueva = inputPasswordNueva.value;
+            const confirmar = inputPasswordConfirmar.value;
+
+            [inputPasswordActual, inputPasswordNueva, inputPasswordConfirmar].forEach(function (input) {
+                input.classList.remove('is-invalid');
+            });
+
+            let valido = true;
+
+            if (!actual) {
+                inputPasswordActual.classList.add('is-invalid');
+                valido = false;
+            }
+
+            if (!nueva) {
+                inputPasswordNueva.classList.add('is-invalid');
+                valido = false;
+            } else if (nueva.length < 8) {
+                inputPasswordNueva.classList.add('is-invalid');
+                valido = false;
+            }
+
+            if (!confirmar) {
+                inputPasswordConfirmar.classList.add('is-invalid');
+                valido = false;
+            } else if (nueva && confirmar !== nueva) {
+                inputPasswordConfirmar.classList.add('is-invalid');
+                valido = false;
+            }
+
+            if (actual && nueva && actual === nueva) {
+                inputPasswordNueva.classList.add('is-invalid');
+                valido = false;
+            }
+
+            if (!valido) {
+                const primerError = modalCambiarPasswordEl.querySelector('.is-invalid');
+                if (primerError) primerError.focus();
+                return;
+            }
+
+            console.log('🔐 CAMBIAR CONTRASEÑA:', { actual: '••••••', nueva: '••••••' });
+
+            const instance = bootstrap.Modal.getInstance(modalCambiarPasswordEl);
+            if (instance) instance.hide();
+
+            modalCambiarPasswordEl.addEventListener('hidden.bs.modal', function handler() {
+                inputPasswordActual.value = '';
+                inputPasswordNueva.value = '';
+                inputPasswordConfirmar.value = '';
+                [inputPasswordActual, inputPasswordNueva, inputPasswordConfirmar].forEach(function (input) {
+                    input.classList.remove('is-invalid');
+                });
+
+                if (toastPasswordActualizadaEl) {
+                    const toast = new bootstrap.Toast(toastPasswordActualizadaEl);
+                    toast.show();
+                }
+
+                modalCambiarPasswordEl.removeEventListener('hidden.bs.modal', handler);
+            });
+        });
+    }
+
+    if (btnConfirmarCerrarTodas && modalCerrarTodasSesionesEl) {
+        btnConfirmarCerrarTodas.addEventListener('click', function () {
+            const instance = bootstrap.Modal.getInstance(modalCerrarTodasSesionesEl);
+            if (instance) instance.hide();
+
+            modalCerrarTodasSesionesEl.addEventListener('hidden.bs.modal', function handler() {
+                mostrarToastSesionCerrada();
+                modalCerrarTodasSesionesEl.removeEventListener('hidden.bs.modal', handler);
+            });
+        });
     }
 
     // =============================================
@@ -722,9 +937,13 @@ document.addEventListener('DOMContentLoaded', function () {
         const textareaMotivo = document.getElementById('textareaMotivo');
 
         const modalElegirAprobadorEl = document.getElementById('modalElegirAprobador');
+        const selectAprobador = document.getElementById('selectAprobador');
+        const btnConfirmarEnvio = document.getElementById('btnConfirmarEnvio');
 
         const resumenModulo = document.getElementById('resumenModulo');
         const resumenMotivo = document.getElementById('resumenMotivo');
+
+        const toastSolicitudEnviadaEl = document.getElementById('toastSolicitudEnviada');
 
         btnEnviarSolicitud.addEventListener('click', function () {
             if (!selectModuloSolicitud.value) {
@@ -742,6 +961,503 @@ document.addEventListener('DOMContentLoaded', function () {
             const modal = new bootstrap.Modal(modalElegirAprobadorEl);
             modal.show();
         });
+
+        btnConfirmarEnvio.addEventListener('click', function () {
+            if (!selectAprobador.value) {
+                selectAprobador.classList.add('is-invalid');
+                selectAprobador.focus();
+                return;
+            }
+
+            const payload = {
+                modulo: selectModuloSolicitud.value,
+                rol: 'Generador',
+                motivo: textareaMotivo.value.trim(),
+                aprobador: selectAprobador.value
+            };
+
+            console.log('📤 ENVIAR SOLICITUD:', payload);
+
+            const modalInstance = bootstrap.Modal.getInstance(modalElegirAprobadorEl);
+            if (modalInstance) modalInstance.hide();
+
+            if (toastSolicitudEnviadaEl) {
+                const toast = new bootstrap.Toast(toastSolicitudEnviadaEl);
+                toast.show();
+            }
+
+            selectModuloSolicitud.value = '';
+            textareaMotivo.value = '';
+
+            setTimeout(function () {
+                window.location.href = 'acceso-mis-solicitudes.html';
+            }, 2000);
+        });
     }
+
+    // =============================================
+    // NOTIFICACIONES: filtros + marcar como leídas
+    // =============================================
+    const listaNotificaciones = document.getElementById('listaNotificaciones');
+
+    if (listaNotificaciones) {
+        const tabsNotificaciones = document.querySelectorAll('#tabsNotificaciones .nav-link');
+        const contadorTodas = document.getElementById('contadorTodas');
+        const contadorNoLeidas = document.getElementById('contadorNoLeidas');
+        const contadorLeidas = document.getElementById('contadorLeidas');
+        const btnMarcarTodasLeidas = document.getElementById('btnMarcarTodasLeidas');
+
+        let filtroActivo = 'todas';
+
+        function getNotificaciones() {
+            return listaNotificaciones.querySelectorAll('.notificacion-item');
+        }
+
+        function esNoLeida(n) {
+            return n.getAttribute('data-leida') === 'false';
+        }
+
+        function actualizarContadores() {
+            const notis = getNotificaciones();
+            let total = notis.length;
+            let noLeidas = 0;
+            let leidas = 0;
+
+            notis.forEach(function (n) {
+                if (esNoLeida(n)) noLeidas++;
+                else leidas++;
+            });
+
+            if (contadorTodas) contadorTodas.textContent = total;
+            if (contadorNoLeidas) contadorNoLeidas.textContent = noLeidas;
+            if (contadorLeidas) contadorLeidas.textContent = leidas;
+        }
+
+        function aplicarFiltro() {
+            const notis = getNotificaciones();
+
+            notis.forEach(function (n) {
+                const leida = !esNoLeida(n);
+                let visible = true;
+
+                if (filtroActivo === 'no-leidas') visible = !leida;
+                else if (filtroActivo === 'leidas') visible = leida;
+
+                if (visible) {
+                    n.classList.remove('d-none');
+                } else {
+                    n.classList.add('d-none');
+                }
+            });
+        }
+
+        function marcarComoLeida(n) {
+            if (!esNoLeida(n)) return;
+
+            n.setAttribute('data-leida', 'true');
+            n.classList.remove('no-leida');
+            n.classList.add('leida');
+            n.style.backgroundColor = '';
+
+            const btn = n.querySelector('.btn-marcar-leida');
+            if (btn) btn.remove();
+        }
+
+        tabsNotificaciones.forEach(function (tab) {
+            tab.addEventListener('click', function (e) {
+                e.preventDefault();
+
+                tabsNotificaciones.forEach(function (t) {
+                    t.classList.remove('active');
+                });
+
+                this.classList.add('active');
+
+                filtroActivo = this.getAttribute('data-filtro') || 'todas';
+
+                aplicarFiltro();
+            });
+        });
+
+        listaNotificaciones.addEventListener('click', function (e) {
+            const btn = e.target.closest('.btn-marcar-leida');
+            if (!btn) return;
+
+            const noti = btn.closest('.notificacion-item');
+            if (!noti) return;
+
+            marcarComoLeida(noti);
+            actualizarContadores();
+            aplicarFiltro();
+        });
+
+        if (btnMarcarTodasLeidas) {
+            btnMarcarTodasLeidas.addEventListener('click', function () {
+                const notis = getNotificaciones();
+                let huboCambios = false;
+
+                notis.forEach(function (n) {
+                    if (esNoLeida(n)) {
+                        marcarComoLeida(n);
+                        huboCambios = true;
+                    }
+                });
+
+                actualizarContadores();
+                aplicarFiltro();
+            });
+        }
+
+        actualizarContadores();
+        aplicarFiltro();
+    }
+
+    // =============================================
+    // ADMIN USUARIOS: filtros en tiempo real + orden por relevancia
+    // =============================================
+    const tablaUsuarios = document.getElementById('tablaUsuarios');
+
+    if (tablaUsuarios) {
+        const filtroBuscar = document.getElementById('filtroUsuariosBuscar');
+        const filtroTipoRol = document.getElementById('filtroUsuariosTipoRol');
+        const filtroRol = document.getElementById('filtroUsuariosRol');
+        const filtroEstado = document.getElementById('filtroUsuariosEstado');
+        const btnLimpiarFiltrosUsuarios = document.getElementById('btnLimpiarFiltrosUsuarios');
+
+        const contadorUsuarios = document.getElementById('contadorUsuarios');
+
+        const tbodyUsuarios = tablaUsuarios.querySelector('tbody');
+        const filas = Array.from(tablaUsuarios.querySelectorAll('.usuario-row'));
+        const totalFilas = filas.length;
+
+        const ordenOriginal = filas.slice();
+
+        if (contadorUsuarios) contadorUsuarios.textContent = totalFilas;
+
+        function normalizar(texto) {
+            return String(texto || '')
+                .toLowerCase()
+                .trim()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '');
+        }
+
+        function palabrasDe(nombreCompleto) {
+            return normalizar(nombreCompleto)
+                .split(/\s+/)
+                .filter(Boolean);
+        }
+
+        function calcularScore(terminos, palabras) {
+            if (terminos.length === 0) return 0;
+
+            const nombre = palabras[0] || '';
+            const apellidos = palabras.slice(1);
+
+            let score = 0;
+
+            for (let i = 0; i < terminos.length; i++) {
+                const termino = terminos[i];
+                if (!termino) continue;
+
+                const coincideNombre = nombre.startsWith(termino);
+                const coincideApellido = apellidos.some(function (ap) {
+                    return ap.startsWith(termino);
+                });
+
+                if (!coincideNombre && !coincideApellido) return -1;
+
+                const pesoTermino = terminos.length - i;
+                if (coincideNombre) {
+                    score += 10 * pesoTermino;
+                } else if (coincideApellido) {
+                    score += 5 * pesoTermino;
+                }
+            }
+
+            return score;
+        }
+
+        function reordenarDom(listaOrdenada) {
+            listaOrdenada.forEach(function (fila) {
+                tbodyUsuarios.appendChild(fila);
+            });
+        }
+
+        function restaurarOrdenOriginal() {
+            reordenarDom(ordenOriginal);
+        }
+
+        function aplicarFiltrosUsuarios() {
+            const busquedaRaw = normalizar(filtroBuscar.value);
+            const terminos = busquedaRaw ? busquedaRaw.split(/\s+/).filter(Boolean) : [];
+
+            const tipoRol = filtroTipoRol.value;
+            const rol = filtroRol.value;
+            const estado = filtroEstado.value;
+
+            let visibles = 0;
+
+            const datos = filas.map(function (fila) {
+                const nombreAttr = fila.getAttribute('data-nombre') || '';
+                const palabras = palabrasDe(nombreAttr);
+                const filaTipoRol = fila.getAttribute('data-tiporol') || '';
+                const filaRoles = fila.getAttribute('data-roles') || '';
+                const filaEstado = fila.getAttribute('data-estado') || '';
+
+                const score = calcularScore(terminos, palabras);
+
+                const coincideTipoRol = !tipoRol || filaTipoRol === tipoRol;
+                const coincideRol = !rol || filaRoles.split(' ').includes(rol);
+                const coincideEstado = !estado || filaEstado === estado;
+
+                const visible = score >= 0 && coincideTipoRol && coincideRol && coincideEstado;
+
+                if (visible) visibles++;
+
+                return {
+                    fila: fila,
+                    visible: visible,
+                    score: score,
+                    nombreOrden: normalizar(nombreAttr)
+                };
+            });
+
+            datos.forEach(function (d) {
+                if (d.visible) {
+                    d.fila.classList.remove('d-none');
+                } else {
+                    d.fila.classList.add('d-none');
+                }
+            });
+
+            const visiblesOrdenadas = datos
+                .filter(d => d.visible)
+                .sort(function (a, b) {
+                    if (b.score !== a.score) return b.score - a.score;
+                    return a.nombreOrden.localeCompare(b.nombreOrden);
+                });
+
+            const noVisibles = datos.filter(d => !d.visible);
+
+            reordenarDom(visiblesOrdenadas.map(d => d.fila).concat(noVisibles.map(d => d.fila)));
+
+            if (contadorUsuarios) contadorUsuarios.textContent = visibles;
+        }
+
+        if (filtroBuscar) filtroBuscar.addEventListener('input', aplicarFiltrosUsuarios);
+        if (filtroTipoRol) filtroTipoRol.addEventListener('change', aplicarFiltrosUsuarios);
+        if (filtroRol) filtroRol.addEventListener('change', aplicarFiltrosUsuarios);
+        if (filtroEstado) filtroEstado.addEventListener('change', aplicarFiltrosUsuarios);
+
+        if (btnLimpiarFiltrosUsuarios) {
+            btnLimpiarFiltrosUsuarios.addEventListener('click', function () {
+                if (filtroBuscar) filtroBuscar.value = '';
+                if (filtroTipoRol) filtroTipoRol.value = '';
+                if (filtroRol) filtroRol.value = '';
+                if (filtroEstado) filtroEstado.value = '';
+
+                restaurarOrdenOriginal();
+                aplicarFiltrosUsuarios();
+            });
+        }
+
+        aplicarFiltrosUsuarios();
+    }
+
+    // =============================================
+    // MODAL ACCESOS: secciones dinámicas + toast Guardar
+    // =============================================
+    const modalAccesosEl = document.getElementById('modalAccesos');
+
+    if (modalAccesosEl) {
+        const selectRolGlobal = document.getElementById('selectRolGlobal');
+        const seccionRolesGlobales = document.getElementById('seccionRolesGlobales');
+        const seccionSalidasMateriales = document.getElementById('seccionSalidasMateriales');
+        const seccionSinRol = document.getElementById('seccionSinRol');
+        const btnGuardarAccesos = document.getElementById('btnGuardarAccesos');
+        const toastCambiosGuardadosEl = document.getElementById('toastCambiosGuardados');
+
+        // ---------- Actualizar visibilidad de secciones según Rol Global ----------
+        function actualizarSeccionesAccesos() {
+            const valor = selectRolGlobal.value;
+
+            // Reset
+            seccionRolesGlobales.classList.add('d-none');
+            seccionSalidasMateriales.classList.add('d-none');
+            seccionSinRol.classList.add('d-none');
+
+            if (valor === 'global') {
+                seccionRolesGlobales.classList.remove('d-none');
+            } else if (valor === 'local') {
+                seccionSalidasMateriales.classList.remove('d-none');
+            } else {
+                seccionSinRol.classList.remove('d-none');
+            }
+        }
+
+        // Listener del select
+        if (selectRolGlobal) {
+            selectRolGlobal.addEventListener('change', actualizarSeccionesAccesos);
+        }
+
+        // Al abrir el modal, resetear el select y actualizar secciones
+        modalAccesosEl.addEventListener('show.bs.modal', function () {
+            if (selectRolGlobal) selectRolGlobal.value = '';
+            actualizarSeccionesAccesos();
+        });
+
+        // ---------- Botón Guardar: toast "Cambios guardados" ----------
+        if (btnGuardarAccesos) {
+            btnGuardarAccesos.addEventListener('click', function () {
+                // Cerrar modal
+                const instance = bootstrap.Modal.getInstance(modalAccesosEl);
+                if (instance) instance.hide();
+
+                // Mostrar toast al terminar de cerrar
+                modalAccesosEl.addEventListener('hidden.bs.modal', function handler() {
+                    if (toastCambiosGuardadosEl) {
+                        const toast = new bootstrap.Toast(toastCambiosGuardadosEl);
+                        toast.show();
+                    }
+                    modalAccesosEl.removeEventListener('hidden.bs.modal', handler);
+                });
+            });
+        }
+    }
+
+    // =============================================
+    // ADMIN USUARIOS: botones Activar/Desactivar + toasts
+    // =============================================
+    const tablaUsuariosParaToggle = document.getElementById('tablaUsuarios');
+
+    if (tablaUsuariosParaToggle) {
+        const toastUsuarioActivadoEl = document.getElementById('toastUsuarioActivado');
+        const toastUsuarioDesactivadoEl = document.getElementById('toastUsuarioDesactivado');
+
+        // Delegación de eventos: funciona para filas dinámicas también
+        tablaUsuariosParaToggle.addEventListener('click', function (e) {
+            const btn = e.target.closest('.btn-toggle-estado-usuario');
+            if (!btn) return;
+
+            const fila = btn.closest('.usuario-row');
+            if (!fila) return;
+
+            const accion = btn.getAttribute('data-accion'); // "activar" | "desactivar"
+            const badgeEstado = fila.querySelector('td:nth-child(6) .badge');
+
+            if (accion === 'desactivar') {
+                // Cambiar a estado inactivo
+                fila.setAttribute('data-estado', 'inactivo');
+
+                if (badgeEstado) {
+                    badgeEstado.textContent = 'Inactivo';
+                    badgeEstado.classList.remove('bg-success');
+                    badgeEstado.classList.add('bg-danger');
+                }
+
+                // Cambiar el botón a "Activar" (verde)
+                btn.classList.remove('btn-outline-primary');
+                btn.classList.add('btn-outline-success');
+                btn.setAttribute('title', 'Activar');
+                btn.setAttribute('data-accion', 'activar');
+
+                // Mostrar toast
+                if (toastUsuarioDesactivadoEl) {
+                    const toast = new bootstrap.Toast(toastUsuarioDesactivadoEl);
+                    toast.show();
+                }
+
+            } else if (accion === 'activar') {
+                // Cambiar a estado activo
+                fila.setAttribute('data-estado', 'activo');
+
+                if (badgeEstado) {
+                    badgeEstado.textContent = 'Activo';
+                    badgeEstado.classList.remove('bg-danger');
+                    badgeEstado.classList.add('bg-success');
+                }
+
+                // Cambiar el botón a "Desactivar" (rojo)
+                btn.classList.remove('btn-outline-success');
+                btn.classList.add('btn-outline-primary');
+                btn.setAttribute('title', 'Desactivar');
+                btn.setAttribute('data-accion', 'desactivar');
+
+                // Mostrar toast
+                if (toastUsuarioActivadoEl) {
+                    const toast = new bootstrap.Toast(toastUsuarioActivadoEl);
+                    toast.show();
+                }
+            }
+        });
+    }
+
+        // =============================================
+    // EXPORTAR CSV: listener genérico y reutilizable
+    // Detecta botones con [data-tabla] o .btn-exportar-csv
+    // =============================================
+    document.querySelectorAll('[data-tabla], .btn-exportar-csv').forEach(function (btn) {
+        // Evitar doble enganche
+        if (btn.dataset.exportListener === 'true') return;
+        btn.dataset.exportListener = 'true';
+
+        btn.addEventListener('click', function () {
+            // Prioridad: data-tabla → data-target → tabla cercana
+            let selector = btn.getAttribute('data-tabla') || btn.getAttribute('data-target');
+
+            // Si no hay selector, buscar la tabla más cercana en el mismo card
+            if (!selector) {
+                const card = btn.closest('.card');
+                const tablaCercana = card ? card.querySelector('table') : null;
+                if (tablaCercana) {
+                    // Le asignamos un id temporal si no tiene
+                    if (!tablaCercana.id) {
+                        tablaCercana.id = 'tabla-auto-' + Date.now();
+                    }
+                    selector = '#' + tablaCercana.id;
+                }
+            }
+
+            if (!selector) {
+                console.warn('Botón de exportar sin tabla asociada');
+                return;
+            }
+
+            // Nombre del archivo: data-nombre → data-filename → "exportacion"
+            const nombre = btn.getAttribute('data-nombre') ||
+                           btn.getAttribute('data-filename') ||
+                           'exportacion';
+
+            // Columnas a omitir (ej: "0,6") o "auto" para detectar checkboxes/acciones
+            const omitirAttr = btn.getAttribute('data-omitir-columnas');
+            let omitirColumnas = [];
+
+            if (omitirAttr === 'auto') {
+                // Detección automática: omitir columnas cuyo encabezado esté vacío
+                // (típico de checkbox de selección) o cuyo texto sea "Acciones"
+                const tabla = document.querySelector(selector);
+                if (tabla) {
+                    tabla.querySelectorAll('thead th').forEach(function (th, i) {
+                        const texto = (th.textContent || '').trim().toLowerCase();
+                        if (texto === '' || texto === 'acciones' || texto === 'acción' || texto === 'selección' || texto === 'sel.') {
+                            omitirColumnas.push(i);
+                        }
+                    });
+                }
+            } else if (omitirAttr) {
+                omitirColumnas = omitirAttr.split(',').map(function (n) {
+                    return parseInt(n.trim(), 10);
+                }).filter(function (n) {
+                    return !isNaN(n);
+                });
+            }
+
+            exportarTablaACSV(selector, nombre, {
+                omitirColumnas: omitirColumnas,
+                incluirOcultas: false
+            });
+        });
+    });
 
 });

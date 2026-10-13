@@ -27,7 +27,7 @@
                                 <li><a class="dropdown-item" href="admin-usuarios.html"><i class="bi bi-people"></i> Usuarios</a></li>
                                 <li><a class="dropdown-item" href="admin-roles.html"><i class="bi bi-shield-lock"></i> Roles</a></li>
                                 <li><a class="dropdown-item" href="admin-modulos.html"><i class="bi bi-box-seam"></i> Módulos</a></li>
-                                <li><a class="dropdown-item" href="admin-empresas.html"><i class="bi bi-building"></i> Empresas</a></li> 
+                                <li><a class="dropdown-item" href="admin-empresas.html"><i class="bi bi-building"></i> Empresas</a></li>
                                 <li><a class="dropdown-item" href="admin-unidades.html"><i class="bi bi-rulers"></i> Unidades</a></li>
                                 <li><a class="dropdown-item" href="admin-departamentos.html"><i class="bi bi-diagram-3"></i> Departamentos</a></li>
                                 <li><hr class="dropdown-divider"></li>
@@ -41,10 +41,6 @@
                             </a>
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="salidas-index.html"><i class="bi bi-clipboard-check"></i> Salidas de Material</a></li>
-                                <!--
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item text-muted" href="#"><i class="bi bi-box"></i> Control de EPP <span class="badge bg-secondary ms-2">Próximamente</span></a></li>
-                                -->
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
@@ -86,156 +82,325 @@
             <span class="badge bg-info">Los usuarios se crean automáticamente al primer acceso</span>
         </div>
 
-        <div class="card mb-4">
-            <div class="card-body">
-                <div class="row g-3">
-                    <div class="col-md-3">
-                        <label class="form-label">Nombre o email</label>
-                        <input type="text" class="form-control" placeholder="Nombre o email...">
-                    </div>
-                    <div class="col-md-2">
-                        <label class="form-label">Estado</label>
-                        <select class="form-select">
-                            <option>Todos</option>
-                            <option>Activos</option>
-                            <option>Inactivos</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <label class="form-label">Rol Global</label>
-                        <select class="form-select">
-                            <option>Todos</option>
-                            <option>Administrador</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2 d-flex align-items-end">
-                        <button class="btn btn-outline-info w-100"><i class="bi bi-search"></i> Buscar</button>
-                    </div>
-                    <div class="col-md-2 d-flex align-items-end">
-                        <button class="btn btn-outline-secondary w-100"><i class="bi bi-arrow-clockwise"></i> Limpiar</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <!-- GRID 60/40 -->
+        <!-- GRID 30/70 INVERTIDO: Filtros a la izquierda / Usuarios a la derecha -->
+        <div class="salida-form-grid-invertido">
 
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0"><i class="bi bi-list-ul"></i> Usuarios</h5>
-                <button class="btn btn-sm btn-outline-success"><i class="bi bi-file-excel"></i> Exportar CSV</button>
-            </div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead>
-                            <tr>
-                                <th>Usuario Windows</th>
-                                <th>Nombre Completo</th>
-                                <th>Rol Global</th>
-                                <th>Accesos a Módulos</th>
-                                <th>Estado</th>
-                                <th class="text-center">Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><code>DOMINIO\juan.perez</code></td>
-                                <td>Juan Pérez</td>
-                                <td><span class="badge bg-secondary">Sin rol global</span></td>
-                                <td>
-                                    <span class="badge bg-warning">Salidas.Aprobador</span>
-                                </td>
-                                <td><span class="badge bg-success">Activo</span></td>
-                                <td class="text-center">
-                                    <button class="btn btn-sm btn-outline-info" title="Gestionar Accesos" data-bs-toggle="modal" data-bs-target="#modalAccesos"><i class="bi bi-key"></i></button>
-                                    <button class="btn btn-sm btn-outline-primary" title="Desactivar"><i class="bi bi-power"></i></button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><code>DOMINIO\maria.gomez</code></td>
-                                <td>María Gómez</td>
-                                <td><span class="badge bg-primary">Administrador</span></td>
-                                <td>
-                                    <span class="badge bg-info">Salidas.Generador</span>
-                                    <span class="badge bg-warning">Salidas.Aprobador</span></td>
-                                <td><span class="badge bg-success">Activo</span></td>
-                                <td class="text-center">
-                                    <button class="btn btn-sm btn-outline-info" title="Gestionar Accesos" data-bs-toggle="modal" data-bs-target="#modalAccesos"><i class="bi bi-key"></i></button>
-                                    <button class="btn btn-sm btn-outline-primary" title="Desactivar"><i class="bi bi-power"></i></button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><code>DOMINIO\carlos.ruiz</code></td>
-                                <td>Carlos Ruiz</td>
-                                <td><span class="badge bg-secondary">Sin rol global</span></td>
-                                <td><span class="badge bg-info">Salidas.Generador</span></td>
-                                <td><span class="badge bg-danger">Inactivo</span></td>
-                                <td class="text-center">
-                                    <button class="btn btn-sm btn-outline-info" title="Gestionar Accesos" data-bs-toggle="modal" data-bs-target="#modalAccesos"><i class="bi bi-key"></i></button>
-                                    <button class="btn btn-sm btn-outline-success" title="Activar"><i class="bi bi-power"></i></button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+            <!-- ============================================= -->
+            <!-- COLUMNA IZQUIERDA (30%): Filtros               -->
+            <!-- ============================================= -->
+            <div class="col-izquierda">
+
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="bi bi-funnel"></i> Filtros</h5>
+                        <button class="btn btn-sm btn-outline-secondary" id="btnLimpiarFiltrosUsuarios"><i class="bi bi-arrow-clockwise"></i> Limpiar</button>
+                    </div>
+                    <div class="card-body">
+
+                        <div class="mb-3">
+                            <label class="form-label">Nombre o email</label>
+                            <input type="text" class="form-control" id="filtroUsuariosBuscar" placeholder="Buscar por nombre o email...">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Tipo de Rol</label>
+                            <select class="form-select" id="filtroUsuariosTipoRol">
+                                <option value="">Todos</option>
+                                <option value="global">Global</option>
+                                <option value="local">Local</option>
+                                <option value="sin-rol">Sin rol</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Rol Asignado</label>
+                            <select class="form-select" id="filtroUsuariosRol">
+                                <option value="">Todos</option>
+                                <option value="administrador">Administrador</option>
+                                <option value="generador">Generador de Salidas</option>
+                                <option value="aprobador">Aprobador de Salidas</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-0">
+                            <label class="form-label">Estado</label>
+                            <select class="form-select" id="filtroUsuariosEstado">
+                                <option value="">Todos</option>
+                                <option value="activo">Activos</option>
+                                <option value="inactivo">Inactivos</option>
+                            </select>
+                        </div>
+
+                    </div>
+                    <div class="card-footer">
+                        <small class="text-muted">
+                            <i class="bi bi-info-circle"></i> Los filtros se aplican automáticamente.
+                        </small>
+                    </div>
                 </div>
             </div>
-            <div class="card-footer">
-                <div class="d-flex justify-content-between align-items-center">
-                    <small class="text-muted">Mostrando 1-3 de 45 usuarios</small>
-                    <nav>
-                        <ul class="pagination pagination-sm mb-0">
-                            <li class="page-item disabled"><a class="page-link" href="#">Anterior</a></li>
-                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                            <li class="page-item"><a class="page-link" href="#">2</a></li>
-                            <li class="page-item"><a class="page-link" href="#">3</a></li>
-                            <li class="page-item"><a class="page-link" href="#">Siguiente</a></li>
-                        </ul>
-                    </nav>
+
+            <!-- ============================================= -->
+            <!-- COLUMNA DERECHA (70%): Usuarios                -->
+            <!-- ============================================= -->
+            <div class="col-derecha">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="bi bi-list-ul"></i> Usuarios</h5>
+                        <button class="btn btn-sm btn-outline-success" id="btnExportarUsuarios" data-tabla="#tablaUsuarios"><i class="bi bi-file-excel"></i> Exportar CSV</button>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0" id="tablaUsuarios">
+                                <thead>
+                                    <tr>
+                                        <th>Usuario Windows</th>
+                                        <th>Nombre Completo</th>
+                                        <th>Email</th>
+                                        <th>Tipo Rol</th>
+                                        <th>Rol Asignado</th>
+                                        <th>Estado</th>
+                                        <th class="text-center">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Usuario 1: sin rol, activo -->
+                                    <tr class="usuario-row"
+                                        data-nombre="Juan Pérez"
+                                        data-email="juan.perez@empresa.com"
+                                        data-tiporol="sin-rol"
+                                        data-roles=""
+                                        data-estado="activo">
+                                        <td><code>DOMINIO\juan.perez</code></td>
+                                        <td>Juan Pérez</td>
+                                        <td>juan.perez@empresa.com</td>
+                                        <td><span class="badge bg-secondary">Sin rol</span></td>
+                                        <td>—</td>
+                                        <td><span class="badge bg-success">Activo</span></td>
+                                        <td class="text-center">
+                                            <button class="btn btn-sm btn-outline-info" title="Gestionar Accesos" data-bs-toggle="modal" data-bs-target="#modalAccesos"><i class="bi bi-key"></i></button>
+                                            <button class="btn btn-sm btn-outline-primary btn-toggle-estado-usuario" title="Desactivar" data-accion="desactivar">
+                                                <i class="bi bi-power"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Usuario 2: global administrador, activo -->
+                                    <tr class="usuario-row"
+                                        data-nombre="María Gómez"
+                                        data-email="maria.gomez@empresa.com"
+                                        data-tiporol="global"
+                                        data-roles="administrador"
+                                        data-estado="activo">
+                                        <td><code>DOMINIO\maria.gomez</code></td>
+                                        <td>María Gómez</td>
+                                        <td>maria.gomez@empresa.com</td>
+                                        <td><span class="badge bg-primary">Global</span></td>
+                                        <td><span class="badge bg-primary">Administrador</span></td>
+                                        <td><span class="badge bg-success">Activo</span></td>
+                                        <td class="text-center">
+                                            <button class="btn btn-sm btn-outline-info" title="Gestionar Accesos" data-bs-toggle="modal" data-bs-target="#modalAccesos"><i class="bi bi-key"></i></button>
+                                            <button class="btn btn-sm btn-outline-primary btn-toggle-estado-usuario" title="Desactivar" data-accion="desactivar">
+                                                <i class="bi bi-power"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Usuario 3: local, generador + aprobador, inactivo -->
+                                    <tr class="usuario-row"
+                                        data-nombre="Carlos Ruiz"
+                                        data-email="carlos.ruiz@empresa.com"
+                                        data-tiporol="local"
+                                        data-roles="generador aprobador"
+                                        data-estado="inactivo">
+                                        <td><code>DOMINIO\carlos.ruiz</code></td>
+                                        <td>Carlos Ruiz</td>
+                                        <td>carlos.ruiz@empresa.com</td>
+                                        <td><span class="badge bg-info">Local</span></td>
+                                        <td>
+                                            <span class="badge bg-info">Generador de Salidas</span>
+                                            <span class="badge bg-warning">Aprobador de Salidas</span>
+                                        </td>
+                                        <td><span class="badge bg-danger">Inactivo</span></td>
+                                        <td class="text-center">
+                                            <button class="btn btn-sm btn-outline-info" title="Gestionar Accesos" data-bs-toggle="modal" data-bs-target="#modalAccesos"><i class="bi bi-key"></i></button>
+                                            <button class="btn btn-sm btn-outline-success btn-toggle-estado-usuario" title="Activar" data-accion="activar">
+                                                <i class="bi bi-power"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Usuario 4: local, aprobador, activo -->
+                                    <tr class="usuario-row"
+                                        data-nombre="Jorge Sanchez"
+                                        data-email="jorge.sanchez@empresa.com"
+                                        data-tiporol="local"
+                                        data-roles="aprobador"
+                                        data-estado="activo">
+                                        <td><code>DOMINIO\jorge.sanchez</code></td>
+                                        <td>Jorge Sanchez</td>
+                                        <td>jorge.sanchez@empresa.com</td>
+                                        <td><span class="badge bg-info">Local</span></td>
+                                        <td><span class="badge bg-warning">Aprobador de Salidas</span></td>
+                                        <td><span class="badge bg-success">Activo</span></td>
+                                        <td class="text-center">
+                                            <button class="btn btn-sm btn-outline-info" title="Gestionar Accesos" data-bs-toggle="modal" data-bs-target="#modalAccesos"><i class="bi bi-key"></i></button>
+                                            <button class="btn btn-sm btn-outline-primary btn-toggle-estado-usuario" title="Desactivar" data-accion="desactivar">
+                                                <i class="bi bi-power"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Usuario 5: local, generador, activo -->
+                                    <tr class="usuario-row"
+                                        data-nombre="Sarai Silva"
+                                        data-email="sarai.silva@empresa.com"
+                                        data-tiporol="local"
+                                        data-roles="generador"
+                                        data-estado="activo">
+                                        <td><code>DOMINIO\sarai.silva</code></td>
+                                        <td>Sarai Silva</td>
+                                        <td>sarai.silva@empresa.com</td>
+                                        <td><span class="badge bg-info">Local</span></td>
+                                        <td><span class="badge bg-info">Generador de Salidas</span></td>
+                                        <td><span class="badge bg-success">Activo</span></td>
+                                        <td class="text-center">
+                                            <button class="btn btn-sm btn-outline-info" title="Gestionar Accesos" data-bs-toggle="modal" data-bs-target="#modalAccesos"><i class="bi bi-key"></i></button>
+                                            <button class="btn btn-sm btn-outline-primary btn-toggle-estado-usuario" title="Desactivar" data-accion="desactivar">
+                                                <i class="bi bi-power"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">Mostrando <span id="contadorUsuarios">5</span> de 5 usuarios</small>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal Gestionar Accesos -->
+
+    <!-- ============================================= -->
+    <!-- MODAL: Gestionar Accesos                       -->
+    <!-- ============================================= -->
     <div class="modal fade" id="modalAccesos" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header" style="background-color: var(--cora-success); color: white;">
-                    <h5 class="modal-title"><i class="bi bi-key"></i> Gestionar Accesos: Juan Pérez</h5>
+                    <h5 class="modal-title" style="color: var(--cora-white);"><i class="bi bi-key"></i> Gestionar Accesos</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
+
+                    <!-- Selector de Rol Global -->
                     <h6 class="border-bottom pb-2 mb-3">🔑 Rol Global</h6>
                     <div class="mb-4">
-                        <select class="form-select">
-                            <option>Sin rol global</option>
-                            <option>Administrador</option>
+                        <select class="form-select" id="selectRolGlobal">
+                            <option value="">Sin rol global</option>
+                            <option value="global">Global</option>
+                            <option value="local">Local</option>
                         </select>
                         <small class="text-muted">El rol Superusuario no es asignable.</small>
                     </div>
 
-                    <h6 class="border-bottom pb-2 mb-3">📦 Accesos a Módulos</h6>
-                    <div class="card mb-2">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <strong><i class="bi bi-clipboard-check"></i> Salidas de Material</strong>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="checkbox" id="rolGen" checked>
-                                <label class="form-check-label" for="rolGen">Generador</label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="checkbox" id="rolApro" checked>
-                                <label class="form-check-label" for="rolApro">Aprobador</label>
+                    <!-- Sección: Roles Globales (visible solo cuando se elige "Global") -->
+                    <div id="seccionRolesGlobales" class="d-none">
+                        <h6 class="border-bottom pb-2 mb-3">🌐 Roles Globales</h6>
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="rolAdmin" checked>
+                                    <label class="form-check-label" for="rolAdmin">
+                                        <strong>Administrador</strong>
+                                        <small class="text-muted d-block">Acceso total al sistema y a la administración.</small>
+                                    </label>
+                                </div>
                             </div>
                         </div>
                     </div>
+
+                    <!-- Sección: Salidas de Materiales (visible solo cuando se elige "Local") -->
+                    <div id="seccionSalidasMateriales" class="d-none">
+                        <h6 class="border-bottom pb-2 mb-3">📦 Salidas de Materiales</h6>
+                        <div class="card mb-2">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <strong><i class="bi bi-clipboard-check"></i> Salidas de Material</strong>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" id="rolGen" checked>
+                                    <label class="form-check-label" for="rolGen">Generador</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" id="rolApro" checked>
+                                    <label class="form-check-label" for="rolApro">Aprobador</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mensaje informativo cuando no hay rol seleccionado -->
+                    <div id="seccionSinRol" class="alert alert-info mb-0">
+                        <i class="bi bi-info-circle"></i> Selecciona un tipo de rol global para ver las opciones disponibles.
+                    </div>
+
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-success"><i class="bi bi-save"></i> Guardar</button>
+                    <button type="button" class="btn btn-success" id="btnGuardarAccesos"><i class="bi bi-save"></i> Guardar</button>
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- ============================================= -->
+    <!-- TOASTS                                          -->
+    <!-- ============================================= -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1090;">
+
+        <!-- Toast: Cambios guardados -->
+        <div id="toastCambiosGuardados" class="toast" role="alert" data-bs-delay="3500">
+            <div class="toast-header" style="background-color: var(--cora-success); color: white;">
+                <i class="bi bi-check-circle me-2"></i>
+                <strong class="me-auto">Cambios guardados</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body">
+                Los cambios se han guardado correctamente.
+            </div>
+        </div>
+
+        <!-- Toast: Usuario activado -->
+        <div id="toastUsuarioActivado" class="toast" role="alert" data-bs-delay="3500">
+            <div class="toast-header" style="background-color: var(--cora-success); color: white;">
+                <i class="bi bi-check-circle me-2"></i>
+                <strong class="me-auto">Usuario activado</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body">
+                Se ha activado el usuario.
+            </div>
+        </div>
+
+        <!-- Toast: Usuario desactivado -->
+        <div id="toastUsuarioDesactivado" class="toast" role="alert" data-bs-delay="3500">
+            <div class="toast-header" style="background-color: var(--cora-accent); color: white;">
+                <i class="bi bi-x-circle me-2"></i>
+                <strong class="me-auto">Usuario desactivado</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body">
+                Se ha desactivado el usuario.
+            </div>
+        </div>
+
     </div>
 
     <footer class="footer">
