@@ -576,8 +576,8 @@ document.addEventListener('DOMContentLoaded', function () {
             li.insertBefore(toggle, formCheck);
 
             if (subUl) {
-                subUl.classList.add('nodo-colapsado');
-                toggle.classList.add('colapsado');
+                subUl.classList.remove('nodo-colapsado');
+                toggle.classList.remove('colapsado');
             }
         });
 
@@ -1112,27 +1112,25 @@ document.addEventListener('DOMContentLoaded', function () {
         aplicarFiltro();
     }
 
+        // =============================================
+    // ADMIN ROLES: filtros en tiempo real + orden por relevancia
     // =============================================
-    // ADMIN USUARIOS: filtros en tiempo real + orden por relevancia
-    // =============================================
-    const tablaUsuarios = document.getElementById('tablaUsuarios');
+    const tablaRoles = document.getElementById('tablaRoles');
 
-    if (tablaUsuarios) {
-        const filtroBuscar = document.getElementById('filtroUsuariosBuscar');
-        const filtroTipoRol = document.getElementById('filtroUsuariosTipoRol');
-        const filtroRol = document.getElementById('filtroUsuariosRol');
-        const filtroEstado = document.getElementById('filtroUsuariosEstado');
-        const btnLimpiarFiltrosUsuarios = document.getElementById('btnLimpiarFiltrosUsuarios');
+    if (tablaRoles) {
+        const filtroRolesBuscar = document.getElementById('filtroRolesBuscar');
+        const filtroRolesTipo = document.getElementById('filtroRolesTipo');
+        const filtroRolesModulo = document.getElementById('filtroRolesModulo');
+        const btnLimpiarFiltrosRoles = document.getElementById('btnLimpiarFiltrosRoles');
+        const contadorRoles = document.getElementById('contadorRoles');
 
-        const contadorUsuarios = document.getElementById('contadorUsuarios');
+        const tbodyRoles = tablaRoles.querySelector('tbody');
+        const filasRoles = Array.from(tablaRoles.querySelectorAll('.rol-row'));
+        const totalFilasRoles = filasRoles.length;
 
-        const tbodyUsuarios = tablaUsuarios.querySelector('tbody');
-        const filas = Array.from(tablaUsuarios.querySelectorAll('.usuario-row'));
-        const totalFilas = filas.length;
+        const ordenOriginalRoles = filasRoles.slice();
 
-        const ordenOriginal = filas.slice();
-
-        if (contadorUsuarios) contadorUsuarios.textContent = totalFilas;
+        if (contadorRoles) contadorRoles.textContent = totalFilasRoles;
 
         function normalizar(texto) {
             return String(texto || '')
@@ -1142,17 +1140,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 .replace(/[\u0300-\u036f]/g, '');
         }
 
-        function palabrasDe(nombreCompleto) {
-            return normalizar(nombreCompleto)
-                .split(/\s+/)
-                .filter(Boolean);
-        }
-
-        function calcularScore(terminos, palabras) {
+        // El score ahora premia coincidencias por Código y Nombre
+        function calcularScoreRol(terminos, codigo, nombre) {
             if (terminos.length === 0) return 0;
-
-            const nombre = palabras[0] || '';
-            const apellidos = palabras.slice(1);
 
             let score = 0;
 
@@ -1160,17 +1150,15 @@ document.addEventListener('DOMContentLoaded', function () {
                 const termino = terminos[i];
                 if (!termino) continue;
 
+                const coincideCodigo = codigo.startsWith(termino);
                 const coincideNombre = nombre.startsWith(termino);
-                const coincideApellido = apellidos.some(function (ap) {
-                    return ap.startsWith(termino);
-                });
 
-                if (!coincideNombre && !coincideApellido) return -1;
+                if (!coincideCodigo && !coincideNombre) return -1;
 
                 const pesoTermino = terminos.length - i;
-                if (coincideNombre) {
-                    score += 10 * pesoTermino;
-                } else if (coincideApellido) {
+                if (coincideCodigo) {
+                    score += 10 * pesoTermino; // Código pesa más
+                } else if (coincideNombre) {
                     score += 5 * pesoTermino;
                 }
             }
@@ -1178,40 +1166,37 @@ document.addEventListener('DOMContentLoaded', function () {
             return score;
         }
 
-        function reordenarDom(listaOrdenada) {
-            listaOrdenada.forEach(function (fila) {
-                tbodyUsuarios.appendChild(fila);
+        function reordenarDomRoles(lista) {
+            lista.forEach(function (fila) {
+                tbodyRoles.appendChild(fila);
             });
         }
 
-        function restaurarOrdenOriginal() {
-            reordenarDom(ordenOriginal);
+        function restaurarOrdenOriginalRoles() {
+            reordenarDomRoles(ordenOriginalRoles);
         }
 
-        function aplicarFiltrosUsuarios() {
-            const busquedaRaw = normalizar(filtroBuscar.value);
+        function aplicarFiltrosRoles() {
+            const busquedaRaw = normalizar(filtroRolesBuscar.value);
             const terminos = busquedaRaw ? busquedaRaw.split(/\s+/).filter(Boolean) : [];
 
-            const tipoRol = filtroTipoRol.value;
-            const rol = filtroRol.value;
-            const estado = filtroEstado.value;
+            const tipo = filtroRolesTipo.value;
+            const modulo = filtroRolesModulo.value;
 
             let visibles = 0;
 
-            const datos = filas.map(function (fila) {
-                const nombreAttr = fila.getAttribute('data-nombre') || '';
-                const palabras = palabrasDe(nombreAttr);
-                const filaTipoRol = fila.getAttribute('data-tiporol') || '';
-                const filaRoles = fila.getAttribute('data-roles') || '';
-                const filaEstado = fila.getAttribute('data-estado') || '';
+            const datos = filasRoles.map(function (fila) {
+                const codigo = normalizar(fila.getAttribute('data-codigo') || '');
+                const nombre = normalizar(fila.getAttribute('data-nombre') || '');
+                const filaTipo = fila.getAttribute('data-tipo') || '';
+                const filaModulo = fila.getAttribute('data-modulo') || '';
 
-                const score = calcularScore(terminos, palabras);
+                const score = calcularScoreRol(terminos, codigo, nombre);
 
-                const coincideTipoRol = !tipoRol || filaTipoRol === tipoRol;
-                const coincideRol = !rol || filaRoles.split(' ').includes(rol);
-                const coincideEstado = !estado || filaEstado === estado;
+                const coincideTipo = !tipo || filaTipo === tipo;
+                const coincideModulo = !modulo || filaModulo === modulo;
 
-                const visible = score >= 0 && coincideTipoRol && coincideRol && coincideEstado;
+                const visible = score >= 0 && coincideTipo && coincideModulo;
 
                 if (visible) visibles++;
 
@@ -1219,16 +1204,13 @@ document.addEventListener('DOMContentLoaded', function () {
                     fila: fila,
                     visible: visible,
                     score: score,
-                    nombreOrden: normalizar(nombreAttr)
+                    nombreOrden: normalizar(fila.getAttribute('data-codigo') || '')
                 };
             });
 
             datos.forEach(function (d) {
-                if (d.visible) {
-                    d.fila.classList.remove('d-none');
-                } else {
-                    d.fila.classList.add('d-none');
-                }
+                if (d.visible) d.fila.classList.remove('d-none');
+                else d.fila.classList.add('d-none');
             });
 
             const visiblesOrdenadas = datos
@@ -1240,33 +1222,113 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const noVisibles = datos.filter(d => !d.visible);
 
-            reordenarDom(visiblesOrdenadas.map(d => d.fila).concat(noVisibles.map(d => d.fila)));
+            reordenarDomRoles(visiblesOrdenadas.map(d => d.fila).concat(noVisibles.map(d => d.fila)));
 
-            if (contadorUsuarios) contadorUsuarios.textContent = visibles;
+            if (contadorRoles) contadorRoles.textContent = visibles;
         }
 
-        if (filtroBuscar) filtroBuscar.addEventListener('input', aplicarFiltrosUsuarios);
-        if (filtroTipoRol) filtroTipoRol.addEventListener('change', aplicarFiltrosUsuarios);
-        if (filtroRol) filtroRol.addEventListener('change', aplicarFiltrosUsuarios);
-        if (filtroEstado) filtroEstado.addEventListener('change', aplicarFiltrosUsuarios);
+        if (filtroRolesBuscar) filtroRolesBuscar.addEventListener('input', aplicarFiltrosRoles);
+        if (filtroRolesTipo) filtroRolesTipo.addEventListener('change', aplicarFiltrosRoles);
+        if (filtroRolesModulo) filtroRolesModulo.addEventListener('change', aplicarFiltrosRoles);
 
-        if (btnLimpiarFiltrosUsuarios) {
-            btnLimpiarFiltrosUsuarios.addEventListener('click', function () {
-                if (filtroBuscar) filtroBuscar.value = '';
-                if (filtroTipoRol) filtroTipoRol.value = '';
-                if (filtroRol) filtroRol.value = '';
-                if (filtroEstado) filtroEstado.value = '';
+        if (btnLimpiarFiltrosRoles) {
+            btnLimpiarFiltrosRoles.addEventListener('click', function () {
+                if (filtroRolesBuscar) filtroRolesBuscar.value = '';
+                if (filtroRolesTipo) filtroRolesTipo.value = '';
+                if (filtroRolesModulo) filtroRolesModulo.value = '';
 
-                restaurarOrdenOriginal();
-                aplicarFiltrosUsuarios();
+                restaurarOrdenOriginalRoles();
+                aplicarFiltrosRoles();
             });
         }
 
-        aplicarFiltrosUsuarios();
+        aplicarFiltrosRoles();
     }
 
     // =============================================
-    // MODAL ACCESOS: secciones dinámicas + toast Guardar
+    // ADMIN ROLES: botón Guardar del modal → toast
+    // =============================================
+    const btnGuardarRol = document.getElementById('btnGuardarRol');
+    const modalCrearRolEl = document.getElementById('modalCrearRol');
+    const toastCambiosGuardadosRolEl = document.getElementById('toastCambiosGuardados');
+
+    if (btnGuardarRol && modalCrearRolEl) {
+        btnGuardarRol.addEventListener('click', function () {
+            const instance = bootstrap.Modal.getInstance(modalCrearRolEl);
+            if (instance) instance.hide();
+
+            modalCrearRolEl.addEventListener('hidden.bs.modal', function handler() {
+                if (toastCambiosGuardadosRolEl) {
+                    const toast = new bootstrap.Toast(toastCambiosGuardadosRolEl);
+                    toast.show();
+                }
+                modalCrearRolEl.removeEventListener('hidden.bs.modal', handler);
+            });
+        });
+    }
+
+    // =============================================
+    // ADMIN ROLES: botones Activar/Desactivar + toasts
+    // =============================================
+    const tablaRolesParaToggle = document.getElementById('tablaRoles');
+
+    if (tablaRolesParaToggle) {
+        const toastRolActivadoEl = document.getElementById('toastRolActivado');
+        const toastRolDesactivadoEl = document.getElementById('toastRolDesactivado');
+
+        tablaRolesParaToggle.addEventListener('click', function (e) {
+            const btn = e.target.closest('.btn-toggle-estado-rol');
+            if (!btn) return;
+
+            const fila = btn.closest('.rol-row');
+            if (!fila) return;
+
+            const accion = btn.getAttribute('data-accion');
+            const badgeEstado = fila.querySelector('td:nth-child(7) .badge');
+
+            if (accion === 'desactivar') {
+                fila.setAttribute('data-estado', 'inactivo');
+
+                if (badgeEstado) {
+                    badgeEstado.textContent = 'Inactivo';
+                    badgeEstado.classList.remove('bg-success');
+                    badgeEstado.classList.add('bg-danger');
+                }
+
+                btn.classList.remove('btn-outline-primary');
+                btn.classList.add('btn-outline-success');
+                btn.setAttribute('title', 'Activar');
+                btn.setAttribute('data-accion', 'activar');
+
+                if (toastRolDesactivadoEl) {
+                    const toast = new bootstrap.Toast(toastRolDesactivadoEl);
+                    toast.show();
+                }
+
+            } else if (accion === 'activar') {
+                fila.setAttribute('data-estado', 'activo');
+
+                if (badgeEstado) {
+                    badgeEstado.textContent = 'Activo';
+                    badgeEstado.classList.remove('bg-danger');
+                    badgeEstado.classList.add('bg-success');
+                }
+
+                btn.classList.remove('btn-outline-success');
+                btn.classList.add('btn-outline-primary');
+                btn.setAttribute('title', 'Desactivar');
+                btn.setAttribute('data-accion', 'desactivar');
+
+                if (toastRolActivadoEl) {
+                    const toast = new bootstrap.Toast(toastRolActivadoEl);
+                    toast.show();
+                }
+            }
+        });
+    }
+
+        // =============================================
+    // MODAL ACCESOS: secciones dinámicas + guardar cambios reales
     // =============================================
     const modalAccesosEl = document.getElementById('modalAccesos');
 
@@ -1278,11 +1340,23 @@ document.addEventListener('DOMContentLoaded', function () {
         const btnGuardarAccesos = document.getElementById('btnGuardarAccesos');
         const toastCambiosGuardadosEl = document.getElementById('toastCambiosGuardados');
 
-        // ---------- Actualizar visibilidad de secciones según Rol Global ----------
+        // Checkboxes y selects internos del modal
+        const rolAdmin = document.getElementById('rolAdmin');
+        const rolGen = document.getElementById('rolGen');
+        const rolApro = document.getElementById('rolApro');
+
+        // Fila que se está editando actualmente
+        let filaEnEdicion = null;
+
+        // ---------- Utilidades ----------
+        function setChecked(el, valor) {
+            if (el) el.checked = !!valor;
+        }
+
+        // ---------- Actualizar visibilidad de secciones ----------
         function actualizarSeccionesAccesos() {
             const valor = selectRolGlobal.value;
 
-            // Reset
             seccionRolesGlobales.classList.add('d-none');
             seccionSalidasMateriales.classList.add('d-none');
             seccionSinRol.classList.add('d-none');
@@ -1296,25 +1370,92 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
 
-        // Listener del select
         if (selectRolGlobal) {
             selectRolGlobal.addEventListener('change', actualizarSeccionesAccesos);
         }
 
-        // Al abrir el modal, resetear el select y actualizar secciones
-        modalAccesosEl.addEventListener('show.bs.modal', function () {
-            if (selectRolGlobal) selectRolGlobal.value = '';
-            actualizarSeccionesAccesos();
+        // ---------- Cargar datos del usuario al abrir el modal ----------
+        // El botón 🔑 debe tener data-bs-toggle="modal" data-bs-target="#modalAccesos"
+        // y estar dentro de un <tr class="usuario-row">
+        document.querySelectorAll('[data-bs-target="#modalAccesos"]').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                const fila = btn.closest('.usuario-row');
+                if (!fila) return;
+
+                filaEnEdicion = fila;
+
+                const tipoRol = fila.getAttribute('data-tiporol') || '';
+                const rolesStr = fila.getAttribute('data-roles') || '';
+                const rolesArr = rolesStr.split(' ').filter(Boolean);
+
+                // Reset del select y de todos los checkboxes
+                if (selectRolGlobal) selectRolGlobal.value = tipoRol;
+                setChecked(rolAdmin, false);
+                setChecked(rolGen, false);
+                setChecked(rolApro, false);
+
+                // Marcar los que aplican según los roles del usuario
+                if (tipoRol === 'global') {
+                    setChecked(rolAdmin, rolesArr.includes('administrador'));
+                } else if (tipoRol === 'local') {
+                    setChecked(rolGen, rolesArr.includes('generador'));
+                    setChecked(rolApro, rolesArr.includes('aprobador'));
+                }
+
+                actualizarSeccionesAccesos();
+            });
         });
 
-        // ---------- Botón Guardar: toast "Cambios guardados" ----------
+        // Al cerrar el modal (por cualquier vía), limpiar la referencia
+        modalAccesosEl.addEventListener('hidden.bs.modal', function () {
+            filaEnEdicion = null;
+        });
+
+                // ---------- Guardar: aplicar cambios a la fila ----------
         if (btnGuardarAccesos) {
             btnGuardarAccesos.addEventListener('click', function () {
+                if (!filaEnEdicion) {
+                    const instance = bootstrap.Modal.getInstance(modalAccesosEl);
+                    if (instance) instance.hide();
+                    return;
+                }
+
+                let tipoRol = selectRolGlobal.value;
+                let roles = [];
+
+                if (tipoRol === 'global') {
+                    if (rolAdmin && rolAdmin.checked) roles.push('administrador');
+                } else if (tipoRol === 'local') {
+                    if (rolGen && rolGen.checked) roles.push('generador');
+                    if (rolApro && rolApro.checked) roles.push('aprobador');
+                }
+
+                // 👇 NUEVA CONDICIÓN: si no queda ningún rol marcado, pasa a "Sin rol"
+                if (roles.length === 0) {
+                    tipoRol = '';
+                    roles = [];
+                }
+
+                // Actualizar atributos de la fila
+                filaEnEdicion.setAttribute('data-tiporol', tipoRol);
+                filaEnEdicion.setAttribute('data-roles', roles.join(' '));
+
+                // Actualizar badges en la tabla
+                actualizarBadgesFilaUsuario(filaEnEdicion, tipoRol, roles);
+
                 // Cerrar modal
                 const instance = bootstrap.Modal.getInstance(modalAccesosEl);
                 if (instance) instance.hide();
 
-                // Mostrar toast al terminar de cerrar
+                // Refrescar filtros/orden
+                if (typeof window.aplicarFiltrosUsuarios === 'function') {
+                    window.aplicarFiltrosUsuarios();
+                } else {
+                    const filtroBuscar = document.getElementById('filtroUsuariosBuscar');
+                    if (filtroBuscar) filtroBuscar.dispatchEvent(new Event('input'));
+                }
+
+                // Toast
                 modalAccesosEl.addEventListener('hidden.bs.modal', function handler() {
                     if (toastCambiosGuardadosEl) {
                         const toast = new bootstrap.Toast(toastCambiosGuardadosEl);
@@ -1323,6 +1464,50 @@ document.addEventListener('DOMContentLoaded', function () {
                     modalAccesosEl.removeEventListener('hidden.bs.modal', handler);
                 });
             });
+        }
+    }
+
+    // =============================================
+    // Helper: actualizar badges de una fila de usuario
+    // =============================================
+    function actualizarBadgesFilaUsuario(fila, tipoRol, roles) {
+        // Columnas de la tabla de usuarios:
+        // 0: Usuario Windows
+        // 1: Nombre Completo
+        // 2: Email
+        // 3: Tipo Rol       ← badge
+        // 4: Rol Asignado   ← badges (pueden ser varios)
+        // 5: Estado
+        // 6: Acciones
+
+        const celdas = fila.querySelectorAll('td');
+        if (celdas.length < 6) return;
+
+        const celdaTipoRol = celdas[3];
+        const celdaRoles = celdas[4];
+
+        // --- Tipo Rol ---
+        let badgeTipo = '';
+        if (tipoRol === 'global') {
+            badgeTipo = '<span class="badge bg-primary">Global</span>';
+        } else if (tipoRol === 'local') {
+            badgeTipo = '<span class="badge bg-info">Local</span>';
+        } else {
+            badgeTipo = '<span class="badge bg-secondary">Sin rol</span>';
+        }
+        celdaTipoRol.innerHTML = badgeTipo;
+
+        // --- Rol Asignado ---
+        if (roles.length === 0) {
+            celdaRoles.innerHTML = '—';
+        } else {
+            const badges = roles.map(function (r) {
+                if (r === 'administrador') return '<span class="badge bg-primary">Administrador</span>';
+                if (r === 'generador')     return '<span class="badge bg-info">Generador de Salidas</span>';
+                if (r === 'aprobador')     return '<span class="badge bg-warning">Aprobador de Salidas</span>';
+                return '';
+            }).join(' ');
+            celdaRoles.innerHTML = badges;
         }
     }
 
@@ -1459,5 +1644,107 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         });
     });
+
+        // =============================================
+    // ADMIN MÓDULOS: recargar + toggle estado + Module.json
+    // =============================================
+    const listaModulos = document.getElementById('listaModulos');
+
+    if (listaModulos) {
+
+        // ---------- Botón "Recargar Módulos" ----------
+        const btnRecargarModulos = document.getElementById('btnRecargarModulos');
+        const toastModulosRecargadosEl = document.getElementById('toastModulosRecargados');
+
+        if (btnRecargarModulos) {
+            btnRecargarModulos.addEventListener('click', function () {
+                if (toastModulosRecargadosEl) {
+                    const toast = new bootstrap.Toast(toastModulosRecargadosEl);
+                    toast.show();
+                }
+            });
+        }
+
+        // ---------- Botones "Habilitar/Deshabilitar" ----------
+        const toastModuloHabilitadoEl = document.getElementById('toastModuloHabilitado');
+        const toastModuloDeshabilitadoEl = document.getElementById('toastModuloDeshabilitado');
+
+        listaModulos.addEventListener('click', function (e) {
+            const btn = e.target.closest('.btn-toggle-estado-modulo');
+            if (!btn) return;
+
+            const card = btn.closest('.modulo-card');
+            if (!card) return;
+
+            const accion = btn.getAttribute('data-accion');
+            const badgeEstado = card.querySelector('.badge-estado');
+
+            if (accion === 'deshabilitar') {
+                card.setAttribute('data-estado', 'inactivo');
+
+                if (badgeEstado) {
+                    badgeEstado.textContent = 'Inactivo';
+                    badgeEstado.classList.remove('bg-success');
+                    badgeEstado.classList.add('bg-danger');
+                }
+
+                btn.classList.remove('btn-outline-primary');
+                btn.classList.add('btn-outline-success');
+                btn.setAttribute('title', 'Habilitar');
+                btn.setAttribute('data-accion', 'habilitar');
+
+                if (toastModuloDeshabilitadoEl) {
+                    const toast = new bootstrap.Toast(toastModuloDeshabilitadoEl);
+                    toast.show();
+                }
+
+            } else if (accion === 'habilitar') {
+                card.setAttribute('data-estado', 'activo');
+
+                if (badgeEstado) {
+                    badgeEstado.textContent = 'Activo';
+                    badgeEstado.classList.remove('bg-danger');
+                    badgeEstado.classList.add('bg-success');
+                }
+
+                btn.classList.remove('btn-outline-success');
+                btn.classList.add('btn-outline-primary');
+                btn.setAttribute('title', 'Deshabilitar');
+                btn.setAttribute('data-accion', 'deshabilitar');
+
+                if (toastModuloHabilitadoEl) {
+                    const toast = new bootstrap.Toast(toastModuloHabilitadoEl);
+                    toast.show();
+                }
+            }
+        });
+
+                // ---------- Botones "Ver Module.json" (descarga) ----------
+        listaModulos.addEventListener('click', function (e) {
+            const btn = e.target.closest('.btn-module-json');
+            if (!btn) return;
+
+            const codigo = btn.getAttribute('data-codigo') || 'Module';
+
+            // Contenido del archivo JSON
+            const contenido = JSON.stringify({
+                nombre: 'Hola Mundo',
+                codigo: codigo
+            }, null, 2);
+
+            // Crear Blob y descargar
+            const blob = new Blob([contenido], { type: 'application/json;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+
+            const enlace = document.createElement('a');
+            enlace.href = url;
+            enlace.download = 'Module.json';
+            enlace.style.display = 'none';
+            document.body.appendChild(enlace);
+            enlace.click();
+            document.body.removeChild(enlace);
+            URL.revokeObjectURL(url);
+        });
+    }
 
 });

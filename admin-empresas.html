@@ -41,10 +41,6 @@
                             </a>
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="salidas-index.html"><i class="bi bi-clipboard-check"></i> Salidas de Material</a></li>
-                                <!--
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item text-muted" href="#"><i class="bi bi-box"></i> Control de EPP <span class="badge bg-secondary ms-2">Próximamente</span></a></li>
-                                -->
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
@@ -88,13 +84,15 @@
             </button>
         </div>
 
-        <div class="card mb-4">
+        <div class="card mb-3">
             <div class="card-body">
                 <div class="row g-3">
-                    <div class="col-md-4">
-                        <input type="text" class="form-control" placeholder="Buscar por código o nombre...">
-                    </div>
                     <div class="col-md-3">
+                        <label class="form-label">Nombre o contacto</label>
+                        <input type="text" class="form-control" placeholder="Buscar por nombre o contacto...">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Tipo</label>
                         <select class="form-select">
                             <option>Todos los tipos</option>
                             <option>Proveedor</option>
@@ -104,7 +102,15 @@
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <button class="btn btn-outline-info w-100"><i class="bi bi-search"></i> Buscar</button>
+                            <label class="form-label">Estado</label>
+                            <select class="form-select" id="filtroUsuariosEstado">
+                                <option value="">Todos</option>
+                                <option value="activo">Activos</option>
+                                <option value="inactivo">Inactivos</option>
+                            </select>
+                        </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button class="btn btn-outline-info"><i class="bi bi-arrow-clockwise"></i> Limpiar</button>
                     </div>
                 </div>
             </div>
@@ -120,8 +126,8 @@
                     <thead>
                         <tr>
                             <th>Código</th>
-                            <th>Nombre</th>
-                            <th>Contacto</th>
+                            <th>Nombre de la Empresa</th>
+                            <th>Contacto Principal</th>
                             <th>Tipo</th>
                             <th>Estado</th>
                             <th class="text-center">Acciones</th>
@@ -148,7 +154,7 @@
                             <td><code>EMP-002</code></td>
                             <td>HEWLETT PACKARD</td>
                             <td>María López</td>
-                            <td><span class="badge bg-warning">Proveedor</span></td>
+                            <td><span class="badge bg-danger">Cliente</span></td>
                             <td><span class="badge bg-success">Activo</span></td>
                             <td class="text-center">
                                 <button type="button" class="btn btn-sm btn-outline-info btn-editar-empresa"
@@ -189,7 +195,7 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header" style="background-color: var(--cora-success); color: white;">
-                    <h5 class="modal-title" id="modalEmpresaTitulo">
+                    <h5 class="modal-title" id="modalEmpresaTitulo" style="color: var(--cora-white)">
                         <i class="bi bi-plus-circle"></i> Nueva Empresa
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
@@ -199,11 +205,6 @@
                         <input type="hidden" id="empresaId">
 
                         <div class="row g-3">
-                            <div class="col-md-4">
-                                <label class="form-label">Código <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="empresaCodigo" placeholder="Ej: EMP-001" maxlength="50" required>
-                                <small class="text-muted">Único en el sistema.</small>
-                            </div>
                             <div class="col-md-8">
                                 <label class="form-label">Nombre <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="empresaNombre" placeholder="Nombre de la empresa" maxlength="200" required>
@@ -225,12 +226,6 @@
                                     <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#modalTiposEmpresa" title="Ver todos los tipos">
                                         <i class="bi bi-list"></i> Ver todos
                                     </button>
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" id="empresaActivo" checked>
-                                    <label class="form-check-label" for="empresaActivo">Empresa activa</label>
                                 </div>
                             </div>
                         </div>
@@ -255,7 +250,7 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header" style="background-color: var(--cora-success); color: white;">
-                    <h5 class="modal-title"><i class="bi bi-tags"></i> Tipos de Empresa</h5>
+                    <h5 class="modal-title" style="color: var(--cora-white)"><i class="bi bi-tags"></i> Tipos de Empresa</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -309,6 +304,11 @@
                         </tbody>
                     </table>
                 </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#modalEmpresa" title="Volver a la empresa">
+                        <i class="bi bi-arrow-left"></i> Volver
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -320,7 +320,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header bg-success text-white">
-                    <h5 class="modal-title"><i class="bi bi-plus-circle"></i> Nuevo Tipo de Empresa</h5>
+                    <h5 class="modal-title" style="color: var(--cora-white)"><i class="bi bi-plus-circle"></i> Nuevo Tipo de Empresa</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -328,14 +328,14 @@
                         <label class="form-label">Nombre <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" placeholder="Ej: Distribuidor" maxlength="50" required>
                     </div>
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" id="nuevoTipoActivo" checked>
-                        <label class="form-check-label" for="nuevoTipoActivo">Activo</label>
-                    </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-success"><i class="bi bi-save"></i> Guardar</button>
+                    <div>
+                        <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#modalTiposEmpresa" title="Ver todos los tipos">
+                            <i class="bi bi-arrow-left"></i> Volver
+                        </button>
+                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalTiposEmpresa"><i class="bi bi-save"></i> Guardar</button>
+                    </div>
                 </div>
             </div>
         </div>

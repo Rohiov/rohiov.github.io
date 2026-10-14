@@ -41,10 +41,6 @@
                             </a>
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="salidas-index.html"><i class="bi bi-clipboard-check"></i> Salidas de Material</a></li>
-                                <!--
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item text-muted" href="#"><i class="bi bi-box"></i> Control de EPP <span class="badge bg-secondary ms-2">Próximamente</span></a></li>
-                                -->
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
@@ -80,55 +76,209 @@
         </nav>
     </header>
 
-    <div class="container-fluid mt-4" >
+    <div class="container-fluid mt-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2><i class="bi bi-box-seam"></i> Gestión de Módulos</h2>
-            <button class="btn btn-success"><i class="bi bi-arrow-clockwise"></i> Recargar Módulos</button>
+            <button class="btn btn-success" id="btnRecargarModulos">
+                <i class="bi bi-arrow-clockwise"></i> Recargar Módulos
+            </button>
         </div>
 
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0"><i class="bi bi-list-ul"></i> Módulos</h5>
+        <!-- ============================================= -->
+        <!-- CARDS DE MÓDULOS                                -->
+        <!-- ============================================= -->
+        <div class="row g-3" id="listaModulos">
+
+            <!-- Módulo: Salidas de Material -->
+            <div class="col-6 col-md-4 col-lg-3 col-xl-2">
+                <div class="card h-100 modulo-card card-modulo-compacta"
+                     data-codigo="SalidasMaterial"
+                     data-nombre="Salidas de Material"
+                     data-version="1.0.0"
+                     data-estado="activo">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0 text-truncate" title="Salidas de Material">
+                            <i class="bi bi-box-seam"></i> Salidas de Material
+                        </h6>
+                        <span class="badge bg-success badge-estado">Activo</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-1">
+                            <small class="text-muted d-block">Código</small>
+                            <code class="small">SalidasMaterial</code>
+                        </div>
+                        <div class="mb-1">
+                            <small class="text-muted d-block">Versión</small>
+                            <strong>1.0.0</strong>
+                        </div>
+                        <div class="mb-1">
+                            <small class="text-muted d-block">Roles</small>
+                            <span class="badge bg-info">2 roles</span>
+                        </div>
+                        <div class="mb-0">
+                            <small class="text-muted d-block">Última Act.</small>
+                            <strong>20/09/2026 10:30</strong>
+                        </div>
+                    </div>
+                    <div class="card-footer d-flex justify-content-center gap-1">
+                        <button class="btn btn-sm btn-outline-info" title="Ver roles" data-bs-toggle="modal" data-bs-target="#modalRolesModulo">
+                            <i class="bi bi-shield-lock"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-primary btn-toggle-estado-modulo" title="Deshabilitar" data-accion="deshabilitar">
+                            <i class="bi bi-power"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary btn-module-json" title="Ver Module.json" data-codigo="SalidasMaterial">
+                            <i class="bi bi-file-code"></i>
+                        </button>
+                    </div>
+                </div>
             </div>
-            <div class="card-body p-0">
-                <table class="table table-hover mb-0">
-                    <thead>
-                        <tr>
-                            <th>Código</th>
-                            <th>Nombre</th>
-                            <th>Versión</th>
-                            <th>Roles</th>
-                            <th>Estado</th>
-                            <th>Última Actualización</th>
-                            <th class="text-center">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><code>SalidasMaterial</code></td>
-                            <td>Salidas de Material</td>
-                            <td>1.0.0</td>
-                            <td><span class="badge bg-info">2 roles</span></td>
-                            <td><span class="badge bg-success">Activo</span></td>
-                            <td>20/09/2026 10:30</td>
-                            <td class="text-center">
-                                <button class="btn btn-sm btn-outline-info" title="Ver roles" data-bs-toggle="modal" data-bs-target="#modalRolesModulo"><i class="bi bi-shield-lock"></i></button>
-                                <button class="btn btn-sm btn-outline-primary" title="Deshabilitar"><i class="bi bi-power"></i></button>
-                                <button class="btn btn-sm btn-outline-secondary" title="Ver Module.json"><i class="bi bi-file-code"></i></button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+
+            <!-- Módulo de Ejemplo 1 -->
+            <div class="col-6 col-md-4 col-lg-3 col-xl-2">
+                <div class="card h-100 modulo-card card-modulo-compacta"
+                     data-codigo="ModuloEjemplo1"
+                     data-nombre="Módulo de Ejemplo 1"
+                     data-version="1.0.0"
+                     data-estado="activo">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0 text-truncate" title="Módulo de Ejemplo 1">
+                            <i class="bi bi-box"></i> Módulo Ejemplo 1
+                        </h6>
+                        <span class="badge bg-success badge-estado">Activo</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-1">
+                            <small class="text-muted d-block">Código</small>
+                            <code class="small">ModuloEjemplo1</code>
+                        </div>
+                        <div class="mb-1">
+                            <small class="text-muted d-block">Versión</small>
+                            <strong>2.1.5</strong>
+                        </div>
+                        <div class="mb-1">
+                            <small class="text-muted d-block">Roles</small>
+                            <span class="badge bg-info">2 roles</span>
+                        </div>
+                        <div class="mb-0">
+                            <small class="text-muted d-block">Última Act.</small>
+                            <strong>20/09/2026 10:30</strong>
+                        </div>
+                    </div>
+                    <div class="card-footer d-flex justify-content-center gap-1">
+                        <button class="btn btn-sm btn-outline-info" title="Ver roles" data-bs-toggle="modal" data-bs-target="#modalRolesModulo">
+                            <i class="bi bi-shield-lock"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-primary btn-toggle-estado-modulo" title="Deshabilitar" data-accion="deshabilitar">
+                            <i class="bi bi-power"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary btn-module-json" title="Ver Module.json" data-codigo="ModuloEjemplo1">
+                            <i class="bi bi-file-code"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Módulo de Ejemplo 2 -->
+            <div class="col-6 col-md-4 col-lg-3 col-xl-2">
+                <div class="card h-100 modulo-card card-modulo-compacta"
+                     data-codigo="ModuloEjemplo2"
+                     data-nombre="Módulo de Ejemplo 2"
+                     data-version="1.0.0"
+                     data-estado="activo">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0 text-truncate" title="Módulo de Ejemplo 2">
+                            <i class="bi bi-box"></i> Módulo Ejemplo 2
+                        </h6>
+                        <span class="badge bg-success badge-estado">Activo</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-1">
+                            <small class="text-muted d-block">Código</small>
+                            <code class="small">ModuloEjemplo2</code>
+                        </div>
+                        <div class="mb-1">
+                            <small class="text-muted d-block">Versión</small>
+                            <strong>1.2.0</strong>
+                        </div>
+                        <div class="mb-1">
+                            <small class="text-muted d-block">Roles</small>
+                            <span class="badge bg-info">2 roles</span>
+                        </div>
+                        <div class="mb-0">
+                            <small class="text-muted d-block">Última Act.</small>
+                            <strong>20/09/2026 10:30</strong>
+                        </div>
+                    </div>
+                    <div class="card-footer d-flex justify-content-center gap-1">
+                        <button class="btn btn-sm btn-outline-info" title="Ver roles" data-bs-toggle="modal" data-bs-target="#modalRolesModulo">
+                            <i class="bi bi-shield-lock"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-primary btn-toggle-estado-modulo" title="Deshabilitar" data-accion="deshabilitar">
+                            <i class="bi bi-power"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary btn-module-json" title="Ver Module.json" data-codigo="ModuloEjemplo2">
+                            <i class="bi bi-file-code"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Módulo de Ejemplo 3 -->
+            <div class="col-6 col-md-4 col-lg-3 col-xl-2">
+                <div class="card h-100 modulo-card card-modulo-compacta"
+                     data-codigo="ModuloEjemplo3"
+                     data-nombre="Módulo de Ejemplo 3"
+                     data-version="1.0.0"
+                     data-estado="activo">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0 text-truncate" title="Módulo de Ejemplo 3">
+                            <i class="bi bi-box"></i> Módulo Ejemplo 3
+                        </h6>
+                        <span class="badge bg-success badge-estado">Activo</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-1">
+                            <small class="text-muted d-block">Código</small>
+                            <code class="small">ModuloEjemplo3</code>
+                        </div>
+                        <div class="mb-1">
+                            <small class="text-muted d-block">Versión</small>
+                            <strong>3.0.6</strong>
+                        </div>
+                        <div class="mb-1">
+                            <small class="text-muted d-block">Roles</small>
+                            <span class="badge bg-info">2 roles</span>
+                        </div>
+                        <div class="mb-0">
+                            <small class="text-muted d-block">Última Act.</small>
+                            <strong>20/09/2026 10:30</strong>
+                        </div>
+                    </div>
+                    <div class="card-footer d-flex justify-content-center gap-1">
+                        <button class="btn btn-sm btn-outline-info" title="Ver roles" data-bs-toggle="modal" data-bs-target="#modalRolesModulo">
+                            <i class="bi bi-shield-lock"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-primary btn-toggle-estado-modulo" title="Deshabilitar" data-accion="deshabilitar">
+                            <i class="bi bi-power"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary btn-module-json" title="Ver Module.json" data-codigo="ModuloEjemplo3">
+                            <i class="bi bi-file-code"></i>
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal Roles del Módulo -->
+    <!-- ============================================= -->
+    <!-- MODAL: Roles del Módulo                        -->
+    <!-- ============================================= -->
     <div class="modal fade" id="modalRolesModulo" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header" style="background-color: var(--cora-success); color: white;">
-                    <h5 class="modal-title"><i class="bi bi-shield-lock"></i> Roles del Módulo: Salidas de Material</h5>
+                    <h5 class="modal-title" style="color: var(--cora-white);"><i class="bi bi-shield-lock"></i> Roles del Módulo</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -147,6 +297,49 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- ============================================= -->
+    <!-- TOASTS                                          -->
+    <!-- ============================================= -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1090;">
+
+        <!-- Toast: Módulos recargados -->
+        <div id="toastModulosRecargados" class="toast" role="alert" data-bs-delay="3500">
+            <div class="toast-header" style="background-color: var(--cora-success); color: white;">
+                <i class="bi bi-check-circle me-2"></i>
+                <strong class="me-auto">Módulos recargados</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body">
+                Se han recargado los módulos.
+            </div>
+        </div>
+
+        <!-- Toast: Módulo habilitado -->
+        <div id="toastModuloHabilitado" class="toast" role="alert" data-bs-delay="3500">
+            <div class="toast-header" style="background-color: var(--cora-success); color: white;">
+                <i class="bi bi-check-circle me-2"></i>
+                <strong class="me-auto">Módulo habilitado</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body">
+                Se ha habilitado el módulo.
+            </div>
+        </div>
+
+        <!-- Toast: Módulo deshabilitado -->
+        <div id="toastModuloDeshabilitado" class="toast" role="alert" data-bs-delay="3500">
+            <div class="toast-header" style="background-color: var(--cora-accent); color: white;">
+                <i class="bi bi-x-circle me-2"></i>
+                <strong class="me-auto">Módulo deshabilitado</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body">
+                Se ha deshabilitado el módulo.
+            </div>
+        </div>
+
     </div>
 
     <footer class="footer">
