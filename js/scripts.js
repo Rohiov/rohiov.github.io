@@ -104,6 +104,11 @@ function exportarTablaACSV(tablaSelector, nombreArchivo, opciones) {
 document.addEventListener('DOMContentLoaded', function () {
     console.log('SWCORA Mockup cargado correctamente');
 
+    const modalEmpresaEl = document.getElementById('modalEmpresa');
+    const modalEmpresaTitulo = document.getElementById('modalEmpresaTitulo');
+    const modalTiposEmpresaEl = document.getElementById('modalTiposEmpresa');
+    const modalNuevoTipoEl = document.getElementById('modalNuevoTipo');
+
     // =============================================
     // Login Superusuario
     // =============================================
@@ -327,69 +332,59 @@ document.addEventListener('DOMContentLoaded', function () {
     // =============================================
     // Modal Empresa: Crear / Editar
     // =============================================
-    const modalEmpresaEl = document.getElementById('modalEmpresa');
-    const modalEmpresaTitulo = document.getElementById('modalEmpresaTitulo');
-    const formEmpresa = document.getElementById('formEmpresa');
+    const toastCambiosGuardadosEmpEl = document.getElementById('toastCambiosGuardados');
 
     if (modalEmpresaEl) {
+        // ---------- Al abrir el modal: crear o editar ----------
         modalEmpresaEl.addEventListener('show.bs.modal', function (event) {
             const trigger = event.relatedTarget;
 
-            if (formEmpresa) formEmpresa.reset();
+            // Resetear campos
+            document.getElementById('empresaNombre').value = '';
+            document.getElementById('empresaContacto').value = '';
+            document.getElementById('empresaTipo').value = '';
 
+            // Modo CREAR
             if (!trigger || trigger.id === 'btnNuevaEmpresa') {
                 modalEmpresaTitulo.innerHTML = '<i class="bi bi-plus-circle"></i> Nueva Empresa';
-                document.getElementById('empresaId').value = '';
-                document.getElementById('empresaCodigo').readOnly = false;
-                document.getElementById('empresaCodigo').value = '';
-                document.getElementById('empresaNombre').value = '';
-                document.getElementById('empresaContacto').value = '';
-                document.getElementById('empresaTipo').value = '';
-                document.getElementById('empresaActivo').checked = true;
                 return;
             }
 
-            const id = trigger.getAttribute('data-id') || '';
-            const codigo = trigger.getAttribute('data-codigo') || '';
+            // Modo EDITAR: leer data-* del botón
             const nombre = trigger.getAttribute('data-nombre') || '';
             const contacto = trigger.getAttribute('data-contacto') || '';
             const tipo = trigger.getAttribute('data-tipo') || '';
-            const activo = trigger.getAttribute('data-activo') === 'true';
 
             modalEmpresaTitulo.innerHTML = '<i class="bi bi-pencil"></i> Editar Empresa';
-            document.getElementById('empresaId').value = id;
-            document.getElementById('empresaCodigo').value = codigo;
-            document.getElementById('empresaCodigo').readOnly = true;
             document.getElementById('empresaNombre').value = nombre;
             document.getElementById('empresaContacto').value = contacto;
             document.getElementById('empresaTipo').value = tipo;
-            document.getElementById('empresaActivo').checked = activo;
         });
 
+        // ---------- Guardar ----------
         const btnGuardarEmpresa = document.getElementById('btnGuardarEmpresa');
         if (btnGuardarEmpresa) {
             btnGuardarEmpresa.addEventListener('click', function () {
-                const id = document.getElementById('empresaId').value;
-                const codigo = document.getElementById('empresaCodigo').value.trim();
                 const nombre = document.getElementById('empresaNombre').value.trim();
                 const tipo = document.getElementById('empresaTipo').value;
 
-                if (!codigo || !nombre || !tipo) {
+                if (!nombre || !tipo) {
                     alert('Por favor completa los campos obligatorios.');
                     return;
                 }
 
-                const esEdicion = !!id;
-                const mensaje = esEdicion
-                    ? '✅ Empresa actualizada correctamente.'
-                    : '✅ Empresa creada correctamente.';
+                // Cerrar modal
+                const instance = bootstrap.Modal.getInstance(modalEmpresaEl);
+                if (instance) instance.hide();
 
-                const modalInstance = bootstrap.Modal.getInstance(modalEmpresaEl);
-                if (modalInstance) modalInstance.hide();
-
-                console.log(esEdicion ? 'EDITAR' : 'CREAR', { id, codigo, nombre, tipo });
-
-                setTimeout(function () { alert(mensaje); }, 300);
+                // Toast "cambios guardados" al terminar de cerrar
+                modalEmpresaEl.addEventListener('hidden.bs.modal', function handler() {
+                    if (toastCambiosGuardadosEmpEl) {
+                        const toast = new bootstrap.Toast(toastCambiosGuardadosEmpEl);
+                        toast.show();
+                    }
+                    modalEmpresaEl.removeEventListener('hidden.bs.modal', handler);
+                });
             });
         }
     }
@@ -398,8 +393,6 @@ document.addEventListener('DOMContentLoaded', function () {
     // Modal Tipos de Empresa: abrir "Nuevo Tipo"
     // =============================================
     const btnNuevoTipoEmpresa = document.getElementById('btnNuevoTipoEmpresa');
-    const modalTiposEmpresaEl = document.getElementById('modalTiposEmpresa');
-    const modalNuevoTipoEl = document.getElementById('modalNuevoTipo');
 
     if (btnNuevoTipoEmpresa && modalTiposEmpresaEl && modalNuevoTipoEl) {
         btnNuevoTipoEmpresa.addEventListener('click', function () {
@@ -1328,6 +1321,162 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
         // =============================================
+    // ADMIN USUARIOS: filtros en tiempo real + orden por relevancia
+    // =============================================
+    const tablaUsuarios = document.getElementById('tablaUsuarios');
+
+    if (tablaUsuarios) {
+        const filtroBuscar = document.getElementById('filtroUsuariosBuscar');
+        const filtroTipoRol = document.getElementById('filtroUsuariosTipoRol');
+        const filtroRol = document.getElementById('filtroUsuariosRol');
+        const filtroEstado = document.getElementById('filtroUsuariosEstado');
+        const btnLimpiarFiltrosUsuarios = document.getElementById('btnLimpiarFiltrosUsuarios');
+
+        const contadorUsuarios = document.getElementById('contadorUsuarios');
+
+        const tbodyUsuarios = tablaUsuarios.querySelector('tbody');
+        const filas = Array.from(tablaUsuarios.querySelectorAll('.usuario-row'));
+        const totalFilas = filas.length;
+
+        const ordenOriginal = filas.slice();
+
+        if (contadorUsuarios) contadorUsuarios.textContent = totalFilas;
+
+        function normalizar(texto) {
+            return String(texto || '')
+                .toLowerCase()
+                .trim()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '');
+        }
+
+        function palabrasDe(nombreCompleto) {
+            return normalizar(nombreCompleto)
+                .split(/\s+/)
+                .filter(Boolean);
+        }
+
+        function calcularScore(terminos, palabras) {
+            if (terminos.length === 0) return 0;
+
+            const nombre = palabras[0] || '';
+            const apellidos = palabras.slice(1);
+
+            let score = 0;
+
+            for (let i = 0; i < terminos.length; i++) {
+                const termino = terminos[i];
+                if (!termino) continue;
+
+                const coincideNombre = nombre.startsWith(termino);
+                const coincideApellido = apellidos.some(function (ap) {
+                    return ap.startsWith(termino);
+                });
+
+                if (!coincideNombre && !coincideApellido) return -1;
+
+                const pesoTermino = terminos.length - i;
+                if (coincideNombre) {
+                    score += 10 * pesoTermino;
+                } else if (coincideApellido) {
+                    score += 5 * pesoTermino;
+                }
+            }
+
+            return score;
+        }
+
+        function reordenarDom(listaOrdenada) {
+            listaOrdenada.forEach(function (fila) {
+                tbodyUsuarios.appendChild(fila);
+            });
+        }
+
+        function restaurarOrdenOriginal() {
+            reordenarDom(ordenOriginal);
+        }
+
+        function aplicarFiltrosUsuarios() {
+            const busquedaRaw = normalizar(filtroBuscar.value);
+            const terminos = busquedaRaw ? busquedaRaw.split(/\s+/).filter(Boolean) : [];
+
+            const tipoRol = filtroTipoRol.value;
+            const rol = filtroRol.value;
+            const estado = filtroEstado.value;
+
+            let visibles = 0;
+
+            const datos = filas.map(function (fila) {
+                const nombreAttr = fila.getAttribute('data-nombre') || '';
+                const palabras = palabrasDe(nombreAttr);
+                const filaTipoRol = fila.getAttribute('data-tiporol') || '';
+                const filaRoles = fila.getAttribute('data-roles') || '';
+                const filaEstado = fila.getAttribute('data-estado') || '';
+
+                const score = calcularScore(terminos, palabras);
+
+                const coincideTipoRol = !tipoRol || filaTipoRol === tipoRol;
+                const coincideRol = !rol || filaRoles.split(' ').includes(rol);
+                const coincideEstado = !estado || filaEstado === estado;
+
+                const visible = score >= 0 && coincideTipoRol && coincideRol && coincideEstado;
+
+                if (visible) visibles++;
+
+                return {
+                    fila: fila,
+                    visible: visible,
+                    score: score,
+                    nombreOrden: normalizar(nombreAttr)
+                };
+            });
+
+            datos.forEach(function (d) {
+                if (d.visible) {
+                    d.fila.classList.remove('d-none');
+                } else {
+                    d.fila.classList.add('d-none');
+                }
+            });
+
+            const visiblesOrdenadas = datos
+                .filter(d => d.visible)
+                .sort(function (a, b) {
+                    if (b.score !== a.score) return b.score - a.score;
+                    return a.nombreOrden.localeCompare(b.nombreOrden);
+                });
+
+            const noVisibles = datos.filter(d => !d.visible);
+
+            reordenarDom(visiblesOrdenadas.map(d => d.fila).concat(noVisibles.map(d => d.fila)));
+
+            if (contadorUsuarios) contadorUsuarios.textContent = visibles;
+        }
+
+        if (filtroBuscar) filtroBuscar.addEventListener('input', aplicarFiltrosUsuarios);
+        if (filtroTipoRol) filtroTipoRol.addEventListener('change', aplicarFiltrosUsuarios);
+        if (filtroRol) filtroRol.addEventListener('change', aplicarFiltrosUsuarios);
+        if (filtroEstado) filtroEstado.addEventListener('change', aplicarFiltrosUsuarios);
+
+        if (btnLimpiarFiltrosUsuarios) {
+            btnLimpiarFiltrosUsuarios.addEventListener('click', function () {
+                if (filtroBuscar) filtroBuscar.value = '';
+                if (filtroTipoRol) filtroTipoRol.value = '';
+                if (filtroRol) filtroRol.value = '';
+                if (filtroEstado) filtroEstado.value = '';
+
+                restaurarOrdenOriginal();
+                aplicarFiltrosUsuarios();
+            });
+        }
+
+        // Exponer para que el modal de accesos pueda refrescar
+        window.aplicarFiltrosUsuarios = aplicarFiltrosUsuarios;
+
+        aplicarFiltrosUsuarios();
+    }
+
+        // =============================================
     // MODAL ACCESOS: secciones dinámicas + guardar cambios reales
     // =============================================
     const modalAccesosEl = document.getElementById('modalAccesos');
@@ -1744,6 +1893,348 @@ document.addEventListener('DOMContentLoaded', function () {
             enlace.click();
             document.body.removeChild(enlace);
             URL.revokeObjectURL(url);
+        });
+    }
+
+        // =============================================
+    // ADMIN EMPRESAS: filtros + toggle + toasts
+    // =============================================
+    const tablaEmpresas = document.getElementById('tablaEmpresas');
+
+    if (tablaEmpresas) {
+        const filtroEmpresasNombre = document.getElementById('filtroEmpresasNombre');
+        const filtroEmpresasContacto = document.getElementById('filtroEmpresasContacto');
+        const filtroEmpresasTipo = document.getElementById('filtroEmpresasTipo');
+        const filtroEmpresasEstado = document.getElementById('filtroEmpresasEstado');
+        const btnLimpiarFiltrosEmpresas = document.getElementById('btnLimpiarFiltrosEmpresas');
+        const contadorEmpresas = document.getElementById('contadorEmpresas');
+
+        const tbodyEmpresas = tablaEmpresas.querySelector('tbody');
+        const filasEmpresas = Array.from(tablaEmpresas.querySelectorAll('.empresa-row'));
+        const totalFilasEmpresas = filasEmpresas.length;
+
+        const ordenOriginalEmpresas = filasEmpresas.slice();
+
+        if (contadorEmpresas) contadorEmpresas.textContent = totalFilasEmpresas;
+
+        // ---------- Utilidades ----------
+        function normalizarEmp(texto) {
+            return String(texto || '')
+                .toLowerCase()
+                .trim()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '');
+        }
+
+        function reordenarDomEmpresas(lista) {
+            lista.forEach(function (fila) {
+                tbodyEmpresas.appendChild(fila);
+            });
+        }
+
+        function restaurarOrdenOriginalEmpresas() {
+            reordenarDomEmpresas(ordenOriginalEmpresas);
+        }
+
+        // ---------- Filtros ----------
+        function aplicarFiltrosEmpresas() {
+            const busquedaNombre = normalizarEmp(filtroEmpresasNombre.value);
+            const terminosNombre = busquedaNombre ? busquedaNombre.split(/\s+/).filter(Boolean) : [];
+
+            const busquedaContacto = normalizarEmp(filtroEmpresasContacto.value);
+            const terminosContacto = busquedaContacto ? busquedaContacto.split(/\s+/).filter(Boolean) : [];
+
+            const tipo = filtroEmpresasTipo.value;
+            const estado = filtroEmpresasEstado.value;
+
+            let visibles = 0;
+
+            const datos = filasEmpresas.map(function (fila) {
+                const nombre = normalizarEmp(fila.getAttribute('data-nombre') || '');
+                const contacto = normalizarEmp(fila.getAttribute('data-contacto') || '');
+                const filaTipo = fila.getAttribute('data-tipo') || '';
+                const filaEstado = fila.getAttribute('data-estado') || '';
+
+                // --- Búsqueda por EMPRESA ---
+                // Cada término debe ser prefijo de alguna palabra del nombre
+                const palabrasNombre = nombre.split(/\s+/).filter(Boolean);
+                const coincideNombre = terminosNombre.every(function (t) {
+                    return palabrasNombre.some(function (p) { return p.startsWith(t); });
+                });
+
+                // --- Búsqueda por CONTACTO ---
+                const palabrasContacto = contacto.split(/\s+/).filter(Boolean);
+                const coincideContacto = terminosContacto.every(function (t) {
+                    return palabrasContacto.some(function (p) { return p.startsWith(t); });
+                });
+
+                const coincideTipo = !tipo || filaTipo === tipo;
+                const coincideEstado = !estado || filaEstado === estado;
+
+                const visible = coincideNombre && coincideContacto && coincideTipo && coincideEstado;
+
+                if (visible) visibles++;
+
+                return { fila: fila, visible: visible };
+            });
+
+            datos.forEach(function (d) {
+                if (d.visible) d.fila.classList.remove('d-none');
+                else d.fila.classList.add('d-none');
+            });
+
+            if (contadorEmpresas) contadorEmpresas.textContent = visibles;
+        }
+
+        if (filtroEmpresasNombre) filtroEmpresasNombre.addEventListener('input', aplicarFiltrosEmpresas);
+        if (filtroEmpresasContacto) filtroEmpresasContacto.addEventListener('input', aplicarFiltrosEmpresas);
+        if (filtroEmpresasTipo) filtroEmpresasTipo.addEventListener('change', aplicarFiltrosEmpresas);
+        if (filtroEmpresasEstado) filtroEmpresasEstado.addEventListener('change', aplicarFiltrosEmpresas);
+
+        if (btnLimpiarFiltrosEmpresas) {
+            btnLimpiarFiltrosEmpresas.addEventListener('click', function () {
+                if (filtroEmpresasNombre) filtroEmpresasNombre.value = '';
+                if (filtroEmpresasContacto) filtroEmpresasContacto.value = '';
+                if (filtroEmpresasTipo) filtroEmpresasTipo.value = '';
+                if (filtroEmpresasEstado) filtroEmpresasEstado.value = '';
+                restaurarOrdenOriginalEmpresas();
+                aplicarFiltrosEmpresas();
+            });
+        }
+
+        // ---------- Toggle Activar/Desactivar Empresa ----------
+        const toastEmpresaActivadaEl = document.getElementById('toastEmpresaActivada');
+        const toastEmpresaDesactivadaEl = document.getElementById('toastEmpresaDesactivada');
+
+        tablaEmpresas.addEventListener('click', function (e) {
+            const btn = e.target.closest('.btn-toggle-estado-empresa');
+            if (!btn) return;
+
+            const fila = btn.closest('.empresa-row');
+            if (!fila) return;
+
+            const accion = btn.getAttribute('data-accion');
+            const badgeEstado = fila.querySelector('.badge-estado');
+
+            if (accion === 'desactivar') {
+                fila.setAttribute('data-estado', 'inactivo');
+
+                if (badgeEstado) {
+                    badgeEstado.textContent = 'Inactivo';
+                    badgeEstado.classList.remove('bg-success');
+                    badgeEstado.classList.add('bg-danger');
+                }
+
+                btn.classList.remove('btn-outline-primary');
+                btn.classList.add('btn-outline-success');
+                btn.setAttribute('title', 'Activar');
+                btn.setAttribute('data-accion', 'activar');
+
+                if (toastEmpresaDesactivadaEl) {
+                    const toast = new bootstrap.Toast(toastEmpresaDesactivadaEl);
+                    toast.show();
+                }
+                aplicarFiltrosEmpresas();
+
+            } else if (accion === 'activar') {
+                fila.setAttribute('data-estado', 'activo');
+
+                if (badgeEstado) {
+                    badgeEstado.textContent = 'Activo';
+                    badgeEstado.classList.remove('bg-danger');
+                    badgeEstado.classList.add('bg-success');
+                }
+
+                btn.classList.remove('btn-outline-success');
+                btn.classList.add('btn-outline-primary');
+                btn.setAttribute('title', 'Desactivar');
+                btn.setAttribute('data-accion', 'desactivar');
+
+                if (toastEmpresaActivadaEl) {
+                    const toast = new bootstrap.Toast(toastEmpresaActivadaEl);
+                    toast.show();
+                }
+                aplicarFiltrosEmpresas();
+            }
+        });
+
+        aplicarFiltrosEmpresas();
+    }
+
+    // =============================================
+    // ADMIN EMPRESAS: modal Nuevo Tipo → toast
+    // =============================================
+    const btnGuardarNuevoTipo = document.getElementById('btnGuardarNuevoTipo');
+    const toastCambiosGuardadosTipoEl = document.getElementById('toastCambiosGuardados');
+
+    if (btnGuardarNuevoTipo && modalNuevoTipoEl) {
+        btnGuardarNuevoTipo.addEventListener('click', function () {
+            // Cerrar modal
+            const instance = bootstrap.Modal.getInstance(modalNuevoTipoEl);
+            if (instance) instance.hide();
+
+            // Al terminar de cerrar: toast + reabrir Tipos
+            modalNuevoTipoEl.addEventListener('hidden.bs.modal', function handler() {
+                if (toastCambiosGuardadosTipoEl) {
+                    const toast = new bootstrap.Toast(toastCambiosGuardadosTipoEl);
+                    toast.show();
+                }
+
+                // Abrir el modal de Tipos después
+                const modalTipos = new bootstrap.Modal(modalTiposEmpresaEl);
+                modalTipos.show();
+
+                modalNuevoTipoEl.removeEventListener('hidden.bs.modal', handler);
+            });
+        });
+    }
+
+    // =============================================
+    // ADMIN EMPRESAS: modal Tipos → filtro + toggle
+    // =============================================
+    const tablaTiposEmpresa = document.getElementById('tablaTiposEmpresa');
+
+    if (tablaTiposEmpresa) {
+        const filtroTiposEmpresaBuscar = document.getElementById('filtroTiposEmpresaBuscar');
+        const filasTipos = Array.from(tablaTiposEmpresa.querySelectorAll('.tipo-empresa-row'));
+
+        function aplicarFiltroTipos() {
+            const busqueda = normalizarEmp(filtroTiposEmpresaBuscar ? filtroTiposEmpresaBuscar.value : '');
+            const terminos = busqueda ? busqueda.split(/\s+/).filter(Boolean) : [];
+
+            filasTipos.forEach(function (fila) {
+                const nombre = normalizarEmp(fila.getAttribute('data-nombre') || '');
+                const coincide = terminos.every(function (t) { return nombre.startsWith(t); });
+                if (coincide) fila.classList.remove('d-none');
+                else fila.classList.add('d-none');
+            });
+        }
+
+        if (filtroTiposEmpresaBuscar) {
+            filtroTiposEmpresaBuscar.addEventListener('input', aplicarFiltroTipos);
+        }
+
+        // Toggle Activar/Desactivar Tipo
+        const toastTipoActivadoEl = document.getElementById('toastTipoActivado');
+        const toastTipoDesactivadoEl = document.getElementById('toastTipoDesactivado');
+
+        tablaTiposEmpresa.addEventListener('click', function (e) {
+            const btnToggle = e.target.closest('.btn-toggle-estado-tipo');
+            const btnEditar = e.target.closest('.btn-editar-tipo');
+
+            // ---------- Toggle estado ----------
+            if (btnToggle) {
+                const fila = btnToggle.closest('.tipo-empresa-row');
+                if (!fila) return;
+
+                const accion = btnToggle.getAttribute('data-accion');
+                const badgeEstado = fila.querySelector('.badge-estado');
+
+                if (accion === 'desactivar') {
+                    fila.setAttribute('data-estado', 'inactivo');
+
+                    if (badgeEstado) {
+                        badgeEstado.textContent = 'Inactivo';
+                        badgeEstado.classList.remove('bg-success');
+                        badgeEstado.classList.add('bg-danger');
+                    }
+
+                    btnToggle.classList.remove('btn-outline-primary');
+                    btnToggle.classList.add('btn-outline-success');
+                    btnToggle.setAttribute('title', 'Activar');
+                    btnToggle.setAttribute('data-accion', 'activar');
+
+                    if (toastTipoDesactivadoEl) {
+                        const toast = new bootstrap.Toast(toastTipoDesactivadoEl);
+                        toast.show();
+                    }
+
+                } else if (accion === 'activar') {
+                    fila.setAttribute('data-estado', 'activo');
+
+                    if (badgeEstado) {
+                        badgeEstado.textContent = 'Activo';
+                        badgeEstado.classList.remove('bg-danger');
+                        badgeEstado.classList.add('bg-success');
+                    }
+
+                    btnToggle.classList.remove('btn-outline-success');
+                    btnToggle.classList.add('btn-outline-primary');
+                    btnToggle.setAttribute('title', 'Desactivar');
+                    btnToggle.setAttribute('data-accion', 'desactivar');
+
+                    if (toastTipoActivadoEl) {
+                        const toast = new bootstrap.Toast(toastTipoActivadoEl);
+                        toast.show();
+                    }
+                }
+                return;
+            }
+
+            // ---------- Editar (inline) ----------
+            if (btnEditar) {
+                const fila = btnEditar.closest('.tipo-empresa-row');
+                if (!fila) return;
+
+                const tdNombre = fila.querySelector('td:first-child');
+                const nombreActual = tdNombre.textContent.trim();
+
+                // Evitar que el clic posterior al blur vuelva a abrir el input
+                if (tdNombre.dataset.acabaDeGuardar === 'true') {
+                    tdNombre.dataset.acabaDeGuardar = 'false';
+                    return;
+                }
+
+                // Si ya está en modo edición, solo enfocar
+                if (tdNombre.querySelector('input')) {
+                    tdNombre.querySelector('input').focus();
+                    return;
+                }
+
+                // Reemplazar por input con ancho controlado
+                tdNombre.innerHTML = '<input type="text" class="form-control form-control-sm" style="max-width: 200px;" value="' +
+                    nombreActual.replace(/"/g, '&quot;') + '">';
+
+                const input = tdNombre.querySelector('input');
+                input.focus();
+                input.select();
+
+                function guardarEdicion() {
+                    const nuevoNombre = input.value.trim();
+
+                    // Marcar que acabamos de guardar
+                    tdNombre.dataset.acabaDeGuardar = 'true';
+
+                    if (nuevoNombre && nuevoNombre !== nombreActual) {
+                        tdNombre.textContent = nuevoNombre;
+                        fila.setAttribute('data-nombre', nuevoNombre);
+
+                        if (toastCambiosGuardadosTipoEl) {
+                            const toast = new bootstrap.Toast(toastCambiosGuardadosTipoEl);
+                            toast.show();
+                        }
+                    } else {
+                        tdNombre.textContent = nombreActual;
+                    }
+
+                    // Resetear el flag en el siguiente "tick"
+                    setTimeout(function () {
+                        tdNombre.dataset.acabaDeGuardar = 'false';
+                    }, 250);
+                }
+
+                input.addEventListener('blur', guardarEdicion);
+                input.addEventListener('keydown', function (ev) {
+                    if (ev.key === 'Enter') {
+                        ev.preventDefault();
+                        input.blur();
+                    } else if (ev.key === 'Escape') {
+                        tdNombre.textContent = nombreActual;
+                    }
+                });
+
+                return;
+            }
         });
     }
 

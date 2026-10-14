@@ -92,16 +92,18 @@
             <div class="card-body">
                 <div class="row g-3">
                     <div class="col-md-4">
-                        <input type="text" class="form-control" placeholder="Buscar por código o nombre...">
+                        <label class="form-label">Nombre</label>
+                        <input type="text" class="form-control" placeholder="Buscar por nombre...">
                     </div>
                     <div class="col-md-3">
+                        <label class="form-label">Estado</label>
                         <select class="form-select">
                             <option>Todos los estados</option>
                             <option>Activos</option>
                             <option>Inactivos</option>
                         </select>
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-2 d-flex align-items-end">
                         <button class="btn btn-outline-info w-100"><i class="bi bi-search"></i> Buscar</button>
                     </div>
                 </div>
@@ -117,7 +119,6 @@
                 <table class="table table-hover mb-0">
                     <thead>
                         <tr>
-                            <th>Código</th>
                             <th>Nombre</th>
                             <th>Descripción</th>
                             <th>Estado</th>
@@ -126,9 +127,8 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td><code>SISTEMAS</code></td>
-                            <td>Sistemas</td>
-                            <td>Departamento de TI</td>
+                            <td>Tecnologías de la Información</td>
+                            <td>Departamento de TI/IT</td>
                             <td><span class="badge bg-success">Activo</span></td>
                             <td class="text-center">
                                 <button class="btn btn-sm btn-outline-info" title="Editar"><i class="bi bi-pencil"></i></button>
@@ -136,7 +136,6 @@
                             </td>
                         </tr>
                         <tr>
-                            <td><code>RH</code></td>
                             <td>Recursos Humanos</td>
                             <td>Gestión de personal</td>
                             <td><span class="badge bg-success">Activo</span></td>
@@ -146,7 +145,6 @@
                             </td>
                         </tr>
                         <tr>
-                            <td><code>ALMACEN</code></td>
                             <td>Almacén</td>
                             <td>Control de inventario</td>
                             <td><span class="badge bg-success">Activo</span></td>
@@ -166,14 +164,10 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header" style="background-color: var(--cora-success); color: white;">
-                    <h5 class="modal-title"><i class="bi bi-diagram-3"></i> Nuevo Departamento</h5>
+                    <h5 class="modal-title" style="color: var(--cora-white);"><i class="bi bi-diagram-3"></i> Nuevo Departamento</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">Código <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" placeholder="Ej: SISTEMAS" maxlength="50" required>
-                    </div>
                     <div class="mb-3">
                         <label class="form-label">Nombre <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" placeholder="Nombre del departamento" maxlength="200" required>
@@ -181,10 +175,6 @@
                     <div class="mb-3">
                         <label class="form-label">Descripción</label>
                         <textarea class="form-control" rows="2" maxlength="500"></textarea>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="activoDepto" checked>
-                        <label class="form-check-label" for="activoDepto">Activo</label>
                     </div>
                 </div>
                 <div class="modal-footer">

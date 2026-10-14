@@ -274,7 +274,7 @@
     <!-- ============================================= -->
     <!-- MODAL: Crear / Editar Rol                      -->
     <!-- ============================================= -->
-    <div class="modal fade" id="modalCrearRol" tabindex="-1">
+    <div class="modal fade" id="modalCrearRol" tabindex="-1" data-bs-backdrop="static">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header" style="background-color: var(--cora-success); color: white;">
@@ -283,7 +283,7 @@
                 </div>
                 <div class="modal-body">
                     <h6 class="border-bottom pb-2 mb-3">📌 Información Básica</h6>
-                    <div class="row g-3 mb-4">
+                    <div class="row g- mb-3">
                         <div class="col-md-6">
                             <label class="form-label">Tipo de Rol</label>
                             <div>
@@ -297,15 +297,19 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Nombre</label>
+                            <input type="text" class="form-control" placeholder="Ej: Auditor de Salidas">
+                        </div>
+                    </div>
+
+                    <div class="row g-2 mb-3">
+                        
                         <div class="col-md-6">
                             <label class="form-label">Módulo</label>
                             <select class="form-select">
                                 <option>Salidas de Material</option>
                             </select>
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label">Nombre</label>
-                            <input type="text" class="form-control" placeholder="Ej: Auditor de Salidas">
                         </div>
                         <div class="col-12">
                             <label class="form-label">Descripción</label>
