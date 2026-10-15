@@ -41,10 +41,6 @@
                             </a>
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="salidas-index.html"><i class="bi bi-clipboard-check"></i> Salidas de Material</a></li>
-                                <!--
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item text-muted" href="#"><i class="bi bi-box"></i> Control de EPP <span class="badge bg-secondary ms-2">Próximamente</span></a></li>
-                                -->
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
@@ -83,129 +79,316 @@
     <div class="container-fluid mt-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2><i class="bi bi-rulers"></i> Gestión de Unidades de Medida</h2>
-            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalUnidad">
+            <button class="btn btn-success" id="btnNuevaUnidad" data-bs-toggle="modal" data-bs-target="#modalUnidad">
                 <i class="bi bi-plus-circle"></i> Nueva Unidad
             </button>
         </div>
 
-        <div class="card mb-4">
-            <div class="card-body">
-                <div class="row g-3">
-                    <div class="col-md-4">
-                        <input type="text" class="form-control" placeholder="Buscar por nombre...">
+        
+        <!-- Layout 30/70: filtros a la izquierda y tabla a la derecha -->
+        <div class="salida-form-grid-invertido">
+
+            <!-- Columna izquierda: 30% -->
+            <div class="col-izquierda">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="bi bi-funnel"></i> Filtros
+                        </h5>
+
+                        <button type="button"
+                                class="btn btn-sm btn-outline-secondary"
+                                id="btnLimpiarFiltrosUnidades">
+                            <i class="bi bi-arrow-clockwise"></i> Limpiar
+                        </button>
                     </div>
-                    <div class="col-md-3">
-                        <select class="form-select">
-                            <option>Todos los estados</option>
-                            <option>Activos</option>
-                            <option>Inactivos</option>
-                        </select>
+
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="filtroUnidadesBuscar" class="form-label">
+                                Formato
+                            </label>
+                            <input type="text"
+                                class="form-control"
+                                id="filtroUnidadesBuscar"
+                                placeholder="Formato de unidad">
+                        </div>
+
+                        <div class="mb-0">
+                            <label for="filtroUnidadesEstado" class="form-label">
+                                Estado
+                            </label>
+                            <select class="form-select" id="filtroUnidadesEstado">
+                                <option value="">Todos los estados</option>
+                                <option value="activo">Activos</option>
+                                <option value="inactivo">Inactivos</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="col-md-2">
-                        <button class="btn btn-outline-info w-100"><i class="bi bi-search"></i> Buscar</button>
+
+                    <div class="card-footer">
+                        <small class="text-muted">
+                            <i class="bi bi-info-circle"></i>
+                            Los filtros se aplican automáticamente.
+                        </small>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0"><i class="bi bi-list-ul"></i> Unidades de Medida</h5>
-            </div>
-            <div class="card-body p-0">
-                <table class="table table-hover mb-0">
-                    <thead>
-                        <tr>
-                            <th>Nombre</th>
-                            <th>Descripción</th>
-                            <th>Fecha de Creación</th>
-                            <th>Estado</th>
-                            <th class="text-center">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><code>PZS</code></td>
-                            <td>Piezas</td>
-                            <td>01/01/2026 10:00</td>
-                            <td><span class="badge bg-success">Activo</span></td>
-                            <td class="text-center">
-                                <button class="btn btn-sm btn-outline-info"  title="Editar"><i class="bi bi-pencil"></i></button>
-                                <button class="btn btn-sm btn-outline-primary" title="Desactivar"><i class="bi bi-power"></i></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><code>KG</code></td>
-                            <td>Kilogramos</td>
-                            <td>01/01/2026 10:00</td>
-                            <td><span class="badge bg-success">Activo</span></td>
-                            <td class="text-center">
-                                <button class="btn btn-sm btn-outline-info" title="Editar"><i class="bi bi-pencil"></i></button>
-                                <button class="btn btn-sm btn-outline-primary" title="Desactivar"><i class="bi bi-power"></i></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><code>MTS</code></td>
-                            <td>Metros</td>
-                            <td>01/01/2026 10:00</td>
-                            <td><span class="badge bg-success">Activo</span></td>
-                            <td class="text-center">
-                                <button class="btn btn-sm btn-outline-info" title="Editar"><i class="bi bi-pencil"></i></button>
-                                <button class="btn btn-sm btn-outline-primary" title="Desactivar"><i class="bi bi-power"></i></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><code>LTS</code></td>
-                            <td>Litros</td>
-                            <td>01/01/2026 10:00</td>
-                            <td><span class="badge bg-success">Activo</span></td>
-                            <td class="text-center">
-                                <button class="btn btn-sm btn-outline-info" title="Editar"><i class="bi bi-pencil"></i></button>
-                                <button class="btn btn-sm btn-outline-primary" title="Desactivar"><i class="bi bi-power"></i></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><code>CJA</code></td>
-                            <td>Cajas</td>
-                            <td>01/01/2026 10:00</td>
-                            <td><span class="badge bg-success">Activo</span></td>
-                            <td class="text-center">
-                                <button class="btn btn-sm btn-outline-info" title="Editar"><i class="bi bi-pencil"></i></button>
-                                <button class="btn btn-sm btn-outline-primary" title="Desactivar"><i class="bi bi-power"></i></button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+            <!-- Columna derecha: 70% -->
+            <div class="col-derecha">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="bi bi-list-ul"></i> Unidades de Medida
+                        </h5>
+
+                        <button type="button"
+                                class="btn btn-sm btn-outline-success btn-exportar-csv"
+                                id="btnExportarUnidades"
+                                data-tabla="#tablaUnidades"
+                                data-nombre="unidades"
+                                data-omitir-columnas="2">
+                            <i class="bi bi-file-excel"></i> Exportar CSV
+                        </button>
+                    </div>
+
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0" id="tablaUnidades">
+                                <thead>
+                                    <tr>
+                                        <th>Formato</th>
+                                        <th>Estado</th>
+                                        <th class="text-center">Acciones</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    <tr class="unidad-row"
+                                        data-codigo="PZS"
+                                        data-descripcion="Piezas"
+                                        data-estado="activo">
+                                        <td>Piezas</td>
+                                        <td><span class="badge bg-success badge-estado">Activo</span></td>
+                                        <td class="text-center text-nowrap">
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-info btn-editar-unidad"
+                                                    title="Editar" aria-label="Editar">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-primary btn-toggle-estado-unidad"
+                                                    data-accion="desactivar"
+                                                    title="Desactivar" aria-label="Desactivar">
+                                                <i class="bi bi-power"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+
+                                    <tr class="unidad-row"
+                                        data-codigo="KG"
+                                        data-descripcion="Kilogramos"
+                                        data-estado="activo">
+                                        <td>Kilogramos</td>
+                                        <td><span class="badge bg-success badge-estado">Activo</span></td>
+                                        <td class="text-center text-nowrap">
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-info btn-editar-unidad"
+                                                    title="Editar" aria-label="Editar">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-primary btn-toggle-estado-unidad"
+                                                    data-accion="desactivar"
+                                                    title="Desactivar" aria-label="Desactivar">
+                                                <i class="bi bi-power"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+
+                                    <tr class="unidad-row"
+                                        data-codigo="MTS"
+                                        data-descripcion="Metros"
+                                        data-estado="activo">
+                                        <td>Metros</td>
+                                        <td><span class="badge bg-success badge-estado">Activo</span></td>
+                                        <td class="text-center text-nowrap">
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-info btn-editar-unidad"
+                                                    title="Editar" aria-label="Editar">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-primary btn-toggle-estado-unidad"
+                                                    data-accion="desactivar"
+                                                    title="Desactivar" aria-label="Desactivar">
+                                                <i class="bi bi-power"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+
+                                    <tr class="unidad-row"
+                                        data-codigo="LTS"
+                                        data-descripcion="Litros"
+                                        data-estado="activo">
+                                        <td>Litros</td>
+                                        <td><span class="badge bg-success badge-estado">Activo</span></td>
+                                        <td class="text-center text-nowrap">
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-info btn-editar-unidad"
+                                                    title="Editar" aria-label="Editar">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-primary btn-toggle-estado-unidad"
+                                                    data-accion="desactivar"
+                                                    title="Desactivar" aria-label="Desactivar">
+                                                <i class="bi bi-power"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+
+                                    <tr class="unidad-row"
+                                        data-codigo="CJA"
+                                        data-descripcion="Cajas"
+                                        data-estado="activo">
+                                        <td>Cajas</td>
+                                        <td><span class="badge bg-success badge-estado">Activo</span></td>
+                                        <td class="text-center text-nowrap">
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-info btn-editar-unidad"
+                                                    title="Editar" aria-label="Editar">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-primary btn-toggle-estado-unidad"
+                                                    data-accion="desactivar"
+                                                    title="Desactivar" aria-label="Desactivar">
+                                                <i class="bi bi-power"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="card-footer">
+                            <small class="text-muted">Mostrando <span id="contadorRoles">5</span> de 5 unidades</small>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
+    
     <!-- Modal Unidad -->
-    <div class="modal fade" id="modalUnidad" tabindex="-1">
+    <div class="modal fade"
+        id="modalUnidad"
+        tabindex="-1"
+        aria-labelledby="modalUnidadTitulo"
+        aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header" style="background-color: var(--cora-success); color: white;">
-                    <h5 class="modal-title"><i class="bi bi-rulers"></i> Nueva Unidad de Medida</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                <div class="modal-header"
+                    style="background-color: var(--cora-success); color: white;">
+                    <h5 class="modal-title"
+                        id="modalUnidadTitulo"
+                        style="color: var(--cora-white);">
+                        <i class="bi bi-rulers"></i> Nueva Unidad de Medida
+                    </h5>
+
+                    <button type="button"
+                            class="btn-close btn-close-white"
+                            data-bs-dismiss="modal"
+                            aria-label="Cerrar"></button>
                 </div>
+
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label">Nombre <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" placeholder="Ej: PZS" maxlength="20" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Descripción</label>
-                        <input type="text" class="form-control" placeholder="Ej: Piezas" maxlength="200">
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="activoUnidad" checked>
-                        <label class="form-check-label" for="activoUnidad">Activa</label>
+                        <label for="descripcionUnidad" class="form-label">
+                            Formato de la unidad de medida
+                        </label>
+                        <input type="text"
+                            id="descripcionUnidad"
+                            class="form-control"
+                            placeholder="Ej: Piezas"
+                            maxlength="200">
                     </div>
                 </div>
+
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-success"><i class="bi bi-save"></i> Guardar</button>
+                    <button type="button"
+                            class="btn btn-outline-primary"
+                            data-bs-dismiss="modal">
+                        Cancelar
+                    </button>
+
+                    <button type="button"
+                            class="btn btn-success"
+                            id="btnGuardarUnidad">
+                        <i class="bi bi-save"></i> Guardar
+                    </button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toasts de confirmación -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3"
+        style="z-index: 1090;">
+
+        <div id="toastCambiosGuardados"
+            class="toast"
+            role="alert"
+            aria-live="assertive"
+            aria-atomic="true"
+            data-bs-delay="3500">
+            <div class="toast-header"
+                style="background-color: var(--cora-success); color: white;">
+                <i class="bi bi-check-circle me-2"></i>
+                <strong class="me-auto">Cambios guardados</strong>
+                <button type="button"
+                        class="btn-close btn-close-white"
+                        data-bs-dismiss="toast"
+                        aria-label="Cerrar"></button>
+            </div>
+            <div class="toast-body">
+                La unidad se ha guardado correctamente.
+            </div>
+        </div>
+
+        <div id="toastUnidadActivada"
+            class="toast"
+            role="alert"
+            data-bs-delay="3500">
+            <div class="toast-header" style="background-color: var(--cora-success); color: white;">
+                <i class="bi bi-check-circle me-2"></i>
+                <strong class="me-auto">Unidad activada</strong>
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="toast"
+                        aria-label="Cerrar"></button>
+            </div>
+            <div class="toast-body">
+                La unidad se ha activado correctamente.
+            </div>
+        </div>
+
+        <div id="toastUnidadDesactivada"
+            class="toast"
+            role="alert"
+            data-bs-delay="3500">
+            <div class="toast-header" style="background-color: var(--cora-accent); color: white;">
+                <i class="bi bi-x-circle me-2"></i>
+                <strong class="me-auto">Unidad desactivada</strong>
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="toast"
+                        aria-label="Cerrar"></button>
+            </div>
+            <div class="toast-body">
+                La unidad se ha desactivado correctamente.
             </div>
         </div>
     </div>

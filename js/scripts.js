@@ -2238,4 +2238,842 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    
+    // =============================================
+    // ADMIN DEPARTAMENTOS: filtros, edición y estado
+    // =============================================
+    const tablaDepartamentos = document.getElementById('tablaDepartamentos');
+
+    if (tablaDepartamentos) {
+        const filtroNombre = document.getElementById('filtroDepartamentosBuscar');
+        const filtroEstado = document.getElementById('filtroDepartamentosEstado');
+        const btnLimpiar = document.getElementById('btnLimpiarFiltrosDepartamentos');
+        const contador = document.getElementById('contadorDepartamentos');
+
+        const modalEl = document.getElementById('modalDepartamento');
+        const modalTitulo = document.getElementById('modalDepartamentoTitulo');
+        const inputNombre = document.getElementById('departamentoNombre');
+        const inputDescripcion = document.getElementById('departamentoDescripcion');
+        const btnGuardar = document.getElementById('btnGuardarDepartamento');
+
+        // Reutilizar los toasts del HTML
+        const toastGuardadoEl = document.getElementById('toastCambiosGuardados');
+        const toastActivadoEl = document.getElementById('toastDepartamentoActivado');
+        const toastDesactivadoEl = document.getElementById('toastDepartamentoDesactivado');
+
+        const tbody = tablaDepartamentos.querySelector('tbody');
+        let filaEditando = null;
+
+        // Normalizar texto para que la búsqueda ignore acentos y mayúsculas
+        function normalizarDepartamento(valor) {
+            return String(valor || '')
+                .trim()
+                .toLocaleLowerCase('es')
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '');
+        }
+
+        // Mostrar un toast de Bootstrap
+        function mostrarToastDepartamento(elemento) {
+            if (elemento) {
+                new bootstrap.Toast(elemento).show();
+            }
+        }
+
+        // Aplicar filtros por nombre y estado
+        function aplicarFiltrosDepartamentos() {
+            const nombre = normalizarDepartamento(
+                filtroNombre ? filtroNombre.value : ''
+            );
+            const estado = filtroEstado ? filtroEstado.value : '';
+
+            let visibles = 0;
+
+            tablaDepartamentos
+                .querySelectorAll('.departamento-row')
+                .forEach(function (fila) {
+                    const nombreFila = normalizarDepartamento(
+                        fila.getAttribute('data-nombre')
+                    );
+
+                    const coincideNombre = nombreFila.includes(nombre);
+                    const coincideEstado =
+                        !estado || fila.getAttribute('data-estado') === estado;
+
+                    const visible = coincideNombre && coincideEstado;
+
+                    fila.classList.toggle('d-none', !visible);
+
+                    if (visible) {
+                        visibles++;
+                    }
+                });
+
+            if (contador) {
+                contador.textContent = visibles;
+            }
+        }
+
+        // Los filtros se aplican automáticamente
+        if (filtroNombre) {
+            filtroNombre.addEventListener(
+                'input',
+                aplicarFiltrosDepartamentos
+            );
+        }
+
+        if (filtroEstado) {
+            filtroEstado.addEventListener(
+                'change',
+                aplicarFiltrosDepartamentos
+            );
+        }
+
+        // Limpiar los filtros
+        if (btnLimpiar) {
+            btnLimpiar.addEventListener('click', function () {
+                if (filtroNombre) filtroNombre.value = '';
+                if (filtroEstado) filtroEstado.value = '';
+
+                aplicarFiltrosDepartamentos();
+            });
+        }
+
+        // Abrir el modal para crear un departamento
+        const btnNuevo = document.getElementById('btnNuevoDepartamento');
+
+        if (btnNuevo) {
+            btnNuevo.addEventListener('click', function () {
+                filaEditando = null;
+
+                modalTitulo.innerHTML =
+                    '<i class="bi bi-diagram-3"></i> Nuevo Departamento';
+
+                inputNombre.value = '';
+                inputDescripcion.value = '';
+                inputNombre.classList.remove('is-invalid');
+            });
+        }
+
+        // Gestionar los botones Editar y Activar/Desactivar
+        tablaDepartamentos.addEventListener('click', function (e) {
+            const btnEditar = e.target.closest('.btn-editar-departamento');
+
+            // Editar departamento
+            if (btnEditar) {
+                filaEditando = btnEditar.closest('.departamento-row');
+
+                if (!filaEditando) return;
+
+                inputNombre.value = filaEditando.cells[0].textContent.trim();
+                inputDescripcion.value = filaEditando.cells[1].textContent.trim();
+
+                inputNombre.classList.remove('is-invalid');
+
+                modalTitulo.innerHTML =
+                    '<i class="bi bi-pencil"></i> Editar Departamento';
+
+                bootstrap.Modal.getOrCreateInstance(modalEl).show();
+                return;
+            }
+
+            const btnToggle = e.target.closest(
+                '.btn-toggle-estado-departamento'
+            );
+
+            if (!btnToggle) return;
+
+            const fila = btnToggle.closest('.departamento-row');
+            if (!fila) return;
+
+            const activar = btnToggle.dataset.accion === 'activar';
+
+            // Actualizar el estado de la fila
+            fila.dataset.estado = activar ? 'activo' : 'inactivo';
+
+            const badge = fila.cells[2].querySelector('.badge');
+
+            if (badge) {
+                badge.textContent = activar ? 'Activo' : 'Inactivo';
+                badge.classList.toggle('bg-success', activar);
+                badge.classList.toggle('bg-danger', !activar);
+            }
+
+            // Cambiar el botón para permitir la acción contraria
+            btnToggle.dataset.accion = activar ? 'desactivar' : 'activar';
+            btnToggle.title = activar ? 'Desactivar' : 'Activar';
+            btnToggle.setAttribute('aria-label', btnToggle.title);
+
+            btnToggle.classList.toggle('btn-outline-primary', activar);
+            btnToggle.classList.toggle('btn-outline-success', !activar);
+
+            // Actualizar filtros y notificar al usuario
+            aplicarFiltrosDepartamentos();
+
+            mostrarToastDepartamento(
+                activar ? toastActivadoEl : toastDesactivadoEl
+            );
+        });
+
+        // Guardar un departamento nuevo o los cambios de uno existente
+        if (btnGuardar) {
+            btnGuardar.addEventListener('click', function () {
+                const nombre = inputNombre.value.trim();
+                const descripcion = inputDescripcion.value.trim();
+
+                // Validar el campo obligatorio
+                if (!nombre) {
+                    inputNombre.classList.add('is-invalid');
+                    inputNombre.focus();
+                    return;
+                }
+
+                inputNombre.classList.remove('is-invalid');
+
+                if (filaEditando) {
+                    // Actualizar departamento existente
+                    filaEditando.cells[0].textContent = nombre;
+                    filaEditando.cells[1].textContent = descripcion;
+                    filaEditando.dataset.nombre = nombre;
+                } else {
+                    // Crear una nueva fila
+                    const fila = document.createElement('tr');
+
+                    fila.className = 'departamento-row';
+                    fila.dataset.nombre = nombre;
+                    fila.dataset.estado = 'activo';
+
+                    fila.innerHTML =
+                        '<td></td>' +
+                        '<td></td>' +
+                        '<td><span class="badge bg-success">Activo</span></td>' +
+                        '<td class="text-center text-nowrap">' +
+                            '<button class="btn btn-sm btn-outline-info btn-editar-departamento" ' +
+                                'title="Editar" aria-label="Editar">' +
+                                '<i class="bi bi-pencil"></i>' +
+                            '</button> ' +
+                            '<button class="btn btn-sm btn-outline-primary btn-toggle-estado-departamento" ' +
+                                'title="Desactivar" data-accion="desactivar" ' +
+                                'aria-label="Desactivar">' +
+                                '<i class="bi bi-power"></i>' +
+                            '</button>' +
+                        '</td>';
+
+                    // Asignar el texto sin interpretarlo como HTML
+                    fila.cells[0].textContent = nombre;
+                    fila.cells[1].textContent = descripcion;
+
+                    tbody.appendChild(fila);
+                }
+
+                // Cerrar el modal
+                const modalInstance = bootstrap.Modal.getInstance(modalEl);
+
+                // Registrar el evento antes de cerrar el modal
+                modalEl.addEventListener('hidden.bs.modal', function handler() {
+                    mostrarToastDepartamento(toastGuardadoEl);
+
+                    modalEl.removeEventListener(
+                        'hidden.bs.modal',
+                        handler
+                    );
+                });
+
+                if (modalInstance) {
+                    modalInstance.hide();
+                } else {
+                    mostrarToastDepartamento(toastGuardadoEl);
+                }
+
+                filaEditando = null;
+                aplicarFiltrosDepartamentos();
+            });
+        }
+
+        // Mostrar contador inicial
+        aplicarFiltrosDepartamentos();
+    }
+
+    
+    // =============================================
+    // ADMIN UNIDADES: filtros, edición y estado
+    // Adaptado al HTML actualizado
+    // =============================================
+    const tablaUnidades = document.getElementById('tablaUnidades');
+
+    if (tablaUnidades) {
+        const tbody = tablaUnidades.querySelector('tbody');
+
+        const filtroBuscar = document.getElementById('filtroUnidadesBuscar');
+        const filtroEstado = document.getElementById('filtroUnidadesEstado');
+        const btnLimpiar = document.getElementById('btnLimpiarFiltrosUnidades');
+        const btnNueva = document.getElementById('btnNuevaUnidad');
+        const btnGuardar = document.getElementById('btnGuardarUnidad');
+
+        const modalEl = document.getElementById('modalUnidad');
+        const modalTitulo = document.getElementById('modalUnidadTitulo');
+        const inputDescripcion = document.getElementById('descripcionUnidad');
+
+        // El HTML puede utilizar cualquiera de estos dos identificadores
+        const contador =
+            document.getElementById('contadorUnidades') ||
+            document.getElementById('contadorRoles');
+
+        const toastGuardado = document.getElementById('toastCambiosGuardados');
+        const toastActivado = document.getElementById('toastUnidadActivada');
+        const toastDesactivado = document.getElementById('toastUnidadDesactivada');
+
+        let filaEditando = null;
+
+        // Normalizar texto para buscar sin distinguir mayúsculas ni acentos
+        function normalizarUnidad(texto) {
+            return String(texto || '')
+                .trim()
+                .toLocaleLowerCase('es')
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '');
+        }
+
+        // Mostrar notificaciones Bootstrap
+        function mostrarToastUnidad(elemento) {
+            if (elemento && window.bootstrap) {
+                bootstrap.Toast.getOrCreateInstance(elemento).show();
+            }
+        }
+
+        // Generar un código interno para las unidades nuevas
+        function generarCodigoUnidad(descripcion) {
+            const base = normalizarUnidad(descripcion)
+                .replace(/[^a-z0-9\s]/g, '')
+                .split(/\s+/)
+                .filter(Boolean)
+                .map(palabra => palabra[0])
+                .join('')
+                .toUpperCase()
+                .slice(0, 20) || 'UNI';
+
+            let codigo = base;
+            let consecutivo = 2;
+
+            const codigosExistentes = Array.from(
+                tbody.querySelectorAll('.unidad-row')
+            ).map(fila => normalizarUnidad(fila.dataset.codigo));
+
+            while (codigosExistentes.includes(normalizarUnidad(codigo))) {
+                codigo = (base.slice(0, 16) + consecutivo).slice(0, 20);
+                consecutivo++;
+            }
+
+            return codigo;
+        }
+
+        // Aplicar búsqueda por formato y filtro por estado
+        function aplicarFiltrosUnidades() {
+            const busqueda = normalizarUnidad(
+                filtroBuscar ? filtroBuscar.value : ''
+            );
+
+            const estadoSeleccionado = filtroEstado
+                ? filtroEstado.value
+                : '';
+
+            let visibles = 0;
+            const filas = tablaUnidades.querySelectorAll('.unidad-row');
+
+            filas.forEach(function (fila) {
+                const formato = normalizarUnidad(
+                    fila.dataset.descripcion || fila.cells[0].textContent
+                );
+
+                const estado = fila.dataset.estado || 'activo';
+
+                const coincideFormato = formato.includes(busqueda);
+                const coincideEstado =
+                    !estadoSeleccionado || estado === estadoSeleccionado;
+
+                const visible = coincideFormato && coincideEstado;
+
+                fila.classList.toggle('d-none', !visible);
+
+                if (visible) {
+                    visibles++;
+                }
+            });
+
+            if (contador) {
+                contador.textContent = visibles;
+            }
+        }
+
+        // Filtro de formato
+        if (filtroBuscar) {
+            filtroBuscar.addEventListener('input', aplicarFiltrosUnidades);
+        }
+
+        // Filtro de estado
+        if (filtroEstado) {
+            filtroEstado.addEventListener('change', aplicarFiltrosUnidades);
+        }
+
+        // Limpiar filtros
+        if (btnLimpiar) {
+            btnLimpiar.addEventListener('click', function () {
+                if (filtroBuscar) filtroBuscar.value = '';
+                if (filtroEstado) filtroEstado.value = '';
+
+                aplicarFiltrosUnidades();
+            });
+        }
+
+        // Preparar modal para una unidad nueva
+        if (btnNueva) {
+            btnNueva.addEventListener('click', function () {
+                filaEditando = null;
+
+                modalTitulo.innerHTML =
+                    '<i class="bi bi-rulers"></i> Nueva Unidad de Medida';
+
+                inputDescripcion.value = '';
+                inputDescripcion.classList.remove('is-invalid');
+            });
+        }
+
+        // Gestionar acciones de la tabla mediante delegación de eventos
+        tablaUnidades.addEventListener('click', function (e) {
+            const btnEditar = e.target.closest('.btn-editar-unidad');
+
+            // Editar unidad existente
+            if (btnEditar) {
+                filaEditando = btnEditar.closest('.unidad-row');
+
+                if (!filaEditando) return;
+
+                inputDescripcion.value =
+                    filaEditando.dataset.descripcion ||
+                    filaEditando.cells[0].textContent.trim();
+
+                inputDescripcion.classList.remove('is-invalid');
+
+                modalTitulo.innerHTML =
+                    '<i class="bi bi-pencil"></i> Editar Unidad de Medida';
+
+                bootstrap.Modal.getOrCreateInstance(modalEl).show();
+                return;
+            }
+
+            const btnToggle = e.target.closest(
+                '.btn-toggle-estado-unidad'
+            );
+
+            if (!btnToggle) return;
+
+            const fila = btnToggle.closest('.unidad-row');
+            if (!fila) return;
+
+            const activar = btnToggle.dataset.accion === 'activar';
+
+            // Actualizar estado
+            fila.dataset.estado = activar ? 'activo' : 'inactivo';
+
+            const badge = fila.querySelector('.badge-estado');
+
+            if (badge) {
+                badge.textContent = activar ? 'Activo' : 'Inactivo';
+                badge.classList.toggle('bg-success', activar);
+                badge.classList.toggle('bg-danger', !activar);
+            }
+
+            // Actualizar botón para la siguiente acción
+            btnToggle.dataset.accion = activar ? 'desactivar' : 'activar';
+            btnToggle.title = activar ? 'Desactivar' : 'Activar';
+            btnToggle.setAttribute('aria-label', btnToggle.title);
+
+            btnToggle.classList.toggle('btn-outline-primary', activar);
+            btnToggle.classList.toggle('btn-outline-success', !activar);
+
+            aplicarFiltrosUnidades();
+
+            mostrarToastUnidad(
+                activar ? toastActivado : toastDesactivado
+            );
+        });
+
+        // Guardar unidad nueva o cambios de una unidad existente
+        if (btnGuardar) {
+            btnGuardar.addEventListener('click', function () {
+                const descripcion = inputDescripcion.value.trim();
+
+                // Validar el formato obligatorio
+                if (!descripcion) {
+                    inputDescripcion.classList.add('is-invalid');
+                    inputDescripcion.focus();
+
+                    let feedback = inputDescripcion.parentElement.querySelector(
+                        '.invalid-feedback'
+                    );
+
+                    if (!feedback) {
+                        feedback = document.createElement('div');
+                        feedback.className = 'invalid-feedback';
+                        inputDescripcion.insertAdjacentElement(
+                            'afterend',
+                            feedback
+                        );
+                    }
+
+                    feedback.textContent =
+                        'Ingresa el formato de la unidad de medida.';
+
+                    return;
+                }
+
+                inputDescripcion.classList.remove('is-invalid');
+
+                // Evitar formatos duplicados
+                const descripcionNormalizada = normalizarUnidad(descripcion);
+
+                const duplicada = Array.from(
+                    tbody.querySelectorAll('.unidad-row')
+                ).some(function (fila) {
+                    const formatoExistente = normalizarUnidad(
+                        fila.dataset.descripcion || fila.cells[0].textContent
+                    );
+
+                    return fila !== filaEditando &&
+                        formatoExistente === descripcionNormalizada;
+                });
+
+                if (duplicada) {
+                    inputDescripcion.classList.add('is-invalid');
+
+                    let feedback = inputDescripcion.parentElement.querySelector(
+                        '.invalid-feedback'
+                    );
+
+                    if (!feedback) {
+                        feedback = document.createElement('div');
+                        feedback.className = 'invalid-feedback';
+                        inputDescripcion.insertAdjacentElement(
+                            'afterend',
+                            feedback
+                        );
+                    }
+
+                    feedback.textContent =
+                        'Ya existe una unidad con ese formato.';
+
+                    inputDescripcion.focus();
+                    return;
+                }
+
+                let fila = filaEditando;
+
+                // Crear fila nueva
+                if (!fila) {
+                    fila = document.createElement('tr');
+                    fila.className = 'unidad-row';
+
+                    const codigoInterno = generarCodigoUnidad(descripcion);
+
+                    fila.dataset.codigo = codigoInterno;
+                    fila.dataset.descripcion = descripcion;
+                    fila.dataset.estado = 'activo';
+
+                    fila.innerHTML =
+                        '<td></td>' +
+                        '<td><span class="badge badge-estado"></span></td>' +
+                        '<td class="text-center text-nowrap">' +
+                            '<button type="button" ' +
+                                'class="btn btn-sm btn-outline-info btn-editar-unidad" ' +
+                                'title="Editar" aria-label="Editar">' +
+                                '<i class="bi bi-pencil"></i>' +
+                            '</button> ' +
+                            '<button type="button" ' +
+                                'class="btn btn-sm btn-outline-primary btn-toggle-estado-unidad" ' +
+                                'data-accion="desactivar" ' +
+                                'title="Desactivar" aria-label="Desactivar">' +
+                                '<i class="bi bi-power"></i>' +
+                            '</button>' +
+                        '</td>';
+
+                    tbody.appendChild(fila);
+                }
+
+                // Actualizar el formato y sus metadatos
+                fila.cells[0].textContent = descripcion;
+                fila.dataset.descripcion = descripcion;
+
+                // Si es una fila nueva, asegurar que tenga estado activo
+                if (!fila.dataset.estado) {
+                    fila.dataset.estado = 'activo';
+                }
+
+                const badge = fila.querySelector('.badge-estado');
+                const activo = fila.dataset.estado === 'activo';
+
+                if (badge) {
+                    badge.textContent = activo ? 'Activo' : 'Inactivo';
+                    badge.classList.toggle('bg-success', activo);
+                    badge.classList.toggle('bg-danger', !activo);
+                }
+
+                const btnToggle = fila.querySelector(
+                    '.btn-toggle-estado-unidad'
+                );
+
+                if (btnToggle) {
+                    btnToggle.dataset.accion = activo
+                        ? 'desactivar'
+                        : 'activar';
+
+                    btnToggle.title = activo ? 'Desactivar' : 'Activar';
+                    btnToggle.setAttribute('aria-label', btnToggle.title);
+
+                    btnToggle.classList.toggle(
+                        'btn-outline-primary',
+                        activo
+                    );
+
+                    btnToggle.classList.toggle(
+                        'btn-outline-success',
+                        !activo
+                    );
+                }
+
+                // Cerrar el modal y mostrar el toast existente
+                const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+
+                modalEl.addEventListener('hidden.bs.modal', function handler() {
+                    modalEl.removeEventListener('hidden.bs.modal', handler);
+                    mostrarToastUnidad(toastGuardado);
+                });
+
+                filaEditando = null;
+
+                modal.hide();
+                aplicarFiltrosUnidades();
+            });
+        }
+
+        // Mostrar el total inicial
+        aplicarFiltrosUnidades();
+    }
+
+    
+    // =========================================================
+    // ADMIN DEPARTAMENTOS Y UNIDADES:
+    // filtros en tiempo real + orden por relevancia
+    // =========================================================
+
+    function normalizarBusquedaCatalogo(texto) {
+        return String(texto || '')
+            .toLowerCase()
+            .trim()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '');
+    }
+
+    function calcularRelevanciaCatalogo(terminos, campos) {
+        if (terminos.length === 0) return 0;
+
+        const camposNormalizados = campos.map(normalizarBusquedaCatalogo);
+        const palabrasPorCampo = camposNormalizados.map(function (campo) {
+            return campo.split(/\s+/).filter(Boolean);
+        });
+
+        let puntuacion = 0;
+
+        for (let i = 0; i < terminos.length; i++) {
+            const termino = terminos[i];
+            let mejorPuntuacion = 0;
+
+            camposNormalizados.forEach(function (campo, indice) {
+                const palabras = palabrasPorCampo[indice];
+
+                if (campo.startsWith(termino)) {
+                    mejorPuntuacion = Math.max(mejorPuntuacion, 100);
+                }
+
+                if (palabras.some(function (palabra) {
+                    return palabra.startsWith(termino);
+                })) {
+                    mejorPuntuacion = Math.max(mejorPuntuacion, 50);
+                }
+
+                if (campo.includes(termino)) {
+                    mejorPuntuacion = Math.max(mejorPuntuacion, 10);
+                }
+            });
+
+            // Todos los términos deben coincidir.
+            if (mejorPuntuacion === 0) return -1;
+
+            // Los primeros términos tienen mayor peso.
+            puntuacion += mejorPuntuacion * (terminos.length - i);
+        }
+
+        return puntuacion;
+    }
+
+    function configurarFiltroCatalogo(config) {
+        const tabla = document.getElementById(config.tabla);
+        if (!tabla) return;
+
+        const campoBuscar = document.getElementById(config.buscar);
+        const campoEstado = document.getElementById(config.estado);
+        const botonLimpiar = document.getElementById(config.limpiar);
+        const contador = document.getElementById(config.contador);
+        const tbody = tabla.querySelector('tbody');
+
+        if (!tbody) return;
+
+        // Se conserva la referencia original para recuperar el orden.
+        const ordenOriginal = Array.from(
+            tbody.querySelectorAll(config.fila)
+        );
+
+        function obtenerFilas() {
+            return Array.from(tbody.querySelectorAll(config.fila));
+        }
+
+        function aplicarFiltros() {
+            const busqueda = normalizarBusquedaCatalogo(
+                campoBuscar ? campoBuscar.value : ''
+            );
+
+            const terminos = busqueda
+                ? busqueda.split(/\s+/).filter(Boolean)
+                : [];
+
+            const estadoSeleccionado = campoEstado
+                ? campoEstado.value
+                : '';
+
+            const filas = obtenerFilas();
+            let visibles = 0;
+
+            const resultados = filas.map(function (fila, indice) {
+                const campos = config.campos(fila);
+                const relevancia = calcularRelevanciaCatalogo(
+                    terminos,
+                    campos
+                );
+
+                const estadoFila = normalizarBusquedaCatalogo(
+                    fila.getAttribute('data-estado') || ''
+                );
+
+                const coincideTexto = relevancia >= 0;
+                const coincideEstado =
+                    !estadoSeleccionado ||
+                    estadoFila === estadoSeleccionado;
+
+                const visible = coincideTexto && coincideEstado;
+
+                fila.classList.toggle('d-none', !visible);
+
+                if (visible) visibles++;
+
+                return {
+                    fila: fila,
+                    relevancia: relevancia,
+                    indice: indice
+                };
+            });
+
+            // Ordena los resultados visibles por relevancia.
+            // Las filas ocultas permanecen al final.
+            resultados.sort(function (a, b) {
+                const aVisible = !a.fila.classList.contains('d-none');
+                const bVisible = !b.fila.classList.contains('d-none');
+
+                if (aVisible !== bVisible) {
+                    return aVisible ? -1 : 1;
+                }
+
+                if (aVisible && bVisible && b.relevancia !== a.relevancia) {
+                    return b.relevancia - a.relevancia;
+                }
+
+                return a.indice - b.indice;
+            });
+
+            resultados.forEach(function (resultado) {
+                tbody.appendChild(resultado.fila);
+            });
+
+            if (contador) {
+                contador.textContent = visibles;
+            }
+        }
+
+        function limpiarFiltros() {
+            if (campoBuscar) campoBuscar.value = '';
+            if (campoEstado) campoEstado.value = '';
+
+            // Restaurar el orden original de las filas iniciales.
+            ordenOriginal.forEach(function (fila) {
+                if (fila.parentElement === tbody) {
+                    tbody.appendChild(fila);
+                }
+            });
+
+            aplicarFiltros();
+        }
+
+        if (campoBuscar) {
+            campoBuscar.addEventListener('input', aplicarFiltros);
+        }
+
+        if (campoEstado) {
+            campoEstado.addEventListener('change', aplicarFiltros);
+        }
+
+        if (botonLimpiar) {
+            botonLimpiar.addEventListener('click', limpiarFiltros);
+        }
+
+        aplicarFiltros();
+
+        // Permite actualizar los resultados después de agregar
+        // o modificar registros desde otros bloques de scripts.
+        tabla.addEventListener('catalogo:actualizar-filtros', aplicarFiltros);
+    }
+
+    // ---------- Departamentos ----------
+    configurarFiltroCatalogo({
+        tabla: 'tablaDepartamentos',
+        buscar: 'filtroDepartamentosBuscar',
+        estado: 'filtroDepartamentosEstado',
+        limpiar: 'btnLimpiarFiltrosDepartamentos',
+        contador: 'contadorDepartamentos',
+        fila: '.departamento-row',
+        campos: function (fila) {
+            return [
+                fila.getAttribute('data-nombre') ||
+                    fila.cells[0]?.textContent,
+                fila.getAttribute('data-descripcion') ||
+                    fila.cells[1]?.textContent
+            ];
+        }
+    });
+
+    // ---------- Unidades ----------
+    configurarFiltroCatalogo({
+        tabla: 'tablaUnidades',
+        buscar: 'filtroUnidadesBuscar',
+        estado: 'filtroUnidadesEstado',
+        limpiar: 'btnLimpiarFiltrosUnidades',
+        contador: 'contadorUnidades',
+        fila: '.unidad-row',
+        campos: function (fila) {
+            return [
+                fila.getAttribute('data-codigo') || '',
+                fila.getAttribute('data-descripcion') ||
+                    fila.cells[0]?.textContent
+            ];
+        }
+    });
+
+
 });

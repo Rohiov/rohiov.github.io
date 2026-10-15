@@ -88,102 +88,278 @@
             </button>
         </div>
 
-        <div class="card mb-4">
-            <div class="card-body">
-                <div class="row g-3">
-                    <div class="col-md-4">
-                        <label class="form-label">Nombre</label>
-                        <input type="text" class="form-control" placeholder="Buscar por nombre...">
+        <div class="salida-form-grid-invertido">
+        <!-- Columna izquierda: 30% -->
+        <div class="col-izquierda">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="bi bi-funnel"></i> Filtros
+                    </h5>
+                    <button class="btn btn-sm btn-outline-secondary"
+                            id="btnLimpiarFiltrosDepartamentos">
+                        <i class="bi bi-arrow-clockwise"></i> Limpiar
+                    </button>
+                </div>
+
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label" for="filtroDepartamentosBuscar">
+                            Nombre
+                        </label>
+                        <input type="text" 
+                            class="form-control"
+                            id="filtroDepartamentosBuscar"
+                            placeholder="Buscar por nombre...">
                     </div>
-                    <div class="col-md-3">
-                        <label class="form-label">Estado</label>
-                        <select class="form-select">
-                            <option>Todos los estados</option>
-                            <option>Activos</option>
-                            <option>Inactivos</option>
+
+                    <div class="mb-0">
+                        <label class="form-label" for="filtroDepartamentosEstado">
+                            Estado
+                        </label>
+                        <select class="form-select" id="filtroDepartamentosEstado">
+                            <option value="">Todos los estados</option>
+                            <option value="activo">Activos</option>
+                            <option value="inactivo">Inactivos</option>
                         </select>
                     </div>
-                    <div class="col-md-2 d-flex align-items-end">
-                        <button class="btn btn-outline-info w-100"><i class="bi bi-search"></i> Buscar</button>
-                    </div>
+                </div>
+
+                <div class="card-footer">
+                    <small class="text-muted">
+                        <i class="bi bi-info-circle"></i>
+                        Los filtros se aplican automáticamente.
+                    </small>
                 </div>
             </div>
         </div>
 
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0"><i class="bi bi-list-ul"></i> Departamentos</h5>
-                <button class="btn btn-sm btn-outline-success"><i class="bi bi-file-excel"></i> Exportar CSV</button>
+        <!-- Columna derecha: 70% -->
+        <div class="col-derecha">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="bi bi-list-ul"></i> Departamentos
+                    </h5>
+
+                    <button class="btn btn-sm btn-outline-success btn-exportar-csv"
+                            id="btnExportarDepartamentos"
+                            data-tabla="#tablaDepartamentos"
+                            data-nombre="departamentos"
+                            data-omitir-columnas="3">
+                        <i class="bi bi-file-excel"></i> Exportar CSV
+                    </button>
+                </div>
+
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0"
+                            id="tablaDepartamentos">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Descripción</th>
+                                    <th>Estado</th>
+                                    <th class="text-center">Acciones</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                <tr class="departamento-row"
+                                    data-nombre="Tecnologías de la Información"
+                                    data-estado="activo">
+                                    <td>Tecnologías de la Información</td>
+                                    <td>Departamento de TI/IT</td>
+                                    <td><span class="badge bg-success">Activo</span></td>
+                                    <td class="text-center text-nowrap">
+                                        <button class="btn btn-sm btn-outline-info btn-editar-departamento"
+                                                title="Editar" aria-label="Editar">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-primary btn-toggle-estado-departamento"
+                                                title="Desactivar"
+                                                data-accion="desactivar"
+                                                aria-label="Desactivar">
+                                            <i class="bi bi-power"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+
+                                <tr class="departamento-row"
+                                    data-nombre="Recursos Humanos"
+                                    data-estado="activo">
+                                    <td>Recursos Humanos</td>
+                                    <td>Gestión de personal</td>
+                                    <td><span class="badge bg-success">Activo</span></td>
+                                    <td class="text-center text-nowrap">
+                                        <button class="btn btn-sm btn-outline-info btn-editar-departamento"
+                                                title="Editar" aria-label="Editar">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-primary btn-toggle-estado-departamento"
+                                                title="Desactivar"
+                                                data-accion="desactivar"
+                                                aria-label="Desactivar">
+                                            <i class="bi bi-power"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+
+                                <tr class="departamento-row"
+                                    data-nombre="Almacén"
+                                    data-estado="activo">
+                                    <td>Almacén</td>
+                                    <td>Control de inventario</td>
+                                    <td><span class="badge bg-success">Activo</span></td>
+                                    <td class="text-center text-nowrap">
+                                        <button class="btn btn-sm btn-outline-info btn-editar-departamento"
+                                                title="Editar" aria-label="Editar">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-primary btn-toggle-estado-departamento"
+                                                title="Desactivar"
+                                                data-accion="desactivar"
+                                                aria-label="Desactivar">
+                                            <i class="bi bi-power"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-footer">
+                        <small class="text-muted">Mostrando <span id="contadorRoles">5</span> de 5 roles</small>
+                    </div>
             </div>
-            <div class="card-body p-0">
-                <table class="table table-hover mb-0">
-                    <thead>
-                        <tr>
-                            <th>Nombre</th>
-                            <th>Descripción</th>
-                            <th>Estado</th>
-                            <th class="text-center">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Tecnologías de la Información</td>
-                            <td>Departamento de TI/IT</td>
-                            <td><span class="badge bg-success">Activo</span></td>
-                            <td class="text-center">
-                                <button class="btn btn-sm btn-outline-info" title="Editar"><i class="bi bi-pencil"></i></button>
-                                <button class="btn btn-sm btn-outline-primary" title="Desactivar"><i class="bi bi-power"></i></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Recursos Humanos</td>
-                            <td>Gestión de personal</td>
-                            <td><span class="badge bg-success">Activo</span></td>
-                            <td class="text-center">
-                                <button class="btn btn-sm btn-outline-info" title="Editar"><i class="bi bi-pencil"></i></button>
-                                <button class="btn btn-sm btn-outline-primary" title="Desactivar"><i class="bi bi-power"></i></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Almacén</td>
-                            <td>Control de inventario</td>
-                            <td><span class="badge bg-success">Activo</span></td>
-                            <td class="text-center">
-                                <button class="btn btn-sm btn-outline-info" title="Editar"><i class="bi bi-pencil"></i></button>
-                                <button class="btn btn-sm btn-outline-primary" title="Desactivar"><i class="bi bi-power"></i></button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+        </div>
+    </div>
+    </div>
+
+    
+<!-- Modal para crear o editar un departamento -->
+<div class="modal fade"
+     id="modalDepartamento"
+     tabindex="-1"
+     aria-labelledby="modalDepartamentoTitulo"
+     aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header"
+                 style="background-color: var(--cora-success); color: white;">
+                <h5 class="modal-title"
+                    id="modalDepartamentoTitulo"
+                    style="color: var(--cora-white);">
+                    <i class="bi bi-diagram-3"></i> Nuevo Departamento
+                </h5>
+
+                <button type="button"
+                        class="btn-close btn-close-white"
+                        data-bs-dismiss="modal"
+                        aria-label="Cerrar"></button>
             </div>
+
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label" for="departamentoNombre">
+                        Nombre <span class="text-danger">*</span>
+                    </label>
+                    <input type="text"
+                           id="departamentoNombre"
+                           class="form-control"
+                           placeholder="Nombre del departamento"
+                           maxlength="200"
+                           required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" for="departamentoDescripcion">
+                        Descripción
+                    </label>
+                    <textarea id="departamentoDescripcion"
+                              class="form-control"
+                              rows="2"
+                              maxlength="500"></textarea>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button"
+                        class="btn btn-outline-primary"
+                        data-bs-dismiss="modal">
+                    Cancelar
+                </button>
+
+                <button type="button"
+                        class="btn btn-success"
+                        id="btnGuardarDepartamento">
+                    <i class="bi bi-save"></i> Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Contenedor de notificaciones -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3"
+     style="z-index: 1090;">
+
+    <!-- Toast reutilizado para confirmar guardado -->
+    <div id="toastCambiosGuardados"
+         class="toast"
+         role="alert"
+         aria-live="assertive"
+         aria-atomic="true"
+         data-bs-delay="3500">
+        <div class="toast-header"
+             style="background-color: var(--cora-success); color: white;">
+            <i class="bi bi-check-circle me-2"></i>
+            <strong class="me-auto">Cambios guardados</strong>
+            <button type="button"
+                    class="btn-close btn-close-white"
+                    data-bs-dismiss="toast"
+                    aria-label="Cerrar"></button>
+        </div>
+        <div class="toast-body">
+            Los cambios se han guardado correctamente.
         </div>
     </div>
 
-    <!-- Modal Departamento -->
-    <div class="modal fade" id="modalDepartamento" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header" style="background-color: var(--cora-success); color: white;">
-                    <h5 class="modal-title" style="color: var(--cora-white);"><i class="bi bi-diagram-3"></i> Nuevo Departamento</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">Nombre <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" placeholder="Nombre del departamento" maxlength="200" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Descripción</label>
-                        <textarea class="form-control" rows="2" maxlength="500"></textarea>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-success"><i class="bi bi-save"></i> Guardar</button>
-                </div>
-            </div>
+    <div id="toastDepartamentoActivado"
+         class="toast"
+         role="alert"
+         data-bs-delay="3500">
+        <div class="toast-header"
+             style="background-color: var(--cora-success); color: white;">
+            <i class="bi bi-check-circle me-2"></i>
+            <strong class="me-auto">Departamento activado</strong>
+            <button type="button"
+                    class="btn-close btn-close-white"
+                    data-bs-dismiss="toast"></button>
+        </div>
+        <div class="toast-body">
+            El departamento se ha activado correctamente.
         </div>
     </div>
+
+    <div id="toastDepartamentoDesactivado"
+         class="toast"
+         role="alert"
+         data-bs-delay="3500">
+        <div class="toast-header"
+             style="background-color: var(--cora-accent); color: white;">
+            <i class="bi bi-x-circle me-2"></i>
+            <strong class="me-auto">Departamento desactivado</strong>
+            <button type="button"
+                    class="btn-close btn-close-white"
+                    data-bs-dismiss="toast"></button>
+        </div>
+        <div class="toast-body">
+            El departamento se ha desactivado correctamente.
+        </div>
+    </div>
+</div>
+
 
     <footer class="footer">
         <div class="container text-center">
