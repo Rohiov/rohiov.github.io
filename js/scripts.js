@@ -104,6 +104,88 @@ function exportarTablaACSV(tablaSelector, nombreArchivo, opciones) {
 document.addEventListener('DOMContentLoaded', function () {
     console.log('SWCORA Mockup cargado correctamente');
 
+    // =============================================
+    // HELPERS GLOBALES: Sincronización de Tipos de Empresa
+    // =============================================
+
+    /**
+     * Lee la tabla #tablaTiposEmpresa y devuelve un array
+     * de { nombre, activo } de los tipos existentes.
+     */
+    function obtenerTiposEmpresa() {
+        const tabla = document.getElementById('tablaTiposEmpresa');
+        if (!tabla) return [];
+
+        return Array.from(tabla.querySelectorAll('.tipo-empresa-row')).map(function (fila) {
+            return {
+                nombre: fila.getAttribute('data-nombre') || '',
+                activo: fila.getAttribute('data-estado') === 'activo'
+            };
+        }).filter(t => t.nombre);
+    }
+
+    /**
+     * Reconstruye un <select> con los tipos disponibles.
+     * @param {HTMLSelectElement} select
+     * @param {Object} opciones
+     * @param {string} opciones.placeholder   - Texto de la opción inicial
+     * @param {boolean} opciones.soloActivos  - Si true, solo incluye tipos activos
+     * @param {string} opciones.valorActual   - Valor que debe quedar seleccionado tras reconstruir
+     */
+    function reconstruirSelectTipos(select, opciones) {
+        if (!select) return;
+
+        opciones = opciones || {};
+        const placeholder = opciones.placeholder || 'Seleccionar tipo...';
+        const soloActivos = opciones.soloActivos === true;
+        const valorActual = opciones.valorActual || select.value;
+
+        const tipos = obtenerTiposEmpresa().filter(function (t) {
+            return soloActivos ? t.activo : true;
+        });
+
+        // Guardar opción placeholder (la primera del HTML original)
+        select.innerHTML = '';
+
+        const optInicial = document.createElement('option');
+        optInicial.value = '';
+        optInicial.textContent = placeholder;
+        select.appendChild(optInicial);
+
+        tipos.forEach(function (tipo) {
+            const opt = document.createElement('option');
+            opt.value = tipo.nombre;
+            opt.textContent = tipo.nombre;
+            select.appendChild(opt);
+        });
+
+        // Restaurar valor previo si aún existe
+        if (valorActual) {
+            const existe = Array.from(select.options).some(o => o.value === valorActual);
+            if (existe) select.value = valorActual;
+        }
+    }
+
+    /**
+     * Sincroniza los 2 selects (filtro + modal) con la tabla de tipos.
+     * @param {string} valorFiltro - Valor a preservar en el filtro
+     * @param {string} valorModal  - Valor a preservar en el modal
+     */
+    function sincronizarSelectsTipos(valorFiltro, valorModal) {
+        reconstruirSelectTipos(
+            document.getElementById('filtroEmpresasTipo'),
+            { placeholder: 'Todos los tipos', soloActivos: false, valorActual: valorFiltro || '' }
+        );
+
+        reconstruirSelectTipos(
+            document.getElementById('empresaTipo'),
+            { placeholder: 'Seleccionar tipo...', soloActivos: true, valorActual: valorModal || '' }
+        );
+    }
+
+    // Exponer para uso en otros bloques
+    window.swcoraSyncTiposEmpresa = sincronizarSelectsTipos;
+
     const modalEmpresaEl = document.getElementById('modalEmpresa');
     const modalEmpresaTitulo = document.getElementById('modalEmpresaTitulo');
     const modalTiposEmpresaEl = document.getElementById('modalTiposEmpresa');
@@ -335,6 +417,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const toastCambiosGuardadosEmpEl = document.getElementById('toastCambiosGuardados');
 
     if (modalEmpresaEl) {
+        // Referencia a la fila que se está editando (null = crear)
+        let filaEmpresaEditando = null;
+
         // ---------- Al abrir el modal: crear o editar ----------
         modalEmpresaEl.addEventListener('show.bs.modal', function (event) {
             const trigger = event.relatedTarget;
@@ -344,13 +429,16 @@ document.addEventListener('DOMContentLoaded', function () {
             document.getElementById('empresaContacto').value = '';
             document.getElementById('empresaTipo').value = '';
 
-            // Modo CREAR
+            // Modo CREAR: sin trigger o trigger es el botón "Nueva Empresa"
             if (!trigger || trigger.id === 'btnNuevaEmpresa') {
+                filaEmpresaEditando = null;
                 modalEmpresaTitulo.innerHTML = '<i class="bi bi-plus-circle"></i> Nueva Empresa';
                 return;
             }
 
             // Modo EDITAR: leer data-* del botón
+            filaEmpresaEditando = trigger.closest('.empresa-row');
+
             const nombre = trigger.getAttribute('data-nombre') || '';
             const contacto = trigger.getAttribute('data-contacto') || '';
             const tipo = trigger.getAttribute('data-tipo') || '';
@@ -361,11 +449,12 @@ document.addEventListener('DOMContentLoaded', function () {
             document.getElementById('empresaTipo').value = tipo;
         });
 
-        // ---------- Guardar ----------
+        // ---------- Guardar (crear o actualizar) ----------
         const btnGuardarEmpresa = document.getElementById('btnGuardarEmpresa');
         if (btnGuardarEmpresa) {
             btnGuardarEmpresa.addEventListener('click', function () {
                 const nombre = document.getElementById('empresaNombre').value.trim();
+                const contacto = document.getElementById('empresaContacto').value.trim();
                 const tipo = document.getElementById('empresaTipo').value;
 
                 if (!nombre || !tipo) {
@@ -373,9 +462,89 @@ document.addEventListener('DOMContentLoaded', function () {
                     return;
                 }
 
+                const tbodyEmpresas = document.querySelector('#tablaEmpresas tbody');
+                if (!tbodyEmpresas) return;
+
+                // Mapa de tipos → badge
+                const tiposMap = {
+                    'Proveedor': { texto: 'Proveedor',   clase: 'bg-warning' },
+                    'Cliente': { texto: 'Cliente',     clase: 'bg-danger'  },
+                    'Mensajería': { texto: 'Mensajería',  clase: 'bg-secondary' },
+                    'Filial': { texto: 'Filial',      clase: 'bg-info'    }
+                };
+                const tipoInfo = tiposMap[tipo] || { clase: 'bg-secondary' };
+
+                if (filaEmpresaEditando) {
+                    // ===== ACTUALIZAR fila existente =====
+                    const celdas = filaEmpresaEditando.querySelectorAll('td');
+                    celdas[1].textContent = nombre;
+                    celdas[2].textContent = contacto || '—';
+                    celdas[3].innerHTML = '<span class="badge ' + tipoInfo.clase + '">' + tipo + '</span>';
+
+                    // Actualizar data-* de la fila
+                    filaEmpresaEditando.setAttribute('data-nombre', nombre);
+                    filaEmpresaEditando.setAttribute('data-contacto', contacto);
+                    filaEmpresaEditando.setAttribute('data-tipo', tipo);
+
+                    // Actualizar data-* del botón Editar de esa fila
+                    const btnEditar = filaEmpresaEditando.querySelector('.btn-editar-empresa');
+                    if (btnEditar) {
+                        btnEditar.setAttribute('data-nombre', nombre);
+                        btnEditar.setAttribute('data-contacto', contacto);
+                        btnEditar.setAttribute('data-tipo', tipo);
+                    }
+
+                } else {
+                    // ===== CREAR nueva fila =====
+                    // Generar código correlativo
+                    const codigos = Array.from(tbodyEmpresas.querySelectorAll('.empresa-row'))
+                        .map(f => f.getAttribute('data-codigo') || '');
+                    let maxNum = 0;
+                    codigos.forEach(c => {
+                        const m = c.match(/EMP-(\d+)/);
+                        if (m) maxNum = Math.max(maxNum, parseInt(m[1], 10));
+                    });
+                    const nuevoCodigo = 'EMP-' + String(maxNum + 1).padStart(3, '0');
+
+                    const fila = document.createElement('tr');
+                    fila.className = 'empresa-row';
+                    fila.setAttribute('data-codigo', nuevoCodigo);
+                    fila.setAttribute('data-nombre', nombre);
+                    fila.setAttribute('data-contacto', contacto);
+                    fila.setAttribute('data-tipo', tipo);
+                    fila.setAttribute('data-estado', 'activo');
+
+                    fila.innerHTML =
+                        '<td><code>' + nuevoCodigo + '</code></td>' +
+                        '<td>' + nombre + '</td>' +
+                        '<td>' + (contacto || '—') + '</td>' +
+                        '<td><span class="badge ' + tipoInfo.clase + '">' + tipo + '</span></td>' +
+                        '<td><span class="badge bg-success badge-estado">Activo</span></td>' +
+                        '<td class="text-center">' +
+                            '<button type="button" class="btn btn-sm btn-outline-info btn-editar-empresa" ' +
+                                'data-bs-toggle="modal" data-bs-target="#modalEmpresa" ' +
+                                'data-codigo="' + nuevoCodigo + '" ' +
+                                'data-nombre="' + nombre.replace(/"/g, '&quot;') + '" ' +
+                                'data-contacto="' + (contacto || '').replace(/"/g, '&quot;') + '" ' +
+                                'data-tipo="' + tipo + '" data-activo="true">' +
+                                '<i class="bi bi-pencil"></i>' +
+                            '</button> ' +
+                            '<button class="btn btn-sm btn-outline-primary btn-toggle-estado-empresa" ' +
+                                'title="Desactivar" data-accion="desactivar">' +
+                                '<i class="bi bi-power"></i>' +
+                            '</button>' +
+                        '</td>';
+
+                    tbodyEmpresas.appendChild(fila);
+                }
+
                 // Cerrar modal
                 const instance = bootstrap.Modal.getInstance(modalEmpresaEl);
                 if (instance) instance.hide();
+
+                // Refrescar filtros si existen
+                const filtroNombre = document.getElementById('filtroEmpresasNombre');
+                if (filtroNombre) filtroNombre.dispatchEvent(new Event('input'));
 
                 // Toast "cambios guardados" al terminar de cerrar
                 modalEmpresaEl.addEventListener('hidden.bs.modal', function handler() {
@@ -385,6 +554,9 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                     modalEmpresaEl.removeEventListener('hidden.bs.modal', handler);
                 });
+
+                // Limpiar referencia
+                filaEmpresaEditando = null;
             });
         }
     }
@@ -396,6 +568,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (btnNuevoTipoEmpresa && modalTiposEmpresaEl && modalNuevoTipoEl) {
         btnNuevoTipoEmpresa.addEventListener('click', function () {
+            const inputNuevoTipo = document.getElementById('nuevoTipoNombre');
+            if (inputNuevoTipo) {
+                inputNuevoTipo.value = '';
+                inputNuevoTipo.classList.remove('is-invalid');
+                // Limpiar feedback previo
+                const fb = inputNuevoTipo.parentElement.querySelector('.invalid-feedback');
+                if (fb) fb.remove();
+            }
+
             const instance = bootstrap.Modal.getInstance(modalTiposEmpresaEl);
             if (instance) instance.hide();
 
@@ -2062,27 +2243,90 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // =============================================
-    // ADMIN EMPRESAS: modal Nuevo Tipo → toast
+    // ADMIN EMPRESAS: modal Nuevo Tipo → agregar a tabla + sincronizar selects
     // =============================================
     const btnGuardarNuevoTipo = document.getElementById('btnGuardarNuevoTipo');
     const toastCambiosGuardadosTipoEl = document.getElementById('toastCambiosGuardados');
 
     if (btnGuardarNuevoTipo && modalNuevoTipoEl) {
         btnGuardarNuevoTipo.addEventListener('click', function () {
-            // Cerrar modal
+            const inputNuevoTipo = document.getElementById('nuevoTipoNombre');
+            if (!inputNuevoTipo) return;
+
+            const nombreTipo = inputNuevoTipo.value.trim();
+
+            // Limpiar feedback previo
+            const fbPrevio = inputNuevoTipo.parentElement.querySelector('.invalid-feedback');
+            if (fbPrevio) fbPrevio.remove();
+
+            if (!nombreTipo) {
+                inputNuevoTipo.classList.add('is-invalid');
+                inputNuevoTipo.focus();
+                return;
+            }
+            inputNuevoTipo.classList.remove('is-invalid');
+
+            const tablaTipos = document.getElementById('tablaTiposEmpresa');
+            if (!tablaTipos) return;
+
+            const tbodyTipos = tablaTipos.querySelector('tbody');
+
+            // Verificar duplicados
+            const existe = Array.from(tbodyTipos.querySelectorAll('.tipo-empresa-row'))
+                .some(f => (f.getAttribute('data-nombre') || '').toLowerCase() === nombreTipo.toLowerCase());
+
+            if (existe) {
+                inputNuevoTipo.classList.add('is-invalid');
+                const fb = document.createElement('div');
+                fb.className = 'invalid-feedback';
+                fb.textContent = 'Ya existe un tipo con ese nombre.';
+                inputNuevoTipo.insertAdjacentElement('afterend', fb);
+                return;
+            }
+
+            // ---- 1. Agregar fila a la tabla de tipos ----
+            const fila = document.createElement('tr');
+            fila.className = 'tipo-empresa-row';
+            fila.setAttribute('data-nombre', nombreTipo);
+            fila.setAttribute('data-estado', 'activo');
+
+            fila.innerHTML =
+                '<td>' + nombreTipo + '</td>' +
+                '<td><span class="badge bg-success badge-estado">Activo</span></td>' +
+                '<td class="text-center">' +
+                    '<button class="btn btn-sm btn-outline-info btn-editar-tipo" title="Editar">' +
+                        '<i class="bi bi-pencil"></i>' +
+                    '</button> ' +
+                    '<button class="btn btn-sm btn-outline-primary btn-toggle-estado-tipo" ' +
+                        'title="Desactivar" data-accion="desactivar">' +
+                        '<i class="bi bi-power"></i>' +
+                    '</button>' +
+                '</td>';
+
+            tbodyTipos.appendChild(fila);
+
+            // ---- 2. Sincronizar ambos selects ----
+            if (typeof window.swcoraSyncTiposEmpresa === 'function') {
+                window.swcoraSyncTiposEmpresa(
+                    document.getElementById('filtroEmpresasTipo').value,
+                    document.getElementById('empresaTipo').value
+                );
+            }
+
+            // ---- 3. Cerrar Nuevo Tipo y reabrir Tipos ----
             const instance = bootstrap.Modal.getInstance(modalNuevoTipoEl);
             if (instance) instance.hide();
 
-            // Al terminar de cerrar: toast + reabrir Tipos
             modalNuevoTipoEl.addEventListener('hidden.bs.modal', function handler() {
                 if (toastCambiosGuardadosTipoEl) {
                     const toast = new bootstrap.Toast(toastCambiosGuardadosTipoEl);
                     toast.show();
                 }
 
-                // Abrir el modal de Tipos después
-                const modalTipos = new bootstrap.Modal(modalTiposEmpresaEl);
-                modalTipos.show();
+                if (modalTiposEmpresaEl) {
+                    const modalTipos = new bootstrap.Modal(modalTiposEmpresaEl);
+                    modalTipos.show();
+                }
 
                 modalNuevoTipoEl.removeEventListener('hidden.bs.modal', handler);
             });
@@ -2090,7 +2334,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // =============================================
-    // ADMIN EMPRESAS: modal Tipos → filtro + toggle
+    // ADMIN EMPRESAS: modal Tipos → filtro + toggle + edición + sincronización
     // =============================================
     const tablaTiposEmpresa = document.getElementById('tablaTiposEmpresa');
 
@@ -2098,15 +2342,22 @@ document.addEventListener('DOMContentLoaded', function () {
         const filtroTiposEmpresaBuscar = document.getElementById('filtroTiposEmpresaBuscar');
         const filasTipos = Array.from(tablaTiposEmpresa.querySelectorAll('.tipo-empresa-row'));
 
+        function normalizarTipoEmp(texto) {
+            return String(texto || '')
+                .toLowerCase()
+                .trim()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '');
+        }
+
         function aplicarFiltroTipos() {
-            const busqueda = normalizarEmp(filtroTiposEmpresaBuscar ? filtroTiposEmpresaBuscar.value : '');
+            const busqueda = normalizarTipoEmp(filtroTiposEmpresaBuscar ? filtroTiposEmpresaBuscar.value : '');
             const terminos = busqueda ? busqueda.split(/\s+/).filter(Boolean) : [];
 
             filasTipos.forEach(function (fila) {
-                const nombre = normalizarEmp(fila.getAttribute('data-nombre') || '');
-                const coincide = terminos.every(function (t) { return nombre.startsWith(t); });
-                if (coincide) fila.classList.remove('d-none');
-                else fila.classList.add('d-none');
+                const nombre = normalizarTipoEmp(fila.getAttribute('data-nombre') || '');
+                const coincide = terminos.every(t => nombre.startsWith(t));
+                fila.classList.toggle('d-none', !coincide);
             });
         }
 
@@ -2114,10 +2365,38 @@ document.addEventListener('DOMContentLoaded', function () {
             filtroTiposEmpresaBuscar.addEventListener('input', aplicarFiltroTipos);
         }
 
-        // Toggle Activar/Desactivar Tipo
+        // Toasts
         const toastTipoActivadoEl = document.getElementById('toastTipoActivado');
         const toastTipoDesactivadoEl = document.getElementById('toastTipoDesactivado');
 
+        // ---------------------------------------------------------------
+        // Helper: renombrar un tipo en TODAS las filas de #tablaEmpresas
+        // que lo estén usando (data-tipo === nombreViejo)
+        // ---------------------------------------------------------------
+        function propagarRenombreTipo(nombreViejo, nombreNuevo) {
+            if (nombreViejo === nombreNuevo) return;
+
+            const tablaEmpresas = document.getElementById('tablaEmpresas');
+            if (!tablaEmpresas) return;
+
+            tablaEmpresas.querySelectorAll('.empresa-row').forEach(function (fila) {
+                if (fila.getAttribute('data-tipo') === nombreViejo) {
+                    fila.setAttribute('data-tipo', nombreNuevo);
+
+                    // Actualizar badge visible (columna 4, índice 3)
+                    const badge = fila.querySelector('td:nth-child(4) .badge');
+                    if (badge) badge.textContent = nombreNuevo;
+
+                    // Actualizar data-tipo del botón Editar
+                    const btnEditar = fila.querySelector('.btn-editar-empresa');
+                    if (btnEditar) btnEditar.setAttribute('data-tipo', nombreNuevo);
+                }
+            });
+        }
+
+        // ---------------------------------------------------------------
+        // Delegación de eventos: toggle, editar
+        // ---------------------------------------------------------------
         tablaTiposEmpresa.addEventListener('click', function (e) {
             const btnToggle = e.target.closest('.btn-toggle-estado-tipo');
             const btnEditar = e.target.closest('.btn-editar-tipo');
@@ -2129,6 +2408,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 const accion = btnToggle.getAttribute('data-accion');
                 const badgeEstado = fila.querySelector('.badge-estado');
+                const nombreTipo = fila.getAttribute('data-nombre') || '';
 
                 if (accion === 'desactivar') {
                     fila.setAttribute('data-estado', 'inactivo');
@@ -2148,7 +2428,6 @@ document.addEventListener('DOMContentLoaded', function () {
                         const toast = new bootstrap.Toast(toastTipoDesactivadoEl);
                         toast.show();
                     }
-
                 } else if (accion === 'activar') {
                     fila.setAttribute('data-estado', 'activo');
 
@@ -2168,6 +2447,15 @@ document.addEventListener('DOMContentLoaded', function () {
                         toast.show();
                     }
                 }
+
+                // Sincronizar selects (el filtro mantiene su valor; el modal
+                // debe excluir tipos inactivos)
+                if (typeof window.swcoraSyncTiposEmpresa === 'function') {
+                    window.swcoraSyncTiposEmpresa(
+                        document.getElementById('filtroEmpresasTipo').value,
+                        document.getElementById('empresaTipo').value
+                    );
+                }
                 return;
             }
 
@@ -2179,21 +2467,20 @@ document.addEventListener('DOMContentLoaded', function () {
                 const tdNombre = fila.querySelector('td:first-child');
                 const nombreActual = tdNombre.textContent.trim();
 
-                // Evitar que el clic posterior al blur vuelva a abrir el input
                 if (tdNombre.dataset.acabaDeGuardar === 'true') {
                     tdNombre.dataset.acabaDeGuardar = 'false';
                     return;
                 }
 
-                // Si ya está en modo edición, solo enfocar
                 if (tdNombre.querySelector('input')) {
                     tdNombre.querySelector('input').focus();
                     return;
                 }
 
-                // Reemplazar por input con ancho controlado
-                tdNombre.innerHTML = '<input type="text" class="form-control form-control-sm" style="max-width: 200px;" value="' +
-                    nombreActual.replace(/"/g, '&quot;') + '">';
+                tdNombre.innerHTML =
+                    '<input type="text" class="form-control form-control-sm" ' +
+                    'style="max-width: 200px;" ' +
+                    'value="' + nombreActual.replace(/"/g, '&quot;') + '">';
 
                 const input = tdNombre.querySelector('input');
                 input.focus();
@@ -2202,12 +2489,46 @@ document.addEventListener('DOMContentLoaded', function () {
                 function guardarEdicion() {
                     const nuevoNombre = input.value.trim();
 
-                    // Marcar que acabamos de guardar
                     tdNombre.dataset.acabaDeGuardar = 'true';
 
-                    if (nuevoNombre && nuevoNombre !== nombreActual) {
+                    if (!nuevoNombre) {
+                        tdNombre.textContent = nombreActual;
+                        setTimeout(function () { tdNombre.dataset.acabaDeGuardar = 'false'; }, 250);
+                        return;
+                    }
+
+                    // Verificar duplicados
+                    const tabla = document.getElementById('tablaTiposEmpresa');
+                    const duplicado = Array.from(tabla.querySelectorAll('.tipo-empresa-row'))
+                        .some(f => f !== fila &&
+                            (f.getAttribute('data-nombre') || '').toLowerCase() === nuevoNombre.toLowerCase());
+
+                    if (duplicado) {
+                        alert('Ya existe un tipo con ese nombre.');
+                        tdNombre.textContent = nombreActual;
+                        setTimeout(function () { tdNombre.dataset.acabaDeGuardar = 'false'; }, 250);
+                        return;
+                    }
+
+                    if (nuevoNombre !== nombreActual) {
                         tdNombre.textContent = nuevoNombre;
                         fila.setAttribute('data-nombre', nuevoNombre);
+
+                        // Propagar el renombre a las empresas que lo usaban
+                        propagarRenombreTipo(nombreActual, nuevoNombre);
+
+                        // Sincronizar selects con el nuevo valor
+                        if (typeof window.swcoraSyncTiposEmpresa === 'function') {
+                            const valorFiltro = document.getElementById('filtroEmpresasTipo').value === nombreActual
+                                ? nuevoNombre
+                                : document.getElementById('filtroEmpresasTipo').value;
+
+                            const valorModal = document.getElementById('empresaTipo').value === nombreActual
+                                ? nuevoNombre
+                                : document.getElementById('empresaTipo').value;
+
+                            window.swcoraSyncTiposEmpresa(valorFiltro, valorModal);
+                        }
 
                         if (toastCambiosGuardadosTipoEl) {
                             const toast = new bootstrap.Toast(toastCambiosGuardadosTipoEl);
@@ -2217,7 +2538,6 @@ document.addEventListener('DOMContentLoaded', function () {
                         tdNombre.textContent = nombreActual;
                     }
 
-                    // Resetear el flag en el siguiente "tick"
                     setTimeout(function () {
                         tdNombre.dataset.acabaDeGuardar = 'false';
                     }, 250);
@@ -2229,13 +2549,23 @@ document.addEventListener('DOMContentLoaded', function () {
                         ev.preventDefault();
                         input.blur();
                     } else if (ev.key === 'Escape') {
+                        tdNombre.dataset.acabaDeGuardar = 'true';
                         tdNombre.textContent = nombreActual;
+                        setTimeout(function () { tdNombre.dataset.acabaDeGuardar = 'false'; }, 250);
                     }
                 });
 
                 return;
             }
         });
+
+        // Sincronización inicial: por si la tabla de tipos ya tiene datos
+        // que no coinciden con los <option> hardcodeados
+        if (typeof window.swcoraSyncTiposEmpresa === 'function') {
+            window.swcoraSyncTiposEmpresa('', '');
+        }
+
+        aplicarFiltroTipos();
     }
 
     
@@ -2339,19 +2669,15 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
 
-        // Abrir el modal para crear un departamento
-        const btnNuevo = document.getElementById('btnNuevoDepartamento');
-
-        if (btnNuevo) {
-            btnNuevo.addEventListener('click', function () {
+        // Limpiar el modal al cerrarse para que la próxima apertura sea en modo CREAR
+        if (modalEl) {
+            modalEl.addEventListener('hidden.bs.modal', function () {
                 filaEditando = null;
-
-                modalTitulo.innerHTML =
-                    '<i class="bi bi-diagram-3"></i> Nuevo Departamento';
-
+                modalTitulo.innerHTML = '<i class="bi bi-diagram-3"></i> Nuevo Departamento';
                 inputNombre.value = '';
                 inputDescripcion.value = '';
                 inputNombre.classList.remove('is-invalid');
+                inputDescripcion.classList.remove('is-invalid');
             });
         }
 
@@ -3075,5 +3401,120 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
+        // =============================================
+    // ADMIN LOGS: filtros + revisado + exportar CSV
+    // =============================================
+    const tablaLogs = document.getElementById('tablaLogs');
+
+    if (tablaLogs) {
+        const tbodyLogs = document.getElementById('tbodyLogs');
+        const filtroUsuario = document.getElementById('filtroLogsUsuario');
+        const filtroDesde = document.getElementById('filtroLogsDesde');
+        const filtroHasta = document.getElementById('filtroLogsHasta');
+        const filtroDepartamento = document.getElementById('filtroLogsDepartamento');
+        const filtroModulo = document.getElementById('filtroLogsModulo');
+        const filtroCriticidad = document.getElementById('filtroLogsCriticidad');
+        const btnLimpiarFiltrosLogs = document.getElementById('btnLimpiarFiltrosLogs');
+        const btnMarcarTodoRevisado = document.getElementById('btnMarcarTodoRevisado');
+        const contadorLogs = document.getElementById('contadorLogs');
+
+        // ---------- Utilidad: normalizar texto ----------
+        function normalizarLog(texto) {
+            return String(texto || '')
+                .toLowerCase()
+                .trim()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '');
+        }
+
+        // ---------- Aplicar filtros ----------
+        function aplicarFiltrosLogs() {
+            const usuarioBusqueda = normalizarLog(filtroUsuario.value);
+            const desde = filtroDesde.value ? new Date(filtroDesde.value) : null;
+            const hasta = filtroHasta.value ? new Date(filtroHasta.value) : null;
+            const departamento = filtroDepartamento.value;
+            const modulo = filtroModulo.value;
+            const criticidad = filtroCriticidad.value;
+
+            let visibles = 0;
+
+            tbodyLogs.querySelectorAll('.log-row').forEach(function (fila) {
+                const filaUsuario = normalizarLog(fila.getAttribute('data-usuario'));
+                const filaFecha = new Date(fila.getAttribute('data-fecha'));
+                const filaDepto = fila.getAttribute('data-departamento') || '';
+                const filaModulo = fila.getAttribute('data-modulo') || '';
+                const filaCrit = fila.getAttribute('data-criticidad') || '';
+
+                const coincideUsuario = !usuarioBusqueda || filaUsuario.includes(usuarioBusqueda);
+                const coincideDesde = !desde || filaFecha >= desde;
+                const coincideHasta = !hasta || filaFecha <= hasta;
+                const coincideDepto = !departamento || filaDepto === departamento;
+                const coincideModulo = !modulo || filaModulo === modulo;
+                const coincideCrit = !criticidad || filaCrit === criticidad;
+
+                const visible = coincideUsuario && coincideDesde && coincideHasta &&
+                                coincideDepto && coincideModulo && coincideCrit;
+
+                fila.classList.toggle('d-none', !visible);
+                if (visible) visibles++;
+            });
+
+            if (contadorLogs) contadorLogs.textContent = visibles;
+        }
+
+        // ---------- Listeners de filtros ----------
+        if (filtroUsuario) filtroUsuario.addEventListener('input', aplicarFiltrosLogs);
+        if (filtroDesde) filtroDesde.addEventListener('change', aplicarFiltrosLogs);
+        if (filtroHasta) filtroHasta.addEventListener('change', aplicarFiltrosLogs);
+        if (filtroDepartamento) filtroDepartamento.addEventListener('change', aplicarFiltrosLogs);
+        if (filtroModulo) filtroModulo.addEventListener('change', aplicarFiltrosLogs);
+        if (filtroCriticidad) filtroCriticidad.addEventListener('change', aplicarFiltrosLogs);
+
+        // ---------- Limpiar filtros ----------
+        if (btnLimpiarFiltrosLogs) {
+            btnLimpiarFiltrosLogs.addEventListener('click', function () {
+                if (filtroUsuario) filtroUsuario.value = '';
+                if (filtroDesde) filtroDesde.value = '';
+                if (filtroHasta) filtroHasta.value = '';
+                if (filtroDepartamento) filtroDepartamento.value = '';
+                if (filtroModulo) filtroModulo.value = '';
+                if (filtroCriticidad) filtroCriticidad.value = '';
+                aplicarFiltrosLogs();
+            });
+        }
+
+        // ---------- Marcar como revisado al hacer clic en la fila ----------
+        function marcarFilaRevisada(fila) {
+            if (fila.getAttribute('data-revisado') === 'true') return;
+
+            fila.setAttribute('data-revisado', 'true');
+            fila.classList.remove('table-warning');
+
+            const badge = fila.querySelector('.badge-revisado');
+            if (badge) {
+                badge.textContent = 'Sí';
+                badge.classList.remove('bg-secondary');
+                badge.classList.add('bg-success');
+            }
+        }
+
+        tbodyLogs.addEventListener('click', function (e) {
+            const fila = e.target.closest('.log-row');
+            if (!fila) return;
+            marcarFilaRevisada(fila);
+        });
+
+        // ---------- Marcar todo como revisado ----------
+        if (btnMarcarTodoRevisado) {
+            btnMarcarTodoRevisado.addEventListener('click', function () {
+                tbodyLogs.querySelectorAll('.log-row:not(.d-none)').forEach(function (fila) {
+                    marcarFilaRevisada(fila);
+                });
+            });
+        }
+
+        // Inicializar contador
+        aplicarFiltrosLogs();
+    }
 
 });

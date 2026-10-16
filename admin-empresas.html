@@ -113,10 +113,10 @@
                             <label class="form-label">Tipo</label>
                             <select class="form-select" id="filtroEmpresasTipo">
                                 <option value="">Todos los tipos</option>
-                                <option value="1">Proveedor</option>
-                                <option value="2">Cliente</option>
-                                <option value="3">Mensajería</option>
-                                <option value="4">Filial</option>
+                                <option value="Proveedor">Proveedor</option>
+                                <option value="Cliente">Cliente</option>
+                                <option value="Mensajería">Mensajería</option>
+                                <option value="Filial">Filial</option>
                             </select>
                         </div>
                         <div class="mb-0">
@@ -165,7 +165,7 @@
                                         data-codigo="EMP-001"
                                         data-nombre="XEROX, S.A. DE C.V."
                                         data-contacto="Juan Hernández"
-                                        data-tipo="1"
+                                        data-tipo="Proveedor"
                                         data-estado="activo">
                                         <td><code>EMP-001</code></td>
                                         <td>XEROX, S.A. DE C.V.</td>
@@ -176,7 +176,7 @@
                                             <button type="button" class="btn btn-sm btn-outline-info btn-editar-empresa"
                                                     data-bs-toggle="modal" data-bs-target="#modalEmpresa"
                                                     data-id="1" data-codigo="EMP-001" data-nombre="XEROX, S.A. DE C.V."
-                                                    data-contacto="Juan Hernández" data-tipo="1" data-activo="true">
+                                                    data-contacto="Juan Hernández" data-tipo="Proveedor" data-activo="true">
                                                 <i class="bi bi-pencil"></i>
                                             </button>
                                             <button class="btn btn-sm btn-outline-primary btn-toggle-estado-empresa" title="Desactivar" data-accion="desactivar">
@@ -188,7 +188,7 @@
                                         data-codigo="EMP-002"
                                         data-nombre="HEWLETT PACKARD"
                                         data-contacto="María López"
-                                        data-tipo="2"
+                                        data-tipo="Cliente"
                                         data-estado="activo">
                                         <td><code>EMP-002</code></td>
                                         <td>HEWLETT PACKARD</td>
@@ -199,7 +199,7 @@
                                             <button type="button" class="btn btn-sm btn-outline-info btn-editar-empresa"
                                                     data-bs-toggle="modal" data-bs-target="#modalEmpresa"
                                                     data-id="2" data-codigo="EMP-002" data-nombre="HEWLETT PACKARD"
-                                                    data-contacto="María López" data-tipo="2" data-activo="true">
+                                                    data-contacto="María López" data-tipo="Cliente" data-activo="true">
                                                 <i class="bi bi-pencil"></i>
                                             </button>
                                             <button class="btn btn-sm btn-outline-primary btn-toggle-estado-empresa" title="Desactivar" data-accion="desactivar">
@@ -211,7 +211,7 @@
                                         data-codigo="EMP-003"
                                         data-nombre="SWCORA FILIAL NORTE"
                                         data-contacto="Carlos Ruiz"
-                                        data-tipo="4"
+                                        data-tipo="Filial"
                                         data-estado="activo">
                                         <td><code>EMP-003</code></td>
                                         <td>SWCORA FILIAL NORTE</td>
@@ -222,7 +222,7 @@
                                             <button type="button" class="btn btn-sm btn-outline-info btn-editar-empresa"
                                                     data-bs-toggle="modal" data-bs-target="#modalEmpresa"
                                                     data-id="3" data-codigo="EMP-003" data-nombre="SWCORA FILIAL NORTE"
-                                                    data-contacto="Carlos Ruiz" data-tipo="4" data-activo="true">
+                                                    data-contacto="Carlos Ruiz" data-tipo="Filial" data-activo="true">
                                                 <i class="bi bi-pencil"></i>
                                             </button>
                                             <button class="btn btn-sm btn-outline-primary btn-toggle-estado-empresa" title="Desactivar" data-accion="desactivar">
@@ -268,10 +268,10 @@
                                 <div class="select-with-action">
                                     <select class="form-select" id="empresaTipo" required>
                                         <option value="">Seleccionar tipo...</option>
-                                        <option value="1">Proveedor</option>
-                                        <option value="2">Cliente</option>
-                                        <option value="3">Mensajería</option>
-                                        <option value="4">Filial</option>
+                                        <option value="Proveedor">Proveedor</option>
+                                        <option value="Cliente">Cliente</option>
+                                        <option value="Mensajería">Mensajería</option>
+                                        <option value="Filial">Filial</option>
                                     </select>
                                     <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#modalTiposEmpresa" title="Ver todos los tipos">
                                         <i class="bi bi-list"></i> Ver todos
@@ -376,7 +376,7 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label">Nombre <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" placeholder="Ej: Distribuidor" maxlength="50" required>
+                        <input type="text" class="form-control" id="nuevoTipoNombre" placeholder="Ej: Distribuidor" maxlength="50" required>
                     </div>
                 </div>
                 <div class="modal-footer">
