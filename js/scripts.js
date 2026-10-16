@@ -1988,12 +1988,47 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (btnRecargarModulos) {
             btnRecargarModulos.addEventListener('click', function () {
+                const colModuloEjemplo3 = document.getElementById('colModuloEjemplo3');
+
+                // Mostrar el Módulo Ejemplo 3 solo si estaba oculto
+                if (colModuloEjemplo3 && colModuloEjemplo3.classList.contains('d-none')) {
+                    // Pequeño delay para que el toast aparezca primero
+                    setTimeout(function () {
+                        // Quitar el d-none para que el card entre en el flujo
+                        colModuloEjemplo3.classList.remove('d-none');
+
+                        // Animación de entrada (usa el keyframe fadeIn ya definido en styles.css)
+                        colModuloEjemplo3.style.animation = 'fadeIn 0.4s ease-in';
+
+                        // Efecto destello temporal en el card del módulo
+                        const card = colModuloEjemplo3.querySelector('.modulo-card');
+                        if (card) {
+                            card.style.transition = 'box-shadow 0.4s ease, border-color 0.4s ease';
+                            card.style.boxShadow = '0 0 0 3px rgba(74, 139, 92, 0.4)';
+                            card.style.borderColor = 'var(--cora-success)';
+
+                            // Desvanecer el destello después de 1.2s
+                            setTimeout(function () {
+                                card.style.boxShadow = '';
+                                card.style.borderColor = '';
+                            }, 1200);
+                        }
+
+                        // Limpiar la animación inline para no interferir con futuras animaciones
+                        setTimeout(function () {
+                            colModuloEjemplo3.style.animation = '';
+                        }, 500);
+                    }, 300);
+                }
+
+                // Mostrar toast de confirmación (siempre)
                 if (toastModulosRecargadosEl) {
                     const toast = new bootstrap.Toast(toastModulosRecargadosEl);
                     toast.show();
                 }
             });
         }
+
 
         // ---------- Botones "Habilitar/Deshabilitar" ----------
         const toastModuloHabilitadoEl = document.getElementById('toastModuloHabilitado');
