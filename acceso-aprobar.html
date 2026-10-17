@@ -26,8 +26,27 @@
                                 <li><a class="dropdown-item" href="admin-roles.html"><i class="bi bi-shield-lock"></i> Roles</a></li>
                                 <li><a class="dropdown-item" href="admin-modulos.html"><i class="bi bi-box-seam"></i> Módulos</a></li>
                                 <li><a class="dropdown-item" href="admin-empresas.html"><i class="bi bi-building"></i> Empresas</a></li>
-                                <li><a class="dropdown-item" href="admin-unidades.html"><i class="bi bi-rulers"></i> Unidades</a></li>
                                 <li><a class="dropdown-item" href="admin-departamentos.html"><i class="bi bi-diagram-3"></i> Departamentos</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li class="dropdown-submenu">
+                                    <a class="dropdown-item dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                        <i class="bi bi-collection"></i> Catálogos
+                                    </a>
+                                    <ul class="dropdown-menu">
+                                        <li class="dropdown-submenu">
+                                            <a class="dropdown-item dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                                <i class="bi bi-clipboard-check"></i> Salidas de Material
+                                            </a>
+                                            <ul class="dropdown-menu">
+                                                <li>
+                                                    <a class="dropdown-item" href="admin-unidades.html">
+                                                        <i class="bi bi-rulers"></i> Unidades
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="admin-logs.html"><i class="bi bi-journal-text"></i> Logs</a></li>
                             </ul>
@@ -81,170 +100,320 @@
     <div class="container-fluid mt-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2><i class="bi bi-check2-circle"></i> Solicitudes de Acceso</h2>
-            
         </div>
 
-        <!-- Panel de filtros -->
-        <div class="card mb-4">
-            <div class="card-body">
-                <div class="row g-3">
-                    <div class="col-md-3">
-                        <label class="form-label">Buscar</label>
-                        <input type="text" class="form-control" id="filtroBuscar" placeholder="Usuario...">
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label">Estado</label>
-                        <select class="form-select" id="filtroEstado">
-                            <option value="pendiente" selected>⏳ Pendiente</option>
-                            <option value="aprobada">✅ Aprobada</option>
-                            <option value="rechazada">❌ Rechazada</option>
-                            <option value="todas">Todas</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label">Módulo</label>
-                        <select class="form-select" id="filtroModulo">
-                            <option value="todos">Todos</option>
-                            <option value="Salidas de Material">Salidas de Material</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3 d-flex align-items-end gap-2">
-                        <button class="btn btn-outline-primary w-100" id="btnFiltrar">
-                            <i class="bi bi-search"></i> Filtrar
-                        </button>
-                        <button class="btn btn-outline-secondary w-100" id="btnLimpiarFiltros">
+        <!-- ============================================= -->
+        <!-- GRID 30/70 INVERTIDO                           -->
+        <!-- ============================================= -->
+        <div class="salida-form-grid-invertido">
+
+            <!-- ============================================= -->
+            <!-- COLUMNA IZQUIERDA (30%): Filtros               -->
+            <!-- ============================================= -->
+            <div class="col-izquierda">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="bi bi-funnel"></i> Filtros</h5>
+                        <button class="btn btn-sm btn-outline-secondary" id="btnLimpiarFiltros">
                             <i class="bi bi-arrow-clockwise"></i> Limpiar
                         </button>
                     </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">Buscar</label>
+                            <input type="text" class="form-control" id="filtroBuscar" placeholder="Usuario...">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Estado</label>
+                            <select class="form-select" id="filtroEstado">
+                                <option value="todas" selected>Todas</option>
+                                <option value="pendiente">⏳ Pendiente</option>
+                                <option value="aprobada">✅ Aprobada</option>
+                                <option value="rechazada">❌ Rechazada</option>
+                            </select>
+                        </div>
+                        <div class="mb-0">
+                            <label class="form-label">Módulo</label>
+                            <select class="form-select" id="filtroModulo">
+                                <option value="todos">Todos</option>
+                                <option value="Salidas de Material">Salidas de Material</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <small class="text-muted">
+                            <i class="bi bi-info-circle"></i> Los filtros se aplican automáticamente.
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================= -->
+            <!-- COLUMNA DERECHA (70%): Solicitudes             -->
+            <!-- ============================================= -->
+            <div class="col-derecha">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <h5 class="mb-0"><i class="bi bi-list-ul"></i> Solicitudes</h5>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <button class="btn btn-sm btn-outline-secondary" id="btnSeleccionarTodas">
+                                <i class="bi bi-check-all"></i> Seleccionar Todas
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" id="btnDeseleccionarTodas">
+                                <i class="bi bi-x-circle"></i> Deseleccionar
+                            </button>
+                            <button class="btn btn-sm btn-success" id="btnAprobarSeleccionadas" disabled>
+                                <i class="bi bi-check-circle"></i> Aprobar (<span id="contadorAprobar">0</span>)
+                            </button>
+                            <button class="btn btn-sm btn-danger" id="btnRechazarSeleccionadas" disabled>
+                                <i class="bi bi-x-circle"></i> Rechazar (<span id="contadorRechazar">0</span>)
+                            </button>
+                            <button class="btn btn-sm btn-outline-success"
+                                    id="btnExportarCSV"
+                                    data-tabla="#tablaSolicitudes"
+                                    data-nombre="solicitudes_acceso"
+                                    data-omitir-columnas="auto">
+                                <i class="bi bi-file-excel"></i> Exportar CSV
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0" id="tablaSolicitudes">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 40px;" class="text-center">
+                                            <input class="form-check-input" type="checkbox" id="checkTodos" title="Seleccionar todas">
+                                        </th>
+                                        <th>Fecha</th>
+                                        <th>Usuario</th>
+                                        <th>Módulo</th>
+                                        <th>Rol Solicitado</th>
+                                        <th>Motivo</th>
+                                        <th>Estado</th>
+                                        <th>Respuesta</th>
+                                        <th class="text-center">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbodySolicitudes">
+
+                                    <!-- Pendiente 1 -->
+                                    <tr class="solicitud-row"
+                                        data-estado="pendiente"
+                                        data-modulo="Salidas de Material"
+                                        data-usuario="Juan Pérez"
+                                        data-fecha="2026-09-20 10:30">
+                                        <td class="text-center">
+                                            <input class="form-check-input check-solicitud" type="checkbox">
+                                        </td>
+                                        <td>20/09/2026 10:30</td>
+                                        <td><strong>Juan Pérez</strong></td>
+                                        <td>Salidas de Material</td>
+                                        <td>Generador de Salidas</td>
+                                        <td>Necesito crear solicitudes de salida.</td>
+                                        <td><span class="badge bg-warning text-dark badge-estado">⏳ Pendiente</span></td>
+                                        <td class="celda-respuesta"><small class="text-muted">En revisión</small></td>
+                                        <td class="text-center text-nowrap">
+                                            <button class="btn btn-sm btn-outline-success btn-aprobar-solicitud" title="Aprobar"
+                                                    data-usuario="Juan Pérez">
+                                                <i class="bi bi-check-circle"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-danger btn-rechazar-solicitud" title="Rechazar"
+                                                    data-usuario="Juan Pérez">
+                                                <i class="bi bi-x-circle"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Pendiente 2 -->
+                                    <tr class="solicitud-row"
+                                        data-estado="pendiente"
+                                        data-modulo="Salidas de Material"
+                                        data-usuario="Carlos Ruiz"
+                                        data-fecha="2026-09-19 15:45">
+                                        <td class="text-center">
+                                            <input class="form-check-input check-solicitud" type="checkbox">
+                                        </td>
+                                        <td>19/09/2026 15:45</td>
+                                        <td><strong>Carlos Ruiz</strong></td>
+                                        <td>Salidas de Material</td>
+                                        <td>Generador de Salidas</td>
+                                        <td><small class="text-muted">—</small></td>
+                                        <td><span class="badge bg-warning text-dark badge-estado">⏳ Pendiente</span></td>
+                                        <td class="celda-respuesta"><small class="text-muted">En revisión</small></td>
+                                        <td class="text-center text-nowrap">
+                                            <button class="btn btn-sm btn-outline-success btn-aprobar-solicitud" title="Aprobar"
+                                                    data-usuario="Carlos Ruiz">
+                                                <i class="bi bi-check-circle"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-danger btn-rechazar-solicitud" title="Rechazar"
+                                                    data-usuario="Carlos Ruiz">
+                                                <i class="bi bi-x-circle"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Aprobada 1 -->
+                                    <tr class="solicitud-row"
+                                        data-estado="aprobada"
+                                        data-modulo="Salidas de Material"
+                                        data-usuario="María Gómez"
+                                        data-fecha="2026-09-18 09:00">
+                                        <td class="text-center">
+                                            <input class="form-check-input check-solicitud" type="checkbox" disabled>
+                                        </td>
+                                        <td>18/09/2026 09:00</td>
+                                        <td><strong>María Gómez</strong></td>
+                                        <td>Salidas de Material</td>
+                                        <td>Generador de Salidas</td>
+                                        <td>Es parte de mis actividades diarias para embarques de material.</td>
+                                        <td><span class="badge bg-success badge-estado">✅ Aprobada</span></td>
+                                        <td class="celda-respuesta"><small class="text-muted">Aprobada por Juan Pérez</small></td>
+                                        <td class="text-center text-muted"><small>—</small></td>
+                                    </tr>
+
+                                    <!-- Rechazada 1 -->
+                                    <tr class="solicitud-row"
+                                        data-estado="rechazada"
+                                        data-modulo="Salidas de Material"
+                                        data-usuario="Pedro López"
+                                        data-fecha="2026-09-15 11:20">
+                                        <td class="text-center">
+                                            <input class="form-check-input check-solicitud" type="checkbox" disabled>
+                                        </td>
+                                        <td>15/09/2026 11:20</td>
+                                        <td><strong>Pedro López</strong></td>
+                                        <td>Salidas de Material</td>
+                                        <td>Generador de Salidas</td>
+                                        <td><small class="text-muted">—</small></td>
+                                        <td><span class="badge bg-danger badge-estado">❌ Rechazada</span></td>
+                                        <td class="celda-respuesta"><small class="text-danger">No especificó motivo de solicitud.</small></td>
+                                        <td class="text-center text-muted"><small>—</small></td>
+                                    </tr>
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <small class="text-muted">
+                            Mostrando <span id="contadorMostrados">0</span> de 4 registros
+                        </small>
+                    </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Acciones masivas -->
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            
-            <div class="d-flex gap-2">
-                <button class="btn btn-sm btn-outline-secondary" id="btnSeleccionarTodas">
-                    <i class="bi bi-check-all"></i> Seleccionar Todas
-                </button>
-                <button class="btn btn-sm btn-outline-secondary" id="btnDeseleccionarTodas">
-                    <i class="bi bi-x-circle"></i> Deseleccionar
-                </button>
-                <button class="btn btn-success" id="btnAprobarSeleccionadas" disabled>
-                    <i class="bi bi-check-circle"></i> Aprobar Seleccionadas (<span id="contadorAprobar">0</span>)
-                </button>
-                <button class="btn btn-danger" id="btnRechazarSeleccionadas" disabled>
-                    <i class="bi bi-x-circle"></i> Rechazar Seleccionadas (<span id="contadorRechazar">0</span>)
-                </button>
-                
-            </div>
-            <div>
-                
-                <button class="btn btn-sm btn-outline-success"><i class="bi bi-file-excel"></i> Exportar CSV</button>
+    <!-- ============================================= -->
+    <!-- MODAL: Aprobar Solicitud Individual             -->
+    <!-- ============================================= -->
+    <div class="modal fade" id="modalAprobar" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" style="color: var(--cora-white);"><i class="bi bi-check-circle"></i> Aprobar Solicitud</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Confirmas aprobar la solicitud de <strong id="aprobarUsuario">—</strong>?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-success" id="btnConfirmarAprobar">Aprobar</button>
+                </div>
             </div>
         </div>
+    </div>
 
-        <!-- Tabla de solicitudes -->
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0"><i class="bi bi-list-ul"></i> Solicitudes</h5>
-                <small class="text-muted"><span id="contadorResultados">0</span> resultados</small>
-            </div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead>
-                            <tr>
-                                <th style="width: 40px;" class="text-center">
-                                    <input class="form-check-input" type="checkbox" id="checkTodos" title="Seleccionar todas">
-                                </th>
-                                <th>Fecha</th>
-                                <th>Usuario</th>
-                                <th>Módulo</th>
-                                <th>Rol Solicitado</th>
-                                <th>Motivo</th>
-                                <th>Estado</th>
-                                <th>Respuesta</th>
-                                <th class="text-center">Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tbodySolicitudes">
-
-                            <!-- Pendiente 1 -->
-                            <tr class="solicitud-row" data-estado="pendiente" data-modulo="Salidas de Material" data-usuario="Juan Pérez">
-                                <td class="text-center">
-                                    <input class="form-check-input check-solicitud" type="checkbox">
-                                </td>
-                                <td>20/09/2026 10:30</td>
-                                <td><strong>Juan Pérez</strong></td>
-                                <td>Salidas de Material</td>
-                                <td>Generador de Salidas</td>
-                                <td><small class="text-muted">Necesito crear solicitudes de salida.</small></td>
-                                <td><span class="badge bg-warning text-dark">⏳ Pendiente</span></td>
-                                <td><small class="text-muted">En revisión</small></td>
-                                <td class="text-center">
-                                    <button class="btn btn-sm btn-success" title="Aprobar" data-bs-toggle="modal" data-bs-target="#modalAprobar" data-usuario="Juan Pérez"><i class="bi bi-check-circle"></i></button>
-                                    <button class="btn btn-sm btn-danger" title="Rechazar" data-bs-toggle="modal" data-bs-target="#modalRechazar" data-usuario="Juan Pérez"><i class="bi bi-x-circle"></i></button>
-                                </td>
-                            </tr>
-
-                            <!-- Pendiente 2 -->
-                            <tr class="solicitud-row" data-estado="pendiente" data-modulo="Salidas de Material" data-usuario="Carlos Ruiz">
-                                <td class="text-center">
-                                    <input class="form-check-input check-solicitud" type="checkbox">
-                                </td>
-                                <td>19/09/2026 15:45</td>
-                                <td><strong>Carlos Ruiz</strong></td>
-                                <td>Salidas de Material</td>
-                                <td>Generador de Salidas</td>
-                                <td><small class="text-muted">—</small></td>
-                                <td><span class="badge bg-warning text-dark">⏳ Pendiente</span></td>
-                                <td><small class="text-muted">En revisión</small></td>
-                                <td class="text-center">
-                                    <button class="btn btn-sm btn-success" title="Aprobar" data-bs-toggle="modal" data-bs-target="#modalAprobar" data-usuario="Carlos Ruiz"><i class="bi bi-check-circle"></i></button>
-                                    <button class="btn btn-sm btn-danger" title="Rechazar" data-bs-toggle="modal" data-bs-target="#modalRechazar" data-usuario="Carlos Ruiz"><i class="bi bi-x-circle"></i></button>
-                                </td>
-                            </tr>
-
-                            <!-- Aprobada 1 -->
-                            <tr class="solicitud-row" data-estado="aprobada" data-modulo="Salidas de Material" data-usuario="María Gómez">
-                                <td class="text-center">
-                                    <input class="form-check-input check-solicitud" type="checkbox" disabled>
-                                </td>
-                                <td>18/09/2026 09:00</td>
-                                <td><strong>María Gómez</strong></td>
-                                <td>Salidas de Material</td>
-                                <td>Generador de Salidas</td>
-                                <td><small class="text-muted">Creación de salidas es parte de mis actividades diarias para embarques de material.</small></td>
-                                <td><span class="badge bg-success">✅ Aprobada</span></td>
-                                <td><small class="text-muted">Aprobada por Juan Pérez</small></td>
-                                <td class="text-center text-muted"><small>—</small></td>
-                            </tr>
-
-                            <!-- Rechazada 1 -->
-                            <tr class="solicitud-row" data-estado="rechazada" data-modulo="Salidas de Material" data-usuario="Pedro López">
-                                <td class="text-center">
-                                    <input class="form-check-input check-solicitud" type="checkbox" disabled>
-                                </td>
-                                <td>15/09/2026 11:20</td>
-                                <td><strong>Pedro López</strong></td>
-                                <td>Salidas de Material</td>
-                                <td>Generador de Salidas</td>
-                                <td><small class="text-muted">—</small></td>
-                                <td><span class="badge bg-danger">❌ Rechazada</span></td>
-                                <td><small class="text-danger">No especificó motivo de solicitud.</small></td>
-                                <td class="text-center text-muted"><small>—</small></td>
-                            </tr>
-
-                        </tbody>
-                    </table>
+    <!-- ============================================= -->
+    <!-- MODAL: Rechazar Solicitud Individual            -->
+    <!-- ============================================= -->
+    <div class="modal fade" id="modalRechazar" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" style="color: var(--cora-white);"><i class="bi bi-x-circle"></i> Rechazar Solicitud</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Confirmas rechazar la solicitud de <strong id="rechazarUsuario">—</strong>?</p>
+                    <div class="mb-3">
+                        <label class="form-label">Motivo del rechazo <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="rechazarMotivo" rows="3"
+                                placeholder="Explica el motivo del rechazo..." maxlength="500"></textarea>
+                        <div class="invalid-feedback" id="rechazarMotivoFeedback">
+                            Debes ingresar un motivo de rechazo.
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="btnConfirmarRechazar">Rechazar</button>
                 </div>
             </div>
-            <div class="card-footer">
-                <div class="d-flex justify-content-between align-items-center">
-                    <small class="text-muted">Mostrando <span id="contadorMostrados">0</span> de 4 solicitudes</small>
+        </div>
+    </div>
+
+    <!-- ============================================= -->
+    <!-- MODAL: Aprobar Seleccionadas                    -->
+    <!-- ============================================= -->
+    <div class="modal fade" id="modalAprobarMasivo" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" style="color: var(--cora-white);"><i class="bi bi-check-circle"></i> Aprobar Seleccionadas</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Confirmas aprobar <strong id="aprobarMasivoCantidad">0</strong> solicitud(es)?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-success" id="btnConfirmarAprobarMasivo">Aprobar</button>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- ============================================= -->
+    <!-- MODAL: Rechazar Seleccionadas                   -->
+    <!-- ============================================= -->
+    <div class="modal fade" id="modalRechazarMasivo" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" style="color: var(--cora-white);"><i class="bi bi-x-circle"></i> Rechazar Seleccionadas</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Confirmas rechazar <strong id="rechazarMasivoCantidad">0</strong> solicitud(es)?</p>
+                    <div class="mb-3">
+                        <label class="form-label">Motivo del rechazo <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="rechazarMasivoMotivo" rows="3"
+                                placeholder="Explica el motivo del rechazo..." maxlength="500"></textarea>
+                        <div class="invalid-feedback" id="rechazarMasivoFeedback">
+                            Debes ingresar un motivo de rechazo.
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="btnConfirmarRechazarMasivo">Rechazar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast para acciones -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1090;">
+        <div id="toastSolicitudAccion" class="toast" role="alert" data-bs-delay="3500">
+            <div class="toast-header" style="background-color: var(--cora-success); color: white;">
+                <i class="bi bi-check-circle me-2"></i>
+                <strong class="me-auto" id="toastSolicitudTitulo">Acción completada</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body" id="toastSolicitudMensaje">La acción se completó correctamente.</div>
         </div>
     </div>
 

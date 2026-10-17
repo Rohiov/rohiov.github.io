@@ -933,15 +933,15 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // =============================================
-    // APROBAR SOLICITUDES: filtros + selección múltiple + CSV
+    // APROBAR SOLICITUDES: filtros + acciones + selección múltiple + CSV
     // =============================================
     const tbodySolicitudes = document.getElementById('tbodySolicitudes');
 
     if (tbodySolicitudes) {
+        const tablaSolicitudes = document.getElementById('tablaSolicitudes');
         const filtroEstado = document.getElementById('filtroEstado');
         const filtroModulo = document.getElementById('filtroModulo');
         const filtroBuscar = document.getElementById('filtroBuscar');
-        const btnFiltrar = document.getElementById('btnFiltrar');
         const btnLimpiarFiltros = document.getElementById('btnLimpiarFiltros');
 
         const btnSeleccionarTodas = document.getElementById('btnSeleccionarTodas');
@@ -953,47 +953,120 @@ document.addEventListener('DOMContentLoaded', function () {
         const contadorAprobar = document.getElementById('contadorAprobar');
         const contadorRechazar = document.getElementById('contadorRechazar');
 
-        const contadorResultados = document.getElementById('contadorResultados');
         const contadorMostrados = document.getElementById('contadorMostrados');
 
-        const btnExportarCSV = document.getElementById('btnExportarCSV');
+        // Modales
+        const modalAprobarEl = document.getElementById('modalAprobar');
+        const modalRechazarEl = document.getElementById('modalRechazar');
+        const modalAprobarMasivoEl = document.getElementById('modalAprobarMasivo');
+        const modalRechazarMasivoEl = document.getElementById('modalRechazarMasivo');
 
-        const filas = tbodySolicitudes.querySelectorAll('.solicitud-row');
+        // Toast
+        const toastSolicitudEl = document.getElementById('toastSolicitudAccion');
+        const toastSolicitudTitulo = document.getElementById('toastSolicitudTitulo');
+        const toastSolicitudMensaje = document.getElementById('toastSolicitudMensaje');
 
-        function aplicarFiltros() {
+        // Fila en proceso (modo individual)
+        let filaAprobando = null;
+        let filaRechazando = null;
+
+        // ---------- Helpers ----------
+        function normalizarSol(texto) {
+            return String(texto || '')
+                .toLowerCase()
+                .trim()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '');
+        }
+
+        function mostrarToastSol(titulo, mensaje, tipo) {
+            if (!toastSolicitudEl) return;
+            if (toastSolicitudTitulo) toastSolicitudTitulo.textContent = titulo;
+            if (toastSolicitudMensaje) toastSolicitudMensaje.textContent = mensaje;
+
+            const header = toastSolicitudEl.querySelector('.toast-header');
+            if (header) {
+                header.style.backgroundColor = tipo === 'danger'
+                    ? 'var(--cora-accent)'
+                    : 'var(--cora-success)';
+            }
+
+            const toast = bootstrap.Toast.getOrCreateInstance(toastSolicitudEl);
+            toast.show();
+        }
+
+        // Actualiza el badge de estado
+        function actualizarBadgeEstadoSol(fila, nuevoEstado) {
+            const badge = fila.querySelector('.badge-estado');
+            if (!badge) return;
+
+            const mapa = {
+                'pendiente':  { texto: '⏳ Pendiente',  clase: 'bg-warning text-dark' },
+                'aprobada':   { texto: '✅ Aprobada',   clase: 'bg-success' },
+                'rechazada':  { texto: '❌ Rechazada',  clase: 'bg-danger' }
+            };
+            const info = mapa[nuevoEstado] || mapa['pendiente'];
+            badge.className = 'badge badge-estado ' + info.clase;
+            badge.textContent = info.texto;
+        }
+
+        // Actualiza la celda Respuesta
+        function actualizarRespuestaCelda(fila, texto, esError) {
+            const celda = fila.querySelector('.celda-respuesta');
+            if (!celda) return;
+            const clase = esError ? 'text-danger' : 'text-muted';
+            celda.innerHTML = '<small class="' + clase + '">' + texto + '</small>';
+        }
+
+        // Limpia las acciones (se desactiva checkbox y botones)
+        function limpiarAccionesFila(fila) {
+            const check = fila.querySelector('.check-solicitud');
+            if (check) {
+                check.checked = false;
+                check.disabled = true;
+            }
+            const celdaAcciones = fila.querySelector('td:last-child');
+            if (celdaAcciones) {
+                celdaAcciones.className = 'text-center text-muted';
+                celdaAcciones.innerHTML = '<small>—</small>';
+            }
+        }
+
+        // ---------- Filtros ----------
+        function aplicarFiltrosSol() {
             const estado = filtroEstado.value;
             const modulo = filtroModulo.value;
-            const buscar = filtroBuscar.value.trim().toLowerCase();
+            const buscar = normalizarSol(filtroBuscar.value);
 
             let visibles = 0;
 
-            filas.forEach(function (fila) {
+            tbodySolicitudes.querySelectorAll('.solicitud-row').forEach(function (fila) {
                 const filaEstado = fila.getAttribute('data-estado');
                 const filaModulo = fila.getAttribute('data-modulo');
-                const filaUsuario = (fila.getAttribute('data-usuario') || '').toLowerCase();
+                const filaUsuario = normalizarSol(fila.getAttribute('data-usuario'));
 
                 const coincideEstado = (estado === 'todas') || (filaEstado === estado);
                 const coincideModulo = (modulo === 'todos') || (filaModulo === modulo);
                 const coincideBuscar = !buscar || filaUsuario.includes(buscar);
 
-                if (coincideEstado && coincideModulo && coincideBuscar) {
-                    fila.classList.remove('d-none');
+                const visible = coincideEstado && coincideModulo && coincideBuscar;
+
+                fila.classList.toggle('d-none', !visible);
+                if (visible) {
                     visibles++;
                 } else {
-                    fila.classList.add('d-none');
                     const check = fila.querySelector('.check-solicitud');
                     if (check && !check.disabled) check.checked = false;
                 }
             });
 
-            if (contadorResultados) contadorResultados.textContent = visibles;
             if (contadorMostrados) contadorMostrados.textContent = visibles;
 
-            actualizarContadoresSeleccion();
-            actualizarCheckTodos();
+            actualizarContadoresSeleccionSol();
+            actualizarCheckTodosSol();
         }
 
-        function actualizarContadoresSeleccion() {
+        function actualizarContadoresSeleccionSol() {
             const seleccionadas = tbodySolicitudes.querySelectorAll('.check-solicitud:checked:not(:disabled)').length;
 
             if (contadorAprobar) contadorAprobar.textContent = seleccionadas;
@@ -1003,7 +1076,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (btnRechazarSeleccionadas) btnRechazarSeleccionadas.disabled = seleccionadas === 0;
         }
 
-        function actualizarCheckTodos() {
+        function actualizarCheckTodosSol() {
             if (!checkTodos) return;
 
             const visiblesSeleccionables = Array.from(
@@ -1030,24 +1103,25 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
 
-        if (btnFiltrar) btnFiltrar.addEventListener('click', aplicarFiltros);
-        if (filtroEstado) filtroEstado.addEventListener('change', aplicarFiltros);
-        if (filtroModulo) filtroModulo.addEventListener('change', aplicarFiltros);
-        if (filtroBuscar) filtroBuscar.addEventListener('input', aplicarFiltros);
+        // ---------- Listeners de filtros ----------
+        if (filtroEstado) filtroEstado.addEventListener('change', aplicarFiltrosSol);
+        if (filtroModulo) filtroModulo.addEventListener('change', aplicarFiltrosSol);
+        if (filtroBuscar) filtroBuscar.addEventListener('input', aplicarFiltrosSol);
 
         if (btnLimpiarFiltros) {
             btnLimpiarFiltros.addEventListener('click', function () {
-                filtroEstado.value = 'pendiente';
+                filtroEstado.value = 'todas';
                 filtroModulo.value = 'todos';
                 filtroBuscar.value = '';
-                aplicarFiltros();
+                aplicarFiltrosSol();
             });
         }
 
+        // ---------- Selección ----------
         tbodySolicitudes.addEventListener('change', function (e) {
             if (!e.target.classList.contains('check-solicitud')) return;
-            actualizarContadoresSeleccion();
-            actualizarCheckTodos();
+            actualizarContadoresSeleccionSol();
+            actualizarCheckTodosSol();
         });
 
         if (btnSeleccionarTodas) {
@@ -1055,8 +1129,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 tbodySolicitudes.querySelectorAll('.solicitud-row:not(.d-none) .check-solicitud:not(:disabled)').forEach(function (cb) {
                     cb.checked = true;
                 });
-                actualizarContadoresSeleccion();
-                actualizarCheckTodos();
+                actualizarContadoresSeleccionSol();
+                actualizarCheckTodosSol();
             });
         }
 
@@ -1065,8 +1139,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 tbodySolicitudes.querySelectorAll('.check-solicitud').forEach(function (cb) {
                     cb.checked = false;
                 });
-                actualizarContadoresSeleccion();
-                actualizarCheckTodos();
+                actualizarContadoresSeleccionSol();
+                actualizarCheckTodosSol();
             });
         }
 
@@ -1076,29 +1150,209 @@ document.addEventListener('DOMContentLoaded', function () {
                 tbodySolicitudes.querySelectorAll('.solicitud-row:not(.d-none) .check-solicitud:not(:disabled)').forEach(function (cb) {
                     cb.checked = marcar;
                 });
-                actualizarContadoresSeleccion();
+                actualizarContadoresSeleccionSol();
             });
         }
 
-        const modalAprobarEl = document.getElementById('modalAprobar');
+        // ---------- Delegación de clics en la tabla ----------
+        tbodySolicitudes.addEventListener('click', function (e) {
+            const btnAprobar = e.target.closest('.btn-aprobar-solicitud');
+            const btnRechazar = e.target.closest('.btn-rechazar-solicitud');
+
+            // ===== Aprobar individual =====
+            if (btnAprobar) {
+                const fila = btnAprobar.closest('.solicitud-row');
+                if (!fila) return;
+
+                filaAprobando = fila;
+                const usuario = btnAprobar.getAttribute('data-usuario') || '—';
+                const input = document.getElementById('aprobarUsuario');
+                if (input) input.textContent = usuario;
+
+                bootstrap.Modal.getOrCreateInstance(modalAprobarEl).show();
+                return;
+            }
+
+            // ===== Rechazar individual =====
+            if (btnRechazar) {
+                const fila = btnRechazar.closest('.solicitud-row');
+                if (!fila) return;
+
+                filaRechazando = fila;
+                const usuario = btnRechazar.getAttribute('data-usuario') || '—';
+                const inputUsuario = document.getElementById('rechazarUsuario');
+                const inputMotivo = document.getElementById('rechazarMotivo');
+                if (inputUsuario) inputUsuario.textContent = usuario;
+                if (inputMotivo) {
+                    inputMotivo.value = '';
+                    inputMotivo.classList.remove('is-invalid');
+                }
+
+                bootstrap.Modal.getOrCreateInstance(modalRechazarEl).show();
+                return;
+            }
+        });
+
+        // ---------- Confirmar Aprobar individual ----------
+        const btnConfirmarAprobar = document.getElementById('btnConfirmarAprobar');
+        if (btnConfirmarAprobar) {
+            btnConfirmarAprobar.addEventListener('click', function () {
+                if (!filaAprobando) {
+                    bootstrap.Modal.getInstance(modalAprobarEl).hide();
+                    return;
+                }
+
+                filaAprobando.setAttribute('data-estado', 'aprobada');
+                actualizarBadgeEstadoSol(filaAprobando, 'aprobada');
+                actualizarRespuestaCelda(filaAprobando, 'Aprobada por ' + 'Juan Pérez', false);
+                limpiarAccionesFila(filaAprobando);
+
+                aplicarFiltrosSol();
+
+                bootstrap.Modal.getInstance(modalAprobarEl).hide();
+                mostrarToastSol('Solicitud aprobada', 'La solicitud fue aprobada correctamente.', 'success');
+
+                filaAprobando = null;
+            });
+        }
+
+        // ---------- Confirmar Rechazar individual ----------
+        const btnConfirmarRechazar = document.getElementById('btnConfirmarRechazar');
+        if (btnConfirmarRechazar) {
+            btnConfirmarRechazar.addEventListener('click', function () {
+                const inputMotivo = document.getElementById('rechazarMotivo');
+                const motivo = inputMotivo.value.trim();
+
+                if (!motivo) {
+                    inputMotivo.classList.add('is-invalid');
+                    inputMotivo.focus();
+                    return;
+                }
+                inputMotivo.classList.remove('is-invalid');
+
+                if (!filaRechazando) {
+                    bootstrap.Modal.getInstance(modalRechazarEl).hide();
+                    return;
+                }
+
+                filaRechazando.setAttribute('data-estado', 'rechazada');
+                actualizarBadgeEstadoSol(filaRechazando, 'rechazada');
+                actualizarRespuestaCelda(filaRechazando, motivo, true);
+                limpiarAccionesFila(filaRechazando);
+
+                aplicarFiltrosSol();
+
+                bootstrap.Modal.getInstance(modalRechazarEl).hide();
+                mostrarToastSol('Solicitud rechazada', 'La solicitud fue rechazada. Motivo: ' + motivo, 'danger');
+
+                filaRechazando = null;
+            });
+        }
+
+        // ---------- Aprobar masivo ----------
+        if (btnAprobarSeleccionadas) {
+            btnAprobarSeleccionadas.addEventListener('click', function () {
+                const seleccionadas = tbodySolicitudes.querySelectorAll('.check-solicitud:checked:not(:disabled)').length;
+                if (seleccionadas === 0) return;
+
+                const inputCantidad = document.getElementById('aprobarMasivoCantidad');
+                if (inputCantidad) inputCantidad.textContent = seleccionadas;
+
+                bootstrap.Modal.getOrCreateInstance(modalAprobarMasivoEl).show();
+            });
+        }
+
+        const btnConfirmarAprobarMasivo = document.getElementById('btnConfirmarAprobarMasivo');
+        if (btnConfirmarAprobarMasivo) {
+            btnConfirmarAprobarMasivo.addEventListener('click', function () {
+                const seleccionadas = tbodySolicitudes.querySelectorAll('.check-solicitud:checked:not(:disabled)');
+                let contador = 0;
+
+                seleccionadas.forEach(function (cb) {
+                    const fila = cb.closest('.solicitud-row');
+                    if (!fila) return;
+
+                    fila.setAttribute('data-estado', 'aprobada');
+                    actualizarBadgeEstadoSol(fila, 'aprobada');
+                    actualizarRespuestaCelda(fila, 'Aprobada por Juan Pérez', false);
+                    limpiarAccionesFila(fila);
+                    contador++;
+                });
+
+                aplicarFiltrosSol();
+
+                bootstrap.Modal.getInstance(modalAprobarMasivoEl).hide();
+                mostrarToastSol('Solicitudes aprobadas', contador + ' solicitud(es) aprobada(s) correctamente.', 'success');
+            });
+        }
+
+        // ---------- Rechazar masivo ----------
+        if (btnRechazarSeleccionadas) {
+            btnRechazarSeleccionadas.addEventListener('click', function () {
+                const seleccionadas = tbodySolicitudes.querySelectorAll('.check-solicitud:checked:not(:disabled)').length;
+                if (seleccionadas === 0) return;
+
+                const inputCantidad = document.getElementById('rechazarMasivoCantidad');
+                if (inputCantidad) inputCantidad.textContent = seleccionadas;
+
+                const inputMotivo = document.getElementById('rechazarMasivoMotivo');
+                if (inputMotivo) {
+                    inputMotivo.value = '';
+                    inputMotivo.classList.remove('is-invalid');
+                }
+
+                bootstrap.Modal.getOrCreateInstance(modalRechazarMasivoEl).show();
+            });
+        }
+
+        const btnConfirmarRechazarMasivo = document.getElementById('btnConfirmarRechazarMasivo');
+        if (btnConfirmarRechazarMasivo) {
+            btnConfirmarRechazarMasivo.addEventListener('click', function () {
+                const inputMotivo = document.getElementById('rechazarMasivoMotivo');
+                const motivo = inputMotivo.value.trim();
+
+                if (!motivo) {
+                    inputMotivo.classList.add('is-invalid');
+                    inputMotivo.focus();
+                    return;
+                }
+                inputMotivo.classList.remove('is-invalid');
+
+                const seleccionadas = tbodySolicitudes.querySelectorAll('.check-solicitud:checked:not(:disabled)');
+                let contador = 0;
+
+                seleccionadas.forEach(function (cb) {
+                    const fila = cb.closest('.solicitud-row');
+                    if (!fila) return;
+
+                    fila.setAttribute('data-estado', 'rechazada');
+                    actualizarBadgeEstadoSol(fila, 'rechazada');
+                    actualizarRespuestaCelda(fila, motivo, true);
+                    limpiarAccionesFila(fila);
+                    contador++;
+                });
+
+                aplicarFiltrosSol();
+
+                bootstrap.Modal.getInstance(modalRechazarMasivoEl).hide();
+                mostrarToastSol('Solicitudes rechazadas', contador + ' solicitud(es) rechazada(s). Motivo: ' + motivo, 'danger');
+            });
+        }
+
+        // ---------- Limpiar referencias al cerrar modales ----------
         if (modalAprobarEl) {
-            modalAprobarEl.addEventListener('show.bs.modal', function (event) {
-                const btn = event.relatedTarget;
-                const usuario = btn ? btn.getAttribute('data-usuario') : '—';
-                this.querySelector('#aprobarUsuario').textContent = usuario || '—';
+            modalAprobarEl.addEventListener('hidden.bs.modal', function () {
+                filaAprobando = null;
             });
         }
-
-        const modalRechazarEl = document.getElementById('modalRechazar');
         if (modalRechazarEl) {
-            modalRechazarEl.addEventListener('show.bs.modal', function (event) {
-                const btn = event.relatedTarget;
-                const usuario = btn ? btn.getAttribute('data-usuario') : '—';
-                this.querySelector('#rechazarUsuario').textContent = usuario || '—';
+            modalRechazarEl.addEventListener('hidden.bs.modal', function () {
+                filaRechazando = null;
             });
         }
 
-        aplicarFiltros();
+        // ---------- Inicializar ----------
+        aplicarFiltrosSol();
     }
 
     // =============================================
@@ -1420,25 +1674,226 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // =============================================
-    // ADMIN ROLES: botón Guardar del modal → toast
+    // ADMIN ROLES: modal Crear/Editar Rol
     // =============================================
     const btnGuardarRol = document.getElementById('btnGuardarRol');
     const modalCrearRolEl = document.getElementById('modalCrearRol');
     const toastCambiosGuardadosRolEl = document.getElementById('toastCambiosGuardados');
 
-    if (btnGuardarRol && modalCrearRolEl) {
-        btnGuardarRol.addEventListener('click', function () {
-            const instance = bootstrap.Modal.getInstance(modalCrearRolEl);
-            if (instance) instance.hide();
+    if (modalCrearRolEl) {
+        const modalCrearRolTitulo = document.getElementById('modalCrearRolTitulo');
+        let filaRolEditando = null;
 
-            modalCrearRolEl.addEventListener('hidden.bs.modal', function handler() {
-                if (toastCambiosGuardadosRolEl) {
-                    const toast = new bootstrap.Toast(toastCambiosGuardadosRolEl);
-                    toast.show();
-                }
-                modalCrearRolEl.removeEventListener('hidden.bs.modal', handler);
+        // ---------- Helpers ----------
+        function getCheckboxesArbol() {
+            return modalCrearRolEl.querySelectorAll('#arbolPermisos input[type="checkbox"]');
+        }
+
+        function limpiarArbol() {
+            getCheckboxesArbol().forEach(function (cb) {
+                cb.checked = false;
+                cb.indeterminate = false;
             });
+        }
+
+        function marcarPermisos(idsPermisos) {
+            limpiarArbol();
+            if (!idsPermisos) return;
+
+            const ids = idsPermisos.split(/\s+/).filter(Boolean);
+            ids.forEach(function (id) {
+                const cb = document.getElementById(id);
+                if (cb) cb.checked = true;
+            });
+
+            // Recalcular estados intermedios (padres)
+            getCheckboxesArbol().forEach(function (cb) {
+                if (cb.checked && typeof actualizarPadres === 'function') {
+                    actualizarPadres(cb);
+                }
+            });
+        }
+
+        function obtenerPermisosSeleccionados() {
+            const ids = [];
+            getCheckboxesArbol().forEach(function (cb) {
+                if (cb.checked) ids.push(cb.id);
+            });
+            return ids;
+        }
+
+        // ---------- Al abrir el modal: crear o editar ----------
+        modalCrearRolEl.addEventListener('show.bs.modal', function (event) {
+            const trigger = event.relatedTarget;
+
+            const inputNombre = document.getElementById('rolNombre');
+            const inputDescripcion = document.getElementById('rolDescripcion');
+
+            // Resetear campos
+            inputNombre.value = '';
+            inputNombre.classList.remove('is-invalid');
+            inputDescripcion.value = '';
+
+            limpiarArbol();
+
+            // ---------- Modo CREAR ----------
+            if (!trigger || !trigger.classList.contains('btn-editar-rol')) {
+                filaRolEditando = null;
+
+                if (modalCrearRolTitulo) {
+                    modalCrearRolTitulo.innerHTML = '<i class="bi bi-plus-circle"></i> Crear Rol';
+                }
+                return;
+            }
+
+            // ---------- Modo EDITAR ----------
+            filaRolEditando = trigger.closest('.rol-row');
+            if (!filaRolEditando) return;
+
+            const nombre = filaRolEditando.getAttribute('data-nombre') || '';
+            const descripcion = filaRolEditando.getAttribute('data-descripcion') || '';
+            const permisos = filaRolEditando.getAttribute('data-permisos') || '';
+
+            inputNombre.value = nombre;
+            inputDescripcion.value = descripcion === '—' ? '' : descripcion;
+
+            if (modalCrearRolTitulo) {
+                modalCrearRolTitulo.innerHTML = '<i class="bi bi-pencil"></i> Editar Rol';
+            }
+
+            marcarPermisos(permisos);
         });
+
+        // ---------- Guardar ----------
+        if (btnGuardarRol) {
+            btnGuardarRol.addEventListener('click', function () {
+                const inputNombre = document.getElementById('rolNombre');
+                const inputDescripcion = document.getElementById('rolDescripcion');
+
+                const nombre = inputNombre.value.trim();
+                const descripcion = inputDescripcion.value.trim();
+
+                if (!nombre) {
+                    inputNombre.classList.add('is-invalid');
+                    inputNombre.focus();
+                    return;
+                }
+                inputNombre.classList.remove('is-invalid');
+
+                // Permisos seleccionados
+                const permisos = obtenerPermisosSeleccionados();
+
+                // ¿Tiene algún permiso de "Salidas de Material"?
+                const tienePermisosSalidas = permisos.some(function (id) {
+                    return id.startsWith('p-salidas');
+                });
+
+                // ¿Puede aprobar? → cualquiera de las 4 casillas de aprobación/rechazo
+                const puedeAprobar = permisos.includes('p-salidas-aprobar')   ||
+                                    permisos.includes('p-salidas-rechazar')  ||
+                                    permisos.includes('p-acceso-aprobar')    ||
+                                    permisos.includes('p-acceso-rechazar');
+
+                // Tipo y Módulo según la regla automática
+                const tipoRol = tienePermisosSalidas ? 'local' : 'global';
+                const moduloTexto = tienePermisosSalidas ? 'Salidas de Material' : '—';
+
+                const tablaRoles = document.getElementById('tablaRoles');
+                if (!tablaRoles) return;
+                const tbody = tablaRoles.querySelector('tbody');
+
+                const tipoBadge = tipoRol === 'local'
+                    ? '<span class="badge bg-info">📦 Local</span>'
+                    : '<span class="badge" style="background-color: var(--cora-accent);">🌐 Global</span>';
+
+                const aprobarBadge = puedeAprobar
+                    ? '<span class="badge bg-success">Sí</span>'
+                    : '<span class="badge bg-secondary">No</span>';
+
+                const origenBadge = '<span class="badge bg-secondary">Personalizado</span>';
+                const permisosStr = permisos.join(' ');
+
+                if (filaRolEditando) {
+                    // ===== ACTUALIZAR =====
+                    const celdas = filaRolEditando.querySelectorAll('td');
+                    celdas[0].textContent = nombre;
+                    celdas[1].textContent = descripcion || '—';
+                    celdas[2].innerHTML = tipoBadge;
+                    celdas[3].textContent = moduloTexto;
+                    celdas[4].innerHTML = aprobarBadge;
+
+                    filaRolEditando.setAttribute('data-nombre', nombre);
+                    filaRolEditando.setAttribute('data-descripcion', descripcion);
+                    filaRolEditando.setAttribute('data-tipo', tipoRol);
+                    filaRolEditando.setAttribute('data-modulo', tienePermisosSalidas ? 'salidas' : '');
+                    filaRolEditando.setAttribute('data-permisos', permisosStr);
+
+                } else {
+                    // ===== CREAR =====
+                    const codigo = nombre.replace(/\s+/g, '');
+
+                    const existe = Array.from(tbody.querySelectorAll('.rol-row'))
+                        .some(function (f) {
+                            return (f.getAttribute('data-codigo') || '').toLowerCase() === codigo.toLowerCase();
+                        });
+                    if (existe) {
+                        alert('Ya existe un rol con ese nombre.');
+                        return;
+                    }
+
+                    const fila = document.createElement('tr');
+                    fila.className = 'rol-row';
+                    fila.setAttribute('data-codigo', codigo);
+                    fila.setAttribute('data-nombre', nombre);
+                    fila.setAttribute('data-descripcion', descripcion);
+                    fila.setAttribute('data-tipo', tipoRol);
+                    fila.setAttribute('data-modulo', tienePermisosSalidas ? 'salidas' : '');
+                    fila.setAttribute('data-origen', 'personalizado');
+                    fila.setAttribute('data-estado', 'activo');
+                    fila.setAttribute('data-permisos', permisosStr);
+
+                    fila.innerHTML =
+                        '<td>' + nombre + '</td>' +
+                        '<td>' + (descripcion || '—') + '</td>' +
+                        '<td>' + tipoBadge + '</td>' +
+                        '<td>' + moduloTexto + '</td>' +
+                        '<td>' + aprobarBadge + '</td>' +
+                        '<td>' + origenBadge + '</td>' +
+                        '<td><span class="badge bg-success">Activo</span></td>' +
+                        '<td class="text-center">' +
+                            '<button class="btn btn-sm btn-outline-info btn-editar-rol" title="Editar" ' +
+                                'data-bs-toggle="modal" data-bs-target="#modalCrearRol">' +
+                                '<i class="bi bi-pencil"></i>' +
+                            '</button> ' +
+                            '<button class="btn btn-sm btn-outline-primary btn-toggle-estado-rol" ' +
+                                'title="Desactivar" data-accion="desactivar">' +
+                                '<i class="bi bi-power"></i>' +
+                            '</button>' +
+                        '</td>';
+
+                    tbody.appendChild(fila);
+                }
+
+                // Cerrar modal
+                const instance = bootstrap.Modal.getInstance(modalCrearRolEl);
+                if (instance) instance.hide();
+
+                // Refrescar filtros si existen
+                const filtroRolesBuscar = document.getElementById('filtroRolesBuscar');
+                if (filtroRolesBuscar) filtroRolesBuscar.dispatchEvent(new Event('input'));
+
+                // Toast
+                modalCrearRolEl.addEventListener('hidden.bs.modal', function handler() {
+                    if (toastCambiosGuardadosRolEl) {
+                        const toast = new bootstrap.Toast(toastCambiosGuardadosRolEl);
+                        toast.show();
+                    }
+                    modalCrearRolEl.removeEventListener('hidden.bs.modal', handler);
+                });
+
+                filaRolEditando = null;
+            });
+        }
     }
 
     // =============================================
@@ -3550,6 +4005,423 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Inicializar contador
         aplicarFiltrosLogs();
+    }
+
+    // =============================================
+    // SALIDAS DE MATERIAL: filtros + acciones + CSV/PDF/Clonar
+    // =============================================
+    const tablaSalidas = document.getElementById('tablaSalidas');
+
+    if (tablaSalidas) {
+        const tbodySalidas = document.getElementById('tbodySalidas');
+        const filtroSalidasBuscar = document.getElementById('filtroSalidasBuscar');
+        const filtroSalidasEstado = document.getElementById('filtroSalidasEstado');
+        const filtroSalidasDesde = document.getElementById('filtroSalidasDesde');
+        const filtroSalidasHasta = document.getElementById('filtroSalidasHasta');
+        const btnLimpiarFiltrosSalidas = document.getElementById('btnLimpiarFiltrosSalidas');
+        const contadorSalidas = document.getElementById('contadorSalidas');
+
+        const toastSalidaEl = document.getElementById('toastSalidaAccion');
+        const toastSalidaTitulo = document.getElementById('toastSalidaTitulo');
+        const toastSalidaMensaje = document.getElementById('toastSalidaMensaje');
+
+        // Modales de confirmación
+        const modalRechazarEl = document.getElementById('modalRechazarSalida');
+        const modalCancelarEl = document.getElementById('modalCancelarSalida');
+        const modalEliminarEl = document.getElementById('modalEliminarSalida');
+
+        // Fila que se está procesando en cada modal
+        let filaRechazando = null;
+        let filaCancelando = null;
+        let filaEliminando = null;
+
+        // ---------- Helpers ----------
+        function normalizarSalida(texto) {
+            return String(texto || '')
+                .toLowerCase()
+                .trim()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '');
+        }
+
+        function mostrarToastSalida(titulo, mensaje, tipo) {
+            if (!toastSalidaEl) return;
+            if (toastSalidaTitulo) toastSalidaTitulo.textContent = titulo;
+            if (toastSalidaMensaje) toastSalidaMensaje.textContent = mensaje;
+
+            const header = toastSalidaEl.querySelector('.toast-header');
+            if (header) {
+                header.style.backgroundColor = tipo === 'danger'
+                    ? 'var(--cora-accent)'
+                    : 'var(--cora-success)';
+            }
+
+            const toast = bootstrap.Toast.getOrCreateInstance(toastSalidaEl);
+            toast.show();
+        }
+
+        function actualizarBadgeEstadoSalida(fila, nuevoEstado) {
+            const badge = fila.querySelector('.badge-estado');
+            if (!badge) return;
+
+            const mapa = {
+                'borrador':   { texto: '📝 Borrador',   clase: 'bg-secondary' },
+                'pendiente':  { texto: '⏳ Pendiente',  clase: 'bg-warning text-dark' },
+                'aprobada':   { texto: '✅ Aprobada',   clase: 'bg-success' },
+                'rechazada':  { texto: '❌ Rechazada',  clase: 'bg-danger' },
+                'cancelada':  { texto: '🚫 Cancelada',  clase: 'bg-dark' }
+            };
+            const info = mapa[nuevoEstado] || mapa['borrador'];
+
+            badge.className = 'badge badge-estado ' + info.clase;
+            badge.textContent = info.texto;
+        }
+
+        // Genera el HTML de la celda de acciones según estado
+        function generarAccionesSalida(estado, esAprobador) {
+            let html = '<a href="salidas-detalles.html" class="btn btn-sm btn-outline-info" title="Ver"><i class="bi bi-eye"></i></a> ';
+
+            if (estado === 'borrador') {
+                html += '<a href="salidas-editar.html" class="btn btn-sm btn-outline-success" title="Editar"><i class="bi bi-pencil"></i></a> ';
+                html += '<button class="btn btn-sm btn-outline-danger btn-eliminar-salida" title="Eliminar borrador"><i class="bi bi-trash"></i></button>';
+
+            } else if (estado === 'pendiente') {
+                if (esAprobador) {
+                    // Pendiente (Aprobador): aprobar/rechazar, sin clonar
+                    html += '<button class="btn btn-sm btn-outline-success btn-aprobar-salida" title="Aprobar"><i class="bi bi-check-circle"></i></button> ';
+                    html += '<button class="btn btn-sm btn-outline-danger btn-rechazar-salida" title="Rechazar"><i class="bi bi-x-circle"></i></button>';
+                } else {
+                    // Pendiente: clonar + cancelar
+                    html += '<button class="btn btn-sm btn-outline-secondary btn-clonar-salida" title="Clonar"><i class="bi bi-files"></i></button> ';
+                    html += '<button class="btn btn-sm btn-outline-danger btn-cancelar-salida" title="Cancelar"><i class="bi bi-dash-circle"></i></button>';
+                }
+
+            } else if (estado === 'aprobada') {
+                // Aprobada / Rechazada: Ver + PDF + Clonar
+                html += '<button class="btn btn-sm btn-outline-primary btn-pdf-salida" title="Exportar PDF"><i class="bi bi-file-pdf"></i></button> ';
+                html += '<button class="btn btn-sm btn-outline-secondary btn-clonar-salida" title="Clonar"><i class="bi bi-files"></i></button>';
+
+            } else if (estado === 'cancelada') {
+                // Cancelada: Ver + Editar + Clonar
+                html += '<a href="salidas-editar.html" class="btn btn-sm btn-outline-success" title="Editar"><i class="bi bi-pencil"></i></a> ';
+                html += '<button class="btn btn-sm btn-outline-secondary btn-clonar-salida" title="Clonar"><i class="bi bi-files"></i></button>';
+            }
+
+            return html;
+        }
+
+        // Actualiza la celda de motivo
+        function actualizarMotivoCelda(fila, motivo) {
+            const celdaMotivo = fila.querySelector('.motivo-celda');
+            if (!celdaMotivo) return;
+
+            if (motivo && motivo.trim()) {
+                celdaMotivo.textContent = motivo;
+            } else {
+                celdaMotivo.innerHTML = '<em class="text-muted">—</em>';
+            }
+            fila.setAttribute('data-motivo', motivo || '');
+        }
+
+        // ---------- Filtros ----------
+        function aplicarFiltrosSalidas() {
+            const buscar = normalizarSalida(filtroSalidasBuscar.value);
+            const estado = filtroSalidasEstado.value;
+            const desde = filtroSalidasDesde.value ? new Date(filtroSalidasDesde.value + 'T00:00:00') : null;
+            const hasta = filtroSalidasHasta.value ? new Date(filtroSalidasHasta.value + 'T23:59:59') : null;
+
+            let visibles = 0;
+
+            tbodySalidas.querySelectorAll('.salida-row').forEach(function (fila) {
+                const filaFolio = normalizarSalida(fila.getAttribute('data-folio'));
+                const filaUsuario = normalizarSalida(fila.getAttribute('data-usuario'));
+                const filaDesc = normalizarSalida(fila.getAttribute('data-descripcion'));
+                const filaEstado = fila.getAttribute('data-estado');
+                const filaFecha = new Date(fila.getAttribute('data-fecha') + 'T00:00:00');
+
+                const coincideBuscar = !buscar ||
+                    filaFolio.includes(buscar) ||
+                    filaUsuario.includes(buscar) ||
+                    filaDesc.includes(buscar);
+
+                const coincideEstado = !estado || filaEstado === estado;
+                const coincideDesde = !desde || filaFecha >= desde;
+                const coincideHasta = !hasta || filaFecha <= hasta;
+
+                const visible = coincideBuscar && coincideEstado && coincideDesde && coincideHasta;
+
+                fila.classList.toggle('d-none', !visible);
+                if (visible) visibles++;
+            });
+
+            if (contadorSalidas) contadorSalidas.textContent = visibles;
+        }
+
+        if (filtroSalidasBuscar) filtroSalidasBuscar.addEventListener('input', aplicarFiltrosSalidas);
+        if (filtroSalidasEstado) filtroSalidasEstado.addEventListener('change', aplicarFiltrosSalidas);
+        if (filtroSalidasDesde) filtroSalidasDesde.addEventListener('change', aplicarFiltrosSalidas);
+        if (filtroSalidasHasta) filtroSalidasHasta.addEventListener('change', aplicarFiltrosSalidas);
+
+        if (btnLimpiarFiltrosSalidas) {
+            btnLimpiarFiltrosSalidas.addEventListener('click', function () {
+                filtroSalidasBuscar.value = '';
+                filtroSalidasEstado.value = '';
+                filtroSalidasDesde.value = '';
+                filtroSalidasHasta.value = '';
+                aplicarFiltrosSalidas();
+            });
+        }
+
+        // ---------- Delegación de eventos para acciones ----------
+        tbodySalidas.addEventListener('click', function (e) {
+            const btnPDF = e.target.closest('.btn-pdf-salida');
+            const btnClonar = e.target.closest('.btn-clonar-salida');
+            const btnAprobar = e.target.closest('.btn-aprobar-salida');
+            const btnRechazar = e.target.closest('.btn-rechazar-salida');
+            const btnEliminar = e.target.closest('.btn-eliminar-salida');
+            const btnCancelar = e.target.closest('.btn-cancelar-salida');
+
+            // ===== Exportar PDF (vacío) =====
+            if (btnPDF) {
+                const fila = btnPDF.closest('.salida-row');
+                const folio = fila.getAttribute('data-folio') || 'salida';
+
+                const blob = new Blob([''], { type: 'application/pdf' });
+                const url = URL.createObjectURL(blob);
+                const enlace = document.createElement('a');
+                enlace.href = url;
+                enlace.download = 'salida_' + folio + '.pdf';
+                enlace.style.display = 'none';
+                document.body.appendChild(enlace);
+                enlace.click();
+                document.body.removeChild(enlace);
+                URL.revokeObjectURL(url);
+
+                mostrarToastSalida('PDF generado', 'Se descargó el archivo PDF de la salida ' + folio + '.', 'success');
+                return;
+            }
+
+            // ===== Clonar (nueva fila como Borrador, sin folio) =====
+            if (btnClonar) {
+                const fila = btnClonar.closest('.salida-row');
+                if (!fila) return;
+
+                const usuario = fila.getAttribute('data-usuario') || '';
+                const descripcion = fila.getAttribute('data-descripcion') || '';
+                const materiales = fila.getAttribute('data-materiales') || '0';
+
+                const hoy = new Date();
+                const pad = n => String(n).padStart(2, '0');
+                const fechaISO = hoy.getFullYear() + '-' + pad(hoy.getMonth() + 1) + '-' + pad(hoy.getDate());
+                const fechaVisible = pad(hoy.getDate()) + '/' + pad(hoy.getMonth() + 1) + '/' + hoy.getFullYear();
+
+                const nuevaFila = document.createElement('tr');
+                nuevaFila.className = 'salida-row';
+                nuevaFila.setAttribute('data-folio', '');
+                nuevaFila.setAttribute('data-fecha', fechaISO);
+                nuevaFila.setAttribute('data-estado', 'borrador');
+                nuevaFila.setAttribute('data-usuario', usuario);
+                nuevaFila.setAttribute('data-descripcion', descripcion + ' (copia)');
+                nuevaFila.setAttribute('data-motivo', '');
+                nuevaFila.setAttribute('data-materiales', materiales);
+
+                nuevaFila.innerHTML =
+                    '<td><em class="text-muted">(sin folio)</em></td>' +
+                    '<td>' + fechaVisible + '</td>' +
+                    '<td><span class="badge bg-secondary badge-estado">📝 Borrador</span></td>' +
+                    '<td>' + usuario + '</td>' +
+                    '<td>' + descripcion + ' (copia)</td>' +
+                    '<td class="motivo-celda"><em class="text-muted">—</em></td>' +
+                    '<td class="text-center"><span class="badge bg-secondary">' + materiales + '</span></td>' +
+                    '<td class="text-center text-nowrap">' + generarAccionesSalida('borrador', false) + '</td>';
+
+                tbodySalidas.insertBefore(nuevaFila, tbodySalidas.firstChild);
+
+                aplicarFiltrosSalidas();
+                mostrarToastSalida('Salida clonada', 'Se creó una copia en estado Borrador.', 'success');
+                return;
+            }
+
+            // ===== Aprobar =====
+            if (btnAprobar) {
+                const fila = btnAprobar.closest('.salida-row');
+                if (!fila) return;
+
+                fila.setAttribute('data-estado', 'aprobada');
+                actualizarBadgeEstadoSalida(fila, 'aprobada');
+                actualizarMotivoCelda(fila, '');
+
+                const celdaAcciones = fila.querySelector('td:last-child');
+                if (celdaAcciones) celdaAcciones.innerHTML = generarAccionesSalida('aprobada', false);
+
+                aplicarFiltrosSalidas();
+                mostrarToastSalida('Salida aprobada', 'La solicitud fue aprobada correctamente.', 'success');
+                return;
+            }
+
+            // ===== Rechazar → abrir modal =====
+            if (btnRechazar) {
+                const fila = btnRechazar.closest('.salida-row');
+                if (!fila) return;
+
+                filaRechazando = fila;
+                const folio = fila.getAttribute('data-folio') || '—';
+
+                const inputFolio = document.getElementById('rechazarFolio');
+                const inputMotivo = document.getElementById('rechazarMotivo');
+                if (inputFolio) inputFolio.textContent = folio;
+                if (inputMotivo) {
+                    inputMotivo.value = '';
+                    inputMotivo.classList.remove('is-invalid');
+                }
+
+                const modal = bootstrap.Modal.getOrCreateInstance(modalRechazarEl);
+                modal.show();
+                return;
+            }
+
+            // ===== Eliminar borrador → abrir modal =====
+            if (btnEliminar) {
+                const fila = btnEliminar.closest('.salida-row');
+                if (!fila) return;
+
+                filaEliminando = fila;
+
+                const modal = bootstrap.Modal.getOrCreateInstance(modalEliminarEl);
+                modal.show();
+                return;
+            }
+
+            // ===== Cancelar → abrir modal =====
+            if (btnCancelar) {
+                const fila = btnCancelar.closest('.salida-row');
+                if (!fila) return;
+
+                filaCancelando = fila;
+                const folio = fila.getAttribute('data-folio') || '—';
+
+                const inputFolio = document.getElementById('cancelarFolio');
+                const inputMotivo = document.getElementById('cancelarMotivo');
+                if (inputFolio) inputFolio.textContent = folio;
+                if (inputMotivo) {
+                    inputMotivo.value = '';
+                    inputMotivo.classList.remove('is-invalid');
+                }
+
+                const modal = bootstrap.Modal.getOrCreateInstance(modalCancelarEl);
+                modal.show();
+                return;
+            }
+        });
+
+        // ---------- Confirmar Rechazo ----------
+        const btnConfirmarRechazo = document.getElementById('btnConfirmarRechazo');
+        if (btnConfirmarRechazo) {
+            btnConfirmarRechazo.addEventListener('click', function () {
+                const inputMotivo = document.getElementById('rechazarMotivo');
+                const motivo = inputMotivo.value.trim();
+
+                if (!motivo) {
+                    inputMotivo.classList.add('is-invalid');
+                    inputMotivo.focus();
+                    return;
+                }
+                inputMotivo.classList.remove('is-invalid');
+
+                if (!filaRechazando) {
+                    bootstrap.Modal.getInstance(modalRechazarEl).hide();
+                    return;
+                }
+
+                filaRechazando.setAttribute('data-estado', 'rechazada');
+                actualizarBadgeEstadoSalida(filaRechazando, 'rechazada');
+                actualizarMotivoCelda(filaRechazando, motivo);
+
+                const celdaAcciones = filaRechazando.querySelector('td:last-child');
+                if (celdaAcciones) celdaAcciones.innerHTML = generarAccionesSalida('rechazada', false);
+
+                aplicarFiltrosSalidas();
+
+                bootstrap.Modal.getInstance(modalRechazarEl).hide();
+                mostrarToastSalida('Salida rechazada', 'La solicitud fue rechazada. Motivo: ' + motivo, 'danger');
+
+                filaRechazando = null;
+            });
+        }
+
+        // ---------- Confirmar Cancelación ----------
+        const btnConfirmarCancelacion = document.getElementById('btnConfirmarCancelacion');
+        if (btnConfirmarCancelacion) {
+            btnConfirmarCancelacion.addEventListener('click', function () {
+                const inputMotivo = document.getElementById('cancelarMotivo');
+                const motivo = inputMotivo.value.trim();
+
+                if (!motivo) {
+                    inputMotivo.classList.add('is-invalid');
+                    inputMotivo.focus();
+                    return;
+                }
+                inputMotivo.classList.remove('is-invalid');
+
+                if (!filaCancelando) {
+                    bootstrap.Modal.getInstance(modalCancelarEl).hide();
+                    return;
+                }
+
+                filaCancelando.setAttribute('data-estado', 'cancelada');
+                actualizarBadgeEstadoSalida(filaCancelando, 'cancelada');
+                actualizarMotivoCelda(filaCancelando, motivo);
+
+                const celdaAcciones = filaCancelando.querySelector('td:last-child');
+                if (celdaAcciones) celdaAcciones.innerHTML = generarAccionesSalida('cancelada', false);
+
+                aplicarFiltrosSalidas();
+
+                bootstrap.Modal.getInstance(modalCancelarEl).hide();
+                mostrarToastSalida('Salida cancelada', 'La solicitud fue cancelada. Motivo: ' + motivo, 'danger');
+
+                filaCancelando = null;
+            });
+        }
+
+        // ---------- Confirmar Eliminación ----------
+        const btnConfirmarEliminacion = document.getElementById('btnConfirmarEliminacion');
+        if (btnConfirmarEliminacion) {
+            btnConfirmarEliminacion.addEventListener('click', function () {
+                if (!filaEliminando) {
+                    bootstrap.Modal.getInstance(modalEliminarEl).hide();
+                    return;
+                }
+
+                filaEliminando.remove();
+                filaEliminando = null;
+
+                aplicarFiltrosSalidas();
+
+                bootstrap.Modal.getInstance(modalEliminarEl).hide();
+                mostrarToastSalida('Borrador eliminado', 'El registro fue eliminado de la tabla.', 'danger');
+            });
+        }
+
+        // Limpiar referencias al cerrar los modales
+        if (modalRechazarEl) {
+            modalRechazarEl.addEventListener('hidden.bs.modal', function () {
+                filaRechazando = null;
+            });
+        }
+        if (modalCancelarEl) {
+            modalCancelarEl.addEventListener('hidden.bs.modal', function () {
+                filaCancelando = null;
+            });
+        }
+        if (modalEliminarEl) {
+            modalEliminarEl.addEventListener('hidden.bs.modal', function () {
+                filaEliminando = null;
+            });
+        }
+
+        // Inicializar
+        aplicarFiltrosSalidas();
     }
 
 });

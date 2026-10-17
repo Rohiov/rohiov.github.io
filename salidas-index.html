@@ -27,8 +27,27 @@
                                 <li><a class="dropdown-item" href="admin-roles.html"><i class="bi bi-shield-lock"></i> Roles</a></li>
                                 <li><a class="dropdown-item" href="admin-modulos.html"><i class="bi bi-box-seam"></i> Módulos</a></li>
                                 <li><a class="dropdown-item" href="admin-empresas.html"><i class="bi bi-building"></i> Empresas</a></li>
-                                <li><a class="dropdown-item" href="admin-unidades.html"><i class="bi bi-rulers"></i> Unidades</a></li>
                                 <li><a class="dropdown-item" href="admin-departamentos.html"><i class="bi bi-diagram-3"></i> Departamentos</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li class="dropdown-submenu">
+                                    <a class="dropdown-item dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                        <i class="bi bi-collection"></i> Catálogos
+                                    </a>
+                                    <ul class="dropdown-menu">
+                                        <li class="dropdown-submenu">
+                                            <a class="dropdown-item dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                                <i class="bi bi-clipboard-check"></i> Salidas de Material
+                                            </a>
+                                            <ul class="dropdown-menu">
+                                                <li>
+                                                    <a class="dropdown-item" href="admin-unidades.html">
+                                                        <i class="bi bi-rulers"></i> Unidades
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="admin-logs.html"><i class="bi bi-journal-text"></i> Logs</a></li>
                             </ul>
@@ -77,155 +96,361 @@
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2><i class="bi bi-clipboard-check"></i> Salidas de Material</h2>
             <div>
-                <a href="salidas-crear.html" class="btn btn-success"><i class="bi bi-plus-circle"></i> Nueva Salida</a>
+                <a href="salidas-crear.html" class="btn btn-success">
+                    <i class="bi bi-plus-circle"></i> Nueva Salida
+                </a>
             </div>
         </div>
 
-        <div class="card mb-4">
-            <div class="card-body">
-                <div class="row g-3">
-                    <div class="col-md-3">
-                        <label class="form-label">Buscar</label>
-                        <input type="text" class="form-control" placeholder="Usuario, Folio, descripción...">
+        <!-- ============================================= -->
+        <!-- GRID 30/70 INVERTIDO: Filtros izq / Salidas der -->
+        <!-- ============================================= -->
+        <div class="salida-form-grid-invertido">
+
+            <!-- ============================================= -->
+            <!-- COLUMNA IZQUIERDA (30%): Filtros               -->
+            <!-- ============================================= -->
+            <div class="col-izquierda">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="bi bi-funnel"></i> Filtros</h5>
+                        <button class="btn btn-sm btn-outline-secondary" id="btnLimpiarFiltrosSalidas">
+                            <i class="bi bi-arrow-clockwise"></i> Limpiar
+                        </button>
                     </div>
-                    <div class="col-md-2">
-                        <label class="form-label">Estado</label>
-                        <select class="form-select">
-                            <option>Todos</option>
-                            <option>Borrador</option>
-                            <option>Pendiente</option>
-                            <option>Aprobada</option>
-                            <option>Rechazada</option>
-                            <option>Cancelada</option>
-                        </select>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">Buscar</label>
+                            <input type="text" class="form-control"
+                                id="filtroSalidasBuscar"
+                                placeholder="Usuario, Folio, descripción...">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Estado</label>
+                            <select class="form-select" id="filtroSalidasEstado">
+                                <option value="">Todos</option>
+                                <option value="borrador">Borrador</option>
+                                <option value="pendiente">Pendiente</option>
+                                <option value="aprobada">Aprobada</option>
+                                <option value="rechazada">Rechazada</option>
+                                <option value="cancelada">Cancelada</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Desde</label>
+                            <input type="date" class="form-control" id="filtroSalidasDesde">
+                        </div>
+                        <div class="mb-0">
+                            <label class="form-label">Hasta</label>
+                            <input type="date" class="form-control" id="filtroSalidasHasta">
+                        </div>
                     </div>
-                    <div class="col-md-2">
-                        <label class="form-label">Desde</label>
-                        <input type="date" class="form-control">
+                    <div class="card-footer">
+                        <small class="text-muted">
+                            <i class="bi bi-info-circle"></i> Los filtros se aplican automáticamente.
+                        </small>
                     </div>
-                    <div class="col-md-2">
-                        <label class="form-label">Hasta</label>
-                        <input type="date" class="form-control">
+                </div>
+            </div>
+
+            <!-- ============================================= -->
+            <!-- COLUMNA DERECHA (70%): Salidas                 -->
+            <!-- ============================================= -->
+            <div class="col-derecha">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="bi bi-list-ul"></i> Salidas</h5>
+                        <button class="btn btn-sm btn-outline-success"
+                                id="btnExportarSalidas"
+                                data-tabla="#tablaSalidas"
+                                data-nombre="salidas"
+                                data-omitir-columnas="auto">
+                            <i class="bi bi-file-excel"></i> Exportar CSV
+                        </button>
                     </div>
-                    <div class="col-md-3 d-flex align-items-end">
-                        <button class="btn btn-outline-info me-2"><i class="bi bi-search"></i> Buscar</button>
-                        <button class="btn btn-outline-secondary"><i class="bi bi-arrow-clockwise"></i> Limpiar</button>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0" id="tablaSalidas">
+                                <thead>
+                                    <tr>
+                                        <th>Folio</th>
+                                        <th>Fecha</th>
+                                        <th>Estado</th>
+                                        <th>Usuario</th>
+                                        <th>Descripción</th>
+                                        <th>Motivo</th>
+                                        <th class="text-center">Materiales</th>
+                                        <th class="text-center">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbodySalidas">
+
+                                    <!-- Salida aprobada -->
+                                    <tr class="salida-row"
+                                        data-folio="00000001"
+                                        data-fecha="2026-09-20"
+                                        data-estado="aprobada"
+                                        data-usuario="Juan Pérez"
+                                        data-descripcion="Devolución a proveedor"
+                                        data-motivo=""
+                                        data-materiales="5">
+                                        <td><strong>00000001</strong></td>
+                                        <td>20/09/2026</td>
+                                        <td><span class="badge bg-success badge-estado">✅ Aprobada</span></td>
+                                        <td>Juan Pérez</td>
+                                        <td>Devolución a proveedor</td>
+                                        <td class="motivo-celda"><em class="text-muted">—</em></td>
+                                        <td class="text-center"><span class="badge bg-secondary">5</span></td>
+                                        <td class="text-center text-nowrap">
+                                            <a href="salidas-detalles.html" class="btn btn-sm btn-outline-info" title="Ver"><i class="bi bi-eye"></i></a>
+                                            <button class="btn btn-sm btn-outline-primary btn-pdf-salida" title="Exportar PDF"><i class="bi bi-file-pdf"></i></button>
+                                            <button class="btn btn-sm btn-outline-secondary btn-clonar-salida" title="Clonar"><i class="bi bi-files"></i></button>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Salida pendiente (Aprobador) -->
+                                    <tr class="salida-row"
+                                        data-folio="00000002"
+                                        data-fecha="2026-09-19"
+                                        data-estado="pendiente"
+                                        data-usuario="María Gómez"
+                                        data-descripcion="Materiales de obra"
+                                        data-motivo=""
+                                        data-materiales="3">
+                                        <td><strong>00000002</strong></td>
+                                        <td>19/09/2026</td>
+                                        <td><span class="badge bg-warning text-dark badge-estado">⏳ Pendiente (Aprobador)</span></td>
+                                        <td>María Gómez</td>
+                                        <td>Materiales de obra</td>
+                                        <td class="motivo-celda"><em class="text-muted">—</em></td>
+                                        <td class="text-center"><span class="badge bg-secondary">3</span></td>
+                                        <td class="text-center text-nowrap">
+                                            <a href="salidas-detalles.html" class="btn btn-sm btn-outline-info" title="Ver"><i class="bi bi-eye"></i></a>
+                                            <button class="btn btn-sm btn-outline-success btn-aprobar-salida" title="Aprobar"><i class="bi bi-check-circle"></i></button>
+                                            <button class="btn btn-sm btn-outline-danger btn-rechazar-salida" title="Rechazar"><i class="bi bi-x-circle"></i></button>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Borrador -->
+                                    <tr class="salida-row"
+                                        data-folio=""
+                                        data-fecha="2026-09-18"
+                                        data-estado="borrador"
+                                        data-usuario="Carlos Ruiz"
+                                        data-descripcion="Equipos de cómputo"
+                                        data-motivo=""
+                                        data-materiales="2">
+                                        <td><em class="text-muted">(sin folio)</em></td>
+                                        <td>18/09/2026</td>
+                                        <td><span class="badge bg-secondary badge-estado">📝 Borrador</span></td>
+                                        <td>Carlos Ruiz</td>
+                                        <td>Equipos de cómputo</td>
+                                        <td class="motivo-celda"><em class="text-muted">—</em></td>
+                                        <td class="text-center"><span class="badge bg-secondary">2</span></td>
+                                        <td class="text-center text-nowrap">
+                                            <a href="salidas-detalles.html" class="btn btn-sm btn-outline-info" title="Ver"><i class="bi bi-eye"></i></a>
+                                            <a href="salidas-editar.html" class="btn btn-sm btn-outline-success" title="Editar"><i class="bi bi-pencil"></i></a>
+                                            <button class="btn btn-sm btn-outline-danger btn-eliminar-salida" title="Eliminar borrador"><i class="bi bi-trash"></i></button>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Rechazada -->
+                                    <tr class="salida-row"
+                                        data-folio="00000004"
+                                        data-fecha="2026-09-17"
+                                        data-estado="rechazada"
+                                        data-usuario="Ana Martínez"
+                                        data-descripcion="Herramientas de reparación"
+                                        data-materiales="4"
+                                        data-motivo="Material no autorizado">
+                                        <td><strong>00000004</strong></td>
+                                        <td>17/09/2026</td>
+                                        <td><span class="badge bg-danger badge-estado">❌ Rechazada</span></td>
+                                        <td>Ana Martínez</td>
+                                        <td>Herramientas de reparación</td>
+                                        <td>Material no autorizado</td>
+                                        <td class="text-center"><span class="badge bg-secondary">4</span></td>
+                                        <td class="text-center text-nowrap">
+                                            <a href="salidas-detalles.html" class="btn btn-sm btn-outline-info" title="Ver"><i class="bi bi-eye"></i></a>
+                                            <button class="btn btn-sm btn-outline-secondary btn-clonar-salida" title="Clonar"><i class="bi bi-files"></i></button>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Cancelada -->
+                                    <tr class="salida-row"
+                                        data-folio="00000005"
+                                        data-fecha="2026-09-16"
+                                        data-estado="cancelada"
+                                        data-usuario="Juan Pérez"
+                                        data-descripcion="Salida cancelada"
+                                        data-motivo="Material pendiente de agregar"
+                                        data-materiales="1">
+                                        <td><strong>00000005</strong></td>
+                                        <td>16/09/2026</td>
+                                        <td><span class="badge bg-dark badge-estado">🚫 Cancelada</span></td>
+                                        <td>Juan Pérez</td>
+                                        <td>Salida cancelada</td>
+                                        <td>Material pendiente de agregar</td>
+                                        <td class="text-center"><span class="badge bg-secondary">1</span></td>
+                                        <td class="text-center text-nowrap">
+                                            <a href="salidas-detalles.html" class="btn btn-sm btn-outline-info" title="Ver"><i class="bi bi-eye"></i></a>
+                                            <a href="salidas-editar.html" class="btn btn-sm btn-outline-success" title="Editar"><i class="bi bi-pencil"></i></a>
+                                            <button class="btn btn-sm btn-outline-secondary btn-clonar-salida" title="Clonar"><i class="bi bi-files"></i></button>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Pendiente (puede cancelarse) -->
+                                    <tr class="salida-row"
+                                        data-folio="00000006"
+                                        data-fecha="2026-09-19"
+                                        data-estado="pendiente"
+                                        data-usuario="María Gómez"
+                                        data-descripcion="Materiales de obra"
+                                        data-motivo=""
+                                        data-materiales="3">
+                                        <td><strong>00000006</strong></td>  
+                                        <td>19/09/2026</td>
+                                        <td><span class="badge bg-warning text-dark badge-estado">⏳ Pendiente</span></td>
+                                        <td>María Gómez</td>
+                                        <td>Materiales de obra</td>
+                                        <td class="motivo-celda"><em class="text-muted">—</em></td>
+                                        <td class="text-center"><span class="badge bg-secondary">3</span></td>
+                                        <td class="text-center text-nowrap">
+                                            <a href="salidas-detalles.html" class="btn btn-sm btn-outline-info" title="Ver"><i class="bi bi-eye"></i></a>
+                                            <button class="btn btn-sm btn-outline-secondary btn-clonar-salida" title="Clonar"><i class="bi bi-files"></i></button>
+                                            <button class="btn btn-sm btn-outline-danger btn-cancelar-salida" title="Cancelar"><i class="bi bi-dash-circle"></i></button>
+                                        </td>
+                                    </tr>
+
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
+                    <div class="card-footer">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">Mostrando <span id="contadorSalidas">6</span> de <span id="totalSalidas">95</span> registros</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ============================================= -->
+    <!-- MODAL: Confirmar Rechazo                        -->
+    <!-- ============================================= -->
+    <div class="modal fade" id="modalRechazarSalida" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: var(--cora-accent); color: white;">
+                    <h5 class="modal-title" style="color: var(--cora-white);">
+                        <i class="bi bi-x-circle"></i> Rechazar Solicitud
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Estás seguro de que deseas <strong>rechazar</strong> la solicitud con folio
+                        <strong id="rechazarFolio">—</strong>?</p>
+                    <div class="mb-3">
+                        <label class="form-label">Motivo del rechazo <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="rechazarMotivo" rows="3"
+                                placeholder="Describe el motivo por el cual rechazas esta solicitud..."
+                                maxlength="500"></textarea>
+                        <div class="invalid-feedback" id="rechazarMotivoFeedback">
+                            Debes ingresar un motivo para rechazar la solicitud.
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x"></i> Cancelar
+                    </button>
+                    <button type="button" class="btn btn-danger" id="btnConfirmarRechazo">
+                        <i class="bi bi-x-circle"></i> Rechazar
+                    </button>
                 </div>
             </div>
         </div>
+    </div>
 
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0"><i class="bi bi-list-ul"></i> Salidas</h5>
-                <button class="btn btn-sm btn-outline-success"><i class="bi bi-file-excel"></i> Exportar CSV</button>
-            </div>
-            <div class="card-body p-0">
-                <table class="table table-hover mb-0">
-                    <thead>
-                        <tr>
-                            <th>Folio</th>
-                            <th>Fecha</th>
-                            <th>Estado</th>
-                            <th>Usuario</th>
-                            <th>Descripción</th>
-                            <th class="text-center">Materiales</th>
-                            <th class="text-center">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><strong>00000001</strong></td>
-                            <td>20/09/2026</td>
-                            <td><span class="badge bg-success">✅ Aprobada</span></td>
-                            <td>Juan Pérez</td>
-                            <td>Devolución a proveedor</td>
-                            <td class="text-center"><span class="badge bg-secondary">5</span></td>
-                            <td class="text-center">
-                                <a href="salidas-detalles.html" class="btn btn-sm btn-outline-info" title="Ver"><i class="bi bi-eye"></i></a>
-                                <button class="btn btn-sm btn-outline-primary" title="Exportar PDF"><i class="bi bi-file-pdf"></i></button>
-                                <button class="btn btn-sm btn-outline-secondary" title="Clonar"><i class="bi bi-files"></i></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><strong>00000002</strong></td>
-                            <td>19/09/2026</td>
-                            <td><span class="badge bg-warning text-dark">⏳ Pendiente (Aprobador)</span></td>
-                            <td>María Gómez</td>
-                            <td>Materiales de obra</td>
-                            <td class="text-center"><span class="badge bg-secondary">3</span></td>
-                            <td class="text-center">
-                                <a href="salidas-detalles.html" class="btn btn-sm btn-outline-info" title="Ver"><i class="bi bi-eye"></i></a>
-                                <button class="btn btn-sm btn-outline-success" title="Aprobar"><i class="bi bi-check-circle"></i></button>
-                                <button class="btn btn-sm btn-outline-danger" title="Rechazar"><i class="bi bi-x-circle"></i></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><em class="text-muted">(sin folio)</em></td>
-                            <td>18/09/2026</td>
-                            <td><span class="badge bg-secondary">📝 Borrador</span></td>
-                            <td>Carlos Ruiz</td>
-                            <td>Equipos de cómputo</td>
-                            <td class="text-center"><span class="badge bg-secondary">2</span></td>
-                            <td class="text-center">
-                                <a href="salidas-detalles.html" class="btn btn-sm btn-outline-info" title="Ver"><i class="bi bi-eye"></i></a>
-                                <a href="salidas-editar.html" class="btn btn-sm btn-outline-success" title="Editar"><i class="bi bi-pencil"></i></a>
-                                <button class="btn btn-sm btn-outline-danger" title="Eliminar borrador"><i class="bi bi-trash"></i></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><strong>00000004</strong></td>
-                            <td>17/09/2026</td>
-                            <td><span class="badge bg-danger">❌ Rechazada</span></td>
-                            <td>Ana Martínez</td>
-                            <td>Material no autorizado</td>
-                            <td class="text-center"><span class="badge bg-secondary">4</span></td>
-                            <td class="text-center">
-                                <a href="salidas-detalles.html" class="btn btn-sm btn-outline-info" title="Ver"><i class="bi bi-eye"></i></a>
-                                <button class="btn btn-sm btn-outline-secondary" title="Clonar"><i class="bi bi-files"></i></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><strong>00000005</strong></td>
-                            <td>16/09/2026</td>
-                            <td><span class="badge bg-dark">🚫 Cancelada</span></td>
-                            <td>Juan Pérez</td>
-                            <td>Salida cancelada</td>
-                            <td class="text-center"><span class="badge bg-secondary">1</span></td>
-                            <td class="text-center">
-                                <a href="salidas-detalles.html" class="btn btn-sm btn-outline-info" title="Ver"><i class="bi bi-eye"></i></a>
-                                <button class="btn btn-sm btn-outline-secondary" title="Clonar"><i class="bi bi-files"></i></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><strong>00000006</strong></td>
-                            <td>19/09/2026</td>
-                            <td><span class="badge bg-warning text-dark">⏳ Pendiente</span></td>
-                            <td>María Gómez</td>
-                            <td>Materiales de obra</td>
-                            <td class="text-center"><span class="badge bg-secondary">3</span></td>
-                            <td class="text-center">
-                                <a href="salidas-detalles.html" class="btn btn-sm btn-outline-info" title="Ver"><i class="bi bi-eye"></i></a>
-                                <button class="btn btn-sm btn-outline-danger" title="Cancelar"><i class="bi bi-dash-circle"></i></button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class="card-footer">
-                <div class="d-flex justify-content-between align-items-center">
-                    <small class="text-muted">Mostrando 1-6 de 95 registros</small>
-                    <nav>
-                        <ul class="pagination pagination-sm mb-0">
-                            <li class="page-item disabled"><a class="page-link" href="#">Anterior</a></li>
-                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                            <li class="page-item"><a class="page-link" href="#">2</a></li>
-                            <li class="page-item"><a class="page-link" href="#">3</a></li>
-                            <li class="page-item"><a class="page-link" href="#">Siguiente</a></li>
-                        </ul>
-                    </nav>
+    <!-- ============================================= -->
+    <!-- MODAL: Confirmar Cancelación                    -->
+    <!-- ============================================= -->
+    <div class="modal fade" id="modalCancelarSalida" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: var(--cora-accent); color: white;">
+                    <h5 class="modal-title" style="color: var(--cora-white);">
+                        <i class="bi bi-dash-circle"></i> Cancelar Solicitud
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Estás seguro de que deseas <strong>cancelar</strong> la solicitud con folio
+                        <strong id="cancelarFolio">—</strong>?</p>
+                    <div class="mb-3">
+                        <label class="form-label">Motivo de la cancelación <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="cancelarMotivo" rows="3"
+                                placeholder="Describe el motivo por el cual cancelas esta solicitud..."
+                                maxlength="500"></textarea>
+                        <div class="invalid-feedback" id="cancelarMotivoFeedback">
+                            Debes ingresar un motivo para cancelar la solicitud.
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x"></i> Volver
+                    </button>
+                    <button type="button" class="btn btn-danger" id="btnConfirmarCancelacion">
+                        <i class="bi bi-dash-circle"></i> Cancelar solicitud
+                    </button>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- ============================================= -->
+    <!-- MODAL: Confirmar Eliminación de Borrador        -->
+    <!-- ============================================= -->
+    <div class="modal fade" id="modalEliminarSalida" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: var(--cora-accent); color: white;">
+                    <h5 class="modal-title" style="color: var(--cora-white);">
+                        <i class="bi bi-trash"></i> Eliminar Borrador
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Estás seguro de que deseas <strong>eliminar</strong> este borrador?</p>
+                    <p class="text-muted mb-0">
+                        <i class="bi bi-info-circle"></i>
+                        Esta acción es permanente y no se puede deshacer.
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x"></i> Volver
+                    </button>
+                    <button type="button" class="btn btn-danger" id="btnConfirmarEliminacion">
+                        <i class="bi bi-trash"></i> Eliminar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast para acciones de salidas -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1090;">
+        <div id="toastSalidaAccion" class="toast" role="alert" data-bs-delay="3500">
+            <div class="toast-header" style="background-color: var(--cora-success); color: white;">
+                <i class="bi bi-check-circle me-2"></i>
+                <strong class="me-auto" id="toastSalidaTitulo">Acción completada</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body" id="toastSalidaMensaje">La acción se completó correctamente.</div>
         </div>
     </div>
 

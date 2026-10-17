@@ -146,6 +146,7 @@
                                 <thead>
                                     <tr>
                                         <th>Nombre</th>
+                                        <th>Descripción</th>
                                         <th>Tipo</th>
                                         <th>Módulo</th>
                                         <th>Puede Aprobar</th>
@@ -158,12 +159,15 @@
                                     <tr class="rol-row"
                                         data-codigo="Superusuario"
                                         data-nombre="Superusuario"
+                                        data-descripcion="Acceso total al sistema"
                                         data-tipo="global"
                                         data-modulo=""
                                         data-origen="sistema"
                                         data-estado="activo"
-                                        data-bloqueado="true">
+                                        data-bloqueado="true"
+                                        data-permisos="">
                                         <td>Superusuario</td>
+                                        <td>Acceso total al sistema</td>
                                         <td><span class="badge" style="background-color: var(--cora-accent);">🌐 Global</span></td>
                                         <td>—</td>
                                         <td><span class="badge bg-success">Sí</span></td>
@@ -178,12 +182,15 @@
                                     <tr class="rol-row"
                                         data-codigo="Administrador"
                                         data-nombre="Administrador"
+                                        data-descripcion="Administración general del sistema"
                                         data-tipo="global"
                                         data-modulo=""
                                         data-origen="sistema"
                                         data-estado="activo"
-                                        data-bloqueado="true">
+                                        data-bloqueado="true"
+                                        data-permisos="">
                                         <td>Administrador</td>
+                                        <td>Administración general del sistema</td>
                                         <td><span class="badge" style="background-color: var(--cora-accent);">🌐 Global</span></td>
                                         <td>—</td>
                                         <td><span class="badge bg-success">Sí</span></td>
@@ -198,11 +205,14 @@
                                     <tr class="rol-row"
                                         data-codigo="Generador"
                                         data-nombre="Generador de Salidas"
+                                        data-descripcion="Crea y gestiona salidas de material"
                                         data-tipo="local"
                                         data-modulo="salidas"
                                         data-origen="precargado"
-                                        data-estado="activo">
+                                        data-estado="activo"
+                                        data-permisos="p-salidas-crear p-salidas-editar p-salidas-ver p-salidas-detalles p-salidas-clonar p-salidas-pdf p-salidas-exportar p-salidas-plantillas p-salidas-eliminar">
                                         <td>Generador de Salidas</td>
+                                        <td>Crea y gestiona salidas de material</td>
                                         <td><span class="badge bg-info">📦 Local</span></td>
                                         <td>Salidas de Material</td>
                                         <td><span class="badge bg-secondary">No</span></td>
@@ -217,11 +227,14 @@
                                     <tr class="rol-row"
                                         data-codigo="Aprobador"
                                         data-nombre="Aprobador de Salidas"
+                                        data-descripcion="Aprueba o rechaza salidas de material"
                                         data-tipo="local"
                                         data-modulo="salidas"
                                         data-origen="precargado"
-                                        data-estado="activo">
+                                        data-estado="activo"
+                                        data-permisos="p-salidas-ver p-salidas-detalles p-salidas-aprobar p-salidas-rechazar p-salidas-pdf p-salidas-exportar">
                                         <td>Aprobador de Salidas</td>
+                                        <td>Aprueba o rechaza salidas de material</td>
                                         <td><span class="badge bg-info">📦 Local</span></td>
                                         <td>Salidas de Material</td>
                                         <td><span class="badge bg-success">Sí</span></td>
@@ -236,18 +249,24 @@
                                     <tr class="rol-row"
                                         data-codigo="Auditor"
                                         data-nombre="Auditor de Salidas"
+                                        data-descripcion="Consulta y audita salidas sin modificarlas"
                                         data-tipo="local"
                                         data-modulo="salidas"
                                         data-origen="personalizado"
-                                        data-estado="activo">
+                                        data-estado="activo"
+                                        data-permisos="p-salidas-ver p-salidas-detalles p-salidas-exportar">
                                         <td>Auditor de Salidas</td>
+                                        <td>Consulta y audita salidas sin modificarlas</td>
                                         <td><span class="badge bg-info">📦 Local</span></td>
                                         <td>Salidas de Material</td>
                                         <td><span class="badge bg-secondary">No</span></td>
                                         <td><span class="badge bg-secondary">Personalizado</span></td>
                                         <td><span class="badge bg-success">Activo</span></td>
                                         <td class="text-center">
-                                            <button class="btn btn-sm btn-outline-info" title="Editar" data-bs-toggle="modal" data-bs-target="#modalCrearRol"><i class="bi bi-pencil"></i></button>
+                                            <button class="btn btn-sm btn-outline-info btn-editar-rol" title="Editar"
+                                                    data-bs-toggle="modal" data-bs-target="#modalCrearRol">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
                                             <button class="btn btn-sm btn-outline-primary btn-toggle-estado-rol" title="Desactivar" data-accion="desactivar">
                                                 <i class="bi bi-power"></i>
                                             </button>
@@ -272,42 +291,24 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header" style="background-color: var(--cora-success); color: white;">
-                    <h5 class="modal-title" style="color: var(--cora-white);"><i class="bi bi-plus-circle"></i> Crear / Editar Rol</h5>
+                    <h5 class="modal-title" id="modalCrearRolTitulo" style="color: var(--cora-white);">
+                        <i class="bi bi-plus-circle"></i> Crear Rol
+                    </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <h6 class="border-bottom pb-2 mb-3">📌 Información Básica</h6>
-                    <div class="row g- mb-3">
+                    <div class="row g-2 mb-3">
                         <div class="col-md-6">
-                            <label class="form-label">Tipo de Rol</label>
-                            <div>
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="tipoRol" id="tipoGlobal">
-                                    <label class="form-check-label" for="tipoGlobal"><i class="bi bi-globe"></i> Global</label>
-                                </div>
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="tipoRol" id="tipoLocal" checked>
-                                    <label class="form-check-label" for="tipoLocal"><i class="bi bi-box"></i> Local</label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label">Nombre</label>
-                            <input type="text" class="form-control" placeholder="Ej: Auditor de Salidas">
+                            <label class="form-label">Nombre <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="rolNombre" placeholder="Ej: Auditor de Salidas" maxlength="100">
                         </div>
                     </div>
 
                     <div class="row g-2 mb-3">
-                        
-                        <div class="col-md-6">
-                            <label class="form-label">Módulo</label>
-                            <select class="form-select">
-                                <option>Salidas de Material</option>
-                            </select>
-                        </div>
                         <div class="col-12">
                             <label class="form-label">Descripción</label>
-                            <textarea class="form-control" rows="2" placeholder="Descripción del rol..."></textarea>
+                            <textarea class="form-control" id="rolDescripcion" rows="2" placeholder="Descripción del rol..." maxlength="500"></textarea>
                         </div>
                     </div>
 
