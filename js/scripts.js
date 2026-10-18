@@ -618,7 +618,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (loginForm) {
         // Mapa de usuario → carpeta de destino
         const RUTAS_POR_ROL = {
-            'superusuario':     'superusuario/index.html',
+            'superusuario':   'superusuario/index.html',
             'administrador':  'administrador/index.html',
             'aprobador':      'aprobador/index.html',
             'generador':      'generador/index.html',
@@ -643,12 +643,50 @@ document.addEventListener('DOMContentLoaded', function () {
             loginErrorEl.textContent = '';
         }
 
+        // ---------- Referencias a los inputs ----------
+        const inputUsuario = document.getElementById('usuario');
+        const inputPassword = document.getElementById('password');
+
+        // =============================================
+        // Generar <datalist> dinámicamente desde RUTAS_POR_ROL
+        // (sugerencias de usuario sin cambiar el tipo de campo)
+        // =============================================
+        (function generarDatalistUsuarios() {
+            let datalist = document.getElementById('listaUsuarios');
+            if (!datalist) {
+                datalist = document.createElement('datalist');
+                datalist.id = 'listaUsuarios';
+                document.body.appendChild(datalist);
+
+                if (inputUsuario) inputUsuario.setAttribute('list', 'listaUsuarios');
+            }
+            // Vaciar y poblar con los roles existentes
+            datalist.innerHTML = '';
+            Object.keys(RUTAS_POR_ROL).forEach(function (rol) {
+                const opt = document.createElement('option');
+                opt.value = rol;
+                datalist.appendChild(opt);
+            });
+        })();
+
+        // =============================================
+        // Autocompletar contraseña con el mismo usuario
+        // =============================================
+        if (inputUsuario && inputPassword) {
+            // Al cambiar el usuario (seleccionar del datalist, salir del campo
+            // o pulsar Enter), copiar el valor a la contraseña si es un usuario válido.
+            inputUsuario.addEventListener('change', function () {
+                const valor = this.value.trim();
+                if (valor && RUTAS_POR_ROL[valor.toLowerCase()]) {
+                    inputPassword.value = valor;
+                }
+            });
+        }
+
+        // ---------- Submit del formulario ----------
         loginForm.addEventListener('submit', function (e) {
             e.preventDefault();
             ocultarErrorLogin();
-
-            const inputUsuario = document.getElementById('usuario');
-            const inputPassword = document.getElementById('password');
 
             const usuario = (inputUsuario && inputUsuario.value ? inputUsuario.value : '')
                 .trim()
@@ -672,9 +710,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const rutaDestino = RUTAS_POR_ROL[usuario];
 
             if (!rutaDestino) {
-                mostrarErrorLogin(
-                    'Contraseña incorrecta.'
-                );
+                mostrarErrorLogin('Contraseña incorrecta.');
                 if (inputUsuario) {
                     inputUsuario.classList.add('is-invalid');
                     inputUsuario.focus();
@@ -688,7 +724,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         // Quitar el estado inválido al escribir de nuevo
-        const inputUsuario = document.getElementById('usuario');
         if (inputUsuario) {
             inputUsuario.addEventListener('input', function () {
                 this.classList.remove('is-invalid');
