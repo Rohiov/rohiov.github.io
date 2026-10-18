@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Detalles de Salida - SWCORA</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="index.html"><i class="bi bi-lightning-charge-fill"></i> SWCORA</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item"><a class="nav-link" href="index.html"><i class="bi bi-house-door"></i> Inicio</a></li>
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle active" href="#" role="button" data-bs-toggle="dropdown"><i class="bi bi-box-seam"></i> Módulos</a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="salidas-index.html"><i class="bi bi-clipboard-check"></i> Salidas de Material</a></li>
+                            </ul>
+                        </li>
+                        
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="bi bi-key"></i> Acceso a Módulos</a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="acceso-solicitar.html"><i class="bi bi-pencil-square"></i> Solicitar acceso</a></li>
+                                <li><a class="dropdown-item" href="acceso-mis-solicitudes.html"><i class="bi bi-list-check"></i> Mis solicitudes</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link position-relative" href="notificaciones.html">
+                                <i class="bi bi-bell"></i>
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">3</span>
+                            </a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-person-circle"></i> Juan Pérez
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="mi-perfil.html"><i class="bi bi-person"></i> Mi perfil</a></li>
+                                <li><a class="dropdown-item" href="configuracion.html"><i class="bi bi-gear"></i> Configuración</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="../index.html"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container-fluid mt-4" id="detallesSalidaContainer">
+        <!-- Header dinámico -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2><i class="bi bi-file-text"></i> Detalles de Salida</h2>
+                <p class="text-muted mb-0">
+                    Folio: <strong id="detFolio">—</strong> |
+                    Estado: <span id="detEstado">—</span>
+                </p>
+            </div>
+            <div class="d-flex gap-1 flex-wrap" id="detAccionesHeader">
+                <a href="salidas-index.html" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Volver
+                </a>
+                <span id="detBotonesAccion" class="d-inline-flex gap-1 flex-wrap"></span>
+            </div>
+        </div>
+
+        <!-- Layout 70/30 -->
+        <div class="salida-form-grid mb-4">
+            <div class="col-left">
+                <div class="card">
+                    <div class="card-header"><h5 class="mb-0"><i class="bi bi-box"></i> Materiales</h5></div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table mb-0">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 60px;">Línea</th>
+                                        <th style="width: 110px;">Cantidad</th>
+                                        <th style="width: 120px;">Unidad</th>
+                                        <th>Descripción</th>
+                                        <th style="width: 600px;">Comentario</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="detMaterialesBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+
+            <div class="col-right" id="accordionDetalles">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-check-circle"></i> Detalles de Aprobación</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4 mb-3"><small class="text-muted d-block">Aprobador Asignado</small><strong id="detAprobador">—</strong></div>
+                            <div class="col-md-4 mb-3"><small class="text-muted d-block">Aprobado Por</small><strong id="detAprobadoPor">—</strong></div>
+                            <div class="col-md-4 mb-3"><small class="text-muted d-block">Fecha de Aprobación</small><strong id="detFechaAprobacion">—</strong></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card card-collapsible" data-section="info-general">
+                    <div class="card-header" data-bs-toggle="collapse" data-bs-target="#collapseInfoGeneral" role="button">
+                        <h5 class="mb-0"><i class="bi bi-info-circle"></i> Información General</h5>
+                        <i class="bi bi-chevron-down toggle-icon"></i>
+                    </div>
+                    <div class="collapse show" id="collapseInfoGeneral">
+                        <div class="card-body-wrapper">
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    <div class="col-md-5 mb-3"><small class="text-muted d-block">Usuario</small><strong id="detInfoUsuario">—</strong></div>
+                                    <div class="col-md-5 mb-3"><small class="text-muted d-block">Departamento</small><strong id="detInfoDepto">—</strong></div>
+                                    <div class="col-md-5 mb-3"><small class="text-muted d-block">Salida Definitiva</small><strong id="detInfoDefinitiva">—</strong></div>
+                                    <div class="col-md-5 mb-3"><small class="text-muted d-block">Retorno Esperado</small><strong id="detInfoRetorno">—</strong></div>
+                                    <div class="col-md-5 mb-3"><small class="text-muted d-block">Creada</small><strong id="detInfoCreada">—</strong></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card card-collapsible" data-section="empresa">
+                    <div class="card-header" data-bs-toggle="collapse" data-bs-target="#collapseEmpresa" role="button">
+                        <h5 class="mb-0"><i class="bi bi-building"></i> Empresa</h5>
+                        <i class="bi bi-chevron-down toggle-icon"></i>
+                    </div>
+                    <div class="collapse" id="collapseEmpresa">
+                        <div class="card-body-wrapper">
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    <div class="col-md-5 mb-3"><small class="text-muted d-block">Empresa</small><strong id="detEmpresa">—</strong></div>
+                                    <div class="col-md-5 mb-3"><small class="text-muted d-block">Tipo</small><span id="detTipoEmpresa">—</span></div>
+                                    <div class="col-md-5 mb-3"><small class="text-muted d-block">Contacto</small><strong id="detContacto">—</strong></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card card-collapsible" data-section="descripcion">
+                    <div class="card-header" data-bs-toggle="collapse" data-bs-target="#collapseDescripcion" role="button">
+                        <h5 class="mb-0"><i class="bi bi-file-text"></i> Descripción</h5>
+                        <i class="bi bi-chevron-down toggle-icon"></i>
+                    </div>
+                    <div class="collapse" id="collapseDescripcion">
+                        <div class="card-body-wrapper">
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    <div class="col-12"><small class="text-muted d-block">Descripción</small><strong id="detDescripcion">—</strong></div>
+                                    <div class="col-12"><small class="text-muted d-block">Causa / Motivo</small><strong id="detCausa">—</strong></div>
+                                    <div class="col-12"><small class="text-muted d-block">Categoría</small><strong id="detCategoria">—</strong></div>
+                                    <div class="col-12"><small class="text-muted d-block">Comentarios</small><strong id="detComentarios">—</strong></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header"><h5 class="mb-0"><i class="bi bi-clock-history"></i> Historial de Cambios</h5></div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table mb-0">
+                        <thead>
+                            <tr><th>Fecha</th><th>Usuario</th><th>Acción</th><th>Detalles</th></tr>
+                        </thead>
+                        <tbody id="detHistorialBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================= -->
+    <!-- MODAL: Confirmar Rechazo                        -->
+    <!-- ============================================= -->
+    <div class="modal fade" id="modalRechazarSalida" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: var(--cora-accent); color: white;">
+                    <h5 class="modal-title" style="color: var(--cora-white);">
+                        <i class="bi bi-x-circle"></i> Rechazar Solicitud
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Estás seguro de que deseas <strong>rechazar</strong> la solicitud con folio
+                        <strong id="rechazarFolio">—</strong>?</p>
+                    <div class="mb-3">
+                        <label class="form-label">Motivo del rechazo <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="rechazarMotivo" rows="3"
+                                placeholder="Describe el motivo por el cual rechazas esta solicitud..."
+                                maxlength="500"></textarea>
+                        <div class="invalid-feedback">Debes ingresar un motivo para rechazar la solicitud.</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x"></i> Cancelar
+                    </button>
+                    <button type="button" class="btn btn-danger" id="btnConfirmarRechazo">
+                        <i class="bi bi-x-circle"></i> Rechazar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================= -->
+    <!-- MODAL: Confirmar Cancelación                    -->
+    <!-- ============================================= -->
+    <div class="modal fade" id="modalCancelarSalida" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: var(--cora-accent); color: white;">
+                    <h5 class="modal-title" style="color: var(--cora-white);">
+                        <i class="bi bi-dash-circle"></i> Cancelar Solicitud
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Estás seguro de que deseas <strong>cancelar</strong> la solicitud con folio
+                        <strong id="cancelarFolio">—</strong>?</p>
+                    <div class="mb-3">
+                        <label class="form-label">Motivo de la cancelación <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="cancelarMotivo" rows="3"
+                                placeholder="Describe el motivo por el cual cancelas esta solicitud..."
+                                maxlength="500"></textarea>
+                        <div class="invalid-feedback">Debes ingresar un motivo para cancelar la solicitud.</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x"></i> Volver
+                    </button>
+                    <button type="button" class="btn btn-danger" id="btnConfirmarCancelacion">
+                        <i class="bi bi-dash-circle"></i> Cancelar solicitud
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================= -->
+    <!-- MODAL: Confirmar Eliminación de Borrador        -->
+    <!-- ============================================= -->
+    <div class="modal fade" id="modalEliminarSalida" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: var(--cora-accent); color: white;">
+                    <h5 class="modal-title" style="color: var(--cora-white);">
+                        <i class="bi bi-trash"></i> Eliminar Borrador
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Estás seguro de que deseas <strong>eliminar</strong> este borrador?</p>
+                    <p class="text-muted mb-0">
+                        <i class="bi bi-info-circle"></i>
+                        Esta acción es permanente y no se puede deshacer.
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x"></i> Volver
+                    </button>
+                    <button type="button" class="btn btn-danger" id="btnConfirmarEliminacion">
+                        <i class="bi bi-trash"></i> Eliminar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1090;">
+        <div id="toastDetSalida" class="toast" role="alert" data-bs-delay="3500">
+            <div class="toast-header" style="background-color: var(--cora-success); color: white;">
+                <i class="bi bi-check-circle me-2"></i>
+                <strong class="me-auto" id="toastDetTitulo">Acción completada</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body" id="toastDetMensaje">La acción se completó correctamente.</div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container text-center">
+            &copy; 2026 SWCORA - Sistema Web de Control de Recursos y Activos | v1.0.0
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/scripts.js"></script>
+</body>
+</html>

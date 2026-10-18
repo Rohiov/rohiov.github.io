@@ -105,6 +105,426 @@ document.addEventListener('DOMContentLoaded', function () {
     console.log('SWCORA Mockup cargado correctamente');
 
     // =============================================
+    // STORAGE COMPARTIDO: Solicitudes de Acceso
+    // Fuente única de verdad para las 3 páginas de acceso
+    // =============================================
+    const STORAGE_KEY_SOLICITUDES = 'swcora_solicitudes_acceso';
+
+    // Datos iniciales (seed) — se usan solo si el storage está vacío
+    const SEED_SOLICITUDES = [
+        {
+            id: 'sol-001',
+            fecha: '2026-09-20T10:30',
+            fechaVisible: '20/09/2026 10:30',
+            usuario: 'Juan Pérez',
+            modulo: 'Salidas de Material',
+            rol: 'Generador de Salidas',
+            motivo: 'Necesito crear solicitudes de salida.',
+            aprobador: 'María Gómez',
+            estado: 'pendiente',
+            respuesta: 'En revisión'
+        },
+        {
+            id: 'sol-002',
+            fecha: '2026-09-19T15:45',
+            fechaVisible: '19/09/2026 15:45',
+            usuario: 'Carlos Ruiz',
+            modulo: 'Salidas de Material',
+            rol: 'Generador de Salidas',
+            motivo: '',
+            aprobador: 'Pedro López',
+            estado: 'pendiente',
+            respuesta: 'En revisión'
+        },
+        {
+            id: 'sol-003',
+            fecha: '2026-09-18T09:00',
+            fechaVisible: '18/09/2026 09:00',
+            usuario: 'María Gómez',
+            modulo: 'Salidas de Material',
+            rol: 'Generador de Salidas',
+            motivo: 'Creación de salidas es parte de mis actividades diarias para embarques de material.',
+            aprobador: 'Juan Pérez',
+            estado: 'aprobada',
+            respuesta: 'Aprobada por Juan Pérez'
+        },
+        {
+            id: 'sol-004',
+            fecha: '2026-09-15T11:20',
+            fechaVisible: '15/09/2026 11:20',
+            usuario: 'Pedro López',
+            modulo: 'Salidas de Material',
+            rol: 'Generador de Salidas',
+            motivo: '',
+            aprobador: 'María Gómez',
+            estado: 'rechazada',
+            respuesta: 'No especificó motivo de solicitud.'
+        },
+        {
+            id: 'sol-005',
+            fecha: '2026-09-22T08:15',
+            fechaVisible: '22/09/2026 08:15',
+            usuario: 'Juan Pérez',
+            modulo: 'Salidas de Material',
+            rol: 'Generador de Salidas',
+            motivo: 'Solicitud enviada desde formulario.',
+            aprobador: 'María Gómez',
+            estado: 'pendiente',
+            respuesta: 'En revisión'
+        }
+    ];
+
+    // ---------- API de storage ----------
+    function cargarSolicitudes() {
+        try {
+            const raw = localStorage.getItem(STORAGE_KEY_SOLICITUDES);
+            if (!raw) {
+                localStorage.setItem(STORAGE_KEY_SOLICITUDES, JSON.stringify(SEED_SOLICITUDES));
+                return SEED_SOLICITUDES.slice();
+            }
+            const data = JSON.parse(raw);
+            if (!Array.isArray(data)) throw new Error('Formato inválido');
+            return data;
+        } catch (e) {
+            console.warn('Error leyendo solicitudes, usando seed:', e);
+            localStorage.setItem(STORAGE_KEY_SOLICITUDES, JSON.stringify(SEED_SOLICITUDES));
+            return SEED_SOLICITUDES.slice();
+        }
+    }
+
+    function guardarSolicitudes(lista) {
+        try {
+            localStorage.setItem(STORAGE_KEY_SOLICITUDES, JSON.stringify(lista));
+            return true;
+        } catch (e) {
+            console.error('Error guardando solicitudes:', e);
+            return false;
+        }
+    }
+
+    function agregarSolicitud(solicitud) {
+        const lista = cargarSolicitudes();
+        // Generar id único
+        const nuevoId = 'sol-' + String(Date.now()).slice(-6);
+        const nueva = Object.assign({ id: nuevoId, estado: 'pendiente', respuesta: 'En revisión' }, solicitud);
+        lista.unshift(nueva); // al inicio
+        guardarSolicitudes(lista);
+        return nueva;
+    }
+
+    function actualizarSolicitud(id, cambios) {
+        const lista = cargarSolicitudes();
+        const idx = lista.findIndex(s => s.id === id);
+        if (idx === -1) return false;
+        Object.assign(lista[idx], cambios);
+        guardarSolicitudes(lista);
+        return true;
+    }
+
+    function eliminarSolicitud(id) {
+        const lista = cargarSolicitudes().filter(s => s.id !== id);
+        guardarSolicitudes(lista);
+    }
+
+    // Exponer globalmente para uso entre bloques
+    window.swcoraSolicitudes = {
+        cargar: cargarSolicitudes,
+        guardar: guardarSolicitudes,
+        agregar: agregarSolicitud,
+        actualizar: actualizarSolicitud,
+        eliminar: eliminarSolicitud
+    };
+
+    // Usuario "actual" del mockup
+    const USUARIO_ACTUAL = 'Juan Pérez';
+
+    // =============================================
+    // DETECCIÓN DEL ROL LOGUEADO
+    // Se infiere a partir de la carpeta en la URL.
+    // Ej:
+    //   /superadmin/salidas-index.html  → 'superadmin'
+    //   /generador/salidas-index.html   → 'generador'
+    //   /salidas-index.html (raíz)      → 'superadmin' (fallback)
+    // =============================================
+    function obtenerRolLogueado() {
+        const path = window.location.pathname.toLowerCase();
+        if (/\/superadmin\//.test(path)) return 'superadmin';
+        if (/\/administrador\//.test(path)) return 'administrador';
+        if (/\/aprobador\//.test(path)) return 'aprobador';
+        if (/\/generador\//.test(path)) return 'generador';
+        if (/\/sinrol\//.test(path)) return 'sinrol';
+        // Si no estamos en ninguna carpeta de rol, asumimos superadmin (mockup raíz)
+        return 'superadmin';
+    }
+
+    const ROL_ACTUAL = obtenerRolLogueado();
+    console.log('👤 Rol detectado:', ROL_ACTUAL);
+
+    // =============================================
+    // STORAGE COMPARTIDO: Salidas de Material
+    // =============================================
+    const STORAGE_KEY_SALIDAS = 'swcora_salidas_material';
+
+    const SEED_SALIDAS = [
+        {
+            id: 'sal-001',
+            folio: '00000001',
+            fecha: '2026-09-20',
+            fechaVisible: '20/09/2026',
+            estado: 'aprobada',
+            usuario: 'Juan Pérez',
+            descripcion: 'Devolución a proveedor',
+            motivo: '',
+            materiales: 5,
+            aprobador: 'María Gómez',
+            aprobadoPor: 'María Gómez',
+            fechaAprobacion: '20/09/2026 14:30',
+            empresa: 'XEROX, S.A. DE C.V.',
+            tipoEmpresa: 'Proveedor',
+            contacto: 'Juan Hernández',
+            esDefinitiva: true,
+            retornoEsperado: '',
+            causa: 'Salidas de planta',
+            categoria: 'Devolución de equipos a proveedor',
+            comentarios: 'Equipos con falla de fábrica.',
+            departamento: 'Sistemas',
+            fechaCreacion: '20/09/2026 10:30',
+            creadoPor: 'Juan Pérez',
+            materialesLista: [
+                { cantidad: 1, unidad: 'PZS', descripcion: 'Altalink B8155', comentario: '' },
+                { cantidad: 1, unidad: 'PZS', descripcion: 'Workcentre 7835', comentario: '' },
+                { cantidad: 1, unidad: 'PZS', descripcion: 'Workcentre 7220', comentario: '' }
+            ]
+        },
+        {
+            id: 'sal-002',
+            folio: '00000002',
+            fecha: '2026-09-19',
+            fechaVisible: '19/09/2026',
+            estado: 'pendiente',
+            usuario: 'María Gómez',
+            descripcion: 'Materiales de obra',
+            motivo: '',
+            materiales: 3,
+            aprobador: 'Pedro López',
+            aprobadoPor: '',
+            fechaAprobacion: '',
+            empresa: 'HEWLETT PACKARD',
+            tipoEmpresa: 'Cliente',
+            contacto: 'María López',
+            esDefinitiva: false,
+            retornoEsperado: '2026-10-15',
+            causa: 'Obra en sitio',
+            categoria: 'Materiales de construcción',
+            comentarios: '',
+            departamento: 'Producción',
+            fechaCreacion: '19/09/2026 09:15',
+            creadoPor: 'María Gómez',
+            materialesLista: [
+                { cantidad: 10, unidad: 'KG', descripcion: 'Cemento', comentario: '' },
+                { cantidad: 5, unidad: 'PZS', descripcion: 'Varilla 3/8', comentario: '' },
+                { cantidad: 2, unidad: 'MTS', descripcion: 'Malla electrosoldada', comentario: '' }
+            ]
+        },
+        {
+            id: 'sal-003',
+            folio: '',
+            fecha: '2026-09-18',
+            fechaVisible: '18/09/2026',
+            estado: 'borrador',
+            usuario: 'Carlos Ruiz',
+            descripcion: 'Equipos de cómputo',
+            motivo: '',
+            materiales: 2,
+            aprobador: '',
+            aprobadoPor: '',
+            fechaAprobacion: '',
+            empresa: 'XEROX, S.A. DE C.V.',
+            tipoEmpresa: 'Proveedor',
+            contacto: 'Juan Hernández',
+            esDefinitiva: true,
+            retornoEsperado: '',
+            causa: 'Mantenimiento',
+            categoria: 'Equipos de cómputo',
+            comentarios: '',
+            departamento: 'Sistemas',
+            fechaCreacion: '18/09/2026 16:00',
+            creadoPor: 'Carlos Ruiz',
+            materialesLista: [
+                { cantidad: 1, unidad: 'PZS', descripcion: 'Laptop Dell Latitude', comentario: '' },
+                { cantidad: 1, unidad: 'PZS', descripcion: 'Monitor LG 24"', comentario: '' }
+            ]
+        },
+        {
+            id: 'sal-004',
+            folio: '00000004',
+            fecha: '2026-09-17',
+            fechaVisible: '17/09/2026',
+            estado: 'rechazada',
+            usuario: 'Ana Martínez',
+            descripcion: 'Herramientas de reparación',
+            motivo: 'Material no autorizado',
+            materiales: 4,
+            aprobador: 'María Gómez',
+            aprobadoPor: '',
+            fechaAprobacion: '17/09/2026 15:00',
+            empresa: 'SWCORA FILIAL NORTE',
+            tipoEmpresa: 'Filial',
+            contacto: 'Carlos Ruiz',
+            esDefinitiva: false,
+            retornoEsperado: '2026-10-01',
+            causa: 'Reparación',
+            categoria: 'Herramientas',
+            comentarios: '',
+            departamento: 'Mantenimiento',
+            fechaCreacion: '17/09/2026 10:00',
+            creadoPor: 'Ana Martínez',
+            materialesLista: [
+                { cantidad: 2, unidad: 'PZS', descripcion: 'Taladro', comentario: '' },
+                { cantidad: 1, unidad: 'PZS', descripcion: 'Juego de llaves', comentario: '' },
+                { cantidad: 1, unidad: 'PZS', descripcion: 'Caja de herramientas', comentario: '' }
+            ]
+        },
+        {
+            id: 'sal-005',
+            folio: '00000005',
+            fecha: '2026-09-16',
+            fechaVisible: '16/09/2026',
+            estado: 'cancelada',
+            usuario: 'Juan Pérez',
+            descripcion: 'Salida cancelada',
+            motivo: 'Material pendiente de agregar',
+            materiales: 1,
+            aprobador: 'María Gómez',
+            aprobadoPor: '',
+            fechaAprobacion: '',
+            empresa: 'HEWLETT PACKARD',
+            tipoEmpresa: 'Cliente',
+            contacto: 'María López',
+            esDefinitiva: false,
+            retornoEsperado: '2026-10-10',
+            causa: 'Prueba',
+            categoria: 'Equipos',
+            comentarios: '',
+            departamento: 'Sistemas',
+            fechaCreacion: '16/09/2026 08:00',
+            creadoPor: 'Juan Pérez',
+            materialesLista: [
+                { cantidad: 1, unidad: 'PZS', descripcion: 'Impresora', comentario: '' }
+            ]
+        },
+        {
+            id: 'sal-006',
+            folio: '00000006',
+            fecha: '2026-09-19',
+            fechaVisible: '19/09/2026',
+            estado: 'pendiente',
+            usuario: 'María Gómez',
+            descripcion: 'Materiales de obra',
+            motivo: '',
+            materiales: 3,
+            aprobador: 'Pedro López',
+            aprobadoPor: '',
+            fechaAprobacion: '',
+            empresa: 'XEROX, S.A. DE C.V.',
+            tipoEmpresa: 'Proveedor',
+            contacto: 'Juan Hernández',
+            esDefinitiva: true,
+            retornoEsperado: '',
+            causa: 'Obra',
+            categoria: 'Materiales',
+            comentarios: '',
+            departamento: 'Producción',
+            fechaCreacion: '19/09/2026 11:00',
+            creadoPor: 'María Gómez',
+            materialesLista: [
+                { cantidad: 5, unidad: 'PZS', descripcion: 'Tubo PVC', comentario: '' },
+                { cantidad: 2, unidad: 'KG', descripcion: 'Cemento', comentario: '' },
+                { cantidad: 1, unidad: 'MTS', descripcion: 'Malla', comentario: '' }
+            ]
+        }
+    ];
+
+    function cargarSalidas() {
+        try {
+            const raw = localStorage.getItem(STORAGE_KEY_SALIDAS);
+            if (!raw) {
+                localStorage.setItem(STORAGE_KEY_SALIDAS, JSON.stringify(SEED_SALIDAS));
+                return SEED_SALIDAS.slice();
+            }
+            const data = JSON.parse(raw);
+            if (!Array.isArray(data)) throw new Error('Formato inválido');
+            return data;
+        } catch (e) {
+            console.warn('Error leyendo salidas, usando seed:', e);
+            localStorage.setItem(STORAGE_KEY_SALIDAS, JSON.stringify(SEED_SALIDAS));
+            return SEED_SALIDAS.slice();
+        }
+    }
+
+    function guardarSalidas(lista) {
+        try {
+            localStorage.setItem(STORAGE_KEY_SALIDAS, JSON.stringify(lista));
+            return true;
+        } catch (e) {
+            console.error('Error guardando salidas:', e);
+            return false;
+        }
+    }
+
+    function agregarSalida(salida) {
+        const lista = cargarSalidas();
+        const nuevoId = 'sal-' + String(Date.now()).slice(-6);
+        const nueva = Object.assign({ id: nuevoId }, salida);
+        lista.unshift(nueva);
+        guardarSalidas(lista);
+        return nueva;
+    }
+
+    function actualizarSalida(id, cambios) {
+        const lista = cargarSalidas();
+        const idx = lista.findIndex(s => s.id === id);
+        if (idx === -1) return false;
+        Object.assign(lista[idx], cambios);
+        guardarSalidas(lista);
+        return true;
+    }
+
+    function eliminarSalida(id) {
+        const lista = cargarSalidas().filter(s => s.id !== id);
+        guardarSalidas(lista);
+    }
+
+    function obtenerSalidaPorFolio(folio) {
+        return cargarSalidas().find(s => s.folio === folio);
+    }
+
+    function obtenerSalidaPorId(id) {
+        return cargarSalidas().find(s => s.id === id);
+    }
+
+    function generarSiguienteFolio() {
+        const lista = cargarSalidas();
+        let maxNum = 0;
+        lista.forEach(s => {
+            const n = parseInt(s.folio, 10);
+            if (!isNaN(n)) maxNum = Math.max(maxNum, n);
+        });
+        return String(maxNum + 1).padStart(8, '0');
+    }
+
+    window.swcoraSalidas = {
+        cargar: cargarSalidas,
+        guardar: guardarSalidas,
+        agregar: agregarSalida,
+        actualizar: actualizarSalida,
+        eliminar: eliminarSalida,
+        porFolio: obtenerSalidaPorFolio,
+        porId: obtenerSalidaPorId,
+        siguienteFolio: generarSiguienteFolio
+    };
+
+    // =============================================
     // HELPERS GLOBALES: Sincronización de Tipos de Empresa
     // =============================================
 
@@ -192,14 +612,89 @@ document.addEventListener('DOMContentLoaded', function () {
     const modalNuevoTipoEl = document.getElementById('modalNuevoTipo');
 
     // =============================================
-    // Login Superusuario
+    // Login Superusuario → redirección por rol
     // =============================================
     const loginForm = document.getElementById('superAdminLoginForm');
     if (loginForm) {
+        // Mapa de usuario → carpeta de destino
+        const RUTAS_POR_ROL = {
+            'superadmin':     'superadmin/index.html',
+            'administrador':  'administrador/index.html',
+            'aprobador':      'aprobador/index.html',
+            'generador':      'generador/index.html',
+            'sinrol':         'sinrol/index.html'
+        };
+
+        // Elemento de error (ya existe en el HTML: #loginError)
+        const loginErrorEl = document.getElementById('loginError');
+
+        function mostrarErrorLogin(msg) {
+            if (!loginErrorEl) {
+                alert(msg);
+                return;
+            }
+            loginErrorEl.textContent = msg;
+            loginErrorEl.classList.remove('d-none');
+        }
+
+        function ocultarErrorLogin() {
+            if (!loginErrorEl) return;
+            loginErrorEl.classList.add('d-none');
+            loginErrorEl.textContent = '';
+        }
+
         loginForm.addEventListener('submit', function (e) {
             e.preventDefault();
-            window.location.href = 'index.html';
+            ocultarErrorLogin();
+
+            const inputUsuario = document.getElementById('usuario');
+            const inputPassword = document.getElementById('password');
+
+            const usuario = (inputUsuario && inputUsuario.value ? inputUsuario.value : '')
+                .trim()
+                .toLowerCase();
+
+            const password = inputPassword ? inputPassword.value : '';
+
+            // Validación mínima
+            if (!usuario) {
+                mostrarErrorLogin('Debes ingresar un usuario.');
+                if (inputUsuario) inputUsuario.focus();
+                return;
+            }
+            if (!password) {
+                mostrarErrorLogin('Debes ingresar una contraseña.');
+                if (inputPassword) inputPassword.focus();
+                return;
+            }
+
+            // Buscar la ruta según el rol ingresado
+            const rutaDestino = RUTAS_POR_ROL[usuario];
+
+            if (!rutaDestino) {
+                mostrarErrorLogin(
+                    'Contraseña incorrecta.'
+                );
+                if (inputUsuario) {
+                    inputUsuario.classList.add('is-invalid');
+                    inputUsuario.focus();
+                }
+                return;
+            }
+
+            // Todo OK → redirigir al index del rol
+            console.log('🔐 Login:', usuario, '→', rutaDestino);
+            window.location.href = rutaDestino;
         });
+
+        // Quitar el estado inválido al escribir de nuevo
+        const inputUsuario = document.getElementById('usuario');
+        if (inputUsuario) {
+            inputUsuario.addEventListener('input', function () {
+                this.classList.remove('is-invalid');
+                ocultarErrorLogin();
+            });
+        }
     }
 
     // =============================================
@@ -932,428 +1427,431 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // =============================================
-    // APROBAR SOLICITUDES: filtros + acciones + selección múltiple + CSV
-    // =============================================
-    const tbodySolicitudes = document.getElementById('tbodySolicitudes');
+        // =============================================
+        // APROBAR SOLICITUDES: render dinámico + filtros + acciones
+        // =============================================
+        const tbodySolicitudes = document.getElementById('tbodySolicitudes');
 
-    if (tbodySolicitudes) {
-        const tablaSolicitudes = document.getElementById('tablaSolicitudes');
-        const filtroEstado = document.getElementById('filtroEstado');
-        const filtroModulo = document.getElementById('filtroModulo');
-        const filtroBuscar = document.getElementById('filtroBuscar');
-        const btnLimpiarFiltros = document.getElementById('btnLimpiarFiltros');
+        if (tbodySolicitudes) {
+            const tablaSolicitudes = document.getElementById('tablaSolicitudes');
+            const filtroEstado = document.getElementById('filtroEstado');
+            const filtroModulo = document.getElementById('filtroModulo');
+            const filtroBuscar = document.getElementById('filtroBuscar');
+            const btnLimpiarFiltros = document.getElementById('btnLimpiarFiltros');
 
-        const btnSeleccionarTodas = document.getElementById('btnSeleccionarTodas');
-        const btnDeseleccionarTodas = document.getElementById('btnDeseleccionarTodas');
-        const checkTodos = document.getElementById('checkTodos');
+            const btnSeleccionarTodas = document.getElementById('btnSeleccionarTodas');
+            const btnDeseleccionarTodas = document.getElementById('btnDeseleccionarTodas');
+            const checkTodos = document.getElementById('checkTodos');
 
-        const btnAprobarSeleccionadas = document.getElementById('btnAprobarSeleccionadas');
-        const btnRechazarSeleccionadas = document.getElementById('btnRechazarSeleccionadas');
-        const contadorAprobar = document.getElementById('contadorAprobar');
-        const contadorRechazar = document.getElementById('contadorRechazar');
+            const btnAprobarSeleccionadas = document.getElementById('btnAprobarSeleccionadas');
+            const btnRechazarSeleccionadas = document.getElementById('btnRechazarSeleccionadas');
+            const contadorAprobar = document.getElementById('contadorAprobar');
+            const contadorRechazar = document.getElementById('contadorRechazar');
 
-        const contadorMostrados = document.getElementById('contadorMostrados');
+            const contadorMostrados = document.getElementById('contadorMostrados');
+            const totalSolicitudesEl = document.getElementById('totalSolicitudes');
 
-        // Modales
-        const modalAprobarEl = document.getElementById('modalAprobar');
-        const modalRechazarEl = document.getElementById('modalRechazar');
-        const modalAprobarMasivoEl = document.getElementById('modalAprobarMasivo');
-        const modalRechazarMasivoEl = document.getElementById('modalRechazarMasivo');
+            // Modales
+            const modalAprobarEl = document.getElementById('modalAprobar');
+            const modalRechazarEl = document.getElementById('modalRechazar');
+            const modalAprobarMasivoEl = document.getElementById('modalAprobarMasivo');
+            const modalRechazarMasivoEl = document.getElementById('modalRechazarMasivo');
 
-        // Toast
-        const toastSolicitudEl = document.getElementById('toastSolicitudAccion');
-        const toastSolicitudTitulo = document.getElementById('toastSolicitudTitulo');
-        const toastSolicitudMensaje = document.getElementById('toastSolicitudMensaje');
+            // Toast
+            const toastSolicitudEl = document.getElementById('toastSolicitudAccion');
+            const toastSolicitudTitulo = document.getElementById('toastSolicitudTitulo');
+            const toastSolicitudMensaje = document.getElementById('toastSolicitudMensaje');
 
-        // Fila en proceso (modo individual)
-        let filaAprobando = null;
-        let filaRechazando = null;
+            let filaAprobando = null;
+            let filaRechazando = null;
 
-        // ---------- Helpers ----------
-        function normalizarSol(texto) {
-            return String(texto || '')
-                .toLowerCase()
-                .trim()
-                .normalize('NFD')
-                .replace(/[\u0300-\u036f]/g, '');
-        }
-
-        function mostrarToastSol(titulo, mensaje, tipo) {
-            if (!toastSolicitudEl) return;
-            if (toastSolicitudTitulo) toastSolicitudTitulo.textContent = titulo;
-            if (toastSolicitudMensaje) toastSolicitudMensaje.textContent = mensaje;
-
-            const header = toastSolicitudEl.querySelector('.toast-header');
-            if (header) {
-                header.style.backgroundColor = tipo === 'danger'
-                    ? 'var(--cora-accent)'
-                    : 'var(--cora-success)';
+            // ---------- Helpers ----------
+            function normalizarSol(texto) {
+                return String(texto || '').toLowerCase().trim()
+                    .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
             }
 
-            const toast = bootstrap.Toast.getOrCreateInstance(toastSolicitudEl);
-            toast.show();
-        }
-
-        // Actualiza el badge de estado
-        function actualizarBadgeEstadoSol(fila, nuevoEstado) {
-            const badge = fila.querySelector('.badge-estado');
-            if (!badge) return;
-
-            const mapa = {
-                'pendiente':  { texto: '⏳ Pendiente',  clase: 'bg-warning text-dark' },
-                'aprobada':   { texto: '✅ Aprobada',   clase: 'bg-success' },
-                'rechazada':  { texto: '❌ Rechazada',  clase: 'bg-danger' }
-            };
-            const info = mapa[nuevoEstado] || mapa['pendiente'];
-            badge.className = 'badge badge-estado ' + info.clase;
-            badge.textContent = info.texto;
-        }
-
-        // Actualiza la celda Respuesta
-        function actualizarRespuestaCelda(fila, texto, esError) {
-            const celda = fila.querySelector('.celda-respuesta');
-            if (!celda) return;
-            const clase = esError ? 'text-danger' : 'text-muted';
-            celda.innerHTML = '<small class="' + clase + '">' + texto + '</small>';
-        }
-
-        // Limpia las acciones (se desactiva checkbox y botones)
-        function limpiarAccionesFila(fila) {
-            const check = fila.querySelector('.check-solicitud');
-            if (check) {
-                check.checked = false;
-                check.disabled = true;
+            function mostrarToastSol(titulo, mensaje, tipo) {
+                if (!toastSolicitudEl) return;
+                if (toastSolicitudTitulo) toastSolicitudTitulo.textContent = titulo;
+                if (toastSolicitudMensaje) toastSolicitudMensaje.textContent = mensaje;
+                const header = toastSolicitudEl.querySelector('.toast-header');
+                if (header) {
+                    header.style.backgroundColor = tipo === 'danger'
+                        ? 'var(--cora-accent)' : 'var(--cora-success)';
+                }
+                bootstrap.Toast.getOrCreateInstance(toastSolicitudEl).show();
             }
-            const celdaAcciones = fila.querySelector('td:last-child');
-            if (celdaAcciones) {
-                celdaAcciones.className = 'text-center text-muted';
-                celdaAcciones.innerHTML = '<small>—</small>';
+
+            function escaparHTML(str) {
+                return String(str || '')
+                    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
             }
-        }
 
-        // ---------- Filtros ----------
-        function aplicarFiltrosSol() {
-            const estado = filtroEstado.value;
-            const modulo = filtroModulo.value;
-            const buscar = normalizarSol(filtroBuscar.value);
+            function badgeEstadoHTML(estado) {
+                const mapa = {
+                    'pendiente': { texto: '⏳ Pendiente', clase: 'bg-warning text-dark' },
+                    'aprobada':  { texto: '✅ Aprobada',  clase: 'bg-success' },
+                    'rechazada': { texto: '❌ Rechazada', clase: 'bg-danger' },
+                    'cancelada': { texto: '🚫 Cancelada', clase: 'bg-dark' }
+                };
+                const info = mapa[estado] || mapa['pendiente'];
+                return '<span class="badge badge-estado ' + info.clase + '">' + info.texto + '</span>';
+            }
 
-            let visibles = 0;
+            // Genera las acciones según estado
+            function accionesHTML(estado, usuario) {
+                if (estado === 'pendiente') {
+                    return (
+                        '<button class="btn btn-sm btn-outline-success btn-aprobar-solicitud" title="Aprobar" ' +
+                            'data-usuario="' + escaparHTML(usuario) + '">' +
+                            '<i class="bi bi-check-circle"></i>' +
+                        '</button> ' +
+                        '<button class="btn btn-sm btn-outline-danger btn-rechazar-solicitud" title="Rechazar" ' +
+                            'data-usuario="' + escaparHTML(usuario) + '">' +
+                            '<i class="bi bi-x-circle"></i>' +
+                        '</button>'
+                    );
+                }
+                // pendiente / aprobada / rechazada / cancelada → sin acciones
+                return '<small class="text-muted">—</small>';
+            }
 
-            tbodySolicitudes.querySelectorAll('.solicitud-row').forEach(function (fila) {
-                const filaEstado = fila.getAttribute('data-estado');
-                const filaModulo = fila.getAttribute('data-modulo');
-                const filaUsuario = normalizarSol(fila.getAttribute('data-usuario'));
 
-                const coincideEstado = (estado === 'todas') || (filaEstado === estado);
-                const coincideModulo = (modulo === 'todos') || (filaModulo === modulo);
-                const coincideBuscar = !buscar || filaUsuario.includes(buscar);
 
-                const visible = coincideEstado && coincideModulo && coincideBuscar;
+            // Genera la celda de respuesta
+            function respuestaHTML(estado, respuesta) {
+                // Solo las rechazadas se muestran en rojo
+                if (estado === 'rechazada') {
+                    return '<small class="text-danger">' + escaparHTML(respuesta) + '</small>';
+                }
+                // Canceladas y demás en gris
+                return '<small class="text-muted">' + escaparHTML(respuesta || 'En revisión') + '</small>';
+            }
 
-                fila.classList.toggle('d-none', !visible);
-                if (visible) {
-                    visibles++;
+            // ---------- Render dinámico desde storage ----------
+            function renderTablaSolicitudes() {
+                const solicitudes = window.swcoraSolicitudes.cargar();
+                tbodySolicitudes.innerHTML = '';
+
+                solicitudes.forEach(function (s) {
+                    const puedeSeleccionar = s.estado === 'pendiente';
+                    const fila = document.createElement('tr');
+                    fila.className = 'solicitud-row';
+                    fila.setAttribute('data-id', s.id);
+                    fila.setAttribute('data-estado', s.estado);
+                    fila.setAttribute('data-modulo', s.modulo);
+                    fila.setAttribute('data-usuario', s.usuario);
+                    fila.setAttribute('data-fecha', s.fecha);
+
+                    fila.innerHTML =
+                        '<td class="text-center">' +
+                            '<input class="form-check-input check-solicitud" type="checkbox" ' +
+                                (puedeSeleccionar ? '' : 'disabled') + '>' +
+                        '</td>' +
+                        '<td>' + escaparHTML(s.fechaVisible) + '</td>' +
+                        '<td><strong>' + escaparHTML(s.usuario) + '</strong></td>' +
+                        '<td>' + escaparHTML(s.modulo) + '</td>' +
+                        '<td>' + escaparHTML(s.rol) + '</td>' +
+                        '<td>' + (s.motivo ? escaparHTML(s.motivo) : '<small class="text-muted">—</small>') + '</td>' +
+                        '<td>' + badgeEstadoHTML(s.estado) + '</td>' +
+                        '<td class="celda-respuesta">' + respuestaHTML(s.estado, s.respuesta) + '</td>' +
+                        '<td class="text-center text-nowrap">' + accionesHTML(s.estado, s.usuario) + '</td>';
+
+                    tbodySolicitudes.appendChild(fila);
+                });
+
+                if (totalSolicitudesEl) totalSolicitudesEl.textContent = solicitudes.length;
+
+                aplicarFiltrosSol();
+            }
+
+            // ---------- Filtros ----------
+            function aplicarFiltrosSol() {
+                const estado = filtroEstado.value;
+                const modulo = filtroModulo.value;
+                const buscar = normalizarSol(filtroBuscar.value);
+
+                let visibles = 0;
+
+                tbodySolicitudes.querySelectorAll('.solicitud-row').forEach(function (fila) {
+                    const filaEstado = fila.getAttribute('data-estado');
+                    const filaModulo = fila.getAttribute('data-modulo');
+                    const filaUsuario = normalizarSol(fila.getAttribute('data-usuario'));
+
+                    const coincideEstado = (estado === 'todas') || (filaEstado === estado);
+                    const coincideModulo = (modulo === 'todos') || (filaModulo === modulo);
+                    const coincideBuscar = !buscar || filaUsuario.includes(buscar);
+
+                    const visible = coincideEstado && coincideModulo && coincideBuscar;
+
+                    fila.classList.toggle('d-none', !visible);
+                    if (visible) {
+                        visibles++;
+                    } else {
+                        const check = fila.querySelector('.check-solicitud');
+                        if (check && !check.disabled) check.checked = false;
+                    }
+                });
+
+                if (contadorMostrados) contadorMostrados.textContent = visibles;
+
+                actualizarContadoresSeleccionSol();
+                actualizarCheckTodosSol();
+            }
+
+            function actualizarContadoresSeleccionSol() {
+                const seleccionadas = tbodySolicitudes.querySelectorAll('.check-solicitud:checked:not(:disabled)').length;
+                if (contadorAprobar) contadorAprobar.textContent = seleccionadas;
+                if (contadorRechazar) contadorRechazar.textContent = seleccionadas;
+                if (btnAprobarSeleccionadas) btnAprobarSeleccionadas.disabled = seleccionadas === 0;
+                if (btnRechazarSeleccionadas) btnRechazarSeleccionadas.disabled = seleccionadas === 0;
+            }
+
+            function actualizarCheckTodosSol() {
+                if (!checkTodos) return;
+                const visibles = Array.from(
+                    tbodySolicitudes.querySelectorAll('.solicitud-row:not(.d-none) .check-solicitud:not(:disabled)')
+                );
+                if (visibles.length === 0) {
+                    checkTodos.checked = false;
+                    checkTodos.indeterminate = false;
+                    return;
+                }
+                const marcados = visibles.filter(c => c.checked).length;
+                if (marcados === 0) {
+                    checkTodos.checked = false; checkTodos.indeterminate = false;
+                } else if (marcados === visibles.length) {
+                    checkTodos.checked = true; checkTodos.indeterminate = false;
                 } else {
-                    const check = fila.querySelector('.check-solicitud');
-                    if (check && !check.disabled) check.checked = false;
+                    checkTodos.checked = false; checkTodos.indeterminate = true;
                 }
-            });
-
-            if (contadorMostrados) contadorMostrados.textContent = visibles;
-
-            actualizarContadoresSeleccionSol();
-            actualizarCheckTodosSol();
-        }
-
-        function actualizarContadoresSeleccionSol() {
-            const seleccionadas = tbodySolicitudes.querySelectorAll('.check-solicitud:checked:not(:disabled)').length;
-
-            if (contadorAprobar) contadorAprobar.textContent = seleccionadas;
-            if (contadorRechazar) contadorRechazar.textContent = seleccionadas;
-
-            if (btnAprobarSeleccionadas) btnAprobarSeleccionadas.disabled = seleccionadas === 0;
-            if (btnRechazarSeleccionadas) btnRechazarSeleccionadas.disabled = seleccionadas === 0;
-        }
-
-        function actualizarCheckTodosSol() {
-            if (!checkTodos) return;
-
-            const visiblesSeleccionables = Array.from(
-                tbodySolicitudes.querySelectorAll('.solicitud-row:not(.d-none) .check-solicitud:not(:disabled)')
-            );
-
-            if (visiblesSeleccionables.length === 0) {
-                checkTodos.checked = false;
-                checkTodos.indeterminate = false;
-                return;
             }
 
-            const marcados = visiblesSeleccionables.filter(c => c.checked).length;
+            // ---------- Listeners de filtros ----------
+            if (filtroEstado) filtroEstado.addEventListener('change', aplicarFiltrosSol);
+            if (filtroModulo) filtroModulo.addEventListener('change', aplicarFiltrosSol);
+            if (filtroBuscar) filtroBuscar.addEventListener('input', aplicarFiltrosSol);
 
-            if (marcados === 0) {
-                checkTodos.checked = false;
-                checkTodos.indeterminate = false;
-            } else if (marcados === visiblesSeleccionables.length) {
-                checkTodos.checked = true;
-                checkTodos.indeterminate = false;
-            } else {
-                checkTodos.checked = false;
-                checkTodos.indeterminate = true;
-            }
-        }
-
-        // ---------- Listeners de filtros ----------
-        if (filtroEstado) filtroEstado.addEventListener('change', aplicarFiltrosSol);
-        if (filtroModulo) filtroModulo.addEventListener('change', aplicarFiltrosSol);
-        if (filtroBuscar) filtroBuscar.addEventListener('input', aplicarFiltrosSol);
-
-        if (btnLimpiarFiltros) {
-            btnLimpiarFiltros.addEventListener('click', function () {
-                filtroEstado.value = 'todas';
-                filtroModulo.value = 'todos';
-                filtroBuscar.value = '';
-                aplicarFiltrosSol();
-            });
-        }
-
-        // ---------- Selección ----------
-        tbodySolicitudes.addEventListener('change', function (e) {
-            if (!e.target.classList.contains('check-solicitud')) return;
-            actualizarContadoresSeleccionSol();
-            actualizarCheckTodosSol();
-        });
-
-        if (btnSeleccionarTodas) {
-            btnSeleccionarTodas.addEventListener('click', function () {
-                tbodySolicitudes.querySelectorAll('.solicitud-row:not(.d-none) .check-solicitud:not(:disabled)').forEach(function (cb) {
-                    cb.checked = true;
+            if (btnLimpiarFiltros) {
+                btnLimpiarFiltros.addEventListener('click', function () {
+                    filtroEstado.value = 'todas';
+                    filtroModulo.value = 'todos';
+                    filtroBuscar.value = '';
+                    aplicarFiltrosSol();
                 });
+            }
+
+            // ---------- Selección ----------
+            tbodySolicitudes.addEventListener('change', function (e) {
+                if (!e.target.classList.contains('check-solicitud')) return;
                 actualizarContadoresSeleccionSol();
                 actualizarCheckTodosSol();
             });
-        }
 
-        if (btnDeseleccionarTodas) {
-            btnDeseleccionarTodas.addEventListener('click', function () {
-                tbodySolicitudes.querySelectorAll('.check-solicitud').forEach(function (cb) {
-                    cb.checked = false;
+            if (btnSeleccionarTodas) {
+                btnSeleccionarTodas.addEventListener('click', function () {
+                    tbodySolicitudes.querySelectorAll('.solicitud-row:not(.d-none) .check-solicitud:not(:disabled)').forEach(cb => cb.checked = true);
+                    actualizarContadoresSeleccionSol();
+                    actualizarCheckTodosSol();
                 });
-                actualizarContadoresSeleccionSol();
-                actualizarCheckTodosSol();
-            });
-        }
-
-        if (checkTodos) {
-            checkTodos.addEventListener('change', function () {
-                const marcar = this.checked;
-                tbodySolicitudes.querySelectorAll('.solicitud-row:not(.d-none) .check-solicitud:not(:disabled)').forEach(function (cb) {
-                    cb.checked = marcar;
-                });
-                actualizarContadoresSeleccionSol();
-            });
-        }
-
-        // ---------- Delegación de clics en la tabla ----------
-        tbodySolicitudes.addEventListener('click', function (e) {
-            const btnAprobar = e.target.closest('.btn-aprobar-solicitud');
-            const btnRechazar = e.target.closest('.btn-rechazar-solicitud');
-
-            // ===== Aprobar individual =====
-            if (btnAprobar) {
-                const fila = btnAprobar.closest('.solicitud-row');
-                if (!fila) return;
-
-                filaAprobando = fila;
-                const usuario = btnAprobar.getAttribute('data-usuario') || '—';
-                const input = document.getElementById('aprobarUsuario');
-                if (input) input.textContent = usuario;
-
-                bootstrap.Modal.getOrCreateInstance(modalAprobarEl).show();
-                return;
             }
 
-            // ===== Rechazar individual =====
-            if (btnRechazar) {
-                const fila = btnRechazar.closest('.solicitud-row');
-                if (!fila) return;
+            if (btnDeseleccionarTodas) {
+                btnDeseleccionarTodas.addEventListener('click', function () {
+                    tbodySolicitudes.querySelectorAll('.check-solicitud').forEach(cb => cb.checked = false);
+                    actualizarContadoresSeleccionSol();
+                    actualizarCheckTodosSol();
+                });
+            }
 
-                filaRechazando = fila;
-                const usuario = btnRechazar.getAttribute('data-usuario') || '—';
-                const inputUsuario = document.getElementById('rechazarUsuario');
-                const inputMotivo = document.getElementById('rechazarMotivo');
-                if (inputUsuario) inputUsuario.textContent = usuario;
-                if (inputMotivo) {
-                    inputMotivo.value = '';
-                    inputMotivo.classList.remove('is-invalid');
+            if (checkTodos) {
+                checkTodos.addEventListener('change', function () {
+                    const marcar = this.checked;
+                    tbodySolicitudes.querySelectorAll('.solicitud-row:not(.d-none) .check-solicitud:not(:disabled)').forEach(cb => cb.checked = marcar);
+                    actualizarContadoresSeleccionSol();
+                });
+            }
+
+            // ---------- Delegación de clics en la tabla ----------
+            tbodySolicitudes.addEventListener('click', function (e) {
+                const btnAprobar = e.target.closest('.btn-aprobar-solicitud');
+                const btnRechazar = e.target.closest('.btn-rechazar-solicitud');
+
+                if (btnAprobar) {
+                    filaAprobando = btnAprobar.closest('.solicitud-row');
+                    if (!filaAprobando) return;
+                    const usuario = btnAprobar.getAttribute('data-usuario') || '—';
+                    const input = document.getElementById('aprobarUsuario');
+                    if (input) input.textContent = usuario;
+                    bootstrap.Modal.getOrCreateInstance(modalAprobarEl).show();
+                    return;
                 }
 
-                bootstrap.Modal.getOrCreateInstance(modalRechazarEl).show();
-                return;
-            }
-        });
+                if (btnRechazar) {
+                    filaRechazando = btnRechazar.closest('.solicitud-row');
+                    if (!filaRechazando) return;
+                    const usuario = btnRechazar.getAttribute('data-usuario') || '—';
+                    const inputUsuario = document.getElementById('rechazarUsuario');
+                    const inputMotivo = document.getElementById('rechazarMotivo');
+                    if (inputUsuario) inputUsuario.textContent = usuario;
+                    if (inputMotivo) {
+                        inputMotivo.value = '';
+                        inputMotivo.classList.remove('is-invalid');
+                    }
+                    bootstrap.Modal.getOrCreateInstance(modalRechazarEl).show();
+                    return;
+                }
+            });
 
-        // ---------- Confirmar Aprobar individual ----------
-        const btnConfirmarAprobar = document.getElementById('btnConfirmarAprobar');
-        if (btnConfirmarAprobar) {
-            btnConfirmarAprobar.addEventListener('click', function () {
-                if (!filaAprobando) {
+            // ---------- Confirmar Aprobar individual ----------
+            const btnConfirmarAprobar = document.getElementById('btnConfirmarAprobar');
+            if (btnConfirmarAprobar) {
+                btnConfirmarAprobar.addEventListener('click', function () {
+                    if (!filaAprobando) {
+                        bootstrap.Modal.getInstance(modalAprobarEl).hide();
+                        return;
+                    }
+
+                    const id = filaAprobando.getAttribute('data-id');
+                    window.swcoraSolicitudes.actualizar(id, {
+                        estado: 'aprobada',
+                        respuesta: 'Aprobada por ' + USUARIO_ACTUAL
+                    });
+
                     bootstrap.Modal.getInstance(modalAprobarEl).hide();
-                    return;
-                }
+                    mostrarToastSol('Solicitud aprobada', 'La solicitud fue aprobada correctamente.', 'success');
+                    filaAprobando = null;
 
-                filaAprobando.setAttribute('data-estado', 'aprobada');
-                actualizarBadgeEstadoSol(filaAprobando, 'aprobada');
-                actualizarRespuestaCelda(filaAprobando, 'Aprobada por ' + 'Juan Pérez', false);
-                limpiarAccionesFila(filaAprobando);
-
-                aplicarFiltrosSol();
-
-                bootstrap.Modal.getInstance(modalAprobarEl).hide();
-                mostrarToastSol('Solicitud aprobada', 'La solicitud fue aprobada correctamente.', 'success');
-
-                filaAprobando = null;
-            });
-        }
-
-        // ---------- Confirmar Rechazar individual ----------
-        const btnConfirmarRechazar = document.getElementById('btnConfirmarRechazar');
-        if (btnConfirmarRechazar) {
-            btnConfirmarRechazar.addEventListener('click', function () {
-                const inputMotivo = document.getElementById('rechazarMotivo');
-                const motivo = inputMotivo.value.trim();
-
-                if (!motivo) {
-                    inputMotivo.classList.add('is-invalid');
-                    inputMotivo.focus();
-                    return;
-                }
-                inputMotivo.classList.remove('is-invalid');
-
-                if (!filaRechazando) {
-                    bootstrap.Modal.getInstance(modalRechazarEl).hide();
-                    return;
-                }
-
-                filaRechazando.setAttribute('data-estado', 'rechazada');
-                actualizarBadgeEstadoSol(filaRechazando, 'rechazada');
-                actualizarRespuestaCelda(filaRechazando, motivo, true);
-                limpiarAccionesFila(filaRechazando);
-
-                aplicarFiltrosSol();
-
-                bootstrap.Modal.getInstance(modalRechazarEl).hide();
-                mostrarToastSol('Solicitud rechazada', 'La solicitud fue rechazada. Motivo: ' + motivo, 'danger');
-
-                filaRechazando = null;
-            });
-        }
-
-        // ---------- Aprobar masivo ----------
-        if (btnAprobarSeleccionadas) {
-            btnAprobarSeleccionadas.addEventListener('click', function () {
-                const seleccionadas = tbodySolicitudes.querySelectorAll('.check-solicitud:checked:not(:disabled)').length;
-                if (seleccionadas === 0) return;
-
-                const inputCantidad = document.getElementById('aprobarMasivoCantidad');
-                if (inputCantidad) inputCantidad.textContent = seleccionadas;
-
-                bootstrap.Modal.getOrCreateInstance(modalAprobarMasivoEl).show();
-            });
-        }
-
-        const btnConfirmarAprobarMasivo = document.getElementById('btnConfirmarAprobarMasivo');
-        if (btnConfirmarAprobarMasivo) {
-            btnConfirmarAprobarMasivo.addEventListener('click', function () {
-                const seleccionadas = tbodySolicitudes.querySelectorAll('.check-solicitud:checked:not(:disabled)');
-                let contador = 0;
-
-                seleccionadas.forEach(function (cb) {
-                    const fila = cb.closest('.solicitud-row');
-                    if (!fila) return;
-
-                    fila.setAttribute('data-estado', 'aprobada');
-                    actualizarBadgeEstadoSol(fila, 'aprobada');
-                    actualizarRespuestaCelda(fila, 'Aprobada por Juan Pérez', false);
-                    limpiarAccionesFila(fila);
-                    contador++;
+                    renderTablaSolicitudes();
                 });
+            }
 
-                aplicarFiltrosSol();
+            // ---------- Confirmar Rechazar individual ----------
+            const btnConfirmarRechazar = document.getElementById('btnConfirmarRechazar');
+            if (btnConfirmarRechazar) {
+                btnConfirmarRechazar.addEventListener('click', function () {
+                    const inputMotivo = document.getElementById('rechazarMotivo');
+                    const motivo = inputMotivo.value.trim();
 
-                bootstrap.Modal.getInstance(modalAprobarMasivoEl).hide();
-                mostrarToastSol('Solicitudes aprobadas', contador + ' solicitud(es) aprobada(s) correctamente.', 'success');
-            });
-        }
-
-        // ---------- Rechazar masivo ----------
-        if (btnRechazarSeleccionadas) {
-            btnRechazarSeleccionadas.addEventListener('click', function () {
-                const seleccionadas = tbodySolicitudes.querySelectorAll('.check-solicitud:checked:not(:disabled)').length;
-                if (seleccionadas === 0) return;
-
-                const inputCantidad = document.getElementById('rechazarMasivoCantidad');
-                if (inputCantidad) inputCantidad.textContent = seleccionadas;
-
-                const inputMotivo = document.getElementById('rechazarMasivoMotivo');
-                if (inputMotivo) {
-                    inputMotivo.value = '';
+                    if (!motivo) {
+                        inputMotivo.classList.add('is-invalid');
+                        inputMotivo.focus();
+                        return;
+                    }
                     inputMotivo.classList.remove('is-invalid');
-                }
 
-                bootstrap.Modal.getOrCreateInstance(modalRechazarMasivoEl).show();
-            });
-        }
+                    if (!filaRechazando) {
+                        bootstrap.Modal.getInstance(modalRechazarEl).hide();
+                        return;
+                    }
 
-        const btnConfirmarRechazarMasivo = document.getElementById('btnConfirmarRechazarMasivo');
-        if (btnConfirmarRechazarMasivo) {
-            btnConfirmarRechazarMasivo.addEventListener('click', function () {
-                const inputMotivo = document.getElementById('rechazarMasivoMotivo');
-                const motivo = inputMotivo.value.trim();
+                    const id = filaRechazando.getAttribute('data-id');
+                    window.swcoraSolicitudes.actualizar(id, {
+                        estado: 'rechazada',
+                        respuesta: motivo
+                    });
 
-                if (!motivo) {
-                    inputMotivo.classList.add('is-invalid');
-                    inputMotivo.focus();
-                    return;
-                }
-                inputMotivo.classList.remove('is-invalid');
+                    bootstrap.Modal.getInstance(modalRechazarEl).hide();
+                    mostrarToastSol('Solicitud rechazada', 'La solicitud fue rechazada. Motivo: ' + motivo, 'danger');
+                    filaRechazando = null;
 
-                const seleccionadas = tbodySolicitudes.querySelectorAll('.check-solicitud:checked:not(:disabled)');
-                let contador = 0;
-
-                seleccionadas.forEach(function (cb) {
-                    const fila = cb.closest('.solicitud-row');
-                    if (!fila) return;
-
-                    fila.setAttribute('data-estado', 'rechazada');
-                    actualizarBadgeEstadoSol(fila, 'rechazada');
-                    actualizarRespuestaCelda(fila, motivo, true);
-                    limpiarAccionesFila(fila);
-                    contador++;
+                    renderTablaSolicitudes();
                 });
+            }
 
-                aplicarFiltrosSol();
+            // ---------- Aprobar masivo ----------
+            if (btnAprobarSeleccionadas) {
+                btnAprobarSeleccionadas.addEventListener('click', function () {
+                    const seleccionadas = tbodySolicitudes.querySelectorAll('.check-solicitud:checked:not(:disabled)').length;
+                    if (seleccionadas === 0) return;
+                    const inputCantidad = document.getElementById('aprobarMasivoCantidad');
+                    if (inputCantidad) inputCantidad.textContent = seleccionadas;
+                    bootstrap.Modal.getOrCreateInstance(modalAprobarMasivoEl).show();
+                });
+            }
 
-                bootstrap.Modal.getInstance(modalRechazarMasivoEl).hide();
-                mostrarToastSol('Solicitudes rechazadas', contador + ' solicitud(es) rechazada(s). Motivo: ' + motivo, 'danger');
-            });
+            const btnConfirmarAprobarMasivo = document.getElementById('btnConfirmarAprobarMasivo');
+            if (btnConfirmarAprobarMasivo) {
+                btnConfirmarAprobarMasivo.addEventListener('click', function () {
+                    const checks = tbodySolicitudes.querySelectorAll('.check-solicitud:checked:not(:disabled)');
+                    let contador = 0;
+
+                    checks.forEach(function (cb) {
+                        const fila = cb.closest('.solicitud-row');
+                        if (!fila) return;
+                        const id = fila.getAttribute('data-id');
+                        window.swcoraSolicitudes.actualizar(id, {
+                            estado: 'aprobada',
+                            respuesta: 'Aprobada por ' + USUARIO_ACTUAL
+                        });
+                        contador++;
+                    });
+
+                    bootstrap.Modal.getInstance(modalAprobarMasivoEl).hide();
+                    mostrarToastSol('Solicitudes aprobadas', contador + ' solicitud(es) aprobada(s) correctamente.', 'success');
+
+                    renderTablaSolicitudes();
+                });
+            }
+
+            // ---------- Rechazar masivo ----------
+            if (btnRechazarSeleccionadas) {
+                btnRechazarSeleccionadas.addEventListener('click', function () {
+                    const seleccionadas = tbodySolicitudes.querySelectorAll('.check-solicitud:checked:not(:disabled)').length;
+                    if (seleccionadas === 0) return;
+                    const inputCantidad = document.getElementById('rechazarMasivoCantidad');
+                    if (inputCantidad) inputCantidad.textContent = seleccionadas;
+                    const inputMotivo = document.getElementById('rechazarMasivoMotivo');
+                    if (inputMotivo) {
+                        inputMotivo.value = '';
+                        inputMotivo.classList.remove('is-invalid');
+                    }
+                    bootstrap.Modal.getOrCreateInstance(modalRechazarMasivoEl).show();
+                });
+            }
+
+            const btnConfirmarRechazarMasivo = document.getElementById('btnConfirmarRechazarMasivo');
+            if (btnConfirmarRechazarMasivo) {
+                btnConfirmarRechazarMasivo.addEventListener('click', function () {
+                    const inputMotivo = document.getElementById('rechazarMasivoMotivo');
+                    const motivo = inputMotivo.value.trim();
+                    if (!motivo) {
+                        inputMotivo.classList.add('is-invalid');
+                        inputMotivo.focus();
+                        return;
+                    }
+                    inputMotivo.classList.remove('is-invalid');
+
+                    const checks = tbodySolicitudes.querySelectorAll('.check-solicitud:checked:not(:disabled)');
+                    let contador = 0;
+
+                    checks.forEach(function (cb) {
+                        const fila = cb.closest('.solicitud-row');
+                        if (!fila) return;
+                        const id = fila.getAttribute('data-id');
+                        window.swcoraSolicitudes.actualizar(id, {
+                            estado: 'rechazada',
+                            respuesta: motivo
+                        });
+                        contador++;
+                    });
+
+                    bootstrap.Modal.getInstance(modalRechazarMasivoEl).hide();
+                    mostrarToastSol('Solicitudes rechazadas', contador + ' solicitud(es) rechazada(s). Motivo: ' + motivo, 'danger');
+
+                    renderTablaSolicitudes();
+                });
+            }
+
+            // ---------- Limpiar referencias al cerrar modales ----------
+            if (modalAprobarEl) modalAprobarEl.addEventListener('hidden.bs.modal', () => filaAprobando = null);
+            if (modalRechazarEl) modalRechazarEl.addEventListener('hidden.bs.modal', () => filaRechazando = null);
+
+            // ---------- Inicializar ----------
+            renderTablaSolicitudes();
         }
-
-        // ---------- Limpiar referencias al cerrar modales ----------
-        if (modalAprobarEl) {
-            modalAprobarEl.addEventListener('hidden.bs.modal', function () {
-                filaAprobando = null;
-            });
-        }
-        if (modalRechazarEl) {
-            modalRechazarEl.addEventListener('hidden.bs.modal', function () {
-                filaRechazando = null;
-            });
-        }
-
-        // ---------- Inicializar ----------
-        aplicarFiltrosSol();
-    }
 
     // =============================================
     // SOLICITAR ACCESO: modal elegir aprobador
@@ -1377,7 +1875,6 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!selectModuloSolicitud.value) {
                 selectModuloSolicitud.classList.add('is-invalid');
                 selectModuloSolicitud.focus();
-                alert('Por favor selecciona un módulo antes de enviar la solicitud.');
                 return;
             }
             selectModuloSolicitud.classList.remove('is-invalid');
@@ -1390,37 +1887,51 @@ document.addEventListener('DOMContentLoaded', function () {
             modal.show();
         });
 
-        btnConfirmarEnvio.addEventListener('click', function () {
-            if (!selectAprobador.value) {
-                selectAprobador.classList.add('is-invalid');
-                selectAprobador.focus();
-                return;
-            }
+            btnConfirmarEnvio.addEventListener('click', function () {
+                if (!selectAprobador.value) {
+                    selectAprobador.classList.add('is-invalid');
+                    selectAprobador.focus();
+                    return;
+                }
 
-            const payload = {
-                modulo: selectModuloSolicitud.value,
-                rol: 'Generador',
-                motivo: textareaMotivo.value.trim(),
-                aprobador: selectAprobador.value
-            };
+                // Fecha actual
+                const ahora = new Date();
+                const pad = n => String(n).padStart(2, '0');
+                const fechaISO = ahora.getFullYear() + '-' + pad(ahora.getMonth() + 1) + '-' + pad(ahora.getDate()) +
+                                'T' + pad(ahora.getHours()) + ':' + pad(ahora.getMinutes());
+                const fechaVisible = pad(ahora.getDate()) + '/' + pad(ahora.getMonth() + 1) + '/' + ahora.getFullYear() +
+                                    ' ' + pad(ahora.getHours()) + ':' + pad(ahora.getMinutes());
 
-            console.log('📤 ENVIAR SOLICITUD:', payload);
+                // Guardar en storage compartido
+                const nueva = window.swcoraSolicitudes.agregar({
+                    fecha: fechaISO,
+                    fechaVisible: fechaVisible,
+                    usuario: USUARIO_ACTUAL,
+                    modulo: selectModuloSolicitud.value,
+                    rol: 'Generador de Salidas',
+                    motivo: textareaMotivo.value.trim(),
+                    aprobador: selectAprobador.value,
+                    estado: 'pendiente',
+                    respuesta: 'En revisión'
+                });
 
-            const modalInstance = bootstrap.Modal.getInstance(modalElegirAprobadorEl);
-            if (modalInstance) modalInstance.hide();
+                console.log('📤 SOLICITUD ENVIADA:', nueva);
 
-            if (toastSolicitudEnviadaEl) {
-                const toast = new bootstrap.Toast(toastSolicitudEnviadaEl);
-                toast.show();
-            }
+                const modalInstance = bootstrap.Modal.getInstance(modalElegirAprobadorEl);
+                if (modalInstance) modalInstance.hide();
 
-            selectModuloSolicitud.value = '';
-            textareaMotivo.value = '';
+                if (toastSolicitudEnviadaEl) {
+                    const toast = new bootstrap.Toast(toastSolicitudEnviadaEl);
+                    toast.show();
+                }
 
-            setTimeout(function () {
-                window.location.href = 'acceso-mis-solicitudes.html';
-            }, 2000);
-        });
+                selectModuloSolicitud.value = '';
+                textareaMotivo.value = '';
+
+                setTimeout(function () {
+                    window.location.href = 'acceso-mis-solicitudes.html';
+                }, 2000);
+            });
     }
 
     // =============================================
@@ -2396,8 +2907,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // Nombre del archivo: data-nombre → data-filename → "exportacion"
             const nombre = btn.getAttribute('data-nombre') ||
-                           btn.getAttribute('data-filename') ||
-                           'exportacion';
+                        btn.getAttribute('data-filename') ||
+                        'exportacion';
 
             // Columnas a omitir (ej: "0,6") o "auto" para detectar checkboxes/acciones
             const omitirAttr = btn.getAttribute('data-omitir-columnas');
@@ -4008,119 +4519,186 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // =============================================
-    // SALIDAS DE MATERIAL: filtros + acciones + CSV/PDF/Clonar
+    // SALIDAS DE MATERIAL (INDEX): render dinámico + filtros + acciones
     // =============================================
     const tablaSalidas = document.getElementById('tablaSalidas');
+    const tbodySalidas = document.getElementById('tbodySalidas');
 
-    if (tablaSalidas) {
-        const tbodySalidas = document.getElementById('tbodySalidas');
+    if (tablaSalidas && tbodySalidas) {
         const filtroSalidasBuscar = document.getElementById('filtroSalidasBuscar');
         const filtroSalidasEstado = document.getElementById('filtroSalidasEstado');
         const filtroSalidasDesde = document.getElementById('filtroSalidasDesde');
         const filtroSalidasHasta = document.getElementById('filtroSalidasHasta');
         const btnLimpiarFiltrosSalidas = document.getElementById('btnLimpiarFiltrosSalidas');
         const contadorSalidas = document.getElementById('contadorSalidas');
+        const totalSalidasEl = document.getElementById('totalSalidas');
 
         const toastSalidaEl = document.getElementById('toastSalidaAccion');
         const toastSalidaTitulo = document.getElementById('toastSalidaTitulo');
         const toastSalidaMensaje = document.getElementById('toastSalidaMensaje');
 
-        // Modales de confirmación
         const modalRechazarEl = document.getElementById('modalRechazarSalida');
         const modalCancelarEl = document.getElementById('modalCancelarSalida');
         const modalEliminarEl = document.getElementById('modalEliminarSalida');
 
-        // Fila que se está procesando en cada modal
         let filaRechazando = null;
         let filaCancelando = null;
         let filaEliminando = null;
 
         // ---------- Helpers ----------
         function normalizarSalida(texto) {
-            return String(texto || '')
-                .toLowerCase()
-                .trim()
-                .normalize('NFD')
-                .replace(/[\u0300-\u036f]/g, '');
+            return String(texto || '').toLowerCase().trim()
+                .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
         }
 
         function mostrarToastSalida(titulo, mensaje, tipo) {
             if (!toastSalidaEl) return;
             if (toastSalidaTitulo) toastSalidaTitulo.textContent = titulo;
             if (toastSalidaMensaje) toastSalidaMensaje.textContent = mensaje;
-
             const header = toastSalidaEl.querySelector('.toast-header');
             if (header) {
                 header.style.backgroundColor = tipo === 'danger'
-                    ? 'var(--cora-accent)'
-                    : 'var(--cora-success)';
+                    ? 'var(--cora-accent)' : 'var(--cora-success)';
+            }
+            bootstrap.Toast.getOrCreateInstance(toastSalidaEl).show();
+        }
+
+        function escaparHTML(str) {
+            return String(str || '')
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+
+        function badgeEstadoHTML(estado, rol) {
+            const mapa = {
+                'borrador':  { texto: '📝 Borrador',   clase: 'bg-secondary' },
+                'aprobada':  { texto: '✅ Aprobada',   clase: 'bg-success' },
+                'rechazada': { texto: '❌ Rechazada',  clase: 'bg-danger' },
+                'cancelada': { texto: '🚫 Cancelada',  clase: 'bg-dark' }
+            };
+
+            if (estado === 'pendiente') {
+                const texto = rol === 'aprobador' ? '⏳ Pendiente (Aprobador)' : '⏳ Pendiente';
+                return '<span class="badge badge-estado bg-warning text-dark">' + texto + '</span>';
             }
 
-            const toast = bootstrap.Toast.getOrCreateInstance(toastSalidaEl);
-            toast.show();
+            const info = mapa[estado] || mapa['borrador'];
+            return '<span class="badge badge-estado ' + info.clase + '">' + info.texto + '</span>';
         }
 
-        function actualizarBadgeEstadoSalida(fila, nuevoEstado) {
-            const badge = fila.querySelector('.badge-estado');
-            if (!badge) return;
+        function accionesHTML(s, rol) {
+            const estado = s.estado;
 
-            const mapa = {
-                'borrador':   { texto: '📝 Borrador',   clase: 'bg-secondary' },
-                'pendiente':  { texto: '⏳ Pendiente',  clase: 'bg-warning text-dark' },
-                'aprobada':   { texto: '✅ Aprobada',   clase: 'bg-success' },
-                'rechazada':  { texto: '❌ Rechazada',  clase: 'bg-danger' },
-                'cancelada':  { texto: '🚫 Cancelada',  clase: 'bg-dark' }
-            };
-            const info = mapa[nuevoEstado] || mapa['borrador'];
+            // ===== Clonar: SIEMPRE presente (primero para todos los estados) =====
+            let html = '';
 
-            badge.className = 'badge badge-estado ' + info.clase;
-            badge.textContent = info.texto;
-        }
+            // ===== Ver: para todos los estados excepto 'borrador' =====
+            if (estado !== 'borrador') {
+                // Si es pendiente, propagar el rol (solicitante o aprobador)
+                const rolParam = (estado === 'pendiente' && rol) ? '&rol=' + encodeURIComponent(rol) : '';
+                html +=
+                    '<a href="salidas-detalles.html?folio=' + encodeURIComponent(s.folio || '') +
+                    '&id=' + encodeURIComponent(s.id) +
+                    rolParam +
+                    '" class="btn btn-sm btn-outline-info" title="Ver"><i class="bi bi-eye"></i></a> ';
+            }
 
-        // Genera el HTML de la celda de acciones según estado
-        function generarAccionesSalida(estado, esAprobador) {
-            let html = '<a href="salidas-detalles.html" class="btn btn-sm btn-outline-info" title="Ver"><i class="bi bi-eye"></i></a> ';
+            // ===== Clonar: SIEMPRE =====
+            html += '<button class="btn btn-sm btn-outline-secondary btn-clonar-salida" title="Clonar"><i class="bi bi-files"></i></button> ';
 
-            if (estado === 'borrador') {
-                html += '<a href="salidas-editar.html" class="btn btn-sm btn-outline-success" title="Editar"><i class="bi bi-pencil"></i></a> ';
-                html += '<button class="btn btn-sm btn-outline-danger btn-eliminar-salida" title="Eliminar borrador"><i class="bi bi-trash"></i></button>';
-
-            } else if (estado === 'pendiente') {
-                if (esAprobador) {
-                    // Pendiente (Aprobador): aprobar/rechazar, sin clonar
+            // ===== Acciones específicas según estado =====
+            if (estado === 'pendiente') {
+                if (rol === 'aprobador') {
                     html += '<button class="btn btn-sm btn-outline-success btn-aprobar-salida" title="Aprobar"><i class="bi bi-check-circle"></i></button> ';
                     html += '<button class="btn btn-sm btn-outline-danger btn-rechazar-salida" title="Rechazar"><i class="bi bi-x-circle"></i></button>';
                 } else {
-                    // Pendiente: clonar + cancelar
-                    html += '<button class="btn btn-sm btn-outline-secondary btn-clonar-salida" title="Clonar"><i class="bi bi-files"></i></button> ';
                     html += '<button class="btn btn-sm btn-outline-danger btn-cancelar-salida" title="Cancelar"><i class="bi bi-dash-circle"></i></button>';
                 }
 
+            } else if (estado === 'borrador') {
+                html += '<a href="salidas-editar.html?id=' + encodeURIComponent(s.id) +
+                        '" class="btn btn-sm btn-outline-success" title="Editar"><i class="bi bi-pencil"></i></a>';
+
+                // Solo se puede eliminar si NO tiene folio
+                if (!s.folio) {
+                    html += ' <button class="btn btn-sm btn-outline-danger btn-eliminar-salida" title="Eliminar borrador"><i class="bi bi-trash"></i></button>';
+                }
+
             } else if (estado === 'aprobada') {
-                // Aprobada / Rechazada: Ver + PDF + Clonar
-                html += '<button class="btn btn-sm btn-outline-primary btn-pdf-salida" title="Exportar PDF"><i class="bi bi-file-pdf"></i></button> ';
-                html += '<button class="btn btn-sm btn-outline-secondary btn-clonar-salida" title="Clonar"><i class="bi bi-files"></i></button>';
+                html += '<button class="btn btn-sm btn-outline-primary btn-pdf-salida" title="Exportar PDF"><i class="bi bi-file-pdf"></i></button>';
+
+            } else if (estado === 'rechazada') {
+                // Solo Clonar (Ver + Clonar ya agregados arriba)
 
             } else if (estado === 'cancelada') {
-                // Cancelada: Ver + Editar + Clonar
-                html += '<a href="salidas-editar.html" class="btn btn-sm btn-outline-success" title="Editar"><i class="bi bi-pencil"></i></a> ';
-                html += '<button class="btn btn-sm btn-outline-secondary btn-clonar-salida" title="Clonar"><i class="bi bi-files"></i></button>';
+                html += '<a href="salidas-editar.html?id=' + encodeURIComponent(s.id) +
+                        '" class="btn btn-sm btn-outline-success" title="Editar"><i class="bi bi-pencil"></i></a>';
             }
 
             return html;
         }
 
-        // Actualiza la celda de motivo
-        function actualizarMotivoCelda(fila, motivo) {
-            const celdaMotivo = fila.querySelector('.motivo-celda');
-            if (!celdaMotivo) return;
+        function renderSalidas() {
+            const lista = window.swcoraSalidas.cargar();
+            tbodySalidas.innerHTML = '';
 
-            if (motivo && motivo.trim()) {
-                celdaMotivo.textContent = motivo;
-            } else {
-                celdaMotivo.innerHTML = '<em class="text-muted">—</em>';
-            }
-            fila.setAttribute('data-motivo', motivo || '');
+            // Si el rol logueado es "generador", no mostramos la vista del aprobador.
+            // El resto de roles (superadmin, administrador, aprobador, sinrol) ven todo.
+            const ocultarVistaAprobador = (ROL_ACTUAL === 'generador');
+
+            lista.forEach(function (s) {
+                const esPendienteConAprobador = s.estado === 'pendiente' && s.aprobador;
+
+                if (esPendienteConAprobador) {
+                    // Fila 1: vista del SOLICITANTE (siempre)
+                    tbodySalidas.appendChild(crearFilaSalida(s, 'solicitante'));
+
+                    // Fila 2: vista del APROBADOR (solo si el rol no es "generador")
+                    if (!ocultarVistaAprobador) {
+                        tbodySalidas.appendChild(crearFilaSalida(s, 'aprobador'));
+                    }
+                } else {
+                    tbodySalidas.appendChild(crearFilaSalida(s, null));
+                }
+            });
+
+            if (totalSalidasEl) totalSalidasEl.textContent = lista.length;
+            aplicarFiltrosSalidas();
+        }
+
+        // Helper: construye el <tr> de una salida para un rol dado
+        function crearFilaSalida(s, rol) {
+            const fila = document.createElement('tr');
+            fila.className = 'salida-row';
+            fila.setAttribute('data-id', s.id);
+            fila.setAttribute('data-folio', s.folio || '');
+            fila.setAttribute('data-fecha', s.fecha);
+            fila.setAttribute('data-estado', s.estado);
+            fila.setAttribute('data-usuario', s.usuario);
+            fila.setAttribute('data-descripcion', s.descripcion);
+            fila.setAttribute('data-motivo', s.motivo || '');
+            fila.setAttribute('data-materiales', s.materiales);
+            if (rol) fila.setAttribute('data-rol', rol);
+
+            const folioCell = s.folio
+                ? '<strong>' + escaparHTML(s.folio) + '</strong>'
+                : '<em class="text-muted">(sin folio)</em>';
+
+            const motivoCell = s.motivo
+                ? escaparHTML(s.motivo)
+                : '<em class="text-muted">—</em>';
+
+            fila.innerHTML =
+                '<td>' + folioCell + '</td>' +
+                '<td>' + escaparHTML(s.fechaVisible) + '</td>' +
+                '<td>' + badgeEstadoHTML(s.estado, rol) + '</td>' +
+                '<td>' + escaparHTML(s.usuario) + '</td>' +
+                '<td>' + escaparHTML(s.descripcion) + '</td>' +
+                '<td class="motivo-celda">' + motivoCell + '</td>' +
+                '<td class="text-center"><span class="badge bg-secondary">' + (s.materiales || 0) + '</span></td>' +
+                '<td class="text-center text-nowrap">' + accionesHTML(s, rol) + '</td>';
+
+            return fila;
         }
 
         // ---------- Filtros ----------
@@ -4149,7 +4727,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 const coincideHasta = !hasta || filaFecha <= hasta;
 
                 const visible = coincideBuscar && coincideEstado && coincideDesde && coincideHasta;
-
                 fila.classList.toggle('d-none', !visible);
                 if (visible) visibles++;
             });
@@ -4172,7 +4749,7 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
 
-        // ---------- Delegación de eventos para acciones ----------
+        // ---------- Delegación de acciones ----------
         tbodySalidas.addEventListener('click', function (e) {
             const btnPDF = e.target.closest('.btn-pdf-salida');
             const btnClonar = e.target.closest('.btn-clonar-salida');
@@ -4181,11 +4758,9 @@ document.addEventListener('DOMContentLoaded', function () {
             const btnEliminar = e.target.closest('.btn-eliminar-salida');
             const btnCancelar = e.target.closest('.btn-cancelar-salida');
 
-            // ===== Exportar PDF (vacío) =====
             if (btnPDF) {
                 const fila = btnPDF.closest('.salida-row');
                 const folio = fila.getAttribute('data-folio') || 'salida';
-
                 const blob = new Blob([''], { type: 'application/pdf' });
                 const url = URL.createObjectURL(blob);
                 const enlace = document.createElement('a');
@@ -4196,120 +4771,97 @@ document.addEventListener('DOMContentLoaded', function () {
                 enlace.click();
                 document.body.removeChild(enlace);
                 URL.revokeObjectURL(url);
-
                 mostrarToastSalida('PDF generado', 'Se descargó el archivo PDF de la salida ' + folio + '.', 'success');
                 return;
             }
 
-            // ===== Clonar (nueva fila como Borrador, sin folio) =====
             if (btnClonar) {
                 const fila = btnClonar.closest('.salida-row');
                 if (!fila) return;
-
-                const usuario = fila.getAttribute('data-usuario') || '';
-                const descripcion = fila.getAttribute('data-descripcion') || '';
-                const materiales = fila.getAttribute('data-materiales') || '0';
+                const id = fila.getAttribute('data-id');
+                const original = window.swcoraSalidas.porId(id);
+                if (!original) return;
 
                 const hoy = new Date();
                 const pad = n => String(n).padStart(2, '0');
                 const fechaISO = hoy.getFullYear() + '-' + pad(hoy.getMonth() + 1) + '-' + pad(hoy.getDate());
                 const fechaVisible = pad(hoy.getDate()) + '/' + pad(hoy.getMonth() + 1) + '/' + hoy.getFullYear();
 
-                const nuevaFila = document.createElement('tr');
-                nuevaFila.className = 'salida-row';
-                nuevaFila.setAttribute('data-folio', '');
-                nuevaFila.setAttribute('data-fecha', fechaISO);
-                nuevaFila.setAttribute('data-estado', 'borrador');
-                nuevaFila.setAttribute('data-usuario', usuario);
-                nuevaFila.setAttribute('data-descripcion', descripcion + ' (copia)');
-                nuevaFila.setAttribute('data-motivo', '');
-                nuevaFila.setAttribute('data-materiales', materiales);
+                window.swcoraSalidas.agregar({
+                    folio: '',
+                    fecha: fechaISO,
+                    fechaVisible: fechaVisible,
+                    estado: 'borrador',
+                    usuario: original.usuario,
+                    descripcion: original.descripcion + ' (copia)',
+                    motivo: '',
+                    materiales: original.materiales,
+                    aprobador: '',
+                    aprobadoPor: '',
+                    fechaAprobacion: '',
+                    empresa: original.empresa,
+                    tipoEmpresa: original.tipoEmpresa,
+                    contacto: original.contacto,
+                    esDefinitiva: original.esDefinitiva,
+                    retornoEsperado: original.retornoEsperado,
+                    causa: original.causa,
+                    categoria: original.categoria,
+                    comentarios: original.comentarios,
+                    departamento: original.departamento,
+                    fechaCreacion: fechaVisible + ' ' + pad(hoy.getHours()) + ':' + pad(hoy.getMinutes()),
+                    creadoPor: original.usuario,
+                    materialesLista: (original.materialesLista || []).slice()
+                });
 
-                nuevaFila.innerHTML =
-                    '<td><em class="text-muted">(sin folio)</em></td>' +
-                    '<td>' + fechaVisible + '</td>' +
-                    '<td><span class="badge bg-secondary badge-estado">📝 Borrador</span></td>' +
-                    '<td>' + usuario + '</td>' +
-                    '<td>' + descripcion + ' (copia)</td>' +
-                    '<td class="motivo-celda"><em class="text-muted">—</em></td>' +
-                    '<td class="text-center"><span class="badge bg-secondary">' + materiales + '</span></td>' +
-                    '<td class="text-center text-nowrap">' + generarAccionesSalida('borrador', false) + '</td>';
-
-                tbodySalidas.insertBefore(nuevaFila, tbodySalidas.firstChild);
-
-                aplicarFiltrosSalidas();
+                renderSalidas();
                 mostrarToastSalida('Salida clonada', 'Se creó una copia en estado Borrador.', 'success');
                 return;
             }
 
-            // ===== Aprobar =====
             if (btnAprobar) {
                 const fila = btnAprobar.closest('.salida-row');
                 if (!fila) return;
-
-                fila.setAttribute('data-estado', 'aprobada');
-                actualizarBadgeEstadoSalida(fila, 'aprobada');
-                actualizarMotivoCelda(fila, '');
-
-                const celdaAcciones = fila.querySelector('td:last-child');
-                if (celdaAcciones) celdaAcciones.innerHTML = generarAccionesSalida('aprobada', false);
-
-                aplicarFiltrosSalidas();
+                const id = fila.getAttribute('data-id');
+                window.swcoraSalidas.actualizar(id, {
+                    estado: 'aprobada',
+                    aprobadoPor: USUARIO_ACTUAL,
+                    fechaAprobacion: new Date().toLocaleString('es-MX')
+                });
+                renderSalidas();
                 mostrarToastSalida('Salida aprobada', 'La solicitud fue aprobada correctamente.', 'success');
                 return;
             }
 
-            // ===== Rechazar → abrir modal =====
             if (btnRechazar) {
                 const fila = btnRechazar.closest('.salida-row');
                 if (!fila) return;
-
                 filaRechazando = fila;
                 const folio = fila.getAttribute('data-folio') || '—';
-
                 const inputFolio = document.getElementById('rechazarFolio');
                 const inputMotivo = document.getElementById('rechazarMotivo');
                 if (inputFolio) inputFolio.textContent = folio;
-                if (inputMotivo) {
-                    inputMotivo.value = '';
-                    inputMotivo.classList.remove('is-invalid');
-                }
-
-                const modal = bootstrap.Modal.getOrCreateInstance(modalRechazarEl);
-                modal.show();
+                if (inputMotivo) { inputMotivo.value = ''; inputMotivo.classList.remove('is-invalid'); }
+                bootstrap.Modal.getOrCreateInstance(modalRechazarEl).show();
                 return;
             }
 
-            // ===== Eliminar borrador → abrir modal =====
             if (btnEliminar) {
-                const fila = btnEliminar.closest('.salida-row');
-                if (!fila) return;
-
-                filaEliminando = fila;
-
-                const modal = bootstrap.Modal.getOrCreateInstance(modalEliminarEl);
-                modal.show();
+                filaEliminando = btnEliminar.closest('.salida-row');
+                if (!filaEliminando) return;
+                bootstrap.Modal.getOrCreateInstance(modalEliminarEl).show();
                 return;
             }
 
-            // ===== Cancelar → abrir modal =====
             if (btnCancelar) {
                 const fila = btnCancelar.closest('.salida-row');
                 if (!fila) return;
-
                 filaCancelando = fila;
                 const folio = fila.getAttribute('data-folio') || '—';
-
                 const inputFolio = document.getElementById('cancelarFolio');
                 const inputMotivo = document.getElementById('cancelarMotivo');
                 if (inputFolio) inputFolio.textContent = folio;
-                if (inputMotivo) {
-                    inputMotivo.value = '';
-                    inputMotivo.classList.remove('is-invalid');
-                }
-
-                const modal = bootstrap.Modal.getOrCreateInstance(modalCancelarEl);
-                modal.show();
+                if (inputMotivo) { inputMotivo.value = ''; inputMotivo.classList.remove('is-invalid'); }
+                bootstrap.Modal.getOrCreateInstance(modalCancelarEl).show();
                 return;
             }
         });
@@ -4320,32 +4872,20 @@ document.addEventListener('DOMContentLoaded', function () {
             btnConfirmarRechazo.addEventListener('click', function () {
                 const inputMotivo = document.getElementById('rechazarMotivo');
                 const motivo = inputMotivo.value.trim();
-
-                if (!motivo) {
-                    inputMotivo.classList.add('is-invalid');
-                    inputMotivo.focus();
-                    return;
-                }
+                if (!motivo) { inputMotivo.classList.add('is-invalid'); inputMotivo.focus(); return; }
                 inputMotivo.classList.remove('is-invalid');
-
-                if (!filaRechazando) {
-                    bootstrap.Modal.getInstance(modalRechazarEl).hide();
-                    return;
-                }
-
-                filaRechazando.setAttribute('data-estado', 'rechazada');
-                actualizarBadgeEstadoSalida(filaRechazando, 'rechazada');
-                actualizarMotivoCelda(filaRechazando, motivo);
-
-                const celdaAcciones = filaRechazando.querySelector('td:last-child');
-                if (celdaAcciones) celdaAcciones.innerHTML = generarAccionesSalida('rechazada', false);
-
-                aplicarFiltrosSalidas();
-
+                if (!filaRechazando) { bootstrap.Modal.getInstance(modalRechazarEl).hide(); return; }
+                const id = filaRechazando.getAttribute('data-id');
+                window.swcoraSalidas.actualizar(id, {
+                    estado: 'rechazada',
+                    motivo: motivo,
+                    aprobadoPor: USUARIO_ACTUAL,
+                    fechaAprobacion: new Date().toLocaleString('es-MX')
+                });
                 bootstrap.Modal.getInstance(modalRechazarEl).hide();
                 mostrarToastSalida('Salida rechazada', 'La solicitud fue rechazada. Motivo: ' + motivo, 'danger');
-
                 filaRechazando = null;
+                renderSalidas();
             });
         }
 
@@ -4355,32 +4895,15 @@ document.addEventListener('DOMContentLoaded', function () {
             btnConfirmarCancelacion.addEventListener('click', function () {
                 const inputMotivo = document.getElementById('cancelarMotivo');
                 const motivo = inputMotivo.value.trim();
-
-                if (!motivo) {
-                    inputMotivo.classList.add('is-invalid');
-                    inputMotivo.focus();
-                    return;
-                }
+                if (!motivo) { inputMotivo.classList.add('is-invalid'); inputMotivo.focus(); return; }
                 inputMotivo.classList.remove('is-invalid');
-
-                if (!filaCancelando) {
-                    bootstrap.Modal.getInstance(modalCancelarEl).hide();
-                    return;
-                }
-
-                filaCancelando.setAttribute('data-estado', 'cancelada');
-                actualizarBadgeEstadoSalida(filaCancelando, 'cancelada');
-                actualizarMotivoCelda(filaCancelando, motivo);
-
-                const celdaAcciones = filaCancelando.querySelector('td:last-child');
-                if (celdaAcciones) celdaAcciones.innerHTML = generarAccionesSalida('cancelada', false);
-
-                aplicarFiltrosSalidas();
-
+                if (!filaCancelando) { bootstrap.Modal.getInstance(modalCancelarEl).hide(); return; }
+                const id = filaCancelando.getAttribute('data-id');
+                window.swcoraSalidas.actualizar(id, { estado: 'cancelada', motivo: motivo });
                 bootstrap.Modal.getInstance(modalCancelarEl).hide();
                 mostrarToastSalida('Salida cancelada', 'La solicitud fue cancelada. Motivo: ' + motivo, 'danger');
-
                 filaCancelando = null;
+                renderSalidas();
             });
         }
 
@@ -4388,40 +4911,1028 @@ document.addEventListener('DOMContentLoaded', function () {
         const btnConfirmarEliminacion = document.getElementById('btnConfirmarEliminacion');
         if (btnConfirmarEliminacion) {
             btnConfirmarEliminacion.addEventListener('click', function () {
-                if (!filaEliminando) {
-                    bootstrap.Modal.getInstance(modalEliminarEl).hide();
+                if (!filaEliminando) { bootstrap.Modal.getInstance(modalEliminarEl).hide(); return; }
+                const id = filaEliminando.getAttribute('data-id');
+                window.swcoraSalidas.eliminar(id);
+                filaEliminando = null;
+                bootstrap.Modal.getInstance(modalEliminarEl).hide();
+                mostrarToastSalida('Borrador eliminado', 'El registro fue eliminado de la tabla.', 'danger');
+                renderSalidas();
+            });
+        }
+
+        if (modalRechazarEl) modalRechazarEl.addEventListener('hidden.bs.modal', () => filaRechazando = null);
+        if (modalCancelarEl) modalCancelarEl.addEventListener('hidden.bs.modal', () => filaCancelando = null);
+        if (modalEliminarEl) modalEliminarEl.addEventListener('hidden.bs.modal', () => filaEliminando = null);
+
+        // Inicializar
+        renderSalidas();
+    }
+
+    // =============================================
+    // MIS SOLICITUDES: render dinámico + filtros + cancelar
+    // =============================================
+    const tbodyMisSolicitudes = document.getElementById('tbodyMisSolicitudes');
+
+    if (tbodyMisSolicitudes) {
+        const filtroMisBuscar = document.getElementById('filtroMisBuscar');
+        const filtroMisEstado = document.getElementById('filtroMisEstado');
+        const btnLimpiarFiltrosMis = document.getElementById('btnLimpiarFiltrosMis');
+        const contadorMisMostrados = document.getElementById('contadorMisMostrados');
+        const totalMisSolicitudesEl = document.getElementById('totalMisSolicitudes');
+
+        const modalCancelarEl = document.getElementById('modalCancelarMiSolicitud');
+        const btnConfirmarCancelar = document.getElementById('btnConfirmarCancelarMiSolicitud');
+        const toastEl = document.getElementById('toastMiSolicitud');
+        const toastTitulo = document.getElementById('toastMiSolicitudTitulo');
+        const toastMensaje = document.getElementById('toastMiSolicitudMensaje');
+
+        let filaCancelando = null;
+
+        function normalizarMis(texto) {
+            return String(texto || '').toLowerCase().trim()
+                .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        }
+
+        function mostrarToastMis(titulo, mensaje, tipo) {
+            if (!toastEl) return;
+            if (toastTitulo) toastTitulo.textContent = titulo;
+            if (toastMensaje) toastMensaje.textContent = mensaje;
+            const header = toastEl.querySelector('.toast-header');
+            if (header) {
+                header.style.backgroundColor = tipo === 'danger'
+                    ? 'var(--cora-accent)' : 'var(--cora-success)';
+            }
+            bootstrap.Toast.getOrCreateInstance(toastEl).show();
+        }
+
+        function escaparHTML(str) {
+            return String(str || '')
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+
+        function badgeEstadoMisHTML(estado) {
+            const mapa = {
+                'pendiente': { texto: '⏳ Pendiente', clase: 'bg-warning text-dark' },
+                'aprobada':  { texto: '✅ Aprobada',  clase: 'bg-success' },
+                'rechazada': { texto: '❌ Rechazada', clase: 'bg-danger' },
+                'cancelada': { texto: '🚫 Cancelada', clase: 'bg-dark' }   // 👈 NUEVO
+            };
+            const info = mapa[estado] || mapa['pendiente'];
+            return '<span class="badge badge-estado ' + info.clase + '">' + info.texto + '</span>';
+        }
+
+        function renderMisSolicitudes() {
+            const todas = window.swcoraSolicitudes.cargar();
+            const mias = todas.filter(s => s.usuario === USUARIO_ACTUAL);
+
+            tbodyMisSolicitudes.innerHTML = '';
+
+            mias.forEach(function (s) {
+                const fila = document.createElement('tr');
+                fila.className = 'solicitud-row';
+                fila.setAttribute('data-id', s.id);
+                fila.setAttribute('data-estado', s.estado);
+                fila.setAttribute('data-usuario', s.usuario);
+                fila.setAttribute('data-modulo', s.modulo);
+                fila.setAttribute('data-aprobador', s.aprobador);
+
+                const esPendiente = s.estado === 'pendiente';
+                const acciones = esPendiente
+                    ? '<button class="btn btn-sm btn-outline-danger btn-cancelar-mi-solicitud" title="Cancelar">' +
+                        '<i class="bi bi-dash-circle"></i></button>'
+                    : '';
+
+                const respuestaClase = s.estado === 'rechazada' ? 'text-danger' : 'text-muted';
+                const respuestaTexto = s.respuesta || 'En revisión';
+
+                fila.innerHTML =
+                    '<td>' + escaparHTML(s.fechaVisible) + '</td>' +
+                    '<td>' + escaparHTML(s.modulo) + '</td>' +
+                    '<td>' + escaparHTML(s.rol) + '</td>' +
+                    '<td>' + escaparHTML(s.aprobador) + '</td>' +
+                    '<td>' + badgeEstadoMisHTML(s.estado) + '</td>' +
+                    '<td><small class="' + respuestaClase + '">' + escaparHTML(respuestaTexto) + '</small></td>' +
+                    '<td class="text-center">' + acciones + '</td>';
+
+                tbodyMisSolicitudes.appendChild(fila);
+            });
+
+            if (totalMisSolicitudesEl) totalMisSolicitudesEl.textContent = mias.length;
+
+            aplicarFiltrosMis();
+        }
+
+        function aplicarFiltrosMis() {
+            const buscar = normalizarMis(filtroMisBuscar.value);
+            const estado = filtroMisEstado.value;
+
+            let visibles = 0;
+
+            tbodyMisSolicitudes.querySelectorAll('.solicitud-row').forEach(function (fila) {
+                const filaEstado = fila.getAttribute('data-estado');
+                const filaModulo = normalizarMis(fila.getAttribute('data-modulo'));
+                const filaAprobador = normalizarMis(fila.getAttribute('data-aprobador'));
+
+                const coincideBuscar = !buscar ||
+                    filaModulo.includes(buscar) ||
+                    filaAprobador.includes(buscar);
+
+                const coincideEstado = (estado === 'todas') || (filaEstado === estado);
+                const visible = coincideBuscar && coincideEstado;
+
+                fila.classList.toggle('d-none', !visible);
+                if (visible) visibles++;
+            });
+
+            if (contadorMisMostrados) contadorMisMostrados.textContent = visibles;
+        }
+
+        if (filtroMisBuscar) filtroMisBuscar.addEventListener('input', aplicarFiltrosMis);
+        if (filtroMisEstado) filtroMisEstado.addEventListener('change', aplicarFiltrosMis);
+
+        if (btnLimpiarFiltrosMis) {
+            btnLimpiarFiltrosMis.addEventListener('click', function () {
+                filtroMisBuscar.value = '';
+                filtroMisEstado.value = 'todas';
+                aplicarFiltrosMis();
+            });
+        }
+
+        // Delegación: clic en Cancelar
+        tbodyMisSolicitudes.addEventListener('click', function (e) {
+            const btnCancelar = e.target.closest('.btn-cancelar-mi-solicitud');
+            if (!btnCancelar) return;
+
+            filaCancelando = btnCancelar.closest('.solicitud-row');
+            if (!filaCancelando) return;
+
+            bootstrap.Modal.getOrCreateInstance(modalCancelarEl).show();
+        });
+
+        // Confirmar cancelación → cambiar estado a "cancelada" (no eliminar)
+        if (btnConfirmarCancelar) {
+            btnConfirmarCancelar.addEventListener('click', function () {
+                if (!filaCancelando) {
+                    bootstrap.Modal.getInstance(modalCancelarEl).hide();
                     return;
                 }
 
-                filaEliminando.remove();
-                filaEliminando = null;
+                const id = filaCancelando.getAttribute('data-id');
+                window.swcoraSolicitudes.actualizar(id, {
+                    estado: 'cancelada',
+                    respuesta: 'Cancelada por ' + USUARIO_ACTUAL
+                });
 
-                aplicarFiltrosSalidas();
+                bootstrap.Modal.getInstance(modalCancelarEl).hide();
+                mostrarToastMis('Solicitud cancelada', 'La solicitud fue marcada como Cancelada.', 'danger');
 
-                bootstrap.Modal.getInstance(modalEliminarEl).hide();
-                mostrarToastSalida('Borrador eliminado', 'El registro fue eliminado de la tabla.', 'danger');
-            });
-        }
-
-        // Limpiar referencias al cerrar los modales
-        if (modalRechazarEl) {
-            modalRechazarEl.addEventListener('hidden.bs.modal', function () {
-                filaRechazando = null;
-            });
-        }
-        if (modalCancelarEl) {
-            modalCancelarEl.addEventListener('hidden.bs.modal', function () {
                 filaCancelando = null;
+                renderMisSolicitudes();
             });
         }
-        if (modalEliminarEl) {
-            modalEliminarEl.addEventListener('hidden.bs.modal', function () {
-                filaEliminando = null;
-            });
+
+        if (modalCancelarEl) {
+            modalCancelarEl.addEventListener('hidden.bs.modal', () => filaCancelando = null);
         }
 
         // Inicializar
-        aplicarFiltrosSalidas();
+        renderMisSolicitudes();
     }
 
+    // =============================================
+    // SALIDAS DETALLES: leer de URL, renderizar y acciones
+    // =============================================
+    const detallesContainer = document.getElementById('detallesSalidaContainer');
+
+    if (detallesContainer) {
+        const params = new URLSearchParams(window.location.search);
+        const folioParam = params.get('folio');
+        const idParam = params.get('id');
+        const rolParam = params.get('rol');
+
+        let salida = null;
+        if (idParam) salida = window.swcoraSalidas.porId(idParam);
+        if (!salida && folioParam) salida = window.swcoraSalidas.porFolio(folioParam);
+
+        const toastEl = document.getElementById('toastDetSalida');
+        const toastTitulo = document.getElementById('toastDetTitulo');
+        const toastMensaje = document.getElementById('toastDetMensaje');
+
+        function mostrarToastDet(titulo, mensaje, tipo) {
+            if (!toastEl) return;
+            if (toastTitulo) toastTitulo.textContent = titulo;
+            if (toastMensaje) toastMensaje.textContent = mensaje;
+            const header = toastEl.querySelector('.toast-header');
+            if (header) {
+                header.style.backgroundColor = tipo === 'danger'
+                    ? 'var(--cora-accent)' : 'var(--cora-success)';
+            }
+            bootstrap.Toast.getOrCreateInstance(toastEl).show();
+        }
+
+        function escaparHTML(str) {
+            return String(str || '')
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+
+        if (!salida) {
+            detallesContainer.innerHTML = '<div class="alert alert-danger"><i class="bi bi-exclamation-triangle"></i> No se encontró la salida solicitada.</div>';
+        } else {
+            // ============ RENDER DE DATOS ============
+
+            // Header
+            document.getElementById('detFolio').textContent = salida.folio || '(sin folio)';
+
+            // Calcular esAprobador ANTES del badge (para que el texto sea coherente)
+            let esAprobadorHeader = false;
+            if (salida.estado === 'pendiente') {
+                if (rolParam === 'aprobador') {
+                    esAprobadorHeader = true;
+                } else if (rolParam === 'solicitante') {
+                    esAprobadorHeader = false;
+                } else {
+                    esAprobadorHeader = !!salida.aprobador && salida.aprobador === USUARIO_ACTUAL;
+                }
+            }
+
+            const badgeMap = {
+                'borrador':  { texto: '📝 Borrador',  clase: 'bg-secondary' },
+                'aprobada':  { texto: '✅ Aprobada',  clase: 'bg-success' },
+                'rechazada': { texto: '❌ Rechazada', clase: 'bg-danger' },
+                'cancelada': { texto: '🚫 Cancelada', clase: 'bg-dark' }
+            };
+
+            let badgeHTML;
+            if (salida.estado === 'pendiente') {
+                const textoPend = esAprobadorHeader ? '⏳ Pendiente (Aprobador)' : '⏳ Pendiente';
+                badgeHTML = '<span class="badge bg-warning text-dark">' + textoPend + '</span>';
+            } else {
+                const info = badgeMap[salida.estado] || badgeMap['borrador'];
+                badgeHTML = '<span class="badge ' + info.clase + '">' + info.texto + '</span>';
+            }
+            setHTML('detEstado', badgeHTML);
+
+            // Aprobación
+            document.getElementById('detAprobador').textContent = salida.aprobador || '—';
+            document.getElementById('detAprobadoPor').textContent = salida.aprobadoPor || '—';
+            document.getElementById('detFechaAprobacion').textContent = salida.fechaAprobacion || '—';
+
+            // Materiales
+            const tbodyMat = document.getElementById('detMaterialesBody');
+            tbodyMat.innerHTML = '';
+            (salida.materialesLista || []).forEach(function (m, i) {
+                const tr = document.createElement('tr');
+                tr.innerHTML =
+                    '<td>' + (i + 1) + '</td>' +
+                    '<td>' + escaparHTML(m.cantidad) + '</td>' +
+                    '<td>' + escaparHTML(m.unidad) + '</td>' +
+                    '<td>' + escaparHTML(m.descripcion) + '</td>' +
+                    '<td>' + (m.comentario ? escaparHTML(m.comentario) : '—') + '</td>';
+                tbodyMat.appendChild(tr);
+            });
+
+                        // ✅ Helper tolerante: si el id no existe en el HTML, no rompe
+            function setText(id, val) {
+                const el = document.getElementById(id);
+                if (el) el.textContent = (val == null || val === '') ? '—' : val;
+            }
+            function setHTML(id, html) {
+                const el = document.getElementById(id);
+                if (el) el.innerHTML = html;
+            }
+
+            // Info General (detInfoFolio y detInfoFecha ya NO existen en el HTML;
+            // los omitimos intencionalmente porque son redundantes con el header)
+            setText('detInfoDefinitiva', salida.esDefinitiva ? 'Sí' : 'No');
+            setText('detInfoRetorno', salida.retornoEsperado || '—');
+            setText('detInfoUsuario', salida.usuario || '—');
+            setText('detInfoDepto', salida.departamento || '—');
+            setText('detInfoCreada', salida.fechaCreacion || '—');
+
+            // Empresa
+            setText('detEmpresa', salida.empresa || '—');
+            const tipoBadge = { 'Proveedor': 'bg-warning', 'Cliente': 'bg-danger', 'Mensajería': 'bg-secondary', 'Filial': 'bg-info' }[salida.tipoEmpresa] || 'bg-secondary';
+            setHTML('detTipoEmpresa', salida.tipoEmpresa
+                ? '<span class="badge ' + tipoBadge + '">' + escaparHTML(salida.tipoEmpresa) + '</span>'
+                : '—');
+            setText('detContacto', salida.contacto || '—');
+
+            // Descripción
+            setText('detDescripcion', salida.descripcion || '—');
+            setText('detCausa', salida.causa || '—');
+            setText('detCategoria', salida.categoria || '—');
+            setText('detComentarios', salida.comentarios || '—');
+
+            // Historial
+            const tbodyHist = document.getElementById('detHistorialBody');
+            tbodyHist.innerHTML =
+                '<tr><td>' + escaparHTML(salida.fechaCreacion) + '</td><td>' + escaparHTML(salida.creadoPor) + '</td><td><span class="badge bg-primary">Creación</span></td><td>Salida creada</td></tr>' +
+                (salida.estado !== 'borrador' ? '<tr><td>' + escaparHTML(salida.fechaCreacion) + '</td><td>' + escaparHTML(salida.creadoPor) + '</td><td><span class="badge bg-info">Envío</span></td><td>Folio ' + escaparHTML(salida.folio) + ' asignado</td></tr>' : '') +
+                (salida.estado === 'aprobada' ? '<tr><td>' + escaparHTML(salida.fechaAprobacion) + '</td><td>' + escaparHTML(salida.aprobadoPor) + '</td><td><span class="badge bg-success">Aprobación</span></td><td>Salida aprobada</td></tr>' : '') +
+                (salida.estado === 'rechazada' ? '<tr><td>' + escaparHTML(salida.fechaAprobacion) + '</td><td>' + escaparHTML(salida.aprobadoPor) + '</td><td><span class="badge bg-danger">Rechazo</span></td><td>Motivo: ' + escaparHTML(salida.motivo) + '</td></tr>' : '') +
+                (salida.estado === 'cancelada' ? '<tr><td>—</td><td>—</td><td><span class="badge bg-dark">Cancelación</span></td><td>Motivo: ' + escaparHTML(salida.motivo) + '</td></tr>' : '');
+
+            // ============ GENERAR BOTONES DINÁMICOS ============
+                        // ============ GENERAR BOTONES DINÁMICOS ============
+            const contBotones = document.getElementById('detBotonesAccion');
+
+            // Determinar si estamos en la "vista del aprobador" o "vista del solicitante"
+            // 1) Si viene ?rol=aprobador → es aprobador
+            // 2) Si viene ?rol=solicitante → es solicitante
+            // 3) Si no viene rol (acceso directo por URL), inferir:
+            //    - Si el usuario actual es el aprobador asignado → aprobador
+            //    - Si no → solicitante
+            let esAprobador = false;
+            if (salida.estado === 'pendiente') {
+                if (rolParam === 'aprobador') {
+                    esAprobador = true;
+                } else if (rolParam === 'solicitante') {
+                    esAprobador = false;
+                } else {
+                    // Fallback: inferir por el usuario actual
+                    esAprobador = !!salida.aprobador && salida.aprobador === USUARIO_ACTUAL;
+                }
+            }
+
+            let htmlBotones = '';
+
+            // Aprobar / Rechazar (solo pendiente y el usuario es el aprobador)
+            if (esAprobador) {
+                htmlBotones += ' <button class="btn btn-success" id="btnDetAprobar"><i class="bi bi-check-circle"></i> Aprobar</button>';
+                htmlBotones += ' <button class="btn btn-danger" id="btnDetRechazar"><i class="bi bi-x-circle"></i> Rechazar</button>';
+            }
+
+            // Cancelar (solo pendiente y el usuario es el solicitante)
+            if (salida.estado === 'pendiente' && !esAprobador) {
+                htmlBotones += ' <button class="btn btn-danger" id="btnDetCancelar"><i class="bi bi-dash-circle"></i> Cancelar</button>';
+            }
+
+            // PDF (solo aprobada)
+            if (salida.estado === 'aprobada') {
+                htmlBotones += ' <button class="btn btn-outline-primary" id="btnDetPDF"><i class="bi bi-file-pdf"></i> PDF</button>';
+            }
+
+            // Editar (borrador o cancelada)
+            if (salida.estado === 'borrador' || salida.estado === 'cancelada') {
+                htmlBotones += ' <a href="salidas-editar.html?id=' + encodeURIComponent(salida.id) + '" class="btn btn-outline-success"><i class="bi bi-pencil"></i> Editar</a>';
+            }
+
+            // Eliminar (solo borrador sin folio)
+            if (salida.estado === 'borrador' && !salida.folio) {
+                htmlBotones += ' <button class="btn btn-outline-danger" id="btnDetEliminar"><i class="bi bi-trash"></i> Eliminar</button>';
+            }
+
+            contBotones.innerHTML = htmlBotones;
+
+            // ============ LISTENERS DE ACCIONES ============
+
+            // ---- Aprobar ----
+            const btnAprobar = document.getElementById('btnDetAprobar');
+            if (btnAprobar) {
+                btnAprobar.addEventListener('click', function () {
+                    window.swcoraSalidas.actualizar(salida.id, {
+                        estado: 'aprobada',
+                        aprobadoPor: USUARIO_ACTUAL,
+                        fechaAprobacion: new Date().toLocaleString('es-MX')
+                    });
+                    mostrarToastDet('Salida aprobada', 'La solicitud fue aprobada correctamente.', 'success');
+                    setTimeout(function () {
+                        window.location.href = 'salidas-index.html';
+                    }, 1500);
+                });
+            }
+
+            // ---- Rechazar (modal) ----
+            const btnRechazar = document.getElementById('btnDetRechazar');
+            const modalRechazarDetEl = document.getElementById('modalRechazarSalida');
+            if (btnRechazar && modalRechazarDetEl) {
+                btnRechazar.addEventListener('click', function () {
+                    const inputFolio = document.getElementById('rechazarFolio');
+                    const inputMotivo = document.getElementById('rechazarMotivo');
+                    if (inputFolio) inputFolio.textContent = salida.folio || '—';
+                    if (inputMotivo) { inputMotivo.value = ''; inputMotivo.classList.remove('is-invalid'); }
+                    bootstrap.Modal.getOrCreateInstance(modalRechazarDetEl).show();
+                });
+
+                const btnConfirmarRechazo = document.getElementById('btnConfirmarRechazo');
+                if (btnConfirmarRechazo) {
+                    btnConfirmarRechazo.addEventListener('click', function () {
+                        const inputMotivo = document.getElementById('rechazarMotivo');
+                        const motivo = inputMotivo.value.trim();
+                        if (!motivo) { inputMotivo.classList.add('is-invalid'); inputMotivo.focus(); return; }
+                        inputMotivo.classList.remove('is-invalid');
+
+                        window.swcoraSalidas.actualizar(salida.id, {
+                            estado: 'rechazada',
+                            motivo: motivo,
+                            aprobadoPor: USUARIO_ACTUAL,
+                            fechaAprobacion: new Date().toLocaleString('es-MX')
+                        });
+                        bootstrap.Modal.getInstance(modalRechazarDetEl).hide();
+                        mostrarToastDet('Salida rechazada', 'La solicitud fue rechazada. Motivo: ' + motivo, 'danger');
+                        setTimeout(function () {
+                            window.location.href = 'salidas-index.html';
+                        }, 1500);
+                    });
+                }
+            }
+
+            // ---- Cancelar (modal) ----
+            const btnCancelar = document.getElementById('btnDetCancelar');
+            const modalCancelarDetEl = document.getElementById('modalCancelarSalida');
+            if (btnCancelar && modalCancelarDetEl) {
+                btnCancelar.addEventListener('click', function () {
+                    const inputFolio = document.getElementById('cancelarFolio');
+                    const inputMotivo = document.getElementById('cancelarMotivo');
+                    if (inputFolio) inputFolio.textContent = salida.folio || '—';
+                    if (inputMotivo) { inputMotivo.value = ''; inputMotivo.classList.remove('is-invalid'); }
+                    bootstrap.Modal.getOrCreateInstance(modalCancelarDetEl).show();
+                });
+
+                const btnConfirmarCancelacion = document.getElementById('btnConfirmarCancelacion');
+                if (btnConfirmarCancelacion) {
+                    btnConfirmarCancelacion.addEventListener('click', function () {
+                        const inputMotivo = document.getElementById('cancelarMotivo');
+                        const motivo = inputMotivo.value.trim();
+                        if (!motivo) { inputMotivo.classList.add('is-invalid'); inputMotivo.focus(); return; }
+                        inputMotivo.classList.remove('is-invalid');
+
+                        window.swcoraSalidas.actualizar(salida.id, {
+                            estado: 'cancelada',
+                            motivo: motivo
+                        });
+                        bootstrap.Modal.getInstance(modalCancelarDetEl).hide();
+                        mostrarToastDet('Salida cancelada', 'La solicitud fue cancelada. Motivo: ' + motivo, 'danger');
+                        setTimeout(function () {
+                            window.location.href = 'salidas-index.html';
+                        }, 1500);
+                    });
+                }
+            }
+
+            // ---- PDF ----
+            const btnPDF = document.getElementById('btnDetPDF');
+            if (btnPDF) {
+                btnPDF.addEventListener('click', function () {
+                    const blob = new Blob([''], { type: 'application/pdf' });
+                    const url = URL.createObjectURL(blob);
+                    const enlace = document.createElement('a');
+                    enlace.href = url;
+                    enlace.download = 'salida_' + (salida.folio || salida.id) + '.pdf';
+                    enlace.style.display = 'none';
+                    document.body.appendChild(enlace);
+                    enlace.click();
+                    document.body.removeChild(enlace);
+                    URL.revokeObjectURL(url);
+                    mostrarToastDet('PDF generado', 'Se descargó el archivo PDF.', 'success');
+                });
+            }
+
+            // ---- Eliminar (modal) ----
+            const btnEliminar = document.getElementById('btnDetEliminar');
+            const modalEliminarDetEl = document.getElementById('modalEliminarSalida');
+            if (btnEliminar && modalEliminarDetEl) {
+                btnEliminar.addEventListener('click', function () {
+                    bootstrap.Modal.getOrCreateInstance(modalEliminarDetEl).show();
+                });
+
+                const btnConfirmarEliminacion = document.getElementById('btnConfirmarEliminacion');
+                if (btnConfirmarEliminacion) {
+                    btnConfirmarEliminacion.addEventListener('click', function () {
+                        window.swcoraSalidas.eliminar(salida.id);
+                        bootstrap.Modal.getInstance(modalEliminarDetEl).hide();
+                        mostrarToastDet('Borrador eliminado', 'El registro fue eliminado.', 'danger');
+                        setTimeout(function () {
+                            window.location.href = 'salidas-index.html';
+                        }, 1500);
+                    });
+                }
+            }
+        }
+    }
+
+    // =============================================
+    // SALIDAS EDITAR: precargar y guardar
+    // =============================================
+    const editContainer = document.querySelector('.salida-form-grid');
+    const tbodyMaterialesEdit = document.getElementById('tbodyMateriales');
+
+    // Detectar si estamos en salidas-editar.html por la presencia de elementos únicos
+    const btnGuardarCambios = document.getElementById('btnGuardarCambiosSalida');
+    const btnConfirmarEnvioAprob = document.getElementById('btnConfirmarEnvioAprobacion');
+    const btnEnviarAprobacion = document.getElementById('btnEnviarAprobacion');
+    // Toast de edición
+    const toastEditarEl = document.getElementById('toastEditarSalida');
+    const toastEditarTitulo = document.getElementById('toastEditarTitulo');
+    const toastEditarMensaje = document.getElementById('toastEditarMensaje');
+
+    function mostrarToastEditar(titulo, mensaje, tipo, callback) {
+        if (!toastEditarEl) {
+            if (callback) callback();
+            return;
+        }
+        if (toastEditarTitulo) toastEditarTitulo.textContent = titulo;
+        if (toastEditarMensaje) toastEditarMensaje.textContent = mensaje;
+
+        const header = toastEditarEl.querySelector('.toast-header');
+        if (header) {
+            header.style.backgroundColor = tipo === 'danger'
+                ? 'var(--cora-accent)' : 'var(--cora-success)';
+        }
+
+        // Si hay callback, ejecutarlo cuando el toast se oculte
+        if (callback) {
+            const handler = function () {
+                toastEditarEl.removeEventListener('hidden.bs.toast', handler);
+                callback();
+            };
+            toastEditarEl.addEventListener('hidden.bs.toast', handler);
+        }
+
+        bootstrap.Toast.getOrCreateInstance(toastEditarEl).show();
+    }
+
+    if (btnGuardarCambios || btnConfirmarEnvioAprob) {
+        const params = new URLSearchParams(window.location.search);
+        const idEdit = params.get('id') || params.get('folio');
+
+        let salidaEditando = null;
+        if (idEdit) {
+            salidaEditando = window.swcoraSalidas.porId(idEdit) || window.swcoraSalidas.porFolio(idEdit);
+        }
+
+        if (salidaEditando) {
+            // Precargar campos de texto
+            const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+            setVal('editDescripcion', salidaEditando.descripcion);
+            setVal('editCausa', salidaEditando.causa);
+            setVal('editCategoria', salidaEditando.categoria);
+            setVal('editComentarios', salidaEditando.comentarios);
+            setVal('contactoInput', salidaEditando.contacto);
+
+            const chkDefinitiva = document.getElementById('esDefinitiva');
+            if (chkDefinitiva) {
+                chkDefinitiva.checked = !!salidaEditando.esDefinitiva;
+                chkDefinitiva.dispatchEvent(new Event('change'));
+            }
+
+            const retorno = document.getElementById('retornoEsperado');
+            if (retorno) retorno.value = salidaEditando.retornoEsperado || '';
+
+            // Precargar materiales
+            if (tbodyMaterialesEdit && Array.isArray(salidaEditando.materialesLista)) {
+                tbodyMaterialesEdit.innerHTML = '';
+                salidaEditando.materialesLista.forEach(function (m, i) {
+                    const tr = document.createElement('tr');
+                    tr.className = 'material-row';
+                    tr.innerHTML =
+                        '<td class="numero-linea">' + (i + 1) + '</td>' +
+                        '<td><input type="number" class="form-control form-control-sm input-cantidad" value="' + (m.cantidad || 1) + '" step="1" min="1"></td>' +
+                        '<td><select class="form-select form-select-sm input-unidad">' +
+                            ['PZS','KG','MTS','LTS','CJA'].map(function(u) {
+                                return '<option' + (u === m.unidad ? ' selected' : '') + '>' + u + '</option>';
+                            }).join('') +
+                        '</select></td>' +
+                        '<td><input type="text" class="form-control form-control-sm input-descripcion" value="' + String(m.descripcion || '').replace(/"/g, '&quot;') + '"></td>' +
+                        '<td><input type="text" class="form-control form-control-sm input-comentario" value="' + String(m.comentario || '').replace(/"/g, '&quot;') + '"></td>' +
+                        '<td class="text-center"><button type="button" class="btn btn-sm btn-outline-danger btn-eliminar-material" title="Eliminar"><i class="bi bi-trash"></i></button></td>';
+                    tbodyMaterialesEdit.appendChild(tr);
+                });
+                // Actualizar contador
+                const contMat = document.getElementById('contadorMateriales');
+                if (contMat) contMat.textContent = salidaEditando.materialesLista.length;
+            }
+
+            // Título
+            const h2 = document.querySelector('.container-fluid h2');
+            if (h2) h2.innerHTML = '<i class="bi bi-pencil"></i> Editar Salida' + (salidaEditando.folio ? ' (Folio ' + salidaEditando.folio + ')' : ' (Sin Folio)');
+        }
+
+        // Función para leer los materiales del formulario
+        function leerMaterialesFormulario() {
+            if (!tbodyMaterialesEdit) return [];
+            const lista = [];
+            tbodyMaterialesEdit.querySelectorAll('.material-row').forEach(function (fila) {
+                const cant = parseFloat(fila.querySelector('.input-cantidad').value) || 0;
+                const uni = fila.querySelector('.input-unidad').value;
+                const desc = fila.querySelector('.input-descripcion').value.trim();
+                const com = fila.querySelector('.input-comentario').value.trim();
+                if (desc) lista.push({ cantidad: cant, unidad: uni, descripcion: desc, comentario: com });
+            });
+            return lista;
+        }
+
+        // Guardar cambios
+        if (btnGuardarCambios) {
+            btnGuardarCambios.addEventListener('click', function () {
+                if (!salidaEditando) {
+                    mostrarToastEditar('Error', 'No hay salida cargada.', 'danger');
+                    return;
+                }
+
+                // Deshabilitar
+                btnGuardarCambios.disabled = true;
+                const textoOriginal = btnGuardarCambios.innerHTML;
+                btnGuardarCambios.innerHTML =
+                    '<span class="spinner-border spinner-border-sm me-1"></span> Guardando...';
+
+                const mat = leerMaterialesFormulario();
+
+                // 🔑 Si la salida estaba cancelada, al guardar cambios pasa a borrador
+                //    conservando el folio ya asignado y limpiando el motivo de cancelación
+                const cambios = {
+                    descripcion: document.getElementById('editDescripcion').value.trim(),
+                    causa: document.getElementById('editCausa').value.trim(),
+                    categoria: document.getElementById('editCategoria').value.trim(),
+                    comentarios: document.getElementById('editComentarios').value.trim(),
+                    contacto: document.getElementById('contactoInput').value.trim(),
+                    esDefinitiva: document.getElementById('esDefinitiva').checked,
+                    retornoEsperado: document.getElementById('retornoEsperado').value,
+                    materialesLista: mat,
+                    materiales: mat.length
+                };
+
+                if (salidaEditando.estado === 'cancelada') {
+                    cambios.estado = 'borrador';
+                    cambios.motivo = '';
+                    // El folio se conserva: no se toca `folio`
+                }
+
+                window.swcoraSalidas.actualizar(salidaEditando.id, cambios);
+
+                const mensaje = salidaEditando.estado === 'cancelada'
+                    ? 'Los cambios se guardaron. La salida volvió a estado Borrador conservando el folio ' + (salidaEditando.folio || '') + '.'
+                    : 'Los cambios se guardaron correctamente.';
+
+                mostrarToastEditar(
+                    'Cambios guardados',
+                    mensaje,
+                    'success',
+                    function () {
+                        window.location.href = 'salidas-index.html';
+                    }
+                );
+            });
+        }
+
+        // Enviar a aprobación
+        if (btnConfirmarEnvioAprob) {
+            btnConfirmarEnvioAprob.addEventListener('click', function () {
+                const selectAprob = document.getElementById('selectAprobadorSalida');
+                if (!selectAprob || !selectAprob.value) {
+                    if (selectAprob) selectAprob.classList.add('is-invalid');
+                    return;
+                }
+                if (selectAprob) selectAprob.classList.remove('is-invalid');
+
+                if (!salidaEditando) {
+                    mostrarToastEditar('Error', 'No hay salida cargada.', 'danger');
+                    return;
+                }
+
+                // 🚫 Deshabilitar AMBOS botones para evitar doble clic
+                btnConfirmarEnvioAprob.disabled = true;
+                const textoOriginalConfirmar = btnConfirmarEnvioAprob.innerHTML;
+                btnConfirmarEnvioAprob.innerHTML =
+                    '<span class="spinner-border spinner-border-sm me-1"></span> Enviando...';
+
+                let textoOriginalEnviar = '';
+                if (btnEnviarAprobacion) {
+                    btnEnviarAprobacion.disabled = true;
+                    textoOriginalEnviar = btnEnviarAprobacion.innerHTML;
+                    btnEnviarAprobacion.innerHTML =
+                        '<span class="spinner-border spinner-border-sm me-1"></span> Enviando...';
+                }
+
+                const mat = leerMaterialesFormulario();
+                const folio = salidaEditando.folio || window.swcoraSalidas.siguienteFolio();
+
+                window.swcoraSalidas.actualizar(salidaEditando.id, {
+                    estado: 'pendiente',
+                    folio: folio,
+                    aprobador: selectAprob.value,
+                    descripcion: document.getElementById('editDescripcion').value.trim(),
+                    causa: document.getElementById('editCausa').value.trim(),
+                    categoria: document.getElementById('editCategoria').value.trim(),
+                    comentarios: document.getElementById('editComentarios').value.trim(),
+                    contacto: document.getElementById('contactoInput').value.trim(),
+                    esDefinitiva: document.getElementById('esDefinitiva').checked,
+                    retornoEsperado: document.getElementById('retornoEsperado').value,
+                    materialesLista: mat,
+                    materiales: mat.length
+                });
+
+                // ✅ Cerrar el modal inmediatamente
+                const modalEl = document.getElementById('modalEnviarAprobacion');
+                if (modalEl) {
+                    const modalInstance = bootstrap.Modal.getInstance(modalEl);
+                    if (modalInstance) {
+                        modalInstance.hide();
+                    } else {
+                        modalEl.classList.remove('show');
+                        modalEl.style.display = 'none';
+                        modalEl.setAttribute('aria-hidden', 'true');
+                        document.body.classList.remove('modal-open');
+                        document.querySelectorAll('.modal-backdrop').forEach(b => b.remove());
+                    }
+                }
+
+                // Mostrar toast y redirigir al ocultarse
+                mostrarToastEditar(
+                    'Salida enviada a aprobación',
+                    'La salida se envió con folio ' + folio + '.',
+                    'success',
+                    function () {
+                        window.location.href = 'salidas-index.html';
+                    }
+                );
+
+                // 🛟 Red de seguridad: si por alguna razón no se redirige,
+                // restaurar ambos botones después de 3s
+                setTimeout(function () {
+                    if (btnConfirmarEnvioAprob) {
+                        btnConfirmarEnvioAprob.disabled = false;
+                        btnConfirmarEnvioAprob.innerHTML = textoOriginalConfirmar;
+                    }
+                    if (btnEnviarAprobacion) {
+                        btnEnviarAprobacion.disabled = false;
+                        btnEnviarAprobacion.innerHTML = textoOriginalEnviar;
+                    }
+                }, 3000);
+            });
+        }
+    }
+
+    // =============================================
+    // SALIDAS CREAR: Guardar borrador + Enviar a aprobación
+    // =============================================
+    const btnGuardarBorrador = document.getElementById('btnGuardarBorrador');
+    const btnEnviarAprobacionCrear = document.getElementById('btnEnviarAprobacion');
+    const btnConfirmarEnvioCrear = document.getElementById('btnConfirmarEnvioCrear');
+
+    // Detectar si estamos en salidas-crear.html
+    if (btnGuardarBorrador || btnConfirmarEnvioCrear) {
+        const tbodyMaterialesCrear = document.getElementById('tbodyMateriales');
+        const contadorMaterialesCrear = document.getElementById('contadorMateriales');
+
+        // Toast
+        const toastCrearEl = document.getElementById('toastCrearSalida');
+        const toastCrearTitulo = document.getElementById('toastCrearTitulo');
+        const toastCrearMensaje = document.getElementById('toastCrearMensaje');
+
+        function mostrarToastCrear(titulo, mensaje, tipo, callback) {
+            if (!toastCrearEl) {
+                if (callback) callback();
+                return;
+            }
+            if (toastCrearTitulo) toastCrearTitulo.textContent = titulo;
+            if (toastCrearMensaje) toastCrearMensaje.textContent = mensaje;
+
+            const header = toastCrearEl.querySelector('.toast-header');
+            if (header) {
+                header.style.backgroundColor = tipo === 'danger'
+                    ? 'var(--cora-accent)' : 'var(--cora-success)';
+            }
+
+            if (callback) {
+                const handler = function () {
+                    toastCrearEl.removeEventListener('hidden.bs.toast', handler);
+                    callback();
+                };
+                toastCrearEl.addEventListener('hidden.bs.toast', handler);
+            }
+
+            bootstrap.Toast.getOrCreateInstance(toastCrearEl).show();
+        }
+
+        // ---------- Leer materiales del formulario ----------
+        function leerMaterialesCrear() {
+            if (!tbodyMaterialesCrear) return [];
+            const lista = [];
+            tbodyMaterialesCrear.querySelectorAll('.material-row').forEach(function (fila) {
+                const cant = parseFloat(fila.querySelector('.input-cantidad').value) || 0;
+                const uni = fila.querySelector('.input-unidad').value;
+                const desc = fila.querySelector('.input-descripcion').value.trim();
+                const com = fila.querySelector('.input-comentario').value.trim();
+                if (desc) {
+                    lista.push({ cantidad: cant, unidad: uni, descripcion: desc, comentario: com });
+                }
+            });
+            return lista;
+        }
+
+        // ---------- Leer datos generales del formulario ----------
+        function leerDatosCrear() {
+            const selectEmpresa = document.getElementById('selectEmpresa');
+            const empresaTexto = selectEmpresa && selectEmpresa.selectedIndex > 0
+                ? selectEmpresa.options[selectEmpresa.selectedIndex].textContent.trim()
+                : '';
+            // Limpiar el sufijo "(Proveedor)" etc.
+            const empresa = empresaTexto.replace(/\s*\([^)]*\)\s*$/, '').trim();
+
+            // Detectar tipo de empresa del texto
+            let tipoEmpresa = '';
+            if (/\(Proveedor\)/i.test(empresaTexto)) tipoEmpresa = 'Proveedor';
+            else if (/\(Cliente\)/i.test(empresaTexto)) tipoEmpresa = 'Cliente';
+            else if (/\(Mensajería\)/i.test(empresaTexto)) tipoEmpresa = 'Mensajería';
+            else if (/\(Filial\)/i.test(empresaTexto)) tipoEmpresa = 'Filial';
+
+            const hoy = new Date();
+            const pad = n => String(n).padStart(2, '0');
+            const fechaISO = hoy.getFullYear() + '-' + pad(hoy.getMonth() + 1) + '-' + pad(hoy.getDate());
+            const fechaVisible = pad(hoy.getDate()) + '/' + pad(hoy.getMonth() + 1) + '/' + hoy.getFullYear();
+            const horaVisible = pad(hoy.getHours()) + ':' + pad(hoy.getMinutes());
+
+            return {
+                fecha: fechaISO,
+                fechaVisible: fechaVisible,
+                fechaCreacion: fechaVisible + ' ' + horaVisible,
+                usuario: USUARIO_ACTUAL,
+                creadoPor: USUARIO_ACTUAL,
+                departamento: 'Sistemas', // Mockup: podría venir de un select o del perfil
+                empresa: empresa,
+                tipoEmpresa: tipoEmpresa,
+                contacto: (document.getElementById('contactoInput') || {}).value?.trim() || '',
+                esDefinitiva: (document.getElementById('esDefinitiva') || {}).checked || false,
+                retornoEsperado: (document.getElementById('retornoEsperado') || {}).value || '',
+                descripcion: (document.getElementById('crearDescripcion') || {}).value?.trim() || '',
+                causa: (document.getElementById('crearCausa') || {}).value?.trim() || '',
+                categoria: (document.getElementById('crearCategoria') || {}).value?.trim() || '',
+                comentarios: (document.getElementById('crearComentarios') || {}).value?.trim() || ''
+            };
+        }
+
+        // ---------- Validación básica ----------
+        function validarFormularioCrear() {
+            const datos = leerDatosCrear();
+            const materiales = leerMaterialesCrear();
+
+            if (!datos.empresa) {
+                mostrarToastCrear('Falta empresa', 'Debes seleccionar una empresa.', 'danger');
+                return null;
+            }
+            if (!datos.descripcion) {
+                mostrarToastCrear('Falta descripción', 'Debes escribir una descripción.', 'danger');
+                return null;
+            }
+            if (materiales.length === 0) {
+                mostrarToastCrear('Sin materiales', 'Debes agregar al menos un material con descripción.', 'danger');
+                return null;
+            }
+
+            return { datos: datos, materiales: materiales };
+        }
+
+        // ---------- Guardar Borrador ----------
+        if (btnGuardarBorrador) {
+            btnGuardarBorrador.addEventListener('click', function () {
+                const validado = validarFormularioCrear();
+                if (!validado) return;
+
+                btnGuardarBorrador.disabled = true;
+                const textoOriginal = btnGuardarBorrador.innerHTML;
+                btnGuardarBorrador.innerHTML =
+                    '<span class="spinner-border spinner-border-sm me-1"></span> Guardando...';
+
+                const { datos, materiales } = validado;
+
+                const nueva = window.swcoraSalidas.agregar({
+                    folio: '',
+                    estado: 'borrador',
+                    motivo: '',
+                    aprobador: '',
+                    aprobadoPor: '',
+                    fechaAprobacion: '',
+                    fecha: datos.fecha,
+                    fechaVisible: datos.fechaVisible,
+                    fechaCreacion: datos.fechaCreacion,
+                    usuario: datos.usuario,
+                    creadoPor: datos.creadoPor,
+                    departamento: datos.departamento,
+                    empresa: datos.empresa,
+                    tipoEmpresa: datos.tipoEmpresa,
+                    contacto: datos.contacto,
+                    esDefinitiva: datos.esDefinitiva,
+                    retornoEsperado: datos.retornoEsperado,
+                    descripcion: datos.descripcion,
+                    causa: datos.causa,
+                    categoria: datos.categoria,
+                    comentarios: datos.comentarios,
+                    materiales: materiales.length,
+                    materialesLista: materiales
+                });
+
+                mostrarToastCrear(
+                    'Borrador guardado',
+                    'La salida se guardó como borrador.',
+                    'success',
+                    function () {
+                        window.location.href = 'salidas-index.html';
+                    }
+                );
+            });
+        }
+
+        // ---------- Confirmar Envío a Aprobación ----------
+        if (btnConfirmarEnvioCrear) {
+            btnConfirmarEnvioCrear.addEventListener('click', function () {
+                const selectAprob = document.getElementById('selectAprobadorCrear');
+                if (!selectAprob || !selectAprob.value) {
+                    if (selectAprob) selectAprob.classList.add('is-invalid');
+                    return;
+                }
+                if (selectAprob) selectAprob.classList.remove('is-invalid');
+
+                const validado = validarFormularioCrear();
+                if (!validado) return;
+
+                // Deshabilitar botones
+                btnConfirmarEnvioCrear.disabled = true;
+                const textoOriginalConfirmar = btnConfirmarEnvioCrear.innerHTML;
+                btnConfirmarEnvioCrear.innerHTML =
+                    '<span class="spinner-border spinner-border-sm me-1"></span> Enviando...';
+
+                let textoOriginalEnviar = '';
+                if (btnEnviarAprobacionCrear) {
+                    btnEnviarAprobacionCrear.disabled = true;
+                    textoOriginalEnviar = btnEnviarAprobacionCrear.innerHTML;
+                    btnEnviarAprobacionCrear.innerHTML =
+                        '<span class="spinner-border spinner-border-sm me-1"></span> Enviando...';
+                }
+
+                const { datos, materiales } = validado;
+                const folio = window.swcoraSalidas.siguienteFolio();
+
+                window.swcoraSalidas.agregar({
+                    folio: folio,
+                    estado: 'pendiente',
+                    motivo: '',
+                    aprobador: selectAprob.value,
+                    aprobadoPor: '',
+                    fechaAprobacion: '',
+                    fecha: datos.fecha,
+                    fechaVisible: datos.fechaVisible,
+                    fechaCreacion: datos.fechaCreacion,
+                    usuario: datos.usuario,
+                    creadoPor: datos.creadoPor,
+                    departamento: datos.departamento,
+                    empresa: datos.empresa,
+                    tipoEmpresa: datos.tipoEmpresa,
+                    contacto: datos.contacto,
+                    esDefinitiva: datos.esDefinitiva,
+                    retornoEsperado: datos.retornoEsperado,
+                    descripcion: datos.descripcion,
+                    causa: datos.causa,
+                    categoria: datos.categoria,
+                    comentarios: datos.comentarios,
+                    materiales: materiales.length,
+                    materialesLista: materiales
+                });
+
+                // Cerrar modal inmediatamente
+                const modalEl = document.getElementById('modalEnviarAprobacion');
+                if (modalEl) {
+                    const modalInstance = bootstrap.Modal.getInstance(modalEl);
+                    if (modalInstance) {
+                        modalInstance.hide();
+                    } else {
+                        modalEl.classList.remove('show');
+                        modalEl.style.display = 'none';
+                        modalEl.setAttribute('aria-hidden', 'true');
+                        document.body.classList.remove('modal-open');
+                        document.querySelectorAll('.modal-backdrop').forEach(b => b.remove());
+                    }
+                }
+
+                mostrarToastCrear(
+                    'Salida enviada a aprobación',
+                    'La salida se envió con folio ' + folio + '.',
+                    'success',
+                    function () {
+                        window.location.href = 'salidas-index.html';
+                    }
+                );
+
+                // Red de seguridad
+                setTimeout(function () {
+                    if (btnConfirmarEnvioCrear) {
+                        btnConfirmarEnvioCrear.disabled = false;
+                        btnConfirmarEnvioCrear.innerHTML = textoOriginalConfirmar;
+                    }
+                    if (btnEnviarAprobacionCrear) {
+                        btnEnviarAprobacionCrear.disabled = false;
+                        btnEnviarAprobacionCrear.innerHTML = textoOriginalEnviar;
+                    }
+                }, 3000);
+            });
+        }
+
+        // Actualizar contador de materiales al cargar
+        if (contadorMaterialesCrear && tbodyMaterialesCrear) {
+            contadorMaterialesCrear.textContent = tbodyMaterialesCrear.querySelectorAll('.material-row').length;
+        }
+    }
 });

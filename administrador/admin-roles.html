@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Roles - SWCORA</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="index.html"><i class="bi bi-lightning-charge-fill"></i> SWCORA</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item"><a class="nav-link" href="index.html"><i class="bi bi-house-door"></i> Inicio</a></li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-gear"></i> Administración
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="admin-usuarios.html"><i class="bi bi-people"></i> Usuarios</a></li>
+                                <li><a class="dropdown-item" href="admin-roles.html"><i class="bi bi-shield-lock"></i> Roles</a></li>
+                                <li><a class="dropdown-item" href="admin-modulos.html"><i class="bi bi-box-seam"></i> Módulos</a></li>
+                                <li><a class="dropdown-item" href="admin-empresas.html"><i class="bi bi-building"></i> Empresas</a></li>
+                                <li><a class="dropdown-item" href="admin-departamentos.html"><i class="bi bi-diagram-3"></i> Departamentos</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li class="dropdown-submenu">
+                                    <a class="dropdown-item dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                        <i class="bi bi-collection"></i> Catálogos
+                                    </a>
+                                    <ul class="dropdown-menu">
+                                        <li class="dropdown-submenu">
+                                            <a class="dropdown-item dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                                <i class="bi bi-clipboard-check"></i> Salidas de Material
+                                            </a>
+                                            <ul class="dropdown-menu">
+                                                <li>
+                                                    <a class="dropdown-item" href="admin-unidades.html">
+                                                        <i class="bi bi-rulers"></i> Unidades
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="admin-logs.html"><i class="bi bi-journal-text"></i> Logs</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-box-seam"></i> Módulos
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="salidas-index.html"><i class="bi bi-clipboard-check"></i> Salidas de Material</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="bi bi-key"></i> Acceso a Módulos</a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="acceso-solicitar.html"><i class="bi bi-pencil-square"></i> Solicitar acceso</a></li>
+                                <li><a class="dropdown-item" href="acceso-mis-solicitudes.html"><i class="bi bi-list-check"></i> Mis solicitudes</a></li>
+                                <li><a class="dropdown-item" href="acceso-aprobar.html"><i class="bi bi-check2-circle"></i> Aprobaciones pendientes</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link position-relative" href="notificaciones.html">
+                                <i class="bi bi-bell"></i>
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">3</span>
+                            </a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-person-circle"></i> Juan Pérez
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="mi-perfil.html"><i class="bi bi-person"></i> Mi perfil</a></li>
+                                <li><a class="dropdown-item" href="configuracion.html"><i class="bi bi-gear"></i> Configuración</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="../index.html"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container-fluid mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="bi bi-shield-lock"></i> Gestión de Roles</h2>
+            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalCrearRol">
+                <i class="bi bi-plus-circle"></i> Nuevo Rol
+            </button>
+        </div>
+
+        <!-- ============================================= -->
+        <!-- GRID 30/70 INVERTIDO: Filtros izq / Roles der  -->
+        <!-- ============================================= -->
+        <div class="salida-form-grid-invertido">
+
+            <!-- ============================================= -->
+            <!-- COLUMNA IZQUIERDA (30%): Filtros               -->
+            <!-- ============================================= -->
+            <div class="col-izquierda">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="bi bi-funnel"></i> Filtros</h5>
+                        <button class="btn btn-sm btn-outline-secondary" id="btnLimpiarFiltrosRoles"><i class="bi bi-arrow-clockwise"></i> Limpiar</button>
+                    </div>
+                    <div class="card-body">
+
+                        <div class="mb-3">
+                            <label class="form-label">Buscar</label>
+                            <input type="text" class="form-control" id="filtroRolesBuscar" placeholder="Nombre del rol...">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Tipo</label>
+                            <select class="form-select" id="filtroRolesTipo">
+                                <option value="">Todos</option>
+                                <option value="global">Global</option>
+                                <option value="local">Local</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-0">
+                            <label class="form-label">Módulo</label>
+                            <select class="form-select" id="filtroRolesModulo">
+                                <option value="">Todos</option>
+                                <option value="salidas">Salidas de Material</option>
+                            </select>
+                        </div>
+
+                    </div>
+                    <div class="card-footer">
+                        <small class="text-muted">
+                            <i class="bi bi-info-circle"></i> Los filtros se aplican automáticamente.
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================= -->
+            <!-- COLUMNA DERECHA (70%): Roles                   -->
+            <!-- ============================================= -->
+            <div class="col-derecha">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="bi bi-list-ul"></i> Roles</h5>
+                        <button class="btn btn-sm btn-outline-success" id="btnExportarRoles" data-tabla="#tablaRoles" data-nombre="roles"><i class="bi bi-file-excel"></i> Exportar CSV</button>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0" id="tablaRoles">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Descripción</th>
+                                        <th>Tipo</th>
+                                        <th>Módulo</th>
+                                        <th>Puede Aprobar</th>
+                                        <th>Origen</th>
+                                        <th>Estado</th>
+                                        <th class="text-center">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="rol-row"
+                                        data-codigo="Administrador"
+                                        data-nombre="Administrador"
+                                        data-descripcion="Administración general del sistema"
+                                        data-tipo="global"
+                                        data-modulo=""
+                                        data-origen="sistema"
+                                        data-estado="activo"
+                                        data-bloqueado="true"
+                                        data-permisos="">
+                                        <td>Administrador</td>
+                                        <td>Administración general del sistema</td>
+                                        <td><span class="badge" style="background-color: var(--cora-accent);">🌐 Global</span></td>
+                                        <td>—</td>
+                                        <td><span class="badge bg-success">Sí</span></td>
+                                        <td><span class="badge bg-dark">Sistema</span></td>
+                                        <td><span class="badge bg-success">Activo</span></td>
+                                        <td class="text-center">
+                                            <button class="btn btn-sm btn-outline-secondary" disabled title="Rol del sistema, no editable">
+                                                <i class="bi bi-lock"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr class="rol-row"
+                                        data-codigo="Generador"
+                                        data-nombre="Generador de Salidas"
+                                        data-descripcion="Crea y gestiona salidas de material"
+                                        data-tipo="local"
+                                        data-modulo="salidas"
+                                        data-origen="precargado"
+                                        data-estado="activo"
+                                        data-permisos="p-salidas-crear p-salidas-editar p-salidas-ver p-salidas-detalles p-salidas-clonar p-salidas-pdf p-salidas-exportar p-salidas-plantillas p-salidas-eliminar">
+                                        <td>Generador de Salidas</td>
+                                        <td>Crea y gestiona salidas de material</td>
+                                        <td><span class="badge bg-info">📦 Local</span></td>
+                                        <td>Salidas de Material</td>
+                                        <td><span class="badge bg-secondary">No</span></td>
+                                        <td><span class="badge bg-info">Precargado</span></td>
+                                        <td><span class="badge bg-success">Activo</span></td>
+                                        <td class="text-center">
+                                            <button class="btn btn-sm btn-outline-secondary" disabled title="Rol del sistema, no editable">
+                                                <i class="bi bi-lock"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr class="rol-row"
+                                        data-codigo="Aprobador"
+                                        data-nombre="Aprobador de Salidas"
+                                        data-descripcion="Aprueba o rechaza salidas de material"
+                                        data-tipo="local"
+                                        data-modulo="salidas"
+                                        data-origen="precargado"
+                                        data-estado="activo"
+                                        data-permisos="p-salidas-ver p-salidas-detalles p-salidas-aprobar p-salidas-rechazar p-salidas-pdf p-salidas-exportar">
+                                        <td>Aprobador de Salidas</td>
+                                        <td>Aprueba o rechaza salidas de material</td>
+                                        <td><span class="badge bg-info">📦 Local</span></td>
+                                        <td>Salidas de Material</td>
+                                        <td><span class="badge bg-success">Sí</span></td>
+                                        <td><span class="badge bg-info">Precargado</span></td>
+                                        <td><span class="badge bg-success">Activo</span></td>
+                                        <td class="text-center">
+                                            <button class="btn btn-sm btn-outline-secondary" disabled title="Rol del sistema, no editable">
+                                                <i class="bi bi-lock"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr class="rol-row"
+                                        data-codigo="Auditor"
+                                        data-nombre="Auditor de Salidas"
+                                        data-descripcion="Consulta y audita salidas sin modificarlas"
+                                        data-tipo="local"
+                                        data-modulo="salidas"
+                                        data-origen="personalizado"
+                                        data-estado="activo"
+                                        data-permisos="p-salidas-ver p-salidas-detalles p-salidas-exportar">
+                                        <td>Auditor de Salidas</td>
+                                        <td>Consulta y audita salidas sin modificarlas</td>
+                                        <td><span class="badge bg-info">📦 Local</span></td>
+                                        <td>Salidas de Material</td>
+                                        <td><span class="badge bg-secondary">No</span></td>
+                                        <td><span class="badge bg-secondary">Personalizado</span></td>
+                                        <td><span class="badge bg-success">Activo</span></td>
+                                        <td class="text-center">
+                                            <button class="btn btn-sm btn-outline-info btn-editar-rol" title="Editar"
+                                                    data-bs-toggle="modal" data-bs-target="#modalCrearRol">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-primary btn-toggle-estado-rol" title="Desactivar" data-accion="desactivar">
+                                                <i class="bi bi-power"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <small class="text-muted">Mostrando <span id="contadorRoles">5</span> de 5 roles</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================= -->
+    <!-- MODAL: Crear / Editar Rol                      -->
+    <!-- ============================================= -->
+    <div class="modal fade" id="modalCrearRol" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: var(--cora-success); color: white;">
+                    <h5 class="modal-title" id="modalCrearRolTitulo" style="color: var(--cora-white);">
+                        <i class="bi bi-plus-circle"></i> Crear Rol
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <h6 class="border-bottom pb-2 mb-3">📌 Información Básica</h6>
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Nombre <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="rolNombre" placeholder="Ej: Auditor de Salidas" maxlength="100">
+                        </div>
+                    </div>
+
+                    <div class="row g-2 mb-3">
+                        <div class="col-12">
+                            <label class="form-label">Descripción</label>
+                            <textarea class="form-control" id="rolDescripcion" rows="2" placeholder="Descripción del rol..." maxlength="500"></textarea>
+                        </div>
+                    </div>
+
+                    <h6 class="border-bottom pb-2 mb-3">🌳 Árbol de Permisos</h6>
+                    <div class="mb-2">
+                        <button class="btn btn-sm btn-outline-secondary" type="button" id="btnColapsarArbol">
+                            <i class="bi bi-arrows-collapse"></i> Colapsar
+                        </button>
+                        <button class="btn btn-sm btn-outline-info" type="button" id="btnExpandirArbol">
+                            <i class="bi bi-arrows-expand"></i> Expandir
+                        </button>
+                        <button class="btn btn-sm btn-outline-success" type="button" id="btnSeleccionarTodo">
+                            <i class="bi bi-check-all"></i> Seleccionar todo
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" type="button" id="btnDeseleccionarTodo">
+                            <i class="bi bi-x-circle"></i> Deseleccionar
+                        </button>
+                    </div>
+                    <div class="tree-container" id="arbolPermisos">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="nodo1">
+                            <label class="form-check-label fw-bold" for="nodo1"><i class="bi bi-globe"></i> SWCORA (Sistema)</label>
+                        </div>
+                        <ul>
+                            <li>
+                                <div class="form-check">
+                                    <input class="form-check-input permiso-checkbox" type="checkbox" id="p-modulos" data-nivel="1">
+                                    <label class="form-check-label fw-bold" for="p-modulos"><i class="bi bi-box-seam"></i> Módulos</label>
+                                </div>
+                                <ul>
+                                    <li>
+                                        <div class="form-check">
+                                            <input class="form-check-input permiso-checkbox" type="checkbox" id="p-salidas" data-nivel="2">
+                                            <label class="form-check-label fw-bold" for="p-salidas"><i class="bi bi-clipboard-check"></i> Salidas de Material</label>
+                                        </div>
+                                        <ul>
+                                            <li><div class="form-check"><input class="form-check-input permiso-checkbox" type="checkbox" id="p-salidas-crear"><label class="form-check-label" for="p-salidas-crear">➕ Crear salida</label></div></li>
+                                            <li><div class="form-check"><input class="form-check-input permiso-checkbox" type="checkbox" id="p-salidas-editar"><label class="form-check-label" for="p-salidas-editar">✏️ Editar salida</label></div></li>
+                                            <li><div class="form-check"><input class="form-check-input permiso-checkbox" type="checkbox" id="p-salidas-ver"><label class="form-check-label" for="p-salidas-ver">👁️ Ver salidas</label></div></li>
+                                            <li><div class="form-check"><input class="form-check-input permiso-checkbox" type="checkbox" id="p-salidas-detalles"><label class="form-check-label" for="p-salidas-detalles">👁️ Ver detalles</label></div></li>
+                                            <li><div class="form-check"><input class="form-check-input permiso-checkbox" type="checkbox" id="p-salidas-aprobar"><label class="form-check-label" for="p-salidas-aprobar">✅ Aprobar salida</label></div></li>
+                                            <li><div class="form-check"><input class="form-check-input permiso-checkbox" type="checkbox" id="p-salidas-rechazar"><label class="form-check-label" for="p-salidas-rechazar">❌ Rechazar salida</label></div></li>
+                                            <li><div class="form-check"><input class="form-check-input permiso-checkbox" type="checkbox" id="p-salidas-cancelar"><label class="form-check-label" for="p-salidas-cancelar">🗑️ Cancelar salida</label></div></li>
+                                            <li><div class="form-check"><input class="form-check-input permiso-checkbox" type="checkbox" id="p-salidas-clonar"><label class="form-check-label" for="p-salidas-clonar">📋 Clonar salida</label></div></li>
+                                            <li><div class="form-check"><input class="form-check-input permiso-checkbox" type="checkbox" id="p-salidas-pdf"><label class="form-check-label" for="p-salidas-pdf">📄 Descargar PDF</label></div></li>
+                                            <li><div class="form-check"><input class="form-check-input permiso-checkbox" type="checkbox" id="p-salidas-exportar"><label class="form-check-label" for="p-salidas-exportar">📊 Exportar CSV</label></div></li>
+                                            <li><div class="form-check"><input class="form-check-input permiso-checkbox" type="checkbox" id="p-salidas-importar"><label class="form-check-label" for="p-salidas-importar">📤 Importar CSV</label></div></li>
+                                            <li><div class="form-check"><input class="form-check-input permiso-checkbox" type="checkbox" id="p-salidas-plantillas"><label class="form-check-label" for="p-salidas-plantillas">📋 Gestionar plantillas</label></div></li>
+                                            <li><div class="form-check"><input class="form-check-input permiso-checkbox" type="checkbox" id="p-salidas-eliminar"><label class="form-check-label" for="p-salidas-eliminar">🗑️ Eliminar borrador</label></div></li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </li>
+
+                            <li>
+                                <div class="form-check">
+                                    <input class="form-check-input permiso-checkbox" type="checkbox" id="p-acceso" data-nivel="1">
+                                    <label class="form-check-label fw-bold" for="p-acceso"><i class="bi bi-key"></i> Acceso a Módulos</label>
+                                </div>
+                                <ul>
+                                    <li><div class="form-check"><input class="form-check-input permiso-checkbox" type="checkbox" id="p-acceso-solicitar"><label class="form-check-label" for="p-acceso-solicitar">📝 Solicitar acceso</label></div></li>
+                                    <li><div class="form-check"><input class="form-check-input permiso-checkbox" type="checkbox" id="p-acceso-mis"><label class="form-check-label" for="p-acceso-mis">📋 Ver mis solicitudes</label></div></li>
+                                    <li><div class="form-check"><input class="form-check-input permiso-checkbox" type="checkbox" id="p-acceso-pendientes"><label class="form-check-label" for="p-acceso-pendientes">📋 Ver Aprobaciones Pendientes</label></div></li>
+                                    <li><div class="form-check"><input class="form-check-input permiso-checkbox" type="checkbox" id="p-acceso-aprobar"><label class="form-check-label" for="p-acceso-aprobar">✅ Aprobar solicitudes</label></div></li>
+                                    <li><div class="form-check"><input class="form-check-input permiso-checkbox" type="checkbox" id="p-acceso-rechazar"><label class="form-check-label" for="p-acceso-rechazar">❌ Rechazar solicitudes</label></div></li>
+                                    <li><div class="form-check"><input class="form-check-input permiso-checkbox" type="checkbox" id="p-acceso-cancelar"><label class="form-check-label" for="p-acceso-cancelar">🗑️ Cancelar solicitudes</label></div></li>
+                                    <li><div class="form-check"><input class="form-check-input permiso-checkbox" type="checkbox" id="p-acceso-informe"><label class="form-check-label" for="p-acceso-informe">📊 Exportar CSV</label></div></li>
+                                </ul>
+                            </li>
+
+                            <li>
+                                <div class="form-check">
+                                    <input class="form-check-input permiso-checkbox" type="checkbox" id="p-admin" data-nivel="1">
+                                    <label class="form-check-label fw-bold" for="p-admin"><i class="bi bi-gear"></i> Administración</label>
+                                </div>
+                                <ul>
+                                    <li>
+                                        <div class="form-check">
+                                            <input class="form-check-input permiso-checkbox" type="checkbox" id="p-admin-usuarios" data-nivel="2">
+                                            <label class="form-check-label fw-bold" for="p-admin-usuarios"><i class="bi bi-people"></i> Usuarios</label>
+                                        </div>
+                                        <ul>
+                                            <li><div class="form-check"><input class="form-check-input permiso-checkbox" type="checkbox" id="p-admin-usuarios-ver"><label class="form-check-label" for="p-admin-usuarios-ver">👁️ Ver usuarios</label></div></li>
+                                            <li><div class="form-check"><input class="form-check-input permiso-checkbox" type="checkbox" id="p-admin-usuarios-editar"><label class="form-check-label" for="p-admin-usuarios-editar">✏️ Editar usuario</label></div></li>
+                                            <li><div class="form-check"><input class="form-check-input permiso-checkbox" type="checkbox" id="p-admin-usuarios-roles"><label class="form-check-label" for="p-admin-usuarios-roles">🔐 Asignar roles</label></div></li>
+                                            <li><div class="form-check"><input class="form-check-input permiso-checkbox" type="checkbox" id="p-admin-usuarios-modulos"><label class="form-check-label" for="p-admin-usuarios-modulos">📦 Asignar módulos</label></div></li>
+                                            <li><div class="form-check"><input class="form-check-input permiso-checkbox" type="checkbox" id="p-admin-usuarios-estado"><label class="form-check-label" for="p-admin-usuarios-estado">🔒 Activar/Desactivar usuario</label></div></li>
+                                            <li><div class="form-check"><input class="form-check-input permiso-checkbox" type="checkbox" id="p-admin-usuarios-informe"><label class="form-check-label" for="p-admin-usuarios-informe">📊 Exportar CSV</label></div></li>
+                                        </ul>
+                                    </li>
+                                    <li>
+                                        <div class="form-check">
+                                            <input class="form-check-input permiso-checkbox" type="checkbox" id="p-admin-roles" data-nivel="2">
+                                            <label class="form-check-label fw-bold" for="p-admin-roles"><i class="bi bi-shield-lock"></i> Roles</label>
+                                        </div>
+                                        <ul>
+                                            <li><div class="form-check"><input class="form-check-input permiso-checkbox" type="checkbox" id="p-admin-roles-ver"><label class="form-check-label" for="p-admin-roles-ver">👁️ Ver roles</label></div></li>
+                                            <li><div class="form-check"><input class="form-check-input permiso-checkbox" type="checkbox" id="p-admin-roles-crear"><label class="form-check-label" for="p-admin-roles-crear">➕ Crear rol</label></div></li>
+                                            <li><div class="form-check"><input class="form-check-input permiso-checkbox" type="checkbox" id="p-admin-roles-editar"><label class="form-check-label" for="p-admin-roles-editar">✏️ Editar rol</label></div></li>
+                                            <li><div class="form-check"><input class="form-check-input permiso-checkbox" type="checkbox" id="p-admin-roles-estado"><label class="form-check-label" for="p-admin-roles-estado">🔒 Activar/Desactivar rol</label></div></li>
+                                            <li><div class="form-check"><input class="form-check-input permiso-checkbox" type="checkbox" id="p-admin-roles-informe"><label class="form-check-label" for="p-admin-roles-informe">📊 Exportar CSV</label></div></li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-success" id="btnGuardarRol"><i class="bi bi-save"></i> Guardar Rol</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================= -->
+    <!-- TOASTS                                          -->
+    <!-- ============================================= -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1090;">
+
+        <div id="toastCambiosGuardados" class="toast" role="alert" data-bs-delay="3500">
+            <div class="toast-header" style="background-color: var(--cora-success); color: white;">
+                <i class="bi bi-check-circle me-2"></i>
+                <strong class="me-auto">Cambios guardados</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body">
+                Los cambios se han guardado correctamente.
+            </div>
+        </div>
+
+        <div id="toastRolActivado" class="toast" role="alert" data-bs-delay="3500">
+            <div class="toast-header" style="background-color: var(--cora-success); color: white;">
+                <i class="bi bi-check-circle me-2"></i>
+                <strong class="me-auto">Rol activado</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body">
+                Se ha activado el rol.
+            </div>
+        </div>
+
+        <div id="toastRolDesactivado" class="toast" role="alert" data-bs-delay="3500">
+            <div class="toast-header" style="background-color: var(--cora-accent); color: white;">
+                <i class="bi bi-x-circle me-2"></i>
+                <strong class="me-auto">Rol desactivado</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body">
+                Se ha desactivado el rol.
+            </div>
+        </div>
+
+    </div>
+
+    <footer class="footer">
+        <div class="container text-center">
+            &copy; 2026 SWCORA - Sistema Web de Control de Recursos y Activos | v1.0.0
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/scripts.js"></script>
+</body>
+</html>

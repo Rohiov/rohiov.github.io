@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Unidades - SWCORA</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="index.html"><i class="bi bi-lightning-charge-fill"></i> SWCORA</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item"><a class="nav-link" href="index.html"><i class="bi bi-house-door"></i> Inicio</a></li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-gear"></i> Administración
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="admin-usuarios.html"><i class="bi bi-people"></i> Usuarios</a></li>
+                                <li><a class="dropdown-item" href="admin-roles.html"><i class="bi bi-shield-lock"></i> Roles</a></li>
+                                <li><a class="dropdown-item" href="admin-modulos.html"><i class="bi bi-box-seam"></i> Módulos</a></li>
+                                <li><a class="dropdown-item" href="admin-empresas.html"><i class="bi bi-building"></i> Empresas</a></li>
+                                <li><a class="dropdown-item" href="admin-departamentos.html"><i class="bi bi-diagram-3"></i> Departamentos</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li class="dropdown-submenu">
+                                    <a class="dropdown-item dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                        <i class="bi bi-collection"></i> Catálogos
+                                    </a>
+                                    <ul class="dropdown-menu">
+                                        <li class="dropdown-submenu">
+                                            <a class="dropdown-item dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                                <i class="bi bi-clipboard-check"></i> Salidas de Material
+                                            </a>
+                                            <ul class="dropdown-menu">
+                                                <li>
+                                                    <a class="dropdown-item" href="admin-unidades.html">
+                                                        <i class="bi bi-rulers"></i> Unidades
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="admin-logs.html"><i class="bi bi-journal-text"></i> Logs</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-box-seam"></i> Módulos
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="salidas-index.html"><i class="bi bi-clipboard-check"></i> Salidas de Material</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="bi bi-key"></i> Acceso a Módulos</a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="acceso-solicitar.html"><i class="bi bi-pencil-square"></i> Solicitar acceso</a></li>
+                                <li><a class="dropdown-item" href="acceso-mis-solicitudes.html"><i class="bi bi-list-check"></i> Mis solicitudes</a></li>
+                                <li><a class="dropdown-item" href="acceso-aprobar.html"><i class="bi bi-check2-circle"></i> Aprobaciones pendientes</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link position-relative" href="notificaciones.html">
+                                <i class="bi bi-bell"></i>
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">3</span>
+                            </a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-person-circle"></i> Juan Pérez
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="mi-perfil.html"><i class="bi bi-person"></i> Mi perfil</a></li>
+                                <li><a class="dropdown-item" href="configuracion.html"><i class="bi bi-gear"></i> Configuración</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="../index.html"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container-fluid mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="bi bi-rulers"></i> Gestión de Unidades de Medida</h2>
+            <button class="btn btn-success" id="btnNuevaUnidad" data-bs-toggle="modal" data-bs-target="#modalUnidad">
+                <i class="bi bi-plus-circle"></i> Nueva Unidad
+            </button>
+        </div>
+
+        
+        <!-- Layout 30/70: filtros a la izquierda y tabla a la derecha -->
+        <div class="salida-form-grid-invertido">
+
+            <!-- Columna izquierda: 30% -->
+            <div class="col-izquierda">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="bi bi-funnel"></i> Filtros
+                        </h5>
+
+                        <button type="button"
+                                class="btn btn-sm btn-outline-secondary"
+                                id="btnLimpiarFiltrosUnidades">
+                            <i class="bi bi-arrow-clockwise"></i> Limpiar
+                        </button>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="filtroUnidadesBuscar" class="form-label">
+                                Formato
+                            </label>
+                            <input type="text"
+                                class="form-control"
+                                id="filtroUnidadesBuscar"
+                                placeholder="Formato de unidad">
+                        </div>
+
+                        <div class="mb-0">
+                            <label for="filtroUnidadesEstado" class="form-label">
+                                Estado
+                            </label>
+                            <select class="form-select" id="filtroUnidadesEstado">
+                                <option value="">Todos los estados</option>
+                                <option value="activo">Activos</option>
+                                <option value="inactivo">Inactivos</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="card-footer">
+                        <small class="text-muted">
+                            <i class="bi bi-info-circle"></i>
+                            Los filtros se aplican automáticamente.
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Columna derecha: 70% -->
+            <div class="col-derecha">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="bi bi-list-ul"></i> Unidades de Medida
+                        </h5>
+
+                        <button type="button"
+                                class="btn btn-sm btn-outline-success btn-exportar-csv"
+                                id="btnExportarUnidades"
+                                data-tabla="#tablaUnidades"
+                                data-nombre="unidades"
+                                data-omitir-columnas="2">
+                            <i class="bi bi-file-excel"></i> Exportar CSV
+                        </button>
+                    </div>
+
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0" id="tablaUnidades">
+                                <thead>
+                                    <tr>
+                                        <th>Formato</th>
+                                        <th>Estado</th>
+                                        <th class="text-center">Acciones</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    <tr class="unidad-row"
+                                        data-codigo="PZS"
+                                        data-descripcion="Piezas"
+                                        data-estado="activo">
+                                        <td>Piezas</td>
+                                        <td><span class="badge bg-success badge-estado">Activo</span></td>
+                                        <td class="text-center text-nowrap">
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-info btn-editar-unidad"
+                                                    title="Editar" aria-label="Editar">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-primary btn-toggle-estado-unidad"
+                                                    data-accion="desactivar"
+                                                    title="Desactivar" aria-label="Desactivar">
+                                                <i class="bi bi-power"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+
+                                    <tr class="unidad-row"
+                                        data-codigo="KG"
+                                        data-descripcion="Kilogramos"
+                                        data-estado="activo">
+                                        <td>Kilogramos</td>
+                                        <td><span class="badge bg-success badge-estado">Activo</span></td>
+                                        <td class="text-center text-nowrap">
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-info btn-editar-unidad"
+                                                    title="Editar" aria-label="Editar">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-primary btn-toggle-estado-unidad"
+                                                    data-accion="desactivar"
+                                                    title="Desactivar" aria-label="Desactivar">
+                                                <i class="bi bi-power"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+
+                                    <tr class="unidad-row"
+                                        data-codigo="MTS"
+                                        data-descripcion="Metros"
+                                        data-estado="activo">
+                                        <td>Metros</td>
+                                        <td><span class="badge bg-success badge-estado">Activo</span></td>
+                                        <td class="text-center text-nowrap">
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-info btn-editar-unidad"
+                                                    title="Editar" aria-label="Editar">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-primary btn-toggle-estado-unidad"
+                                                    data-accion="desactivar"
+                                                    title="Desactivar" aria-label="Desactivar">
+                                                <i class="bi bi-power"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+
+                                    <tr class="unidad-row"
+                                        data-codigo="LTS"
+                                        data-descripcion="Litros"
+                                        data-estado="activo">
+                                        <td>Litros</td>
+                                        <td><span class="badge bg-success badge-estado">Activo</span></td>
+                                        <td class="text-center text-nowrap">
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-info btn-editar-unidad"
+                                                    title="Editar" aria-label="Editar">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-primary btn-toggle-estado-unidad"
+                                                    data-accion="desactivar"
+                                                    title="Desactivar" aria-label="Desactivar">
+                                                <i class="bi bi-power"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+
+                                    <tr class="unidad-row"
+                                        data-codigo="CJA"
+                                        data-descripcion="Cajas"
+                                        data-estado="activo">
+                                        <td>Cajas</td>
+                                        <td><span class="badge bg-success badge-estado">Activo</span></td>
+                                        <td class="text-center text-nowrap">
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-info btn-editar-unidad"
+                                                    title="Editar" aria-label="Editar">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-primary btn-toggle-estado-unidad"
+                                                    data-accion="desactivar"
+                                                    title="Desactivar" aria-label="Desactivar">
+                                                <i class="bi bi-power"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="card-footer">
+                            <small class="text-muted">Mostrando <span id="contadorRoles">5</span> de 5 unidades</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    <!-- Modal Unidad -->
+    <div class="modal fade"
+        id="modalUnidad"
+        tabindex="-1"
+        aria-labelledby="modalUnidadTitulo"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header"
+                    style="background-color: var(--cora-success); color: white;">
+                    <h5 class="modal-title"
+                        id="modalUnidadTitulo"
+                        style="color: var(--cora-white);">
+                        <i class="bi bi-rulers"></i> Nueva Unidad de Medida
+                    </h5>
+
+                    <button type="button"
+                            class="btn-close btn-close-white"
+                            data-bs-dismiss="modal"
+                            aria-label="Cerrar"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="descripcionUnidad" class="form-label">
+                            Formato de la unidad de medida
+                        </label>
+                        <input type="text"
+                            id="descripcionUnidad"
+                            class="form-control"
+                            placeholder="Ej: Piezas"
+                            maxlength="200">
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button"
+                            class="btn btn-outline-primary"
+                            data-bs-dismiss="modal">
+                        Cancelar
+                    </button>
+
+                    <button type="button"
+                            class="btn btn-success"
+                            id="btnGuardarUnidad">
+                        <i class="bi bi-save"></i> Guardar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toasts de confirmación -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3"
+        style="z-index: 1090;">
+
+        <div id="toastCambiosGuardados"
+            class="toast"
+            role="alert"
+            aria-live="assertive"
+            aria-atomic="true"
+            data-bs-delay="3500">
+            <div class="toast-header"
+                style="background-color: var(--cora-success); color: white;">
+                <i class="bi bi-check-circle me-2"></i>
+                <strong class="me-auto">Cambios guardados</strong>
+                <button type="button"
+                        class="btn-close btn-close-white"
+                        data-bs-dismiss="toast"
+                        aria-label="Cerrar"></button>
+            </div>
+            <div class="toast-body">
+                La unidad se ha guardado correctamente.
+            </div>
+        </div>
+
+        <div id="toastUnidadActivada"
+            class="toast"
+            role="alert"
+            data-bs-delay="3500">
+            <div class="toast-header" style="background-color: var(--cora-success); color: white;">
+                <i class="bi bi-check-circle me-2"></i>
+                <strong class="me-auto">Unidad activada</strong>
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="toast"
+                        aria-label="Cerrar"></button>
+            </div>
+            <div class="toast-body">
+                La unidad se ha activado correctamente.
+            </div>
+        </div>
+
+        <div id="toastUnidadDesactivada"
+            class="toast"
+            role="alert"
+            data-bs-delay="3500">
+            <div class="toast-header" style="background-color: var(--cora-accent); color: white;">
+                <i class="bi bi-x-circle me-2"></i>
+                <strong class="me-auto">Unidad desactivada</strong>
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="toast"
+                        aria-label="Cerrar"></button>
+            </div>
+            <div class="toast-body">
+                La unidad se ha desactivado correctamente.
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container text-center">
+            &copy; 2026 SWCORA - Sistema Web de Control de Recursos y Activos | v1.0.0
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/scripts.js"></script>
+</body>
+</html>

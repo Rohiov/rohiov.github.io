@@ -3,190 +3,124 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Inicio - SWCORA</title>
+    <title>Acceso Superusuario - SWCORA</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm">
-            <div class="container-fluid">
-                <a class="navbar-brand" href="index.html">
-                    <i class="bi bi-lightning-charge-fill"></i> SWCORA
-                </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link" href="index.html"><i class="bi bi-house-door"></i> Inicio</a>
-                        </li>
-
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                <i class="bi bi-gear"></i> Administración
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="admin-usuarios.html"><i class="bi bi-people"></i> Usuarios</a></li>
-                                <li><a class="dropdown-item" href="admin-roles.html"><i class="bi bi-shield-lock"></i> Roles</a></li>
-                                <li><a class="dropdown-item" href="admin-modulos.html"><i class="bi bi-box-seam"></i> Módulos</a></li>
-                                <li><a class="dropdown-item" href="admin-empresas.html"><i class="bi bi-building"></i> Empresas</a></li>
-                                <li><a class="dropdown-item" href="admin-departamentos.html"><i class="bi bi-diagram-3"></i> Departamentos</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li class="dropdown-submenu">
-                                    <a class="dropdown-item dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                        <i class="bi bi-collection"></i> Catálogos
-                                    </a>
-                                    <ul class="dropdown-menu">
-                                        <li class="dropdown-submenu">
-                                            <a class="dropdown-item dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                                <i class="bi bi-clipboard-check"></i> Salidas de Material
-                                            </a>
-                                            <ul class="dropdown-menu">
-                                                <li>
-                                                    <a class="dropdown-item" href="admin-unidades.html">
-                                                        <i class="bi bi-rulers"></i> Unidades
-                                                    </a>
-                                                </li>
-                                            </ul>
-                                        </li>
-                                    </ul>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="admin-logs.html"><i class="bi bi-journal-text"></i> Logs</a></li>
-                            </ul>
-                        </li>
-
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                <i class="bi bi-box-seam"></i> Módulos
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="salidas-index.html"><i class="bi bi-clipboard-check"></i> Salidas de Material</a></li>
-                                <!--<li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item text-muted" href="#"><i class="bi bi-box"></i> Control de EPP <span class="badge bg-secondary ms-2">Próximamente</span></a></li>-->
-                            </ul>
-                        </li>
-                        
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                <i class="bi bi-key"></i> Acceso a Módulos
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="acceso-solicitar.html"><i class="bi bi-pencil-square"></i> Solicitar acceso</a></li>
-                                <li><a class="dropdown-item" href="acceso-mis-solicitudes.html"><i class="bi bi-list-check"></i> Mis solicitudes</a></li>
-                                <li><a class="dropdown-item" href="acceso-aprobar.html"><i class="bi bi-check2-circle"></i> Aprobaciones pendientes</a></li>
-                            </ul>
-                        </li>
-                    </ul>
-                    <ul class="navbar-nav">
-                        <li class="nav-item">
-                            <a class="nav-link position-relative" href="notificaciones.html">
-                                <i class="bi bi-bell"></i>
-                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">3</span>
-                            </a>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                <i class="bi bi-person-circle"></i> Juan Pérez
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="mi-perfil.html"><i class="bi bi-person"></i> Mi perfil</a></li>
-                                <li><a class="dropdown-item" href="configuracion.html"><i class="bi bi-gear"></i> Configuración</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item text-danger" href="superadmin-login.html"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</a></li>
-                            </ul>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    </header>
-
     <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-5">
+                <div class="card login-card">
+                    <div class="login-header">
+                        <i class="bi bi-shield-lock-fill"></i>
+                        <h3 class="mb-0" style="color: var(--cora-white);">Acceso de Superusuario</h3>
+                    </div>
+                    <div class="login-body">
+                        <div class="alert alert-warning text-center">
+                            <i class="bi bi-exclamation-triangle-fill"></i> <strong>Acceso Restringido</strong>
+                        </div>
 
-        <div class="alert alert-info mb-4">
-            <div class="d-flex align-items-center">
-                <i class="bi bi-info-circle-fill fs-1 me-3"></i>
-                <div>
-                    <h5 class="mb-1">Bienvenido, Juan Pérez</h5>
-                    <p class="mb-0">Último acceso fue el 20/09/2026 a las 10:30.</p>
+                        <div id="loginError" class="alert alert-danger d-none" role="alert"></div>
+
+                        <form id="superAdminLoginForm">
+                            <div class="mb-3">
+                                <label class="form-label">📌 Usuario</label>
+                                <div class="input-group">
+                                    <span class="input-group-text" style="background-color: var(--cora-bg); border-color: var(--cora-gray-light);">
+                                        <i class="bi bi-person"></i>
+                                    </span>
+                                    <input type="text" name="usuario" id="usuario" class="form-control" placeholder="Ingresa tu usuario" required>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">🔑 Contraseña</label>
+                                <div class="input-group">
+                                    <span class="input-group-text" style="background-color: var(--cora-bg); border-color: var(--cora-gray-light);">
+                                        <i class="bi bi-key"></i>
+                                    </span>
+                                    <input type="password" name="password" id="password" class="form-control" placeholder="Ingresa tu contraseña" required>
+                                    <button type="button" class="btn btn-outline-secondary" id="btnTogglePassword"><i class="bi bi-eye"></i></button>
+                                </div>
+                            </div>
+
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" id="recordar">
+                                <label class="form-check-label" for="recordar">Recordarme</label>
+                            </div>
+
+                            <button type="submit" class="btn btn-success w-100 py-2">
+                                <i class="bi bi-box-arrow-in-right"></i> Iniciar Sesión
+                            </button>
+
+                            <div class="text-center mt-3">
+                                <a href="#" id="linkRecuperarPassword" class="text-decoration-none small" style="color: var(--cora-accent);">
+                                    <i class="bi bi-question-circle"></i> ¿Olvidaste tu contraseña?
+                                </a>
+                            </div>
+                        </form>
+
+                        <hr class="my-4">
+
+                        <p class="text-muted text-center small mb-0">
+                            <i class="bi bi-info-circle"></i> Esta es la página de acceso para el Superusuario.<br>
+                            Los usuarios normales deben usar la autenticación de Windows.
+                        </p>
+                    </div>
                 </div>
+                <p class="text-center text-muted mt-3">
+                    &copy; 2026 SWCORA - Sistema Web de Control de Recursos y Activos
+                </p>
             </div>
         </div>
+    </div>
 
-        <h3 class="mb-4">📦 Mis Módulos</h3>
-        <div class="row">
-            <div class="col-md-6 col-lg-4 mb-4">
-                <div class="card h-100">
-                    <div class="card-body text-center p-4">
-                        <div class="display-4 mb-3" style="color: var(--cora-accent);">
-                            <i class="bi bi-clipboard-check"></i>
-                        </div>
-                        <h5 class="card-title">Salidas de Material</h5>
-                        <p class="card-text text-muted">Gestiona las solicitudes de salida de material del almacén.</p>
-                        <a href="salidas-index.html" class="btn btn-primary">
-                            <i class="bi bi-arrow-right-circle"></i> Ir al módulo
-                        </a>
-                    </div>
+    <!-- ============================================= -->
+    <!-- MODAL: RECUPERAR CONTRASEÑA                     -->
+    <!-- ============================================= -->
+    <div class="modal fade" id="modalRecuperarPassword" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: var(--cora-accent); color: white;">
+                    <h5 class="modal-title" style="color: var(--cora-white);"><i class="bi bi-key"></i> Recuperar Contraseña</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-            </div>
-            <div class="col-md-6 col-lg-4 mb-4">
-                <div class="card h-100" style="background-color: var(--cora-bg);">
-                    <div class="card-body text-center p-4">
-                        <div class="display-4 mb-3" style="color: var(--cora-gray-light);">
-                            <i class="bi bi-plus-circle"></i>
-                        </div>
-                        <h5 class="card-title text-muted">Más Módulos</h5>
-                        <p class="card-text text-muted">Solicita acceso a nuevos módulos.</p>
-                        <a href="acceso-solicitar.html" class="btn btn-outline-primary">
-                            <i class="bi bi-key"></i> Solicitar acceso
-                        </a>
-                    </div>
+                <div class="modal-body text-center">
+                    <i class="bi bi-shield-exclamation fs-1 mb-3" style="color: var(--cora-warning);"></i>
+                    <p class="mb-2"><strong>¿Realmente desea iniciar el proceso de recuperación de contraseña del Superusuario?</strong></p>
+                    <p class="text-muted small mb-0">
+                        Se enviará una contraseña temporal al correo electrónico registrado para el Superusuario.
+                    </p>
                 </div>
-            </div>
-        </div>
-
-        <h3 class="mb-4 mt-4">📊 Actividad Reciente</h3>
-        <div class="card">
-            <div class="card-body p-0">
-                <div class="list-group list-group-flush">
-                    <div class="list-group-item d-flex align-items-center">
-                        <i class="bi bi-check-circle-fill fs-4 me-3" style="color: var(--cora-success);"></i>
-                        <div class="flex-grow-1">
-                            <strong>Salida 00000001 aprobada</strong>
-                            <p class="mb-0 text-muted small">Aprobada por María Gómez</p>
-                        </div>
-                        <small class="text-muted">Hace 5 minutos</small>
-                    </div>
-                    <div class="list-group-item d-flex align-items-center">
-                        <i class="bi bi-pencil-fill fs-4 me-3" style="color: var(--cora-accent);"></i>
-                        <div class="flex-grow-1">
-                            <strong>Salida 00000002 creada</strong>
-                            <p class="mb-0 text-muted small">Pendiente de aprobación</p>
-                        </div>
-                        <small class="text-muted">Hace 15 minutos</small>
-                    </div>
-                    <div class="list-group-item d-flex align-items-center">
-                        <i class="bi bi-x-circle-fill fs-4 me-3" style="color: var(--cora-accent);"></i>
-                        <div class="flex-grow-1">
-                            <strong>Salida 00000003 rechazada</strong>
-                            <p class="mb-0 text-muted small">Motivo: Material no autorizado</p>
-                        </div>
-                        <small class="text-muted">Hace 1 hora</small>
-                    </div>
+                <div class="modal-footer justify-content-center">
+                    <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle"></i> No
+                    </button>
+                    <button type="button" class="btn btn-success" id="btnConfirmarRecuperar">
+                        <i class="bi bi-check-circle"></i> Sí, enviar
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <footer class="footer">
-        <div class="container text-center">
-            &copy; 2026 SWCORA - Sistema Web de Control de Recursos y Activos | v1.0.0
+    <!-- ============================================= -->
+    <!-- TOAST: CONFIRMACIÓN                             -->
+    <!-- ============================================= -->
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1090;">
+        <div id="toastRecuperarPassword" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header bg-success text-white">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                <strong class="me-auto">Correo enviado</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body">
+                <i class="bi bi-envelope-check"></i> La contraseña del Superusuario ha sido enviada al email registrado.
+            </div>
         </div>
-    </footer>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/scripts.js"></script>

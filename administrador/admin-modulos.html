@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Módulos - SWCORA</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="index.html"><i class="bi bi-lightning-charge-fill"></i> SWCORA</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item"><a class="nav-link" href="index.html"><i class="bi bi-house-door"></i> Inicio</a></li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-gear"></i> Administración
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="admin-usuarios.html"><i class="bi bi-people"></i> Usuarios</a></li>
+                                <li><a class="dropdown-item" href="admin-roles.html"><i class="bi bi-shield-lock"></i> Roles</a></li>
+                                <li><a class="dropdown-item" href="admin-modulos.html"><i class="bi bi-box-seam"></i> Módulos</a></li>
+                                <li><a class="dropdown-item" href="admin-empresas.html"><i class="bi bi-building"></i> Empresas</a></li>
+                                <li><a class="dropdown-item" href="admin-departamentos.html"><i class="bi bi-diagram-3"></i> Departamentos</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li class="dropdown-submenu">
+                                    <a class="dropdown-item dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                        <i class="bi bi-collection"></i> Catálogos
+                                    </a>
+                                    <ul class="dropdown-menu">
+                                        <li class="dropdown-submenu">
+                                            <a class="dropdown-item dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                                <i class="bi bi-clipboard-check"></i> Salidas de Material
+                                            </a>
+                                            <ul class="dropdown-menu">
+                                                <li>
+                                                    <a class="dropdown-item" href="admin-unidades.html">
+                                                        <i class="bi bi-rulers"></i> Unidades
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="admin-logs.html"><i class="bi bi-journal-text"></i> Logs</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-box-seam"></i> Módulos
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="salidas-index.html"><i class="bi bi-clipboard-check"></i> Salidas de Material</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="bi bi-key"></i> Acceso a Módulos</a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="acceso-solicitar.html"><i class="bi bi-pencil-square"></i> Solicitar acceso</a></li>
+                                <li><a class="dropdown-item" href="acceso-mis-solicitudes.html"><i class="bi bi-list-check"></i> Mis solicitudes</a></li>
+                                <li><a class="dropdown-item" href="acceso-aprobar.html"><i class="bi bi-check2-circle"></i> Aprobaciones pendientes</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link position-relative" href="notificaciones.html">
+                                <i class="bi bi-bell"></i>
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">3</span>
+                            </a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-person-circle"></i> Juan Pérez
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="mi-perfil.html"><i class="bi bi-person"></i> Mi perfil</a></li>
+                                <li><a class="dropdown-item" href="configuracion.html"><i class="bi bi-gear"></i> Configuración</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="../index.html"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container-fluid mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="bi bi-box-seam"></i> Gestión de Módulos</h2>
+            <button class="btn btn-success" id="btnRecargarModulos">
+                <i class="bi bi-arrow-clockwise"></i> Recargar Módulos
+            </button>
+        </div>
+
+        <!-- ============================================= -->
+        <!-- CARDS DE MÓDULOS                                -->
+        <!-- ============================================= -->
+        <div class="row g-3" id="listaModulos">
+
+            <!-- Módulo: Salidas de Material -->
+            <div class="col-6 col-md-4 col-lg-3 col-xl-2">
+                <div class="card h-100 modulo-card card-modulo-compacta"
+                     data-codigo="SalidasMaterial"
+                     data-nombre="Salidas de Material"
+                     data-version="1.0.0"
+                     data-estado="activo">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0 text-truncate" title="Salidas de Material">
+                            <i class="bi bi-box-seam"></i> Salidas de Material
+                        </h6>
+                        <span class="badge bg-success badge-estado">Activo</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-1">
+                            <small class="text-muted d-block">Código</small>
+                            <code class="small">SalidasMaterial</code>
+                        </div>
+                        <div class="mb-1">
+                            <small class="text-muted d-block">Versión</small>
+                            <strong>1.0.0</strong>
+                        </div>
+                        <div class="mb-1">
+                            <small class="text-muted d-block">Roles</small>
+                            <span class="badge bg-info">2 roles</span>
+                        </div>
+                        <div class="mb-0">
+                            <small class="text-muted d-block">Última Act.</small>
+                            <strong>20/09/2026 10:30</strong>
+                        </div>
+                    </div>
+                    <div class="card-footer d-flex justify-content-center gap-1">
+                        <button class="btn btn-sm btn-outline-info" title="Ver roles" data-bs-toggle="modal" data-bs-target="#modalRolesModulo">
+                            <i class="bi bi-shield-lock"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-primary btn-toggle-estado-modulo" title="Deshabilitar" data-accion="deshabilitar">
+                            <i class="bi bi-power"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary btn-module-json" title="Ver Module.json" data-codigo="SalidasMaterial">
+                            <i class="bi bi-file-code"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Módulo de Ejemplo 1 -->
+            <div class="col-6 col-md-4 col-lg-3 col-xl-2">
+                <div class="card h-100 modulo-card card-modulo-compacta"
+                     data-codigo="ModuloEjemplo1"
+                     data-nombre="Módulo de Ejemplo 1"
+                     data-version="1.0.0"
+                     data-estado="activo">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0 text-truncate" title="Módulo de Ejemplo 1">
+                            <i class="bi bi-box"></i> Módulo Ejemplo 1
+                        </h6>
+                        <span class="badge bg-success badge-estado">Activo</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-1">
+                            <small class="text-muted d-block">Código</small>
+                            <code class="small">ModuloEjemplo1</code>
+                        </div>
+                        <div class="mb-1">
+                            <small class="text-muted d-block">Versión</small>
+                            <strong>2.1.5</strong>
+                        </div>
+                        <div class="mb-1">
+                            <small class="text-muted d-block">Roles</small>
+                            <span class="badge bg-info">2 roles</span>
+                        </div>
+                        <div class="mb-0">
+                            <small class="text-muted d-block">Última Act.</small>
+                            <strong>20/09/2026 10:30</strong>
+                        </div>
+                    </div>
+                    <div class="card-footer d-flex justify-content-center gap-1">
+                        <button class="btn btn-sm btn-outline-info" title="Ver roles" data-bs-toggle="modal" data-bs-target="#modalRolesModulo">
+                            <i class="bi bi-shield-lock"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-primary btn-toggle-estado-modulo" title="Deshabilitar" data-accion="deshabilitar">
+                            <i class="bi bi-power"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary btn-module-json" title="Ver Module.json" data-codigo="ModuloEjemplo1">
+                            <i class="bi bi-file-code"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Módulo de Ejemplo 2 -->
+            <div class="col-6 col-md-4 col-lg-3 col-xl-2">
+                <div class="card h-100 modulo-card card-modulo-compacta"
+                     data-codigo="ModuloEjemplo2"
+                     data-nombre="Módulo de Ejemplo 2"
+                     data-version="1.0.0"
+                     data-estado="activo">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0 text-truncate" title="Módulo de Ejemplo 2">
+                            <i class="bi bi-box"></i> Módulo Ejemplo 2
+                        </h6>
+                        <span class="badge bg-success badge-estado">Activo</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-1">
+                            <small class="text-muted d-block">Código</small>
+                            <code class="small">ModuloEjemplo2</code>
+                        </div>
+                        <div class="mb-1">
+                            <small class="text-muted d-block">Versión</small>
+                            <strong>1.2.0</strong>
+                        </div>
+                        <div class="mb-1">
+                            <small class="text-muted d-block">Roles</small>
+                            <span class="badge bg-info">2 roles</span>
+                        </div>
+                        <div class="mb-0">
+                            <small class="text-muted d-block">Última Act.</small>
+                            <strong>20/09/2026 10:30</strong>
+                        </div>
+                    </div>
+                    <div class="card-footer d-flex justify-content-center gap-1">
+                        <button class="btn btn-sm btn-outline-info" title="Ver roles" data-bs-toggle="modal" data-bs-target="#modalRolesModulo">
+                            <i class="bi bi-shield-lock"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-primary btn-toggle-estado-modulo" title="Deshabilitar" data-accion="deshabilitar">
+                            <i class="bi bi-power"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary btn-module-json" title="Ver Module.json" data-codigo="ModuloEjemplo2">
+                            <i class="bi bi-file-code"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Módulo de Ejemplo 3 -->
+            <div class="col-6 col-md-4 col-lg-3 col-xl-2 d-none" id="colModuloEjemplo3">
+                <div class="card h-100 modulo-card card-modulo-compacta"
+                     data-codigo="ModuloEjemplo3"
+                     data-nombre="Módulo de Ejemplo 3"
+                     data-version="1.0.0"
+                     data-estado="activo">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0 text-truncate" title="Módulo de Ejemplo 3">
+                            <i class="bi bi-box"></i> Módulo Ejemplo 3
+                        </h6>
+                        <span class="badge bg-success badge-estado">Activo</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-1">
+                            <small class="text-muted d-block">Código</small>
+                            <code class="small">ModuloEjemplo3</code>
+                        </div>
+                        <div class="mb-1">
+                            <small class="text-muted d-block">Versión</small>
+                            <strong>3.0.6</strong>
+                        </div>
+                        <div class="mb-1">
+                            <small class="text-muted d-block">Roles</small>
+                            <span class="badge bg-info">2 roles</span>
+                        </div>
+                        <div class="mb-0">
+                            <small class="text-muted d-block">Última Act.</small>
+                            <strong>20/09/2026 10:30</strong>
+                        </div>
+                    </div>
+                    <div class="card-footer d-flex justify-content-center gap-1">
+                        <button class="btn btn-sm btn-outline-info" title="Ver roles" data-bs-toggle="modal" data-bs-target="#modalRolesModulo">
+                            <i class="bi bi-shield-lock"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-primary btn-toggle-estado-modulo" title="Deshabilitar" data-accion="deshabilitar">
+                            <i class="bi bi-power"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary btn-module-json" title="Ver Module.json" data-codigo="ModuloEjemplo3">
+                            <i class="bi bi-file-code"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================= -->
+    <!-- MODAL: Roles del Módulo                        -->
+    <!-- ============================================= -->
+    <div class="modal fade" id="modalRolesModulo" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: var(--cora-success); color: white;">
+                    <h5 class="modal-title" style="color: var(--cora-white);"><i class="bi bi-shield-lock"></i> Roles del Módulo</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr><th>Código</th><th>Nombre</th><th>Nivel</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>Generador</code></td><td>Generador de Salidas</td><td>1</td></tr>
+                            <tr><td><code>Aprobador</code></td><td>Aprobador de Salidas</td><td>2</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================= -->
+    <!-- TOASTS                                          -->
+    <!-- ============================================= -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1090;">
+
+        <!-- Toast: Módulos recargados -->
+        <div id="toastModulosRecargados" class="toast" role="alert" data-bs-delay="3500">
+            <div class="toast-header" style="background-color: var(--cora-success); color: white;">
+                <i class="bi bi-check-circle me-2"></i>
+                <strong class="me-auto">Módulos recargados</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body">
+                Se han recargado los módulos.
+            </div>
+        </div>
+
+        <!-- Toast: Módulo habilitado -->
+        <div id="toastModuloHabilitado" class="toast" role="alert" data-bs-delay="3500">
+            <div class="toast-header" style="background-color: var(--cora-success); color: white;">
+                <i class="bi bi-check-circle me-2"></i>
+                <strong class="me-auto">Módulo habilitado</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body">
+                Se ha habilitado el módulo.
+            </div>
+        </div>
+
+        <!-- Toast: Módulo deshabilitado -->
+        <div id="toastModuloDeshabilitado" class="toast" role="alert" data-bs-delay="3500">
+            <div class="toast-header" style="background-color: var(--cora-accent); color: white;">
+                <i class="bi bi-x-circle me-2"></i>
+                <strong class="me-auto">Módulo deshabilitado</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body">
+                Se ha deshabilitado el módulo.
+            </div>
+        </div>
+
+    </div>
+
+    <footer class="footer">
+        <div class="container text-center">
+            &copy; 2026 SWCORA - Sistema Web de Control de Recursos y Activos | v1.0.0
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/scripts.js"></script>
+</body>
+</html>

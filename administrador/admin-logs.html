@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Logs - SWCORA</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="index.html"><i class="bi bi-lightning-charge-fill"></i> SWCORA</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item"><a class="nav-link" href="index.html"><i class="bi bi-house-door"></i> Inicio</a></li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-gear"></i> Administración
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="admin-usuarios.html"><i class="bi bi-people"></i> Usuarios</a></li>
+                                <li><a class="dropdown-item" href="admin-roles.html"><i class="bi bi-shield-lock"></i> Roles</a></li>
+                                <li><a class="dropdown-item" href="admin-modulos.html"><i class="bi bi-box-seam"></i> Módulos</a></li>
+                                <li><a class="dropdown-item" href="admin-empresas.html"><i class="bi bi-building"></i> Empresas</a></li>
+                                <li><a class="dropdown-item" href="admin-departamentos.html"><i class="bi bi-diagram-3"></i> Departamentos</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li class="dropdown-submenu">
+                                    <a class="dropdown-item dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                        <i class="bi bi-collection"></i> Catálogos
+                                    </a>
+                                    <ul class="dropdown-menu">
+                                        <li class="dropdown-submenu">
+                                            <a class="dropdown-item dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                                <i class="bi bi-clipboard-check"></i> Salidas de Material
+                                            </a>
+                                            <ul class="dropdown-menu">
+                                                <li>
+                                                    <a class="dropdown-item" href="admin-unidades.html">
+                                                        <i class="bi bi-rulers"></i> Unidades
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="admin-logs.html"><i class="bi bi-journal-text"></i> Logs</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-box-seam"></i> Módulos
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="salidas-index.html"><i class="bi bi-clipboard-check"></i> Salidas de Material</a></li>
+                                <!--
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-muted" href="#"><i class="bi bi-box"></i> Control de EPP <span class="badge bg-secondary ms-2">Próximamente</span></a></li>
+                                -->
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="bi bi-key"></i> Acceso a Módulos</a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="acceso-solicitar.html"><i class="bi bi-pencil-square"></i> Solicitar acceso</a></li>
+                                <li><a class="dropdown-item" href="acceso-mis-solicitudes.html"><i class="bi bi-list-check"></i> Mis solicitudes</a></li>
+                                <li><a class="dropdown-item" href="acceso-aprobar.html"><i class="bi bi-check2-circle"></i> Aprobaciones pendientes</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link position-relative" href="notificaciones.html">
+                                <i class="bi bi-bell"></i>
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">3</span>
+                            </a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-person-circle"></i> Juan Pérez
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="mi-perfil.html"><i class="bi bi-person"></i> Mi perfil</a></li>
+                                <li><a class="dropdown-item" href="configuracion.html"><i class="bi bi-gear"></i> Configuración</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="../index.html"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container-fluid mt-4">
+    <h2 class="mb-4"><i class="bi bi-journal-text"></i> Registro de Logs</h2>
+
+    <!-- Layout 30/70: filtros a la izquierda, tabla a la derecha -->
+    <div class="salida-form-grid-invertido">
+
+        <!-- ===== COLUMNA IZQUIERDA (30%) ===== -->
+        <div class="col-izquierda">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-funnel"></i> Filtros</h5>
+                    <button id="btnLimpiarFiltrosLogs" class="btn btn-outline-info btn-sm">
+                        <i class="bi bi-arrow-clockwise"></i> Limpiar
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+
+                        <!-- Usuario (búsqueda por texto) -->
+                        <div class="col-12">
+                            <label class="form-label">Usuario</label>
+                            <input type="text"
+                                   id="filtroLogsUsuario"
+                                   class="form-control form-control-sm"
+                                   placeholder="Buscar por usuario...">
+                        </div>
+
+                        <!-- Departamento -->
+                        <div class="col-12">
+                            <label class="form-label">Departamento</label>
+                            <select id="filtroLogsDepartamento" class="form-select form-select-sm">
+                                <option value="">Todos</option>
+                                <option value="Sistemas">Sistemas</option>
+                                <option value="Producción">Producción</option>
+                                <option value="Logística">Logística</option>
+                                <option value="Mantenimiento">Mantenimiento</option>
+                                <option value="Administración">Administración</option>
+                            </select>
+                        </div>
+
+                        <!-- Módulo -->
+                        <div class="col-12">
+                            <label class="form-label">Módulo</label>
+                            <select id="filtroLogsModulo" class="form-select form-select-sm">
+                                <option value="">Todos</option>
+                                <option value="SalidasMaterial">SalidasMaterial</option>
+                                <option value="Admin">Admin</option>
+                            </select>
+                        </div>
+
+                        <!-- Criticidad -->
+                        <div class="col-12">
+                            <label class="form-label">Criticidad</label>
+                            <select id="filtroLogsCriticidad" class="form-select form-select-sm">
+                                <option value="">Todas</option>
+                                <option value="critico">Críticos</option>
+                                <option value="no-critico">No críticos</option>
+                            </select>
+                        </div>
+
+                        <!-- Desde (fecha y hora) -->
+                        <div class="col-12">
+                            <label class="form-label">Desde</label>
+                            <input type="datetime-local"
+                                   id="filtroLogsDesde"
+                                   class="form-control form-control-sm">
+                        </div>
+
+                        <!-- Hasta (fecha y hora) -->
+                        <div class="col-12">
+                            <label class="form-label">Hasta</label>
+                            <input type="datetime-local"
+                                   id="filtroLogsHasta"
+                                   class="form-control form-control-sm">
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <small class="text-muted">
+                        <i class="bi bi-info-circle"></i> Los filtros se aplican automáticamente.
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== COLUMNA DERECHA (70%) ===== -->
+        <div class="col-derecha">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <h5 class="mb-0"><i class="bi bi-list-ul"></i> Registros</h5>
+                    <div class="d-flex gap-2">
+                        <button id="btnMarcarTodoRevisado"
+                                class="btn btn-sm btn-outline-success">
+                            <i class="bi bi-check-all"></i> Marcar todo como revisado
+                        </button>
+                        <button id="btnExportarCSVLogs"
+                                class="btn btn-sm btn-outline-success"
+                                data-tabla="#tablaLogs"
+                                data-nombre="logs"
+                                data-omitir-columnas="auto">
+                            <i class="bi bi-file-excel"></i> Exportar CSV
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-hover mb-0" id="tablaLogs">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Usuario</th>
+                                <th>Departamento</th>
+                                <th>Módulo</th>
+                                <th>Acción</th>
+                                <th>Descripción</th>
+                                <th class="text-center">Crítico</th>
+                                <th class="text-center">Revisado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbodyLogs">
+                            <tr class="log-row"
+                                data-fecha="2026-09-20T15:30"
+                                data-usuario="Juan Pérez"
+                                data-departamento="Sistemas"
+                                data-modulo="SalidasMaterial"
+                                data-criticidad="no-critico"
+                                data-revisado="false">
+                                <td>20/09/2026 15:30</td>
+                                <td>Juan Pérez</td>
+                                <td>Sistemas</td>
+                                <td>SalidasMaterial</td>
+                                <td><span class="badge bg-primary">Creación</span></td>
+                                <td>Salida 00000001 creada</td>
+                                <td class="text-center"><span class="badge bg-secondary">No</span></td>
+                                <td class="text-center">
+                                    <span class="badge bg-secondary badge-revisado">No</span>
+                                </td>
+                            </tr>
+                            <tr class="log-row"
+                                data-fecha="2026-09-20T14:15"
+                                data-usuario="María Gómez"
+                                data-departamento="Logística"
+                                data-modulo="SalidasMaterial"
+                                data-criticidad="no-critico"
+                                data-revisado="false">
+                                <td>20/09/2026 14:15</td>
+                                <td>María Gómez</td>
+                                <td>Logística</td>
+                                <td>SalidasMaterial</td>
+                                <td><span class="badge bg-success">Aprobación</span></td>
+                                <td>Salida 00000001 aprobada</td>
+                                <td class="text-center"><span class="badge bg-secondary">No</span></td>
+                                <td class="text-center">
+                                    <span class="badge bg-secondary badge-revisado">No</span>
+                                </td>
+                            </tr>
+                            <tr class="log-row table-warning"
+                                data-fecha="2026-09-20T11:30"
+                                data-usuario="Superusuario"
+                                data-departamento="Administración"
+                                data-modulo="Admin"
+                                data-criticidad="critico"
+                                data-revisado="false">
+                                <td>20/09/2026 11:30</td>
+                                <td>Superusuario</td>
+                                <td>Administración</td>
+                                <td>Admin</td>
+                                <td><span class="badge bg-danger">Cambio crítico</span></td>
+                                <td>Rol Superusuario modificado</td>
+                                <td class="text-center"><span class="badge bg-danger">Sí</span></td>
+                                <td class="text-center">
+                                    <span class="badge bg-secondary badge-revisado">No</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card-footer">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">
+                            Mostrando <span id="contadorLogs">3</span> registros
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+    <footer class="footer">
+        <div class="container text-center">
+            &copy; 2026 SWCORA - Sistema Web de Control de Recursos y Activos | v1.0.0
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/scripts.js"></script>
+</body>
+</html>

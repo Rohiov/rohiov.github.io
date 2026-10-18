@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Empresas - SWCORA</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="index.html"><i class="bi bi-lightning-charge-fill"></i> SWCORA</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item"><a class="nav-link" href="index.html"><i class="bi bi-house-door"></i> Inicio</a></li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle active" href="#" role="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-gear"></i> Administración
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="admin-usuarios.html"><i class="bi bi-people"></i> Usuarios</a></li>
+                                <li><a class="dropdown-item" href="admin-roles.html"><i class="bi bi-shield-lock"></i> Roles</a></li>
+                                <li><a class="dropdown-item" href="admin-modulos.html"><i class="bi bi-box-seam"></i> Módulos</a></li>
+                                <li><a class="dropdown-item" href="admin-empresas.html"><i class="bi bi-building"></i> Empresas</a></li>
+                                <li><a class="dropdown-item" href="admin-departamentos.html"><i class="bi bi-diagram-3"></i> Departamentos</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li class="dropdown-submenu">
+                                    <a class="dropdown-item dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                        <i class="bi bi-collection"></i> Catálogos
+                                    </a>
+                                    <ul class="dropdown-menu">
+                                        <li class="dropdown-submenu">
+                                            <a class="dropdown-item dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                                <i class="bi bi-clipboard-check"></i> Salidas de Material
+                                            </a>
+                                            <ul class="dropdown-menu">
+                                                <li>
+                                                    <a class="dropdown-item" href="admin-unidades.html">
+                                                        <i class="bi bi-rulers"></i> Unidades
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="admin-logs.html"><i class="bi bi-journal-text"></i> Logs</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-box-seam"></i> Módulos
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="salidas-index.html"><i class="bi bi-clipboard-check"></i> Salidas de Material</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="bi bi-key"></i> Acceso a Módulos</a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="acceso-solicitar.html"><i class="bi bi-pencil-square"></i> Solicitar acceso</a></li>
+                                <li><a class="dropdown-item" href="acceso-mis-solicitudes.html"><i class="bi bi-list-check"></i> Mis solicitudes</a></li>
+                                <li><a class="dropdown-item" href="acceso-aprobar.html"><i class="bi bi-check2-circle"></i> Aprobaciones pendientes</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link position-relative" href="notificaciones.html">
+                                <i class="bi bi-bell"></i>
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">3</span>
+                            </a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-person-circle"></i> Juan Pérez
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="mi-perfil.html"><i class="bi bi-person"></i> Mi perfil</a></li>
+                                <li><a class="dropdown-item" href="configuracion.html"><i class="bi bi-gear"></i> Configuración</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="../index.html"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container-fluid mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="bi bi-building"></i> Gestión de Empresas</h2>
+            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalEmpresa" id="btnNuevaEmpresa">
+                <i class="bi bi-plus-circle"></i> Nueva Empresa
+            </button>
+        </div>
+
+        <!-- ============================================= -->
+        <!-- GRID 30/70 INVERTIDO: Filtros izq / Empresas der -->
+        <!-- ============================================= -->
+        <div class="salida-form-grid-invertido">
+
+            <!-- ============================================= -->
+            <!-- COLUMNA IZQUIERDA (30%): Filtros               -->
+            <!-- ============================================= -->
+            <div class="col-izquierda">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="bi bi-funnel"></i> Filtros</h5>
+                        <button class="btn btn-sm btn-outline-secondary" id="btnLimpiarFiltrosEmpresas">
+                            <i class="bi bi-arrow-clockwise"></i> Limpiar
+                        </button>
+                    </div>
+                                        <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">Empresa</label>
+                            <input type="text" class="form-control" id="filtroEmpresasNombre" placeholder="Buscar por nombre de empresa...">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Contacto</label>
+                            <input type="text" class="form-control" id="filtroEmpresasContacto" placeholder="Buscar por nombre de contacto...">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Tipo</label>
+                            <select class="form-select" id="filtroEmpresasTipo">
+                                <option value="">Todos los tipos</option>
+                                <option value="Proveedor">Proveedor</option>
+                                <option value="Cliente">Cliente</option>
+                                <option value="Mensajería">Mensajería</option>
+                                <option value="Filial">Filial</option>
+                            </select>
+                        </div>
+                        <div class="mb-0">
+                            <label class="form-label">Estado</label>
+                            <select class="form-select" id="filtroEmpresasEstado">
+                                <option value="">Todos</option>
+                                <option value="activo">Activos</option>
+                                <option value="inactivo">Inactivos</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <small class="text-muted">
+                            <i class="bi bi-info-circle"></i> Los filtros se aplican automáticamente.
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================= -->
+            <!-- COLUMNA DERECHA (70%): Empresas                -->
+            <!-- ============================================= -->
+            <div class="col-derecha">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="bi bi-list-ul"></i> Empresas</h5>
+                        <button class="btn btn-sm btn-outline-success" id="btnExportarEmpresas" data-tabla="#tablaEmpresas" data-nombre="empresas">
+                            <i class="bi bi-file-excel"></i> Exportar CSV
+                        </button>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0" id="tablaEmpresas">
+                                <thead>
+                                    <tr>
+                                        <th>Código</th>
+                                        <th>Nombre de la Empresa</th>
+                                        <th>Contacto Principal</th>
+                                        <th>Tipo</th>
+                                        <th>Estado</th>
+                                        <th class="text-center">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="empresa-row"
+                                        data-codigo="EMP-001"
+                                        data-nombre="XEROX, S.A. DE C.V."
+                                        data-contacto="Juan Hernández"
+                                        data-tipo="Proveedor"
+                                        data-estado="activo">
+                                        <td><code>EMP-001</code></td>
+                                        <td>XEROX, S.A. DE C.V.</td>
+                                        <td>Juan Hernández</td>
+                                        <td><span class="badge bg-warning">Proveedor</span></td>
+                                        <td><span class="badge bg-success badge-estado">Activo</span></td>
+                                        <td class="text-center">
+                                            <button type="button" class="btn btn-sm btn-outline-info btn-editar-empresa"
+                                                    data-bs-toggle="modal" data-bs-target="#modalEmpresa"
+                                                    data-id="1" data-codigo="EMP-001" data-nombre="XEROX, S.A. DE C.V."
+                                                    data-contacto="Juan Hernández" data-tipo="Proveedor" data-activo="true">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-primary btn-toggle-estado-empresa" title="Desactivar" data-accion="desactivar">
+                                                <i class="bi bi-power"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr class="empresa-row"
+                                        data-codigo="EMP-002"
+                                        data-nombre="HEWLETT PACKARD"
+                                        data-contacto="María López"
+                                        data-tipo="Cliente"
+                                        data-estado="activo">
+                                        <td><code>EMP-002</code></td>
+                                        <td>HEWLETT PACKARD</td>
+                                        <td>María López</td>
+                                        <td><span class="badge bg-danger">Cliente</span></td>
+                                        <td><span class="badge bg-success badge-estado">Activo</span></td>
+                                        <td class="text-center">
+                                            <button type="button" class="btn btn-sm btn-outline-info btn-editar-empresa"
+                                                    data-bs-toggle="modal" data-bs-target="#modalEmpresa"
+                                                    data-id="2" data-codigo="EMP-002" data-nombre="HEWLETT PACKARD"
+                                                    data-contacto="María López" data-tipo="Cliente" data-activo="true">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-primary btn-toggle-estado-empresa" title="Desactivar" data-accion="desactivar">
+                                                <i class="bi bi-power"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr class="empresa-row"
+                                        data-codigo="EMP-003"
+                                        data-nombre="SWCORA FILIAL NORTE"
+                                        data-contacto="Carlos Ruiz"
+                                        data-tipo="Filial"
+                                        data-estado="activo">
+                                        <td><code>EMP-003</code></td>
+                                        <td>SWCORA FILIAL NORTE</td>
+                                        <td>Carlos Ruiz</td>
+                                        <td><span class="badge bg-info">Filial</span></td>
+                                        <td><span class="badge bg-success badge-estado">Activo</span></td>
+                                        <td class="text-center">
+                                            <button type="button" class="btn btn-sm btn-outline-info btn-editar-empresa"
+                                                    data-bs-toggle="modal" data-bs-target="#modalEmpresa"
+                                                    data-id="3" data-codigo="EMP-003" data-nombre="SWCORA FILIAL NORTE"
+                                                    data-contacto="Carlos Ruiz" data-tipo="Filial" data-activo="true">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-primary btn-toggle-estado-empresa" title="Desactivar" data-accion="desactivar">
+                                                <i class="bi bi-power"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <small class="text-muted">Mostrando <span id="contadorEmpresas">3</span> de 3 empresas</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================= -->
+    <!-- MODAL: CREAR / EDITAR EMPRESA                   -->
+    <!-- ============================================= -->
+    <div class="modal fade" id="modalEmpresa" tabindex="-1">
+        <div class="modal-dialog ">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: var(--cora-success); color: white;">
+                    <h5 class="modal-title" id="modalEmpresaTitulo" style="color: var(--cora-white)">
+                        <i class="bi bi-plus-circle"></i> Nueva Empresa
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                            <div class="mb-3">
+                                <label class="form-label">Nombre <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="empresaNombre" placeholder="Nombre de la empresa" maxlength="200" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Contacto</label>
+                                <input type="text" class="form-control" id="empresaContacto" placeholder="Nombre del contacto principal" maxlength="200">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Tipo de Empresa <span class="text-danger">*</span></label>
+                                <div class="select-with-action">
+                                    <select class="form-select" id="empresaTipo" required>
+                                        <option value="">Seleccionar tipo...</option>
+                                        <option value="Proveedor">Proveedor</option>
+                                        <option value="Cliente">Cliente</option>
+                                        <option value="Mensajería">Mensajería</option>
+                                        <option value="Filial">Filial</option>
+                                    </select>
+                                    <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#modalTiposEmpresa" title="Ver todos los tipos">
+                                        <i class="bi bi-list"></i> Ver todos
+                                    </button>
+                                </div>
+                            </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle"></i> Cancelar
+                    </button>
+                    <button type="button" class="btn btn-success" id="btnGuardarEmpresa">
+                        <i class="bi bi-save"></i> Guardar Empresa
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================= -->
+    <!-- MODAL: TIPOS DE EMPRESA                        -->
+    <!-- ============================================= -->
+    <div class="modal fade" id="modalTiposEmpresa" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: var(--cora-success); color: white;">
+                    <h5 class="modal-title" style="color: var(--cora-white)"><i class="bi bi-tags"></i> Tipos de Empresa</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Fila de búsqueda + botón Agregar -->
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <input type="text" class="form-control" id="filtroTiposEmpresaBuscar" placeholder="Buscar tipo...">
+                        <button class="btn btn-success flex-shrink-0" id="btnNuevoTipoEmpresa">
+                            <i class="bi bi-plus-circle"></i> Agregar Tipo
+                        </button>
+                    </div>
+
+                    <table class="table table-hover" id="tablaTiposEmpresa">
+                        <thead>
+                            <tr>
+                                <th width="35%">Nombre</th>
+                                <th width="30%">Estado</th>
+                                <th width="35%" class="text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="tipo-empresa-row" data-nombre="Proveedor" data-estado="activo">
+                                <td>Proveedor</td>
+                                <td><span class="badge bg-success badge-estado">Activo</span></td>
+                                <td class="text-center">
+                                    <button class="btn btn-sm btn-outline-info btn-editar-tipo" title="Editar"><i class="bi bi-pencil"></i></button>
+                                    <button class="btn btn-sm btn-outline-primary btn-toggle-estado-tipo" title="Desactivar" data-accion="desactivar"><i class="bi bi-power"></i></button>
+                                </td>
+                            </tr>
+                            <tr class="tipo-empresa-row" data-nombre="Cliente" data-estado="activo">
+                                <td>Cliente</td>
+                                <td><span class="badge bg-success badge-estado">Activo</span></td>
+                                <td class="text-center">
+                                    <button class="btn btn-sm btn-outline-info btn-editar-tipo" title="Editar"><i class="bi bi-pencil"></i></button>
+                                    <button class="btn btn-sm btn-outline-primary btn-toggle-estado-tipo" title="Desactivar" data-accion="desactivar"><i class="bi bi-power"></i></button>
+                                </td>
+                            </tr>
+                            <tr class="tipo-empresa-row" data-nombre="Mensajería" data-estado="activo">
+                                <td>Mensajería</td>
+                                <td><span class="badge bg-success badge-estado">Activo</span></td>
+                                <td class="text-center">
+                                    <button class="btn btn-sm btn-outline-info btn-editar-tipo" title="Editar"><i class="bi bi-pencil"></i></button>
+                                    <button class="btn btn-sm btn-outline-primary btn-toggle-estado-tipo" title="Desactivar" data-accion="desactivar"><i class="bi bi-power"></i></button>
+                                </td>
+                            </tr>
+                            <tr class="tipo-empresa-row" data-nombre="Filial" data-estado="activo">
+                                <td>Filial</td>
+                                <td><span class="badge bg-success badge-estado">Activo</span></td>
+                                <td class="text-center">
+                                    <button class="btn btn-sm btn-outline-info btn-editar-tipo" title="Editar"><i class="bi bi-pencil"></i></button>
+                                    <button class="btn btn-sm btn-outline-primary btn-toggle-estado-tipo" title="Desactivar" data-accion="desactivar"><i class="bi bi-power"></i></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#modalEmpresa" title="Volver a la empresa">
+                        <i class="bi bi-arrow-left"></i> Volver
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================= -->
+    <!-- MODAL: NUEVO TIPO                              -->
+    <!-- ============================================= -->
+    <div class="modal fade" id="modalNuevoTipo" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" style="color: var(--cora-white)"><i class="bi bi-plus-circle"></i> Nuevo Tipo de Empresa</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Nombre <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="nuevoTipoNombre" placeholder="Ej: Distribuidor" maxlength="50" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#modalTiposEmpresa" title="Ver todos los tipos">
+                        <i class="bi bi-arrow-left"></i> Volver
+                    </button>
+                    <button type="button" class="btn btn-success" id="btnGuardarNuevoTipo">
+                        <i class="bi bi-save"></i> Guardar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================= -->
+    <!-- TOASTS                                          -->
+    <!-- ============================================= -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1090;">
+
+        <!-- Toast: Cambios guardados (compartido) -->
+        <div id="toastCambiosGuardados" class="toast" role="alert" data-bs-delay="3500">
+            <div class="toast-header" style="background-color: var(--cora-success); color: white;">
+                <i class="bi bi-check-circle me-2"></i>
+                <strong class="me-auto">Cambios guardados</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body">
+                Los cambios se han guardado correctamente.
+            </div>
+        </div>
+
+        <!-- Toast: Empresa activada -->
+        <div id="toastEmpresaActivada" class="toast" role="alert" data-bs-delay="3500">
+            <div class="toast-header" style="background-color: var(--cora-success); color: white;">
+                <i class="bi bi-check-circle me-2"></i>
+                <strong class="me-auto">Empresa activada</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body">
+                Se ha activado la empresa.
+            </div>
+        </div>
+
+        <!-- Toast: Empresa desactivada -->
+        <div id="toastEmpresaDesactivada" class="toast" role="alert" data-bs-delay="3500">
+            <div class="toast-header" style="background-color: var(--cora-accent); color: white;">
+                <i class="bi bi-x-circle me-2"></i>
+                <strong class="me-auto">Empresa desactivada</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body">
+                Se ha desactivado la empresa.
+            </div>
+        </div>
+
+        <!-- Toast: Tipo activado -->
+        <div id="toastTipoActivado" class="toast" role="alert" data-bs-delay="3500">
+            <div class="toast-header" style="background-color: var(--cora-success); color: white;">
+                <i class="bi bi-check-circle me-2"></i>
+                <strong class="me-auto">Tipo activado</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body">
+                Se ha activado el tipo de empresa.
+            </div>
+        </div>
+
+        <!-- Toast: Tipo desactivado -->
+        <div id="toastTipoDesactivado" class="toast" role="alert" data-bs-delay="3500">
+            <div class="toast-header" style="background-color: var(--cora-accent); color: white;">
+                <i class="bi bi-x-circle me-2"></i>
+                <strong class="me-auto">Tipo desactivado</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body">
+                Se ha desactivado el tipo de empresa.
+            </div>
+        </div>
+
+    </div>
+
+    <footer class="footer">
+        <div class="container text-center">
+            &copy; 2026 SWCORA - Sistema Web de Control de Recursos y Activos | v1.0.0
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/scripts.js"></script>
+</body>
+</html>
