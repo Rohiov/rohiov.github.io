@@ -248,13 +248,13 @@ document.addEventListener('DOMContentLoaded', function () {
     // =============================================
     function obtenerRolLogueado() {
         const path = window.location.pathname.toLowerCase();
-        if (/\/superadmin\//.test(path)) return 'superadmin';
+        if (/\/superusuario\//.test(path)) return 'superusuario';
         if (/\/administrador\//.test(path)) return 'administrador';
         if (/\/aprobador\//.test(path)) return 'aprobador';
         if (/\/generador\//.test(path)) return 'generador';
         if (/\/sinrol\//.test(path)) return 'sinrol';
         // Si no estamos en ninguna carpeta de rol, asumimos superadmin (mockup raíz)
-        return 'superadmin';
+        return 'superusuario';
     }
 
     const ROL_ACTUAL = obtenerRolLogueado();
@@ -618,7 +618,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (loginForm) {
         // Mapa de usuario → carpeta de destino
         const RUTAS_POR_ROL = {
-            'superadmin':     'superadmin/index.html',
+            'superusuario':     'superusuario/index.html',
             'administrador':  'administrador/index.html',
             'aprobador':      'aprobador/index.html',
             'generador':      'generador/index.html',
