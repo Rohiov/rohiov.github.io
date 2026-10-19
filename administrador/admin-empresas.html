@@ -4,21 +4,37 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Empresas - SWCORA</title>
+
+    <!-- HOJAS DE ESTILO -->
+    <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Estilos CSS -->
     <link rel="stylesheet" href="../css/styles.css">
 </head>
 <body>
+    <!-- HEADER / NAVBAR -->
     <header>
         <nav class="navbar navbar-expand-sm">
             <div class="container-fluid">
+
+                <!-- logo y nombre -->
                 <a class="navbar-brand" href="index.html"><i class="bi bi-lightning-charge-fill"></i> SWCORA</a>
+
+                <!-- Botón hamburguesa -->
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
                     <span class="navbar-toggler-icon"></span>
                 </button>
+
+                <!-- CONTENIDO COLAPSABLE DEL NAVBAR -->
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
+
+                        <!-- ITEM: INICIO -->
                         <li class="nav-item"><a class="nav-link" href="index.html"><i class="bi bi-house-door"></i> Inicio</a></li>
+
+                        <!-- ITEM: ADMINISTRACIÓN (activo en esta página) -->
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle active" href="#" role="button" data-bs-toggle="dropdown">
                                 <i class="bi bi-gear"></i> Administración
@@ -30,6 +46,8 @@
                                 <li><a class="dropdown-item" href="admin-empresas.html"><i class="bi bi-building"></i> Empresas</a></li>
                                 <li><a class="dropdown-item" href="admin-departamentos.html"><i class="bi bi-diagram-3"></i> Departamentos</a></li>
                                 <li><hr class="dropdown-divider"></li>
+
+                                <!-- SUBMENÚ: CATÁLOGOS -->
                                 <li class="dropdown-submenu">
                                     <a class="dropdown-item dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                                         <i class="bi bi-collection"></i> Catálogos
@@ -54,6 +72,7 @@
                             </ul>
                         </li>
 
+                        <!-- ITEM: MÓDULOS -->
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                                 <i class="bi bi-box-seam"></i> Módulos
@@ -62,6 +81,8 @@
                                 <li><a class="dropdown-item" href="salidas-index.html"><i class="bi bi-clipboard-check"></i> Salidas de Material</a></li>
                             </ul>
                         </li>
+
+                        <!-- ITEM: ACCESO A MÓDULOS -->
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="bi bi-key"></i> Acceso a Módulos</a>
                             <ul class="dropdown-menu">
@@ -71,6 +92,8 @@
                             </ul>
                         </li>
                     </ul>
+
+                    <!-- MENÚ SECUNDARIO (derecha) -->
                     <ul class="navbar-nav">
                         <li class="nav-item">
                             <a class="nav-link position-relative" href="notificaciones.html">
@@ -95,39 +118,48 @@
         </nav>
     </header>
 
+    <!-- CONTENIDO PRINCIPAL -->
     <div class="container-fluid mt-4">
+
+        <!-- ENCABEZADO + BOTÓN NUEVA EMPRESA -->
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2><i class="bi bi-building"></i> Gestión de Empresas</h2>
+
+            <!-- Botón que abre el modal de creación de empresa -->
             <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalEmpresa" id="btnNuevaEmpresa">
                 <i class="bi bi-plus-circle"></i> Nueva Empresa
             </button>
         </div>
 
-        <!-- ============================================= -->
-        <!-- GRID 30/70 INVERTIDO: Filtros izq / Empresas der -->
-        <!-- ============================================= -->
+        <!-- GRID 30/70 INVERTIDO: filtros izq / empresas der -->
         <div class="salida-form-grid-invertido">
 
-            <!-- ============================================= -->
-            <!-- COLUMNA IZQUIERDA (30%): Filtros               -->
-            <!-- ============================================= -->
+            <!-- COLUMNA IZQUIERDA (30%): Filtros -->
             <div class="col-izquierda">
                 <div class="card">
+
+                    <!-- Cabecera con título y botón limpiar -->
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="mb-0"><i class="bi bi-funnel"></i> Filtros</h5>
                         <button class="btn btn-sm btn-outline-secondary" id="btnLimpiarFiltrosEmpresas">
                             <i class="bi bi-arrow-clockwise"></i> Limpiar
                         </button>
                     </div>
-                                        <div class="card-body">
+
+                    <div class="card-body">
+                        <!-- Filtro: nombre de empresa -->
                         <div class="mb-3">
                             <label class="form-label">Empresa</label>
                             <input type="text" class="form-control" id="filtroEmpresasNombre" placeholder="Buscar por nombre de empresa...">
                         </div>
+
+                        <!-- Filtro: contacto principal -->
                         <div class="mb-3">
                             <label class="form-label">Contacto</label>
                             <input type="text" class="form-control" id="filtroEmpresasContacto" placeholder="Buscar por nombre de contacto...">
                         </div>
+
+                        <!-- Filtro: tipo de empresa -->
                         <div class="mb-3">
                             <label class="form-label">Tipo</label>
                             <select class="form-select" id="filtroEmpresasTipo">
@@ -138,6 +170,8 @@
                                 <option value="Filial">Filial</option>
                             </select>
                         </div>
+
+                        <!-- Filtro: estado activo/inactivo -->
                         <div class="mb-0">
                             <label class="form-label">Estado</label>
                             <select class="form-select" id="filtroEmpresasEstado">
@@ -147,6 +181,8 @@
                             </select>
                         </div>
                     </div>
+
+                    <!-- Pie con nota informativa -->
                     <div class="card-footer">
                         <small class="text-muted">
                             <i class="bi bi-info-circle"></i> Los filtros se aplican automáticamente.
@@ -155,17 +191,19 @@
                 </div>
             </div>
 
-            <!-- ============================================= -->
-            <!-- COLUMNA DERECHA (70%): Empresas                -->
-            <!-- ============================================= -->
+            <!-- COLUMNA DERECHA (70%): Tabla de empresas -->
             <div class="col-derecha">
                 <div class="card">
+
+                    <!-- Cabecera con título y botón exportar -->
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="mb-0"><i class="bi bi-list-ul"></i> Empresas</h5>
                         <button class="btn btn-sm btn-outline-success" id="btnExportarEmpresas" data-tabla="#tablaEmpresas" data-nombre="empresas">
                             <i class="bi bi-file-excel"></i> Exportar CSV
                         </button>
                     </div>
+
+                    <!-- card-body sin padding para que la tabla llegue a los bordes -->
                     <div class="card-body p-0">
                         <div class="table-responsive">
                             <table class="table table-hover mb-0" id="tablaEmpresas">
@@ -180,6 +218,8 @@
                                     </tr>
                                 </thead>
                                 <tbody>
+
+                                    <!-- EMPRESA 1: XEROX (Proveedor) -->
                                     <tr class="empresa-row"
                                         data-codigo="EMP-001"
                                         data-nombre="XEROX, S.A. DE C.V."
@@ -192,17 +232,21 @@
                                         <td><span class="badge bg-warning">Proveedor</span></td>
                                         <td><span class="badge bg-success badge-estado">Activo</span></td>
                                         <td class="text-center">
+                                            <!-- Botón editar (carga datos vía data-*) -->
                                             <button type="button" class="btn btn-sm btn-outline-info btn-editar-empresa"
                                                     data-bs-toggle="modal" data-bs-target="#modalEmpresa"
                                                     data-id="1" data-codigo="EMP-001" data-nombre="XEROX, S.A. DE C.V."
                                                     data-contacto="Juan Hernández" data-tipo="Proveedor" data-activo="true">
                                                 <i class="bi bi-pencil"></i>
                                             </button>
+                                            <!-- Botón activar/desactivar -->
                                             <button class="btn btn-sm btn-outline-primary btn-toggle-estado-empresa" title="Desactivar" data-accion="desactivar">
                                                 <i class="bi bi-power"></i>
                                             </button>
                                         </td>
                                     </tr>
+
+                                    <!-- EMPRESA 2: HEWLETT PACKARD (Cliente) -->
                                     <tr class="empresa-row"
                                         data-codigo="EMP-002"
                                         data-nombre="HEWLETT PACKARD"
@@ -226,6 +270,8 @@
                                             </button>
                                         </td>
                                     </tr>
+
+                                    <!-- EMPRESA 3: SWCORA FILIAL NORTE (Filial) -->
                                     <tr class="empresa-row"
                                         data-codigo="EMP-003"
                                         data-nombre="SWCORA FILIAL NORTE"
@@ -253,6 +299,8 @@
                             </table>
                         </div>
                     </div>
+
+                    <!-- Contador de registros -->
                     <div class="card-footer">
                         <small class="text-muted">Mostrando <span id="contadorEmpresas">3</span> de 3 empresas</small>
                     </div>
@@ -261,43 +309,52 @@
         </div>
     </div>
 
-    <!-- ============================================= -->
-    <!-- MODAL: CREAR / EDITAR EMPRESA                   -->
-    <!-- ============================================= -->
+    <!-- MODAL: CREAR / EDITAR EMPRESA -->
     <div class="modal fade" id="modalEmpresa" tabindex="-1">
-        <div class="modal-dialog ">
+        <div class="modal-dialog">
             <div class="modal-content">
+
+                <!-- Cabecera del modal -->
                 <div class="modal-header" style="background-color: var(--cora-success); color: white;">
                     <h5 class="modal-title" id="modalEmpresaTitulo" style="color: var(--cora-white)">
                         <i class="bi bi-plus-circle"></i> Nueva Empresa
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
+
                 <div class="modal-body">
-                            <div class="mb-3">
-                                <label class="form-label">Nombre <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="empresaNombre" placeholder="Nombre de la empresa" maxlength="200" required>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Contacto</label>
-                                <input type="text" class="form-control" id="empresaContacto" placeholder="Nombre del contacto principal" maxlength="200">
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Tipo de Empresa <span class="text-danger">*</span></label>
-                                <div class="select-with-action">
-                                    <select class="form-select" id="empresaTipo" required>
-                                        <option value="">Seleccionar tipo...</option>
-                                        <option value="Proveedor">Proveedor</option>
-                                        <option value="Cliente">Cliente</option>
-                                        <option value="Mensajería">Mensajería</option>
-                                        <option value="Filial">Filial</option>
-                                    </select>
-                                    <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#modalTiposEmpresa" title="Ver todos los tipos">
-                                        <i class="bi bi-list"></i> Ver todos
-                                    </button>
-                                </div>
-                            </div>
+                    <!-- Campo: nombre (obligatorio) -->
+                    <div class="mb-3">
+                        <label class="form-label">Nombre <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="empresaNombre" placeholder="Nombre de la empresa" maxlength="200" required>
+                    </div>
+
+                    <!-- Campo: contacto principal -->
+                    <div class="mb-3">
+                        <label class="form-label">Contacto</label>
+                        <input type="text" class="form-control" id="empresaContacto" placeholder="Nombre del contacto principal" maxlength="200">
+                    </div>
+
+                    <!-- Campo: tipo de empresa (select + botón para ver todos los tipos) -->
+                    <div class="mb-3">
+                        <label class="form-label">Tipo de Empresa <span class="text-danger">*</span></label>
+                        <div class="select-with-action">
+                            <select class="form-select" id="empresaTipo" required>
+                                <option value="">Seleccionar tipo...</option>
+                                <option value="Proveedor">Proveedor</option>
+                                <option value="Cliente">Cliente</option>
+                                <option value="Mensajería">Mensajería</option>
+                                <option value="Filial">Filial</option>
+                            </select>
+                            <!-- Abre el modal de gestión de tipos -->
+                            <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#modalTiposEmpresa" title="Ver todos los tipos">
+                                <i class="bi bi-list"></i> Ver todos
+                            </button>
+                        </div>
+                    </div>
                 </div>
+
+                <!-- Pie del modal con acciones -->
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">
                         <i class="bi bi-x-circle"></i> Cancelar
@@ -310,16 +367,17 @@
         </div>
     </div>
 
-    <!-- ============================================= -->
-    <!-- MODAL: TIPOS DE EMPRESA                        -->
-    <!-- ============================================= -->
+    <!-- MODAL: TIPOS DE EMPRESA -->
     <div class="modal fade" id="modalTiposEmpresa" tabindex="-1" data-bs-backdrop="static">
         <div class="modal-dialog">
             <div class="modal-content">
+
+                <!-- Cabecera del modal -->
                 <div class="modal-header" style="background-color: var(--cora-success); color: white;">
                     <h5 class="modal-title" style="color: var(--cora-white)"><i class="bi bi-tags"></i> Tipos de Empresa</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
+
                 <div class="modal-body">
                     <!-- Fila de búsqueda + botón Agregar -->
                     <div class="d-flex align-items-center gap-2 mb-3">
@@ -329,6 +387,7 @@
                         </button>
                     </div>
 
+                    <!-- Tabla de tipos de empresa -->
                     <table class="table table-hover" id="tablaTiposEmpresa">
                         <thead>
                             <tr>
@@ -338,6 +397,8 @@
                             </tr>
                         </thead>
                         <tbody>
+
+                            <!-- TIPO: Proveedor -->
                             <tr class="tipo-empresa-row" data-nombre="Proveedor" data-estado="activo">
                                 <td>Proveedor</td>
                                 <td><span class="badge bg-success badge-estado">Activo</span></td>
@@ -346,6 +407,8 @@
                                     <button class="btn btn-sm btn-outline-primary btn-toggle-estado-tipo" title="Desactivar" data-accion="desactivar"><i class="bi bi-power"></i></button>
                                 </td>
                             </tr>
+
+                            <!-- TIPO: Cliente -->
                             <tr class="tipo-empresa-row" data-nombre="Cliente" data-estado="activo">
                                 <td>Cliente</td>
                                 <td><span class="badge bg-success badge-estado">Activo</span></td>
@@ -354,6 +417,8 @@
                                     <button class="btn btn-sm btn-outline-primary btn-toggle-estado-tipo" title="Desactivar" data-accion="desactivar"><i class="bi bi-power"></i></button>
                                 </td>
                             </tr>
+
+                            <!-- TIPO: Mensajería -->
                             <tr class="tipo-empresa-row" data-nombre="Mensajería" data-estado="activo">
                                 <td>Mensajería</td>
                                 <td><span class="badge bg-success badge-estado">Activo</span></td>
@@ -362,6 +427,8 @@
                                     <button class="btn btn-sm btn-outline-primary btn-toggle-estado-tipo" title="Desactivar" data-accion="desactivar"><i class="bi bi-power"></i></button>
                                 </td>
                             </tr>
+
+                            <!-- TIPO: Filial -->
                             <tr class="tipo-empresa-row" data-nombre="Filial" data-estado="activo">
                                 <td>Filial</td>
                                 <td><span class="badge bg-success badge-estado">Activo</span></td>
@@ -373,6 +440,8 @@
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Pie con botón volver al modal de empresa -->
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#modalEmpresa" title="Volver a la empresa">
                         <i class="bi bi-arrow-left"></i> Volver
@@ -382,22 +451,26 @@
         </div>
     </div>
 
-    <!-- ============================================= -->
-    <!-- MODAL: NUEVO TIPO                              -->
-    <!-- ============================================= -->
+    <!-- MODAL: NUEVO TIPO DE EMPRESA -->
     <div class="modal fade" id="modalNuevoTipo" tabindex="-1" data-bs-backdrop="static">
         <div class="modal-dialog">
             <div class="modal-content">
+
+                <!-- Cabecera del modal -->
                 <div class="modal-header bg-success text-white">
                     <h5 class="modal-title" style="color: var(--cora-white)"><i class="bi bi-plus-circle"></i> Nuevo Tipo de Empresa</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
+
                 <div class="modal-body">
+                    <!-- Campo: nombre del tipo (obligatorio) -->
                     <div class="mb-3">
                         <label class="form-label">Nombre <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="nuevoTipoNombre" placeholder="Ej: Distribuidor" maxlength="50" required>
                     </div>
                 </div>
+
+                <!-- Pie del modal con acciones -->
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#modalTiposEmpresa" title="Ver todos los tipos">
                         <i class="bi bi-arrow-left"></i> Volver
@@ -410,12 +483,10 @@
         </div>
     </div>
 
-    <!-- ============================================= -->
-    <!-- TOASTS                                          -->
-    <!-- ============================================= -->
+    <!-- TOASTS -->
     <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1090;">
 
-        <!-- Toast: Cambios guardados (compartido) -->
+        <!-- TOAST: CAMBIOS GUARDADOS (compartido) -->
         <div id="toastCambiosGuardados" class="toast" role="alert" data-bs-delay="3500">
             <div class="toast-header" style="background-color: var(--cora-success); color: white;">
                 <i class="bi bi-check-circle me-2"></i>
@@ -427,7 +498,7 @@
             </div>
         </div>
 
-        <!-- Toast: Empresa activada -->
+        <!-- TOAST: EMPRESA ACTIVADA -->
         <div id="toastEmpresaActivada" class="toast" role="alert" data-bs-delay="3500">
             <div class="toast-header" style="background-color: var(--cora-success); color: white;">
                 <i class="bi bi-check-circle me-2"></i>
@@ -439,7 +510,7 @@
             </div>
         </div>
 
-        <!-- Toast: Empresa desactivada -->
+        <!-- TOAST: EMPRESA DESACTIVADA -->
         <div id="toastEmpresaDesactivada" class="toast" role="alert" data-bs-delay="3500">
             <div class="toast-header" style="background-color: var(--cora-accent); color: white;">
                 <i class="bi bi-x-circle me-2"></i>
@@ -451,7 +522,7 @@
             </div>
         </div>
 
-        <!-- Toast: Tipo activado -->
+        <!-- TOAST: TIPO ACTIVADO -->
         <div id="toastTipoActivado" class="toast" role="alert" data-bs-delay="3500">
             <div class="toast-header" style="background-color: var(--cora-success); color: white;">
                 <i class="bi bi-check-circle me-2"></i>
@@ -463,7 +534,7 @@
             </div>
         </div>
 
-        <!-- Toast: Tipo desactivado -->
+        <!-- TOAST: TIPO DESACTIVADO -->
         <div id="toastTipoDesactivado" class="toast" role="alert" data-bs-delay="3500">
             <div class="toast-header" style="background-color: var(--cora-accent); color: white;">
                 <i class="bi bi-x-circle me-2"></i>
@@ -474,16 +545,19 @@
                 Se ha desactivado el tipo de empresa.
             </div>
         </div>
-
     </div>
 
+    <!-- FOOTER -->
     <footer class="footer">
         <div class="container text-center">
             &copy; 2026 SWCORA - Sistema Web de Control de Recursos y Activos | v1.0.0
         </div>
     </footer>
 
+    <!-- SCRIPTS -->
+    <!-- Bootstrap bundle (incluye Popper para dropdowns y modales) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Scripts propios del sistema (filtros, CRUD empresas, toasts, etc.) -->
     <script src="../js/scripts.js"></script>
 </body>
 </html>

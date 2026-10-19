@@ -4,19 +4,34 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Mis Solicitudes - SWCORA</title>
+
+    <!-- HOJAS DE ESTILO -->
+    <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Estilos CSS -->
     <link rel="stylesheet" href="../css/styles.css">
 </head>
+
+<!-- BODY DE LA PÁGINA -->
 <body>
+    <!-- HEADER / NAVBAR -->
     <header>
         <nav class="navbar navbar-expand-sm">
             <div class="container-fluid">
+
+                <!-- logo y nombre -->
                 <a class="navbar-brand" href="index.html"><i class="bi bi-lightning-charge-fill"></i> SWCORA</a>
+
+                <!-- CONTENIDO COLAPSABLE DEL NAVBAR -->
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
+
+                        <!-- ITEM: INICIO -->
                         <li class="nav-item"><a class="nav-link" href="index.html"><i class="bi bi-house-door"></i> Inicio</a></li>
-                        
+
+                        <!-- ITEM: MÓDULOS -->
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                                 <i class="bi bi-box-seam"></i> Módulos
@@ -29,7 +44,8 @@
                                 -->
                             </ul>
                         </li>
-                                                
+
+                        <!-- ITEM: ACCESO A MÓDULOS -->
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="bi bi-key"></i> Acceso a Módulos</a>
                             <ul class="dropdown-menu">
@@ -38,21 +54,37 @@
                             </ul>
                         </li>
                     </ul>
+
+                    <!-- MENÚ SECUNDARIO (derecha) -->
                     <ul class="navbar-nav">
+
+                        <!-- ITEM: NOTIFICACIONES -->
                         <li class="nav-item">
                             <a class="nav-link position-relative" href="notificaciones.html">
                                 <i class="bi bi-bell"></i>
+                                <!-- Badge rojo con contador de notificaciones no leídas -->
                                 <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">3</span>
                             </a>
                         </li>
+
+                        <!-- ITEM: MENÚ DE USUARIO -->
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <a class="nav-link dropdown-toggle"
+                                href="#"
+                                role="button"
+                                data-bs-toggle="dropdown">
                                 <i class="bi bi-person-circle"></i> Juan Pérez
                             </a>
+
                             <ul class="dropdown-menu dropdown-menu-end">
+                                <!-- Enlaces del perfil -->
                                 <li><a class="dropdown-item" href="mi-perfil.html"><i class="bi bi-person"></i> Mi perfil</a></li>
                                 <li><a class="dropdown-item" href="configuracion.html"><i class="bi bi-gear"></i> Configuración</a></li>
+
+                                <!-- Separador antes de cerrar sesión -->
                                 <li><hr class="dropdown-divider"></li>
+
+                                <!-- Acción: cerrar sesión (redirige al login raíz) -->
                                 <li><a class="dropdown-item text-danger" href="../index.html"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</a></li>
                             </ul>
                         </li>
@@ -62,29 +94,41 @@
         </nav>
     </header>
 
+    <!-- CONTENIDO PRINCIPAL -->
     <div class="container-fluid mt-4">
+
+        <!-- ENCABEZADO + BOTÓN NUEVA SOLICITUD -->
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2><i class="bi bi-list-check"></i> Mis Solicitudes de Acceso</h2>
+
+            <!-- Redirige al formulario de solicitud -->
             <a href="acceso-solicitar.html" class="btn btn-success">
                 <i class="bi bi-plus-circle"></i> Nueva Solicitud
             </a>
         </div>
 
+        <!-- GRID 30/70 INVERTIDO: filtros izq / tabla der -->
         <div class="salida-form-grid-invertido">
+
             <!-- COLUMNA IZQUIERDA (30%): Filtros -->
             <div class="col-izquierda">
                 <div class="card">
+
+                    <!-- Cabecera con título y botón limpiar -->
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="mb-0"><i class="bi bi-funnel"></i> Filtros</h5>
                         <button class="btn btn-sm btn-outline-secondary" id="btnLimpiarFiltrosMis">
                             <i class="bi bi-arrow-clockwise"></i> Limpiar
                         </button>
                     </div>
+
                     <div class="card-body">
+                        <!-- Filtro: búsqueda por texto -->
                         <div class="mb-3">
                             <label class="form-label">Buscar</label>
                             <input type="text" class="form-control" id="filtroMisBuscar" placeholder="Módulo, aprobador...">
                         </div>
+                        <!-- Filtro: estado de la solicitud -->
                         <div class="mb-0">
                             <label class="form-label">Estado</label>
                             <select class="form-select" id="filtroMisEstado">
@@ -96,6 +140,8 @@
                             </select>
                         </div>
                     </div>
+
+                    <!-- Pie con nota informativa -->
                     <div class="card-footer">
                         <small class="text-muted">
                             <i class="bi bi-info-circle"></i> Los filtros se aplican automáticamente.
@@ -104,12 +150,16 @@
                 </div>
             </div>
 
-            <!-- COLUMNA DERECHA (70%): Tabla -->
+            <!-- COLUMNA DERECHA (70%): Tabla de solicitudes -->
             <div class="col-derecha">
                 <div class="card">
+
+                    <!-- Cabecera de la tabla -->
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="mb-0"><i class="bi bi-list-ul"></i> Mis Solicitudes</h5>
                     </div>
+
+                    <!-- card-body sin padding para que la tabla llegue a los bordes -->
                     <div class="card-body p-0">
                         <div class="table-responsive">
                             <table class="table table-hover mb-0" id="tablaMisSolicitudes">
@@ -130,6 +180,8 @@
                             </table>
                         </div>
                     </div>
+
+                    <!-- Contador de registros -->
                     <div class="card-footer">
                         <small class="text-muted">
                             Mostrando <span id="contadorMisMostrados">0</span> de
@@ -141,18 +193,23 @@
         </div>
     </div>
 
-    <!-- Modal Cancelar solicitud -->
+    <!-- MODAL: CANCELAR SOLICITUD -->
     <div class="modal fade" id="modalCancelarMiSolicitud" tabindex="-1" data-bs-backdrop="static">
         <div class="modal-dialog">
             <div class="modal-content">
+
+                <!-- Cabecera del modal -->
                 <div class="modal-header" style="background-color: var(--cora-accent); color: white;">
                     <h5 class="modal-title" style="color: var(--cora-white);"><i class="bi bi-dash-circle"></i> Cancelar Solicitud</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
+
                 <div class="modal-body">
                     <p>¿Estás seguro de que deseas cancelar esta solicitud?</p>
                     <p class="text-muted mb-0"><i class="bi bi-info-circle"></i> Esta acción no se puede deshacer.</p>
                 </div>
+
+                <!-- Pie del modal -->
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Volver</button>
                     <button type="button" class="btn btn-danger" id="btnConfirmarCancelarMiSolicitud">Cancelar solicitud</button>
@@ -161,8 +218,10 @@
         </div>
     </div>
 
-    <!-- Toast -->
+    <!-- TOAST: acciones de solicitudes -->
     <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1090;">
+
+        <!-- Toast reutilizable: título y mensaje se actualizan vía JS -->
         <div id="toastMiSolicitud" class="toast" role="alert" data-bs-delay="3500">
             <div class="toast-header" style="background-color: var(--cora-success); color: white;">
                 <i class="bi bi-check-circle me-2"></i>
@@ -173,13 +232,17 @@
         </div>
     </div>
 
+    <!-- FOOTER -->
     <footer class="footer">
         <div class="container text-center">
             &copy; 2026 SWCORA - Sistema Web de Control de Recursos y Activos | v1.0.0
         </div>
     </footer>
 
+    <!-- SCRIPTS -->
+    <!-- Bootstrap bundle (incluye Popper para dropdowns y modales) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Scripts propios del sistema (render de solicitudes, filtros, cancelar, etc.) -->
     <script src="../js/scripts.js"></script>
 </body>
 </html>

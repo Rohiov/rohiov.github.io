@@ -1,194 +1,332 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Inicio - SWCORA</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="../css/styles.css">
-</head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-sm">
-            <div class="container-fluid">
-                <a class="navbar-brand" href="index.html">
-                    <i class="bi bi-lightning-charge-fill"></i> SWCORA
-                </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link" href="index.html"><i class="bi bi-house-door"></i> Inicio</a>
-                        </li>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Inicio - SWCORA</title>
 
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                <i class="bi bi-gear"></i> Administración
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="admin-usuarios.html"><i class="bi bi-people"></i> Usuarios</a></li>
-                                <li><a class="dropdown-item" href="admin-roles.html"><i class="bi bi-shield-lock"></i> Roles</a></li>
-                                <li><a class="dropdown-item" href="admin-modulos.html"><i class="bi bi-box-seam"></i> Módulos</a></li>
-                                <li><a class="dropdown-item" href="admin-empresas.html"><i class="bi bi-building"></i> Empresas</a></li>
-                                <li><a class="dropdown-item" href="admin-departamentos.html"><i class="bi bi-diagram-3"></i> Departamentos</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li class="dropdown-submenu">
-                                    <a class="dropdown-item dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                        <i class="bi bi-collection"></i> Catálogos
-                                    </a>
-                                    <ul class="dropdown-menu">
-                                        <li class="dropdown-submenu">
-                                            <a class="dropdown-item dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                                <i class="bi bi-clipboard-check"></i> Salidas de Material
-                                            </a>
-                                            <ul class="dropdown-menu">
-                                                <li>
-                                                    <a class="dropdown-item" href="admin-unidades.html">
-                                                        <i class="bi bi-rulers"></i> Unidades
-                                                    </a>
-                                                </li>
-                                            </ul>
-                                        </li>
-                                    </ul>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="admin-logs.html"><i class="bi bi-journal-text"></i> Logs</a></li>
-                            </ul>
-                        </li>
+        <!-- HOJAS DE ESTILO -->
+        <!-- Bootstrap 5 -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+        <!-- Bootstrap Icons: iconos usados-->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+        <!-- Estilos CSS -->
+        <link rel="stylesheet" href="../css/styles.css">
+    </head>
 
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                <i class="bi bi-box-seam"></i> Módulos
+    <!-- BODY DE LA PÁGINA -->
+    <body>
+        <!-- HEADER / NAVBAR -->
+        <header>
+            <nav class="navbar navbar-expand-sm">
+                <div class="container-fluid">
+
+                    <!-- logo y nombre -->
+                    <a class="navbar-brand" href="index.html">
+                        <i class="bi bi-lightning-charge-fill"></i> SWCORA
+                    </a>
+
+                    <!-- Botón hamburguesa que aparece en pantallas pequeñas -->
+                    <button class="navbar-toggler"
+                            type="button" style="color: var(--cora-white);"
+                            data-bs-toggle="collapse"
+                            data-bs-target=".navbar-collapse">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+
+                    <!-- CONTENIDO COLAPSABLE DEL NAVBAR -->
+                    <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+
+                        <!-- MENÚ PRINCIPAL (izquierda)                    -->
+                        <ul class="navbar-nav flex-grow-1">
+
+                            <!-- ITEM: INICIO                                  -->
+                            <li class="nav-item">
+                                <a class="nav-link" href="index.html">
+                                    <i class="bi bi-house-door"></i> Inicio
+                                </a>
+                            </li>
+
+                            <!-- ITEM: ADMINISTRACIÓN               -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle"
+                                   href="#"
+                                   role="button"
+                                   data-bs-toggle="dropdown">
+                                    <i class="bi bi-gear"></i> Administración
+                                </a>
+
+                                <ul class="dropdown-menu">
+
+                                    <!-- Enlaces directos a las páginas de administración -->
+                                    <li><a class="dropdown-item" href="admin-usuarios.html"><i class="bi bi-people"></i> Usuarios</a></li>
+                                    <li><a class="dropdown-item" href="admin-roles.html"><i class="bi bi-shield-lock"></i> Roles</a></li>
+                                    <li><a class="dropdown-item" href="admin-modulos.html"><i class="bi bi-box-seam"></i> Módulos</a></li>
+                                    <li><a class="dropdown-item" href="admin-empresas.html"><i class="bi bi-building"></i> Empresas</a></li>
+                                    <li><a class="dropdown-item" href="admin-departamentos.html"><i class="bi bi-diagram-3"></i> Departamentos</a></li>
+
+                                    <!-- Separador antes de catálogos -->
+                                    <li><hr class="dropdown-divider"></li>
+
+                                    <!-- SUBMENÚ: CATÁLOGOS (anidado nivel 1)          -->
+                                    <li class="dropdown-submenu">
+                                        <a class="dropdown-item dropdown-toggle"
+                                           href="#"
+                                           role="button"
+                                           data-bs-toggle="dropdown">
+                                            <i class="bi bi-collection"></i> Catálogos
+                                        </a>
+
+                                        <ul class="dropdown-menu">
+                                            <!-- SUBMENÚ: SALIDAS DE MATERIAL (nivel 2)        -->
+                                            <li class="dropdown-submenu">
+                                                <a class="dropdown-item dropdown-toggle"
+                                                   href="#"
+                                                   role="button"
+                                                   data-bs-toggle="dropdown">
+                                                    <i class="bi bi-clipboard-check"></i> Salidas de Material
+                                                </a>
+
+                                                <ul class="dropdown-menu">
+                                                    <!-- Enlace a Unidades dentro del catálogo de Salidas -->
+                                                    <li>
+                                                        <a class="dropdown-item" href="admin-unidades.html">
+                                                            <i class="bi bi-rulers"></i> Unidades
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                        </ul>
+                                    </li>
+
+                                    <!-- Separador antes de logs -->
+                                    <li><hr class="dropdown-divider"></li>
+
+                                    <!-- Enlace a Logs del sistema -->
+                                    <li><a class="dropdown-item" href="admin-logs.html"><i class="bi bi-journal-text"></i> Logs</a></li>
+                                </ul>
+                            </li>
+
+                            <!-- ITEM: MÓDULOS                      -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle"
+                                   href="#"
+                                   role="button"
+                                   data-bs-toggle="dropdown">
+                                    <i class="bi bi-box-seam"></i> Módulos
+                                </a>
+
+                                <ul class="dropdown-menu">
+                                    <!-- Enlace al módulo de salidas de material -->
+                                    <li><a class="dropdown-item" href="salidas-index.html"><i class="bi bi-clipboard-check"></i> Salidas de Material</a></li>
+
+                                    <!-- Placeholder para futuros módulos -->
+                                    <!--<li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item text-muted" href="#"><i class="bi bi-box"></i> Nuevo Módulo <span class="badge bg-secondary ms-2">Próximamente</span></a></li>-->
+                                </ul>
+                            </li>
+
+                            
+                            <!-- ITEM: ACCESO A MÓDULOS -->
+                            
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle"
+                                   href="#"
+                                   role="button"
+                                   data-bs-toggle="dropdown">
+                                    <i class="bi bi-key"></i> Acceso a Módulos
+                                </a>
+
+                                <ul class="dropdown-menu">
+                                    <!-- Formulario de nueva solicitud de acceso -->
+                                    <li><a class="dropdown-item" href="acceso-solicitar.html"><i class="bi bi-pencil-square"></i> Solicitar acceso</a></li>
+                                    <!-- Listado de solicitudes propias -->
+                                    <li><a class="dropdown-item" href="acceso-mis-solicitudes.html"><i class="bi bi-list-check"></i> Mis solicitudes</a></li>
+                                    <!-- Aprobaciones pendientes del usuario aprobador -->
+                                    <li><a class="dropdown-item" href="acceso-aprobar.html"><i class="bi bi-check2-circle"></i> Aprobaciones pendientes</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+
+                        <!-- MENÚ SECUNDARIO (derecha)-->
+                        <ul class="navbar-nav">
+
+                            
+                            <!-- ITEM: NOTIFICACIONES-->
+                            <li class="nav-item">
+                                <a class="nav-link position-relative" href="notificaciones.html">
+                                    <i class="bi bi-bell"></i>
+                                    <!-- Badge rojo con contador de notificaciones no leídas -->
+                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">3</span>
+                                </a>
+                            </li>
+
+                            <!-- ITEM: MENÚ DE USUARIO -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle"
+                                   href="#"
+                                   role="button"
+                                   data-bs-toggle="dropdown">
+                                    <i class="bi bi-person-circle"></i> Juan Pérez
+                                </a>
+
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <!-- Enlaces del perfil -->
+                                    <li><a class="dropdown-item" href="mi-perfil.html"><i class="bi bi-person"></i> Mi perfil</a></li>
+                                    <li><a class="dropdown-item" href="configuracion.html"><i class="bi bi-gear"></i> Configuración</a></li>
+
+                                    <!-- Separador antes de cerrar sesión -->
+                                    <li><hr class="dropdown-divider"></li>
+
+                                    <!-- Acción: cerrar sesión (redirige al login raíz) -->
+                                    <li><a class="dropdown-item text-danger" href="../index.html"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        </header>
+
+        <!-- CONTENIDO PRINCIPAL -->
+        <div class="container mt-5">
+
+            <!-- ALERTA: BIENVENIDA -->
+            <div class="alert alert-info mb-4">
+                <div class="d-flex align-items-center">
+                    <!-- Icono grande de info a la izquierda -->
+                    <i class="bi bi-info-circle-fill fs-1 me-3"></i>
+
+                    <!-- Bloque de texto con el mensaje de bienvenida -->
+                    <div>
+                        <h5 class="mb-1">Bienvenido, Juan Pérez</h5>
+                        <p class="mb-0">Último acceso fue el 20/09/2026 a las 10:30.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECCIÓN: MIS MÓDULOS -->
+            <h3 class="mb-4">📦 Mis Módulos</h3>
+
+            <div class="row">
+
+                <!-- CARD: SALIDAS DE MATERIAL -->
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <!-- h-100 → todas las cards de la fila tienen la misma altura -->
+                    <div class="card h-100">
+                        <div class="card-body text-center p-4">
+
+                            <!-- Icono grande con color de acento -->
+                            <div class="display-4 mb-3" style="color: var(--cora-accent);">
+                                <i class="bi bi-clipboard-check"></i>
+                            </div>
+
+                            <!-- Título y descripción del módulo -->
+                            <h5 class="card-title">Salidas de Material</h5>
+                            <p class="card-text text-muted">Gestiona las solicitudes de salida de material del almacén.</p>
+
+                            <!-- Botón primario para entrar al módulo -->
+                            <a href="salidas-index.html" class="btn btn-primary">
+                                <i class="bi bi-arrow-right-circle"></i> Ir al módulo
                             </a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="salidas-index.html"><i class="bi bi-clipboard-check"></i> Salidas de Material</a></li>
-                                <!--<li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item text-muted" href="#"><i class="bi bi-box"></i> Control de EPP <span class="badge bg-secondary ms-2">Próximamente</span></a></li>-->
-                            </ul>
-                        </li>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CARD: SOLICITAR ACCESO A MÁS MÓDULOS -->
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <!-- Fondo gris claro para diferenciar del módulo activo -->
+                    <div class="card h-100" style="background-color: var(--cora-bg);">
+                        <div class="card-body text-center p-4">
+
+                            <!-- Icono de suma en gris claro -->
+                            <div class="display-4 mb-3" style="color: var(--cora-gray-light);">
+                                <i class="bi bi-plus-circle"></i>
+                            </div>
+
+                            <!-- Título y descripción -->
+                            <h5 class="card-title text-muted">Más Módulos</h5>
+                            <p class="card-text text-muted">Solicita acceso a nuevos módulos.</p>
+
+                            <!-- Botón outline (secundario) -->
+                            <a href="acceso-solicitar.html" class="btn btn-outline-primary">
+                                <i class="bi bi-key"></i> Solicitar acceso
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECCIÓN: ACTIVIDAD RECIENTE -->
+            <h3 class="mb-4 mt-4">📊 Actividad Reciente</h3>
+
+            <div class="card">
+                <!-- card-body sin padding (p-0) para que el list-group llegue a los bordes -->
+                <div class="card-body p-0">
+
+                    <!-- Lista de actividades sin separadores extra (list-group-flush) -->
+                    <div class="list-group list-group-flush">
+
+                        <!-- ACTIVIDAD 1: SALIDA APROBADA -->
+                        <div class="list-group-item d-flex align-items-center">
+
+                            <!-- Icono verde de aprobación -->
+                            <i class="bi bi-check-circle-fill fs-4 me-3" style="color: var(--cora-success);"></i>
+
+                            <!-- Texto principal con descripción secundaria -->
+                            <div class="flex-grow-1">
+                                <strong>Salida 00000001 aprobada</strong>
+                                <p class="mb-0 text-muted small">Aprobada por María Gómez</p>
+                            </div>
+
+                            <!-- Timestamp relativo a la derecha -->
+                            <small class="text-muted">Hace 5 minutos</small>
+                        </div>
+
+                        <!-- ACTIVIDAD 2: SALIDA CREADA-->
                         
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                <i class="bi bi-key"></i> Acceso a Módulos
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="acceso-solicitar.html"><i class="bi bi-pencil-square"></i> Solicitar acceso</a></li>
-                                <li><a class="dropdown-item" href="acceso-mis-solicitudes.html"><i class="bi bi-list-check"></i> Mis solicitudes</a></li>
-                                <li><a class="dropdown-item" href="acceso-aprobar.html"><i class="bi bi-check2-circle"></i> Aprobaciones pendientes</a></li>
-                            </ul>
-                        </li>
-                    </ul>
-                    <ul class="navbar-nav">
-                        <li class="nav-item">
-                            <a class="nav-link position-relative" href="notificaciones.html">
-                                <i class="bi bi-bell"></i>
-                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">3</span>
-                            </a>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                <i class="bi bi-person-circle"></i> Juan Pérez
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="mi-perfil.html"><i class="bi bi-person"></i> Mi perfil</a></li>
-                                <li><a class="dropdown-item" href="configuracion.html"><i class="bi bi-gear"></i> Configuración</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item text-danger" href="../index.html"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</a></li>
-                            </ul>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    </header>
+                        <div class="list-group-item d-flex align-items-center">
 
-    <div class="container mt-5">
+                            <!-- Icono rojo de creación -->
+                            <i class="bi bi-pencil-fill fs-4 me-3" style="color: var(--cora-accent);"></i>
 
-        <div class="alert alert-info mb-4">
-            <div class="d-flex align-items-center">
-                <i class="bi bi-info-circle-fill fs-1 me-3"></i>
-                <div>
-                    <h5 class="mb-1">Bienvenido, Juan Pérez</h5>
-                    <p class="mb-0">Último acceso fue el 20/09/2026 a las 10:30.</p>
-                </div>
-            </div>
-        </div>
+                            <div class="flex-grow-1">
+                                <strong>Salida 00000002 creada</strong>
+                                <p class="mb-0 text-muted small">Pendiente de aprobación</p>
+                            </div>
 
-        <h3 class="mb-4">📦 Mis Módulos</h3>
-        <div class="row">
-            <div class="col-md-6 col-lg-4 mb-4">
-                <div class="card h-100">
-                    <div class="card-body text-center p-4">
-                        <div class="display-4 mb-3" style="color: var(--cora-accent);">
-                            <i class="bi bi-clipboard-check"></i>
+                            <small class="text-muted">Hace 15 minutos</small>
                         </div>
-                        <h5 class="card-title">Salidas de Material</h5>
-                        <p class="card-text text-muted">Gestiona las solicitudes de salida de material del almacén.</p>
-                        <a href="salidas-index.html" class="btn btn-primary">
-                            <i class="bi bi-arrow-right-circle"></i> Ir al módulo
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-4 mb-4">
-                <div class="card h-100" style="background-color: var(--cora-bg);">
-                    <div class="card-body text-center p-4">
-                        <div class="display-4 mb-3" style="color: var(--cora-gray-light);">
-                            <i class="bi bi-plus-circle"></i>
+
+                        <!-- ACTIVIDAD 3: SALIDA RECHAZADA -->
+                        <div class="list-group-item d-flex align-items-center">
+
+                            <!-- Icono rojo de rechazo -->
+                            <i class="bi bi-x-circle-fill fs-4 me-3" style="color: var(--cora-accent);"></i>
+
+                            <div class="flex-grow-1">
+                                <strong>Salida 00000003 rechazada</strong>
+                                <p class="mb-0 text-muted small">Motivo: Material no autorizado</p>
+                            </div>
+
+                            <small class="text-muted">Hace 1 hora</small>
                         </div>
-                        <h5 class="card-title text-muted">Más Módulos</h5>
-                        <p class="card-text text-muted">Solicita acceso a nuevos módulos.</p>
-                        <a href="acceso-solicitar.html" class="btn btn-outline-primary">
-                            <i class="bi bi-key"></i> Solicitar acceso
-                        </a>
                     </div>
                 </div>
             </div>
         </div>
 
-        <h3 class="mb-4 mt-4">📊 Actividad Reciente</h3>
-        <div class="card">
-            <div class="card-body p-0">
-                <div class="list-group list-group-flush">
-                    <div class="list-group-item d-flex align-items-center">
-                        <i class="bi bi-check-circle-fill fs-4 me-3" style="color: var(--cora-success);"></i>
-                        <div class="flex-grow-1">
-                            <strong>Salida 00000001 aprobada</strong>
-                            <p class="mb-0 text-muted small">Aprobada por María Gómez</p>
-                        </div>
-                        <small class="text-muted">Hace 5 minutos</small>
-                    </div>
-                    <div class="list-group-item d-flex align-items-center">
-                        <i class="bi bi-pencil-fill fs-4 me-3" style="color: var(--cora-accent);"></i>
-                        <div class="flex-grow-1">
-                            <strong>Salida 00000002 creada</strong>
-                            <p class="mb-0 text-muted small">Pendiente de aprobación</p>
-                        </div>
-                        <small class="text-muted">Hace 15 minutos</small>
-                    </div>
-                    <div class="list-group-item d-flex align-items-center">
-                        <i class="bi bi-x-circle-fill fs-4 me-3" style="color: var(--cora-accent);"></i>
-                        <div class="flex-grow-1">
-                            <strong>Salida 00000003 rechazada</strong>
-                            <p class="mb-0 text-muted small">Motivo: Material no autorizado</p>
-                        </div>
-                        <small class="text-muted">Hace 1 hora</small>
-                    </div>
-                </div>
+        <!-- FOOTER -->
+        <footer class="footer">
+            <div class="container text-center">
+                &copy; 2026 SWCORA - Sistema Web de Control de Recursos y Activos | v1.0.0
             </div>
-        </div>
-    </div>
+        </footer>
 
-    <footer class="footer">
-        <div class="container text-center">
-            &copy; 2026 SWCORA - Sistema Web de Control de Recursos y Activos | v1.0.0
-        </div>
-    </footer>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../js/scripts.js"></script>
-</body>
+        <!-- SCRIPTS -->
+        <!-- Bootstrap bundle (incluye Popper para dropdowns) -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- Scripts propios del sistema (navbar, filtros, acciones, etc.) -->
+        <script src="../js/scripts.js"></script>
+    </body>
 </html>

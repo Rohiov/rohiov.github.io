@@ -1,18 +1,11 @@
 // =============================================
-// SWCORA - Scripts del Mockup
-// =============================================
-
-// =============================================
 // UTILIDAD GLOBAL: Exportar tabla a CSV
 // Reutilizable en cualquier página.
-// Uso:
-//   exportarTablaACSV('#tablaUsuarios', 'usuarios');
-//   exportarTablaACSV(tablaElement, 'salidas', { omitirColumnas: [0, 6] });
 // =============================================
 function exportarTablaACSV(tablaSelector, nombreArchivo, opciones) {
     opciones = opciones || {};
 
-    // 1. Resolver el elemento de la tabla
+    // Resolver el elemento de la tabla (por selector o por referencia directa)
     let tabla = null;
     if (typeof tablaSelector === 'string') {
         tabla = document.querySelector(tablaSelector);
@@ -24,13 +17,13 @@ function exportarTablaACSV(tablaSelector, nombreArchivo, opciones) {
         return;
     }
 
-    // 2. Opciones
+    // Opciones configurables
     const omitirColumnas = opciones.omitirColumnas || []; // índices a omitir (0-based)
     const incluirOcultas = opciones.incluirOcultas === true; // por defecto false: solo visibles
     const separador = opciones.separador || ',';
     const nombreBase = nombreArchivo || 'exportacion';
 
-    // 3. Encabezados
+    // Construir la fila de encabezados a partir del <thead>
     const ths = tabla.querySelectorAll('thead th');
     const encabezados = [];
     ths.forEach(function (th, index) {
@@ -38,7 +31,7 @@ function exportarTablaACSV(tablaSelector, nombreArchivo, opciones) {
         encabezados.push(limpiarTexto(th.textContent));
     });
 
-    // 4. Filas
+    // Construir las filas de datos a partir del <tbody>
     const filas = [];
     tabla.querySelectorAll('tbody tr').forEach(function (tr) {
         // Si está oculta por filtro, la saltamos (a menos que se indique lo contrario)
@@ -53,25 +46,27 @@ function exportarTablaACSV(tablaSelector, nombreArchivo, opciones) {
         filas.push(fila);
     });
 
-    // 5. Generar contenido CSV
+    // Generar el contenido CSV (encabezados + filas)
     const lineas = [];
     lineas.push(encabezados.map(escaparCSV).join(separador));
     filas.forEach(function (fila) {
         lineas.push(fila.map(escaparCSV).join(separador));
     });
 
-    // 6. BOM UTF-8 para que Excel respete los acentos
+    // BOM UTF-8 para que Excel respete los acentos
     const contenido = '\uFEFF' + lineas.join('\r\n');
 
-    // 7. Blob y descarga
+    // Crear Blob y descargar el archivo
     const blob = new Blob([contenido], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
 
+    // Timestamp para el nombre del archivo
     const fecha = new Date();
     const pad = n => String(n).padStart(2, '0');
     const timestamp = fecha.getFullYear() + pad(fecha.getMonth() + 1) + pad(fecha.getDate()) +
                       '_' + pad(fecha.getHours()) + pad(fecha.getMinutes());
 
+    // Enlace temporal para forzar la descarga
     const enlace = document.createElement('a');
     enlace.href = url;
     enlace.download = nombreBase + '_' + timestamp + '.csv';
@@ -82,15 +77,17 @@ function exportarTablaACSV(tablaSelector, nombreArchivo, opciones) {
     URL.revokeObjectURL(url);
 
     // ---- Helpers internos ----
+
+    // Colapsa espacios, saltos de línea y tabs; recorta extremos
     function limpiarTexto(texto) {
         return String(texto || '')
-            .replace(/\s+/g, ' ')   // colapsa espacios, saltos de línea, tabs
+            .replace(/\s+/g, ' ')
             .trim();
     }
 
+    // Escapa un valor CSV: si contiene separador, comillas o saltos → entrecomillar
     function escaparCSV(valor) {
         const texto = String(valor);
-        // Si contiene separador, comillas o salto de línea → entrecomillar
         if (texto.indexOf(separador) !== -1 ||
             texto.indexOf('"') !== -1 ||
             texto.indexOf('\n') !== -1 ||
@@ -101,6 +98,10 @@ function exportarTablaACSV(tablaSelector, nombreArchivo, opciones) {
     }
 }
 
+// =============================================
+// INICIALIZACIÓN GLOBAL
+// Todo el código se ejecuta tras cargar el DOM.
+// =============================================
 document.addEventListener('DOMContentLoaded', function () {
     console.log('SWCORA Mockup cargado correctamente');
 
@@ -174,7 +175,9 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     ];
 
-    // ---------- API de storage ----------
+    // ---------- API de storage de solicitudes ----------
+
+    // Carga las solicitudes del localStorage; si no hay, siembra los datos seed
     function cargarSolicitudes() {
         try {
             const raw = localStorage.getItem(STORAGE_KEY_SOLICITUDES);
@@ -192,6 +195,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    // Persiste el arreglo completo de solicitudes
     function guardarSolicitudes(lista) {
         try {
             localStorage.setItem(STORAGE_KEY_SOLICITUDES, JSON.stringify(lista));
@@ -202,16 +206,17 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    // Agrega una nueva solicitud al inicio del arreglo
     function agregarSolicitud(solicitud) {
         const lista = cargarSolicitudes();
-        // Generar id único
         const nuevoId = 'sol-' + String(Date.now()).slice(-6);
         const nueva = Object.assign({ id: nuevoId, estado: 'pendiente', respuesta: 'En revisión' }, solicitud);
-        lista.unshift(nueva); // al inicio
+        lista.unshift(nueva);
         guardarSolicitudes(lista);
         return nueva;
     }
 
+    // Actualiza los campos de una solicitud por id
     function actualizarSolicitud(id, cambios) {
         const lista = cargarSolicitudes();
         const idx = lista.findIndex(s => s.id === id);
@@ -221,6 +226,7 @@ document.addEventListener('DOMContentLoaded', function () {
         return true;
     }
 
+    // Elimina una solicitud por id
     function eliminarSolicitud(id) {
         const lista = cargarSolicitudes().filter(s => s.id !== id);
         guardarSolicitudes(lista);
@@ -235,16 +241,16 @@ document.addEventListener('DOMContentLoaded', function () {
         eliminar: eliminarSolicitud
     };
 
-    // Usuario "actual" del mockup
+    // Usuario "actual" del mockup (quien tiene la sesión iniciada)
     const USUARIO_ACTUAL = 'Juan Pérez';
 
     // =============================================
     // DETECCIÓN DEL ROL LOGUEADO
     // Se infiere a partir de la carpeta en la URL.
     // Ej:
-    //   /superadmin/salidas-index.html  → 'superadmin'
-    //   /generador/salidas-index.html   → 'generador'
-    //   /salidas-index.html (raíz)      → 'superadmin' (fallback)
+    //   /superusuario/salidas-index.html  → 'superusuario'
+    //   /generador/salidas-index.html     → 'generador'
+    //   /salidas-index.html (raíz)        → 'superusuario' (fallback)
     // =============================================
     function obtenerRolLogueado() {
         const path = window.location.pathname.toLowerCase();
@@ -253,7 +259,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (/\/aprobador\//.test(path)) return 'aprobador';
         if (/\/generador\//.test(path)) return 'generador';
         if (/\/sinrol\//.test(path)) return 'sinrol';
-        // Si no estamos en ninguna carpeta de rol, asumimos superadmin (mockup raíz)
+        // Si no estamos en ninguna carpeta de rol, asumimos superusuario (mockup raíz)
         return 'superusuario';
     }
 
@@ -265,6 +271,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // =============================================
     const STORAGE_KEY_SALIDAS = 'swcora_salidas_material';
 
+    // Datos iniciales (seed) — se usan solo si el storage está vacío
     const SEED_SALIDAS = [
         {
             id: 'sal-001',
@@ -445,6 +452,9 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     ];
 
+    // ---------- API de storage de salidas ----------
+
+    // Carga las salidas del localStorage; si no hay, siembra los datos seed
     function cargarSalidas() {
         try {
             const raw = localStorage.getItem(STORAGE_KEY_SALIDAS);
@@ -462,6 +472,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    // Persiste el arreglo completo de salidas
     function guardarSalidas(lista) {
         try {
             localStorage.setItem(STORAGE_KEY_SALIDAS, JSON.stringify(lista));
@@ -472,6 +483,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    // Agrega una nueva salida al inicio del arreglo
     function agregarSalida(salida) {
         const lista = cargarSalidas();
         const nuevoId = 'sal-' + String(Date.now()).slice(-6);
@@ -481,6 +493,7 @@ document.addEventListener('DOMContentLoaded', function () {
         return nueva;
     }
 
+    // Actualiza los campos de una salida por id
     function actualizarSalida(id, cambios) {
         const lista = cargarSalidas();
         const idx = lista.findIndex(s => s.id === id);
@@ -490,19 +503,23 @@ document.addEventListener('DOMContentLoaded', function () {
         return true;
     }
 
+    // Elimina una salida por id
     function eliminarSalida(id) {
         const lista = cargarSalidas().filter(s => s.id !== id);
         guardarSalidas(lista);
     }
 
+    // Busca una salida por folio
     function obtenerSalidaPorFolio(folio) {
         return cargarSalidas().find(s => s.folio === folio);
     }
 
+    // Busca una salida por id interno
     function obtenerSalidaPorId(id) {
         return cargarSalidas().find(s => s.id === id);
     }
 
+    // Genera el siguiente folio correlativo (8 dígitos con padding)
     function generarSiguienteFolio() {
         const lista = cargarSalidas();
         let maxNum = 0;
@@ -513,6 +530,7 @@ document.addEventListener('DOMContentLoaded', function () {
         return String(maxNum + 1).padStart(8, '0');
     }
 
+    // Exponer globalmente para uso entre bloques
     window.swcoraSalidas = {
         cargar: cargarSalidas,
         guardar: guardarSalidas,
@@ -528,10 +546,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // HELPERS GLOBALES: Sincronización de Tipos de Empresa
     // =============================================
 
-    /**
-     * Lee la tabla #tablaTiposEmpresa y devuelve un array
-     * de { nombre, activo } de los tipos existentes.
-     */
+    // Lee la tabla #tablaTiposEmpresa y devuelve un array de { nombre, activo }
     function obtenerTiposEmpresa() {
         const tabla = document.getElementById('tablaTiposEmpresa');
         if (!tabla) return [];
@@ -544,14 +559,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }).filter(t => t.nombre);
     }
 
-    /**
-     * Reconstruye un <select> con los tipos disponibles.
-     * @param {HTMLSelectElement} select
-     * @param {Object} opciones
-     * @param {string} opciones.placeholder   - Texto de la opción inicial
-     * @param {boolean} opciones.soloActivos  - Si true, solo incluye tipos activos
-     * @param {string} opciones.valorActual   - Valor que debe quedar seleccionado tras reconstruir
-     */
+    // Reconstruye un <select> con los tipos disponibles
     function reconstruirSelectTipos(select, opciones) {
         if (!select) return;
 
@@ -564,7 +572,7 @@ document.addEventListener('DOMContentLoaded', function () {
             return soloActivos ? t.activo : true;
         });
 
-        // Guardar opción placeholder (la primera del HTML original)
+        // Recrear opciones
         select.innerHTML = '';
 
         const optInicial = document.createElement('option');
@@ -586,11 +594,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    /**
-     * Sincroniza los 2 selects (filtro + modal) con la tabla de tipos.
-     * @param {string} valorFiltro - Valor a preservar en el filtro
-     * @param {string} valorModal  - Valor a preservar en el modal
-     */
+    // Sincroniza los 2 selects (filtro + modal) con la tabla de tipos
     function sincronizarSelectsTipos(valorFiltro, valorModal) {
         reconstruirSelectTipos(
             document.getElementById('filtroEmpresasTipo'),
@@ -606,6 +610,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Exponer para uso en otros bloques
     window.swcoraSyncTiposEmpresa = sincronizarSelectsTipos;
 
+    // Referencias globales a los modales de empresa
     const modalEmpresaEl = document.getElementById('modalEmpresa');
     const modalEmpresaTitulo = document.getElementById('modalEmpresaTitulo');
     const modalTiposEmpresaEl = document.getElementById('modalTiposEmpresa');
@@ -628,6 +633,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // Elemento de error (ya existe en el HTML: #loginError)
         const loginErrorEl = document.getElementById('loginError');
 
+        // Muestra un mensaje de error en el contenedor #loginError
         function mostrarErrorLogin(msg) {
             if (!loginErrorEl) {
                 alert(msg);
@@ -637,6 +643,7 @@ document.addEventListener('DOMContentLoaded', function () {
             loginErrorEl.classList.remove('d-none');
         }
 
+        // Oculta el mensaje de error
         function ocultarErrorLogin() {
             if (!loginErrorEl) return;
             loginErrorEl.classList.add('d-none');
@@ -734,6 +741,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // =============================================
     // Submenús anidados en el navbar
+    // Permite desplegar submenús dentro de un dropdown.
     // =============================================
     const submenus = document.querySelectorAll('.dropdown-submenu > .dropdown-item');
     submenus.forEach(function (el) {
@@ -743,6 +751,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const submenu = this.nextElementSibling;
 
+            // Cerrar otros submenús abiertos
             document.querySelectorAll('.dropdown-submenu > .dropdown-menu.show').forEach(function (open) {
                 if (open !== submenu) open.classList.remove('show');
             });
@@ -773,6 +782,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // =============================================
     // Crear Salida - Autocompletar contacto
+    // Al seleccionar una empresa, carga su contacto.
     // =============================================
     const selectEmpresa = document.getElementById('selectEmpresa');
     const contactoInput = document.getElementById('contactoInput');
@@ -783,6 +793,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    // Botón para limpiar el contacto
     const btnLimpiarContacto = document.getElementById('btnLimpiarContacto');
     if (btnLimpiarContacto) {
         btnLimpiarContacto.addEventListener('click', function () {
@@ -793,6 +804,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // =============================================
     // Árbol de permisos - Tri-state
+    // Padres marcados parcialmente → indeterminate.
     // =============================================
     document.querySelectorAll('.tree-container input[type="checkbox"]').forEach(function (checkbox) {
         checkbox.addEventListener('change', function () {
@@ -806,6 +818,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    // Recalcula el estado del padre según sus hijos
     function actualizarPadres(checkbox) {
         let currentLi = checkbox.closest('li');
         while (currentLi) {
@@ -837,6 +850,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // =============================================
     // Compartir modales entre sub-modal
+    // Cierra modales abiertos cuando se abre otro.
     // =============================================
     document.querySelectorAll('[data-bs-toggle="modal"]').forEach(function (btn) {
         btn.addEventListener('click', function () {
@@ -852,6 +866,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // =============================================
     // Acordeón exclusivo: gestionado por Bootstrap
+    // Añade clase "collapsed" a las cards colapsadas.
     // =============================================
     document.querySelectorAll('.card-collapsible .collapse').forEach(function (collapseEl) {
         const card = collapseEl.closest('.card-collapsible');
@@ -874,6 +889,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // =============================================
     // Toggle condicional: Retorno Esperado
+    // Si es salida definitiva → oculta y limpia el retorno.
     // =============================================
     const esDefinitiva = document.getElementById('esDefinitiva');
     const wrapperRetornoEsperado = document.getElementById('wrapperRetornoEsperado');
@@ -899,6 +915,10 @@ document.addEventListener('DOMContentLoaded', function () {
         esDefinitiva.addEventListener('change', actualizarRetornoEsperado);
     }
 
+    // =============================================
+    // Cerrar sesión individual (Mi Perfil)
+    // Rellena los datos del dispositivo/usuario en el modal.
+    // =============================================
     const modalCerrarSesionIndividual = document.getElementById('modalCerrarSesionIndividual');
     if (modalCerrarSesionIndividual) {
         modalCerrarSesionIndividual.addEventListener('show.bs.modal', function (event) {
@@ -921,6 +941,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const btnConfirmarRecuperar = document.getElementById('btnConfirmarRecuperar');
     const toastRecuperarPasswordEl = document.getElementById('toastRecuperarPassword');
 
+    // Abrir el modal de recuperación al pulsar el enlace
     if (linkRecuperarPassword && modalRecuperarPasswordEl) {
         linkRecuperarPassword.addEventListener('click', function (e) {
             e.preventDefault();
@@ -929,6 +950,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    // Confirmar recuperación → cierra modal y muestra toast
     if (btnConfirmarRecuperar) {
         btnConfirmarRecuperar.addEventListener('click', function () {
             const modalInstance = bootstrap.Modal.getInstance(modalRecuperarPasswordEl);
@@ -997,10 +1019,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 // Mapa de tipos → badge
                 const tiposMap = {
-                    'Proveedor': { texto: 'Proveedor',   clase: 'bg-warning' },
-                    'Cliente': { texto: 'Cliente',     clase: 'bg-danger'  },
-                    'Mensajería': { texto: 'Mensajería',  clase: 'bg-secondary' },
-                    'Filial': { texto: 'Filial',      clase: 'bg-info'    }
+                    'Proveedor':  { texto: 'Proveedor',  clase: 'bg-warning' },
+                    'Cliente':    { texto: 'Cliente',    clase: 'bg-danger'  },
+                    'Mensajería': { texto: 'Mensajería', clase: 'bg-secondary' },
+                    'Filial':     { texto: 'Filial',     clase: 'bg-info'    }
                 };
                 const tipoInfo = tiposMap[tipo] || { clase: 'bg-secondary' };
 
@@ -1135,6 +1157,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // =============================================
     // NUEVA SALIDA: Materiales dinámicos
+    // Agregar/eliminar filas + validar duplicados.
     // =============================================
     const tbodyMateriales = document.getElementById('tbodyMateriales');
     const btnAgregarMaterial = document.getElementById('btnAgregarMaterial');
@@ -1258,6 +1281,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const btnSeleccionarTodo = document.getElementById('btnSeleccionarTodo');
         const btnDeseleccionarTodo = document.getElementById('btnDeseleccionarTodo');
 
+        // Insertar el toggle de plegado en cada <li>
         arbolPermisos.querySelectorAll('li').forEach(function (li) {
             const subUl = li.querySelector(':scope > ul');
             const formCheck = li.querySelector(':scope > .form-check');
@@ -1285,6 +1309,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
 
+        // Delegación para plegar/desplegar un nodo
         arbolPermisos.addEventListener('click', function (e) {
             const toggle = e.target.closest('.toggle-nodo');
             if (!toggle || toggle.classList.contains('placeholder')) return;
@@ -1297,6 +1322,7 @@ document.addEventListener('DOMContentLoaded', function () {
             toggle.classList.toggle('colapsado');
         });
 
+        // Acciones globales: expandir
         if (btnExpandirArbol) {
             btnExpandirArbol.addEventListener('click', function () {
                 arbolPermisos.querySelectorAll('ul.nodo-colapsado').forEach(function (ul) {
@@ -1308,6 +1334,7 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
 
+        // Acciones globales: colapsar
         if (btnColapsarArbol) {
             btnColapsarArbol.addEventListener('click', function () {
                 arbolPermisos.querySelectorAll('ul ul').forEach(function (ul) {
@@ -1319,6 +1346,7 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
 
+        // Seleccionar todos los checkboxes
         if (btnSeleccionarTodo) {
             btnSeleccionarTodo.addEventListener('click', function () {
                 arbolPermisos.querySelectorAll('input[type="checkbox"]').forEach(function (cb) {
@@ -1328,6 +1356,7 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
 
+        // Deseleccionar todos los checkboxes
         if (btnDeseleccionarTodo) {
             btnDeseleccionarTodo.addEventListener('click', function () {
                 arbolPermisos.querySelectorAll('input[type="checkbox"]').forEach(function (cb) {
@@ -1347,12 +1376,14 @@ document.addEventListener('DOMContentLoaded', function () {
     const modalCerrarSesionIndividualEl = document.getElementById('modalCerrarSesionIndividual');
     const modalCerrarTodasSesionesEl = document.getElementById('modalCerrarTodasSesiones');
 
+    // Muestra el toast de sesión cerrada
     function mostrarToastSesionCerrada() {
         if (!toastSesionCerradaEl) return;
         const toast = new bootstrap.Toast(toastSesionCerradaEl);
         toast.show();
     }
 
+    // Confirmar cierre de sesión individual
     if (btnConfirmarCerrarSesion && modalCerrarSesionIndividualEl) {
         btnConfirmarCerrarSesion.addEventListener('click', function () {
             const instance = bootstrap.Modal.getInstance(modalCerrarSesionIndividualEl);
@@ -1377,6 +1408,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (btnGuardarPassword && modalCambiarPasswordEl) {
 
+        // Limpia el estado inválido al escribir en cualquier input
         [inputPasswordActual, inputPasswordNueva, inputPasswordConfirmar].forEach(function (input) {
             if (!input) return;
             input.addEventListener('input', function () {
@@ -1384,6 +1416,7 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         });
 
+        // Validación al guardar
         btnGuardarPassword.addEventListener('click', function () {
             const actual = inputPasswordActual.value.trim();
             const nueva = inputPasswordNueva.value;
@@ -1450,6 +1483,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    // Confirmar cierre de todas las sesiones
     if (btnConfirmarCerrarTodas && modalCerrarTodasSesionesEl) {
         btnConfirmarCerrarTodas.addEventListener('click', function () {
             const instance = bootstrap.Modal.getInstance(modalCerrarTodasSesionesEl);
@@ -1462,431 +1496,430 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-        // =============================================
-        // APROBAR SOLICITUDES: render dinámico + filtros + acciones
-        // =============================================
-        const tbodySolicitudes = document.getElementById('tbodySolicitudes');
+    // =============================================
+    // APROBAR SOLICITUDES: render dinámico + filtros + acciones
+    // =============================================
+    const tbodySolicitudes = document.getElementById('tbodySolicitudes');
 
-        if (tbodySolicitudes) {
-            const tablaSolicitudes = document.getElementById('tablaSolicitudes');
-            const filtroEstado = document.getElementById('filtroEstado');
-            const filtroModulo = document.getElementById('filtroModulo');
-            const filtroBuscar = document.getElementById('filtroBuscar');
-            const btnLimpiarFiltros = document.getElementById('btnLimpiarFiltros');
+    if (tbodySolicitudes) {
+        // Referencias a filtros y botones
+        const tablaSolicitudes = document.getElementById('tablaSolicitudes');
+        const filtroEstado = document.getElementById('filtroEstado');
+        const filtroModulo = document.getElementById('filtroModulo');
+        const filtroBuscar = document.getElementById('filtroBuscar');
+        const btnLimpiarFiltros = document.getElementById('btnLimpiarFiltros');
 
-            const btnSeleccionarTodas = document.getElementById('btnSeleccionarTodas');
-            const btnDeseleccionarTodas = document.getElementById('btnDeseleccionarTodas');
-            const checkTodos = document.getElementById('checkTodos');
+        const btnSeleccionarTodas = document.getElementById('btnSeleccionarTodas');
+        const btnDeseleccionarTodas = document.getElementById('btnDeseleccionarTodas');
+        const checkTodos = document.getElementById('checkTodos');
 
-            const btnAprobarSeleccionadas = document.getElementById('btnAprobarSeleccionadas');
-            const btnRechazarSeleccionadas = document.getElementById('btnRechazarSeleccionadas');
-            const contadorAprobar = document.getElementById('contadorAprobar');
-            const contadorRechazar = document.getElementById('contadorRechazar');
+        const btnAprobarSeleccionadas = document.getElementById('btnAprobarSeleccionadas');
+        const btnRechazarSeleccionadas = document.getElementById('btnRechazarSeleccionadas');
+        const contadorAprobar = document.getElementById('contadorAprobar');
+        const contadorRechazar = document.getElementById('contadorRechazar');
 
-            const contadorMostrados = document.getElementById('contadorMostrados');
-            const totalSolicitudesEl = document.getElementById('totalSolicitudes');
+        const contadorMostrados = document.getElementById('contadorMostrados');
+        const totalSolicitudesEl = document.getElementById('totalSolicitudes');
 
-            // Modales
-            const modalAprobarEl = document.getElementById('modalAprobar');
-            const modalRechazarEl = document.getElementById('modalRechazar');
-            const modalAprobarMasivoEl = document.getElementById('modalAprobarMasivo');
-            const modalRechazarMasivoEl = document.getElementById('modalRechazarMasivo');
+        // Modales
+        const modalAprobarEl = document.getElementById('modalAprobar');
+        const modalRechazarEl = document.getElementById('modalRechazar');
+        const modalAprobarMasivoEl = document.getElementById('modalAprobarMasivo');
+        const modalRechazarMasivoEl = document.getElementById('modalRechazarMasivo');
 
-            // Toast
-            const toastSolicitudEl = document.getElementById('toastSolicitudAccion');
-            const toastSolicitudTitulo = document.getElementById('toastSolicitudTitulo');
-            const toastSolicitudMensaje = document.getElementById('toastSolicitudMensaje');
+        // Toast
+        const toastSolicitudEl = document.getElementById('toastSolicitudAccion');
+        const toastSolicitudTitulo = document.getElementById('toastSolicitudTitulo');
+        const toastSolicitudMensaje = document.getElementById('toastSolicitudMensaje');
 
-            let filaAprobando = null;
-            let filaRechazando = null;
+        let filaAprobando = null;
+        let filaRechazando = null;
 
-            // ---------- Helpers ----------
-            function normalizarSol(texto) {
-                return String(texto || '').toLowerCase().trim()
-                    .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        // ---------- Helpers ----------
+        function normalizarSol(texto) {
+            return String(texto || '').toLowerCase().trim()
+                .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        }
+
+        function mostrarToastSol(titulo, mensaje, tipo) {
+            if (!toastSolicitudEl) return;
+            if (toastSolicitudTitulo) toastSolicitudTitulo.textContent = titulo;
+            if (toastSolicitudMensaje) toastSolicitudMensaje.textContent = mensaje;
+            const header = toastSolicitudEl.querySelector('.toast-header');
+            if (header) {
+                header.style.backgroundColor = tipo === 'danger'
+                    ? 'var(--cora-accent)' : 'var(--cora-success)';
             }
+            bootstrap.Toast.getOrCreateInstance(toastSolicitudEl).show();
+        }
 
-            function mostrarToastSol(titulo, mensaje, tipo) {
-                if (!toastSolicitudEl) return;
-                if (toastSolicitudTitulo) toastSolicitudTitulo.textContent = titulo;
-                if (toastSolicitudMensaje) toastSolicitudMensaje.textContent = mensaje;
-                const header = toastSolicitudEl.querySelector('.toast-header');
-                if (header) {
-                    header.style.backgroundColor = tipo === 'danger'
-                        ? 'var(--cora-accent)' : 'var(--cora-success)';
-                }
-                bootstrap.Toast.getOrCreateInstance(toastSolicitudEl).show();
-            }
+        function escaparHTML(str) {
+            return String(str || '')
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
 
-            function escaparHTML(str) {
-                return String(str || '')
-                    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-                    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-            }
+        function badgeEstadoHTML(estado) {
+            const mapa = {
+                'pendiente': { texto: '⏳ Pendiente', clase: 'bg-warning text-dark' },
+                'aprobada':  { texto: '✅ Aprobada',  clase: 'bg-success' },
+                'rechazada': { texto: '❌ Rechazada', clase: 'bg-danger' },
+                'cancelada': { texto: '🚫 Cancelada', clase: 'bg-dark' }
+            };
+            const info = mapa[estado] || mapa['pendiente'];
+            return '<span class="badge badge-estado ' + info.clase + '">' + info.texto + '</span>';
+        }
 
-            function badgeEstadoHTML(estado) {
-                const mapa = {
-                    'pendiente': { texto: '⏳ Pendiente', clase: 'bg-warning text-dark' },
-                    'aprobada':  { texto: '✅ Aprobada',  clase: 'bg-success' },
-                    'rechazada': { texto: '❌ Rechazada', clase: 'bg-danger' },
-                    'cancelada': { texto: '🚫 Cancelada', clase: 'bg-dark' }
-                };
-                const info = mapa[estado] || mapa['pendiente'];
-                return '<span class="badge badge-estado ' + info.clase + '">' + info.texto + '</span>';
-            }
-
-            // Genera las acciones según estado
-            function accionesHTML(estado, usuario) {
-                if (estado === 'pendiente') {
-                    return (
-                        '<button class="btn btn-sm btn-outline-success btn-aprobar-solicitud" title="Aprobar" ' +
-                            'data-usuario="' + escaparHTML(usuario) + '">' +
-                            '<i class="bi bi-check-circle"></i>' +
-                        '</button> ' +
-                        '<button class="btn btn-sm btn-outline-danger btn-rechazar-solicitud" title="Rechazar" ' +
-                            'data-usuario="' + escaparHTML(usuario) + '">' +
-                            '<i class="bi bi-x-circle"></i>' +
-                        '</button>'
-                    );
-                }
-                // pendiente / aprobada / rechazada / cancelada → sin acciones
-                return '<small class="text-muted">—</small>';
-            }
-
-
-
-            // Genera la celda de respuesta
-            function respuestaHTML(estado, respuesta) {
-                // Solo las rechazadas se muestran en rojo
-                if (estado === 'rechazada') {
-                    return '<small class="text-danger">' + escaparHTML(respuesta) + '</small>';
-                }
-                // Canceladas y demás en gris
-                return '<small class="text-muted">' + escaparHTML(respuesta || 'En revisión') + '</small>';
-            }
-
-            // ---------- Render dinámico desde storage ----------
-            function renderTablaSolicitudes() {
-                const solicitudes = window.swcoraSolicitudes.cargar();
-                tbodySolicitudes.innerHTML = '';
-
-                solicitudes.forEach(function (s) {
-                    const puedeSeleccionar = s.estado === 'pendiente';
-                    const fila = document.createElement('tr');
-                    fila.className = 'solicitud-row';
-                    fila.setAttribute('data-id', s.id);
-                    fila.setAttribute('data-estado', s.estado);
-                    fila.setAttribute('data-modulo', s.modulo);
-                    fila.setAttribute('data-usuario', s.usuario);
-                    fila.setAttribute('data-fecha', s.fecha);
-
-                    fila.innerHTML =
-                        '<td class="text-center">' +
-                            '<input class="form-check-input check-solicitud" type="checkbox" ' +
-                                (puedeSeleccionar ? '' : 'disabled') + '>' +
-                        '</td>' +
-                        '<td>' + escaparHTML(s.fechaVisible) + '</td>' +
-                        '<td><strong>' + escaparHTML(s.usuario) + '</strong></td>' +
-                        '<td>' + escaparHTML(s.modulo) + '</td>' +
-                        '<td>' + escaparHTML(s.rol) + '</td>' +
-                        '<td>' + (s.motivo ? escaparHTML(s.motivo) : '<small class="text-muted">—</small>') + '</td>' +
-                        '<td>' + badgeEstadoHTML(s.estado) + '</td>' +
-                        '<td class="celda-respuesta">' + respuestaHTML(s.estado, s.respuesta) + '</td>' +
-                        '<td class="text-center text-nowrap">' + accionesHTML(s.estado, s.usuario) + '</td>';
-
-                    tbodySolicitudes.appendChild(fila);
-                });
-
-                if (totalSolicitudesEl) totalSolicitudesEl.textContent = solicitudes.length;
-
-                aplicarFiltrosSol();
-            }
-
-            // ---------- Filtros ----------
-            function aplicarFiltrosSol() {
-                const estado = filtroEstado.value;
-                const modulo = filtroModulo.value;
-                const buscar = normalizarSol(filtroBuscar.value);
-
-                let visibles = 0;
-
-                tbodySolicitudes.querySelectorAll('.solicitud-row').forEach(function (fila) {
-                    const filaEstado = fila.getAttribute('data-estado');
-                    const filaModulo = fila.getAttribute('data-modulo');
-                    const filaUsuario = normalizarSol(fila.getAttribute('data-usuario'));
-
-                    const coincideEstado = (estado === 'todas') || (filaEstado === estado);
-                    const coincideModulo = (modulo === 'todos') || (filaModulo === modulo);
-                    const coincideBuscar = !buscar || filaUsuario.includes(buscar);
-
-                    const visible = coincideEstado && coincideModulo && coincideBuscar;
-
-                    fila.classList.toggle('d-none', !visible);
-                    if (visible) {
-                        visibles++;
-                    } else {
-                        const check = fila.querySelector('.check-solicitud');
-                        if (check && !check.disabled) check.checked = false;
-                    }
-                });
-
-                if (contadorMostrados) contadorMostrados.textContent = visibles;
-
-                actualizarContadoresSeleccionSol();
-                actualizarCheckTodosSol();
-            }
-
-            function actualizarContadoresSeleccionSol() {
-                const seleccionadas = tbodySolicitudes.querySelectorAll('.check-solicitud:checked:not(:disabled)').length;
-                if (contadorAprobar) contadorAprobar.textContent = seleccionadas;
-                if (contadorRechazar) contadorRechazar.textContent = seleccionadas;
-                if (btnAprobarSeleccionadas) btnAprobarSeleccionadas.disabled = seleccionadas === 0;
-                if (btnRechazarSeleccionadas) btnRechazarSeleccionadas.disabled = seleccionadas === 0;
-            }
-
-            function actualizarCheckTodosSol() {
-                if (!checkTodos) return;
-                const visibles = Array.from(
-                    tbodySolicitudes.querySelectorAll('.solicitud-row:not(.d-none) .check-solicitud:not(:disabled)')
+        // Genera las acciones según estado
+        function accionesHTML(estado, usuario) {
+            if (estado === 'pendiente') {
+                return (
+                    '<button class="btn btn-sm btn-outline-success btn-aprobar-solicitud" title="Aprobar" ' +
+                        'data-usuario="' + escaparHTML(usuario) + '">' +
+                        '<i class="bi bi-check-circle"></i>' +
+                    '</button> ' +
+                    '<button class="btn btn-sm btn-outline-danger btn-rechazar-solicitud" title="Rechazar" ' +
+                        'data-usuario="' + escaparHTML(usuario) + '">' +
+                        '<i class="bi bi-x-circle"></i>' +
+                    '</button>'
                 );
-                if (visibles.length === 0) {
-                    checkTodos.checked = false;
-                    checkTodos.indeterminate = false;
-                    return;
-                }
-                const marcados = visibles.filter(c => c.checked).length;
-                if (marcados === 0) {
-                    checkTodos.checked = false; checkTodos.indeterminate = false;
-                } else if (marcados === visibles.length) {
-                    checkTodos.checked = true; checkTodos.indeterminate = false;
+            }
+            // aprobada / rechazada / cancelada → sin acciones
+            return '<small class="text-muted">—</small>';
+        }
+
+        // Genera la celda de respuesta
+        function respuestaHTML(estado, respuesta) {
+            if (estado === 'rechazada') {
+                return '<small class="text-danger">' + escaparHTML(respuesta) + '</small>';
+            }
+            return '<small class="text-muted">' + escaparHTML(respuesta || 'En revisión') + '</small>';
+        }
+
+        // ---------- Render dinámico desde storage ----------
+        function renderTablaSolicitudes() {
+            const solicitudes = window.swcoraSolicitudes.cargar();
+            tbodySolicitudes.innerHTML = '';
+
+            solicitudes.forEach(function (s) {
+                const puedeSeleccionar = s.estado === 'pendiente';
+                const fila = document.createElement('tr');
+                fila.className = 'solicitud-row';
+                fila.setAttribute('data-id', s.id);
+                fila.setAttribute('data-estado', s.estado);
+                fila.setAttribute('data-modulo', s.modulo);
+                fila.setAttribute('data-usuario', s.usuario);
+                fila.setAttribute('data-fecha', s.fecha);
+
+                fila.innerHTML =
+                    '<td class="text-center">' +
+                        '<input class="form-check-input check-solicitud" type="checkbox" ' +
+                            (puedeSeleccionar ? '' : 'disabled') + '>' +
+                    '</td>' +
+                    '<td>' + escaparHTML(s.fechaVisible) + '</td>' +
+                    '<td><strong>' + escaparHTML(s.usuario) + '</strong></td>' +
+                    '<td>' + escaparHTML(s.modulo) + '</td>' +
+                    '<td>' + escaparHTML(s.rol) + '</td>' +
+                    '<td>' + (s.motivo ? escaparHTML(s.motivo) : '<small class="text-muted">—</small>') + '</td>' +
+                    '<td>' + badgeEstadoHTML(s.estado) + '</td>' +
+                    '<td class="celda-respuesta">' + respuestaHTML(s.estado, s.respuesta) + '</td>' +
+                    '<td class="text-center text-nowrap">' + accionesHTML(s.estado, s.usuario) + '</td>';
+
+                tbodySolicitudes.appendChild(fila);
+            });
+
+            if (totalSolicitudesEl) totalSolicitudesEl.textContent = solicitudes.length;
+
+            aplicarFiltrosSol();
+        }
+
+        // ---------- Filtros ----------
+        function aplicarFiltrosSol() {
+            const estado = filtroEstado.value;
+            const modulo = filtroModulo.value;
+            const buscar = normalizarSol(filtroBuscar.value);
+
+            let visibles = 0;
+
+            tbodySolicitudes.querySelectorAll('.solicitud-row').forEach(function (fila) {
+                const filaEstado = fila.getAttribute('data-estado');
+                const filaModulo = fila.getAttribute('data-modulo');
+                const filaUsuario = normalizarSol(fila.getAttribute('data-usuario'));
+
+                const coincideEstado = (estado === 'todas') || (filaEstado === estado);
+                const coincideModulo = (modulo === 'todos') || (filaModulo === modulo);
+                const coincideBuscar = !buscar || filaUsuario.includes(buscar);
+
+                const visible = coincideEstado && coincideModulo && coincideBuscar;
+
+                fila.classList.toggle('d-none', !visible);
+                if (visible) {
+                    visibles++;
                 } else {
-                    checkTodos.checked = false; checkTodos.indeterminate = true;
+                    const check = fila.querySelector('.check-solicitud');
+                    if (check && !check.disabled) check.checked = false;
                 }
+            });
+
+            if (contadorMostrados) contadorMostrados.textContent = visibles;
+
+            actualizarContadoresSeleccionSol();
+            actualizarCheckTodosSol();
+        }
+
+        // Actualiza contadores de selección
+        function actualizarContadoresSeleccionSol() {
+            const seleccionadas = tbodySolicitudes.querySelectorAll('.check-solicitud:checked:not(:disabled)').length;
+            if (contadorAprobar) contadorAprobar.textContent = seleccionadas;
+            if (contadorRechazar) contadorRechazar.textContent = seleccionadas;
+            if (btnAprobarSeleccionadas) btnAprobarSeleccionadas.disabled = seleccionadas === 0;
+            if (btnRechazarSeleccionadas) btnRechazarSeleccionadas.disabled = seleccionadas === 0;
+        }
+
+        // Actualiza el estado tri-state del check "Todos"
+        function actualizarCheckTodosSol() {
+            if (!checkTodos) return;
+            const visibles = Array.from(
+                tbodySolicitudes.querySelectorAll('.solicitud-row:not(.d-none) .check-solicitud:not(:disabled)')
+            );
+            if (visibles.length === 0) {
+                checkTodos.checked = false;
+                checkTodos.indeterminate = false;
+                return;
             }
-
-            // ---------- Listeners de filtros ----------
-            if (filtroEstado) filtroEstado.addEventListener('change', aplicarFiltrosSol);
-            if (filtroModulo) filtroModulo.addEventListener('change', aplicarFiltrosSol);
-            if (filtroBuscar) filtroBuscar.addEventListener('input', aplicarFiltrosSol);
-
-            if (btnLimpiarFiltros) {
-                btnLimpiarFiltros.addEventListener('click', function () {
-                    filtroEstado.value = 'todas';
-                    filtroModulo.value = 'todos';
-                    filtroBuscar.value = '';
-                    aplicarFiltrosSol();
-                });
+            const marcados = visibles.filter(c => c.checked).length;
+            if (marcados === 0) {
+                checkTodos.checked = false; checkTodos.indeterminate = false;
+            } else if (marcados === visibles.length) {
+                checkTodos.checked = true; checkTodos.indeterminate = false;
+            } else {
+                checkTodos.checked = false; checkTodos.indeterminate = true;
             }
+        }
 
-            // ---------- Selección ----------
-            tbodySolicitudes.addEventListener('change', function (e) {
-                if (!e.target.classList.contains('check-solicitud')) return;
+        // ---------- Listeners de filtros ----------
+        if (filtroEstado) filtroEstado.addEventListener('change', aplicarFiltrosSol);
+        if (filtroModulo) filtroModulo.addEventListener('change', aplicarFiltrosSol);
+        if (filtroBuscar) filtroBuscar.addEventListener('input', aplicarFiltrosSol);
+
+        if (btnLimpiarFiltros) {
+            btnLimpiarFiltros.addEventListener('click', function () {
+                filtroEstado.value = 'todas';
+                filtroModulo.value = 'todos';
+                filtroBuscar.value = '';
+                aplicarFiltrosSol();
+            });
+        }
+
+        // ---------- Selección ----------
+        tbodySolicitudes.addEventListener('change', function (e) {
+            if (!e.target.classList.contains('check-solicitud')) return;
+            actualizarContadoresSeleccionSol();
+            actualizarCheckTodosSol();
+        });
+
+        if (btnSeleccionarTodas) {
+            btnSeleccionarTodas.addEventListener('click', function () {
+                tbodySolicitudes.querySelectorAll('.solicitud-row:not(.d-none) .check-solicitud:not(:disabled)').forEach(cb => cb.checked = true);
                 actualizarContadoresSeleccionSol();
                 actualizarCheckTodosSol();
             });
+        }
 
-            if (btnSeleccionarTodas) {
-                btnSeleccionarTodas.addEventListener('click', function () {
-                    tbodySolicitudes.querySelectorAll('.solicitud-row:not(.d-none) .check-solicitud:not(:disabled)').forEach(cb => cb.checked = true);
-                    actualizarContadoresSeleccionSol();
-                    actualizarCheckTodosSol();
-                });
-            }
-
-            if (btnDeseleccionarTodas) {
-                btnDeseleccionarTodas.addEventListener('click', function () {
-                    tbodySolicitudes.querySelectorAll('.check-solicitud').forEach(cb => cb.checked = false);
-                    actualizarContadoresSeleccionSol();
-                    actualizarCheckTodosSol();
-                });
-            }
-
-            if (checkTodos) {
-                checkTodos.addEventListener('change', function () {
-                    const marcar = this.checked;
-                    tbodySolicitudes.querySelectorAll('.solicitud-row:not(.d-none) .check-solicitud:not(:disabled)').forEach(cb => cb.checked = marcar);
-                    actualizarContadoresSeleccionSol();
-                });
-            }
-
-            // ---------- Delegación de clics en la tabla ----------
-            tbodySolicitudes.addEventListener('click', function (e) {
-                const btnAprobar = e.target.closest('.btn-aprobar-solicitud');
-                const btnRechazar = e.target.closest('.btn-rechazar-solicitud');
-
-                if (btnAprobar) {
-                    filaAprobando = btnAprobar.closest('.solicitud-row');
-                    if (!filaAprobando) return;
-                    const usuario = btnAprobar.getAttribute('data-usuario') || '—';
-                    const input = document.getElementById('aprobarUsuario');
-                    if (input) input.textContent = usuario;
-                    bootstrap.Modal.getOrCreateInstance(modalAprobarEl).show();
-                    return;
-                }
-
-                if (btnRechazar) {
-                    filaRechazando = btnRechazar.closest('.solicitud-row');
-                    if (!filaRechazando) return;
-                    const usuario = btnRechazar.getAttribute('data-usuario') || '—';
-                    const inputUsuario = document.getElementById('rechazarUsuario');
-                    const inputMotivo = document.getElementById('rechazarMotivo');
-                    if (inputUsuario) inputUsuario.textContent = usuario;
-                    if (inputMotivo) {
-                        inputMotivo.value = '';
-                        inputMotivo.classList.remove('is-invalid');
-                    }
-                    bootstrap.Modal.getOrCreateInstance(modalRechazarEl).show();
-                    return;
-                }
+        if (btnDeseleccionarTodas) {
+            btnDeseleccionarTodas.addEventListener('click', function () {
+                tbodySolicitudes.querySelectorAll('.check-solicitud').forEach(cb => cb.checked = false);
+                actualizarContadoresSeleccionSol();
+                actualizarCheckTodosSol();
             });
+        }
 
-            // ---------- Confirmar Aprobar individual ----------
-            const btnConfirmarAprobar = document.getElementById('btnConfirmarAprobar');
-            if (btnConfirmarAprobar) {
-                btnConfirmarAprobar.addEventListener('click', function () {
-                    if (!filaAprobando) {
-                        bootstrap.Modal.getInstance(modalAprobarEl).hide();
-                        return;
-                    }
+        if (checkTodos) {
+            checkTodos.addEventListener('change', function () {
+                const marcar = this.checked;
+                tbodySolicitudes.querySelectorAll('.solicitud-row:not(.d-none) .check-solicitud:not(:disabled)').forEach(cb => cb.checked = marcar);
+                actualizarContadoresSeleccionSol();
+            });
+        }
 
-                    const id = filaAprobando.getAttribute('data-id');
+        // ---------- Delegación de clics en la tabla ----------
+        tbodySolicitudes.addEventListener('click', function (e) {
+            const btnAprobar = e.target.closest('.btn-aprobar-solicitud');
+            const btnRechazar = e.target.closest('.btn-rechazar-solicitud');
+
+            if (btnAprobar) {
+                filaAprobando = btnAprobar.closest('.solicitud-row');
+                if (!filaAprobando) return;
+                const usuario = btnAprobar.getAttribute('data-usuario') || '—';
+                const input = document.getElementById('aprobarUsuario');
+                if (input) input.textContent = usuario;
+                bootstrap.Modal.getOrCreateInstance(modalAprobarEl).show();
+                return;
+            }
+
+            if (btnRechazar) {
+                filaRechazando = btnRechazar.closest('.solicitud-row');
+                if (!filaRechazando) return;
+                const usuario = btnRechazar.getAttribute('data-usuario') || '—';
+                const inputUsuario = document.getElementById('rechazarUsuario');
+                const inputMotivo = document.getElementById('rechazarMotivo');
+                if (inputUsuario) inputUsuario.textContent = usuario;
+                if (inputMotivo) {
+                    inputMotivo.value = '';
+                    inputMotivo.classList.remove('is-invalid');
+                }
+                bootstrap.Modal.getOrCreateInstance(modalRechazarEl).show();
+                return;
+            }
+        });
+
+        // ---------- Confirmar Aprobar individual ----------
+        const btnConfirmarAprobar = document.getElementById('btnConfirmarAprobar');
+        if (btnConfirmarAprobar) {
+            btnConfirmarAprobar.addEventListener('click', function () {
+                if (!filaAprobando) {
+                    bootstrap.Modal.getInstance(modalAprobarEl).hide();
+                    return;
+                }
+
+                const id = filaAprobando.getAttribute('data-id');
+                window.swcoraSolicitudes.actualizar(id, {
+                    estado: 'aprobada',
+                    respuesta: 'Aprobada por ' + USUARIO_ACTUAL
+                });
+
+                bootstrap.Modal.getInstance(modalAprobarEl).hide();
+                mostrarToastSol('Solicitud aprobada', 'La solicitud fue aprobada correctamente.', 'success');
+                filaAprobando = null;
+
+                renderTablaSolicitudes();
+            });
+        }
+
+        // ---------- Confirmar Rechazar individual ----------
+        const btnConfirmarRechazar = document.getElementById('btnConfirmarRechazar');
+        if (btnConfirmarRechazar) {
+            btnConfirmarRechazar.addEventListener('click', function () {
+                const inputMotivo = document.getElementById('rechazarMotivo');
+                const motivo = inputMotivo.value.trim();
+
+                if (!motivo) {
+                    inputMotivo.classList.add('is-invalid');
+                    inputMotivo.focus();
+                    return;
+                }
+                inputMotivo.classList.remove('is-invalid');
+
+                if (!filaRechazando) {
+                    bootstrap.Modal.getInstance(modalRechazarEl).hide();
+                    return;
+                }
+
+                const id = filaRechazando.getAttribute('data-id');
+                window.swcoraSolicitudes.actualizar(id, {
+                    estado: 'rechazada',
+                    respuesta: motivo
+                });
+
+                bootstrap.Modal.getInstance(modalRechazarEl).hide();
+                mostrarToastSol('Solicitud rechazada', 'La solicitud fue rechazada. Motivo: ' + motivo, 'danger');
+                filaRechazando = null;
+
+                renderTablaSolicitudes();
+            });
+        }
+
+        // ---------- Aprobar masivo ----------
+        if (btnAprobarSeleccionadas) {
+            btnAprobarSeleccionadas.addEventListener('click', function () {
+                const seleccionadas = tbodySolicitudes.querySelectorAll('.check-solicitud:checked:not(:disabled)').length;
+                if (seleccionadas === 0) return;
+                const inputCantidad = document.getElementById('aprobarMasivoCantidad');
+                if (inputCantidad) inputCantidad.textContent = seleccionadas;
+                bootstrap.Modal.getOrCreateInstance(modalAprobarMasivoEl).show();
+            });
+        }
+
+        const btnConfirmarAprobarMasivo = document.getElementById('btnConfirmarAprobarMasivo');
+        if (btnConfirmarAprobarMasivo) {
+            btnConfirmarAprobarMasivo.addEventListener('click', function () {
+                const checks = tbodySolicitudes.querySelectorAll('.check-solicitud:checked:not(:disabled)');
+                let contador = 0;
+
+                checks.forEach(function (cb) {
+                    const fila = cb.closest('.solicitud-row');
+                    if (!fila) return;
+                    const id = fila.getAttribute('data-id');
                     window.swcoraSolicitudes.actualizar(id, {
                         estado: 'aprobada',
                         respuesta: 'Aprobada por ' + USUARIO_ACTUAL
                     });
-
-                    bootstrap.Modal.getInstance(modalAprobarEl).hide();
-                    mostrarToastSol('Solicitud aprobada', 'La solicitud fue aprobada correctamente.', 'success');
-                    filaAprobando = null;
-
-                    renderTablaSolicitudes();
+                    contador++;
                 });
-            }
 
-            // ---------- Confirmar Rechazar individual ----------
-            const btnConfirmarRechazar = document.getElementById('btnConfirmarRechazar');
-            if (btnConfirmarRechazar) {
-                btnConfirmarRechazar.addEventListener('click', function () {
-                    const inputMotivo = document.getElementById('rechazarMotivo');
-                    const motivo = inputMotivo.value.trim();
+                bootstrap.Modal.getInstance(modalAprobarMasivoEl).hide();
+                mostrarToastSol('Solicitudes aprobadas', contador + ' solicitud(es) aprobada(s) correctamente.', 'success');
 
-                    if (!motivo) {
-                        inputMotivo.classList.add('is-invalid');
-                        inputMotivo.focus();
-                        return;
-                    }
+                renderTablaSolicitudes();
+            });
+        }
+
+        // ---------- Rechazar masivo ----------
+        if (btnRechazarSeleccionadas) {
+            btnRechazarSeleccionadas.addEventListener('click', function () {
+                const seleccionadas = tbodySolicitudes.querySelectorAll('.check-solicitud:checked:not(:disabled)').length;
+                if (seleccionadas === 0) return;
+                const inputCantidad = document.getElementById('rechazarMasivoCantidad');
+                if (inputCantidad) inputCantidad.textContent = seleccionadas;
+                const inputMotivo = document.getElementById('rechazarMasivoMotivo');
+                if (inputMotivo) {
+                    inputMotivo.value = '';
                     inputMotivo.classList.remove('is-invalid');
+                }
+                bootstrap.Modal.getOrCreateInstance(modalRechazarMasivoEl).show();
+            });
+        }
 
-                    if (!filaRechazando) {
-                        bootstrap.Modal.getInstance(modalRechazarEl).hide();
-                        return;
-                    }
+        const btnConfirmarRechazarMasivo = document.getElementById('btnConfirmarRechazarMasivo');
+        if (btnConfirmarRechazarMasivo) {
+            btnConfirmarRechazarMasivo.addEventListener('click', function () {
+                const inputMotivo = document.getElementById('rechazarMasivoMotivo');
+                const motivo = inputMotivo.value.trim();
+                if (!motivo) {
+                    inputMotivo.classList.add('is-invalid');
+                    inputMotivo.focus();
+                    return;
+                }
+                inputMotivo.classList.remove('is-invalid');
 
-                    const id = filaRechazando.getAttribute('data-id');
+                const checks = tbodySolicitudes.querySelectorAll('.check-solicitud:checked:not(:disabled)');
+                let contador = 0;
+
+                checks.forEach(function (cb) {
+                    const fila = cb.closest('.solicitud-row');
+                    if (!fila) return;
+                    const id = fila.getAttribute('data-id');
                     window.swcoraSolicitudes.actualizar(id, {
                         estado: 'rechazada',
                         respuesta: motivo
                     });
-
-                    bootstrap.Modal.getInstance(modalRechazarEl).hide();
-                    mostrarToastSol('Solicitud rechazada', 'La solicitud fue rechazada. Motivo: ' + motivo, 'danger');
-                    filaRechazando = null;
-
-                    renderTablaSolicitudes();
+                    contador++;
                 });
-            }
 
-            // ---------- Aprobar masivo ----------
-            if (btnAprobarSeleccionadas) {
-                btnAprobarSeleccionadas.addEventListener('click', function () {
-                    const seleccionadas = tbodySolicitudes.querySelectorAll('.check-solicitud:checked:not(:disabled)').length;
-                    if (seleccionadas === 0) return;
-                    const inputCantidad = document.getElementById('aprobarMasivoCantidad');
-                    if (inputCantidad) inputCantidad.textContent = seleccionadas;
-                    bootstrap.Modal.getOrCreateInstance(modalAprobarMasivoEl).show();
-                });
-            }
+                bootstrap.Modal.getInstance(modalRechazarMasivoEl).hide();
+                mostrarToastSol('Solicitudes rechazadas', contador + ' solicitud(es) rechazada(s). Motivo: ' + motivo, 'danger');
 
-            const btnConfirmarAprobarMasivo = document.getElementById('btnConfirmarAprobarMasivo');
-            if (btnConfirmarAprobarMasivo) {
-                btnConfirmarAprobarMasivo.addEventListener('click', function () {
-                    const checks = tbodySolicitudes.querySelectorAll('.check-solicitud:checked:not(:disabled)');
-                    let contador = 0;
-
-                    checks.forEach(function (cb) {
-                        const fila = cb.closest('.solicitud-row');
-                        if (!fila) return;
-                        const id = fila.getAttribute('data-id');
-                        window.swcoraSolicitudes.actualizar(id, {
-                            estado: 'aprobada',
-                            respuesta: 'Aprobada por ' + USUARIO_ACTUAL
-                        });
-                        contador++;
-                    });
-
-                    bootstrap.Modal.getInstance(modalAprobarMasivoEl).hide();
-                    mostrarToastSol('Solicitudes aprobadas', contador + ' solicitud(es) aprobada(s) correctamente.', 'success');
-
-                    renderTablaSolicitudes();
-                });
-            }
-
-            // ---------- Rechazar masivo ----------
-            if (btnRechazarSeleccionadas) {
-                btnRechazarSeleccionadas.addEventListener('click', function () {
-                    const seleccionadas = tbodySolicitudes.querySelectorAll('.check-solicitud:checked:not(:disabled)').length;
-                    if (seleccionadas === 0) return;
-                    const inputCantidad = document.getElementById('rechazarMasivoCantidad');
-                    if (inputCantidad) inputCantidad.textContent = seleccionadas;
-                    const inputMotivo = document.getElementById('rechazarMasivoMotivo');
-                    if (inputMotivo) {
-                        inputMotivo.value = '';
-                        inputMotivo.classList.remove('is-invalid');
-                    }
-                    bootstrap.Modal.getOrCreateInstance(modalRechazarMasivoEl).show();
-                });
-            }
-
-            const btnConfirmarRechazarMasivo = document.getElementById('btnConfirmarRechazarMasivo');
-            if (btnConfirmarRechazarMasivo) {
-                btnConfirmarRechazarMasivo.addEventListener('click', function () {
-                    const inputMotivo = document.getElementById('rechazarMasivoMotivo');
-                    const motivo = inputMotivo.value.trim();
-                    if (!motivo) {
-                        inputMotivo.classList.add('is-invalid');
-                        inputMotivo.focus();
-                        return;
-                    }
-                    inputMotivo.classList.remove('is-invalid');
-
-                    const checks = tbodySolicitudes.querySelectorAll('.check-solicitud:checked:not(:disabled)');
-                    let contador = 0;
-
-                    checks.forEach(function (cb) {
-                        const fila = cb.closest('.solicitud-row');
-                        if (!fila) return;
-                        const id = fila.getAttribute('data-id');
-                        window.swcoraSolicitudes.actualizar(id, {
-                            estado: 'rechazada',
-                            respuesta: motivo
-                        });
-                        contador++;
-                    });
-
-                    bootstrap.Modal.getInstance(modalRechazarMasivoEl).hide();
-                    mostrarToastSol('Solicitudes rechazadas', contador + ' solicitud(es) rechazada(s). Motivo: ' + motivo, 'danger');
-
-                    renderTablaSolicitudes();
-                });
-            }
-
-            // ---------- Limpiar referencias al cerrar modales ----------
-            if (modalAprobarEl) modalAprobarEl.addEventListener('hidden.bs.modal', () => filaAprobando = null);
-            if (modalRechazarEl) modalRechazarEl.addEventListener('hidden.bs.modal', () => filaRechazando = null);
-
-            // ---------- Inicializar ----------
-            renderTablaSolicitudes();
+                renderTablaSolicitudes();
+            });
         }
+
+        // ---------- Limpiar referencias al cerrar modales ----------
+        if (modalAprobarEl) modalAprobarEl.addEventListener('hidden.bs.modal', () => filaAprobando = null);
+        if (modalRechazarEl) modalRechazarEl.addEventListener('hidden.bs.modal', () => filaRechazando = null);
+
+        // ---------- Inicializar ----------
+        renderTablaSolicitudes();
+    }
 
     // =============================================
     // SOLICITAR ACCESO: modal elegir aprobador
@@ -1906,6 +1939,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const toastSolicitudEnviadaEl = document.getElementById('toastSolicitudEnviada');
 
+        // Abre el modal y muestra el resumen de la solicitud
         btnEnviarSolicitud.addEventListener('click', function () {
             if (!selectModuloSolicitud.value) {
                 selectModuloSolicitud.classList.add('is-invalid');
@@ -1922,51 +1956,52 @@ document.addEventListener('DOMContentLoaded', function () {
             modal.show();
         });
 
-            btnConfirmarEnvio.addEventListener('click', function () {
-                if (!selectAprobador.value) {
-                    selectAprobador.classList.add('is-invalid');
-                    selectAprobador.focus();
-                    return;
-                }
+        // Confirma el envío: guarda en storage, muestra toast y redirige
+        btnConfirmarEnvio.addEventListener('click', function () {
+            if (!selectAprobador.value) {
+                selectAprobador.classList.add('is-invalid');
+                selectAprobador.focus();
+                return;
+            }
 
-                // Fecha actual
-                const ahora = new Date();
-                const pad = n => String(n).padStart(2, '0');
-                const fechaISO = ahora.getFullYear() + '-' + pad(ahora.getMonth() + 1) + '-' + pad(ahora.getDate()) +
-                                'T' + pad(ahora.getHours()) + ':' + pad(ahora.getMinutes());
-                const fechaVisible = pad(ahora.getDate()) + '/' + pad(ahora.getMonth() + 1) + '/' + ahora.getFullYear() +
-                                    ' ' + pad(ahora.getHours()) + ':' + pad(ahora.getMinutes());
+            // Fecha actual
+            const ahora = new Date();
+            const pad = n => String(n).padStart(2, '0');
+            const fechaISO = ahora.getFullYear() + '-' + pad(ahora.getMonth() + 1) + '-' + pad(ahora.getDate()) +
+                            'T' + pad(ahora.getHours()) + ':' + pad(ahora.getMinutes());
+            const fechaVisible = pad(ahora.getDate()) + '/' + pad(ahora.getMonth() + 1) + '/' + ahora.getFullYear() +
+                                ' ' + pad(ahora.getHours()) + ':' + pad(ahora.getMinutes());
 
-                // Guardar en storage compartido
-                const nueva = window.swcoraSolicitudes.agregar({
-                    fecha: fechaISO,
-                    fechaVisible: fechaVisible,
-                    usuario: USUARIO_ACTUAL,
-                    modulo: selectModuloSolicitud.value,
-                    rol: 'Generador de Salidas',
-                    motivo: textareaMotivo.value.trim(),
-                    aprobador: selectAprobador.value,
-                    estado: 'pendiente',
-                    respuesta: 'En revisión'
-                });
-
-                console.log('📤 SOLICITUD ENVIADA:', nueva);
-
-                const modalInstance = bootstrap.Modal.getInstance(modalElegirAprobadorEl);
-                if (modalInstance) modalInstance.hide();
-
-                if (toastSolicitudEnviadaEl) {
-                    const toast = new bootstrap.Toast(toastSolicitudEnviadaEl);
-                    toast.show();
-                }
-
-                selectModuloSolicitud.value = '';
-                textareaMotivo.value = '';
-
-                setTimeout(function () {
-                    window.location.href = 'acceso-mis-solicitudes.html';
-                }, 2000);
+            // Guardar en storage compartido
+            const nueva = window.swcoraSolicitudes.agregar({
+                fecha: fechaISO,
+                fechaVisible: fechaVisible,
+                usuario: USUARIO_ACTUAL,
+                modulo: selectModuloSolicitud.value,
+                rol: 'Generador de Salidas',
+                motivo: textareaMotivo.value.trim(),
+                aprobador: selectAprobador.value,
+                estado: 'pendiente',
+                respuesta: 'En revisión'
             });
+
+            console.log('📤 SOLICITUD ENVIADA:', nueva);
+
+            const modalInstance = bootstrap.Modal.getInstance(modalElegirAprobadorEl);
+            if (modalInstance) modalInstance.hide();
+
+            if (toastSolicitudEnviadaEl) {
+                const toast = new bootstrap.Toast(toastSolicitudEnviadaEl);
+                toast.show();
+            }
+
+            selectModuloSolicitud.value = '';
+            textareaMotivo.value = '';
+
+            setTimeout(function () {
+                window.location.href = 'acceso-mis-solicitudes.html';
+            }, 2000);
+        });
     }
 
     // =============================================
@@ -1991,6 +2026,7 @@ document.addEventListener('DOMContentLoaded', function () {
             return n.getAttribute('data-leida') === 'false';
         }
 
+        // Recalcula los contadores de cada pestaña
         function actualizarContadores() {
             const notis = getNotificaciones();
             let total = notis.length;
@@ -2007,6 +2043,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (contadorLeidas) contadorLeidas.textContent = leidas;
         }
 
+        // Muestra/oculta según el filtro activo
         function aplicarFiltro() {
             const notis = getNotificaciones();
 
@@ -2025,6 +2062,7 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
 
+        // Marca una notificación como leída
         function marcarComoLeida(n) {
             if (!esNoLeida(n)) return;
 
@@ -2037,6 +2075,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (btn) btn.remove();
         }
 
+        // Cambio de pestaña → cambia filtro
         tabsNotificaciones.forEach(function (tab) {
             tab.addEventListener('click', function (e) {
                 e.preventDefault();
@@ -2053,6 +2092,7 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         });
 
+        // Delegación: clic en "marcar como leída"
         listaNotificaciones.addEventListener('click', function (e) {
             const btn = e.target.closest('.btn-marcar-leida');
             if (!btn) return;
@@ -2065,6 +2105,7 @@ document.addEventListener('DOMContentLoaded', function () {
             aplicarFiltro();
         });
 
+        // Marcar todas como leídas
         if (btnMarcarTodasLeidas) {
             btnMarcarTodasLeidas.addEventListener('click', function () {
                 const notis = getNotificaciones();
@@ -2086,7 +2127,7 @@ document.addEventListener('DOMContentLoaded', function () {
         aplicarFiltro();
     }
 
-        // =============================================
+    // =============================================
     // ADMIN ROLES: filtros en tiempo real + orden por relevancia
     // =============================================
     const tablaRoles = document.getElementById('tablaRoles');
@@ -2106,6 +2147,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (contadorRoles) contadorRoles.textContent = totalFilasRoles;
 
+        // Normaliza texto para comparaciones sin acentos ni mayúsculas
         function normalizar(texto) {
             return String(texto || '')
                 .toLowerCase()
@@ -2114,7 +2156,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 .replace(/[\u0300-\u036f]/g, '');
         }
 
-        // El score ahora premia coincidencias por Código y Nombre
+        // El score premia coincidencias por Código y Nombre
         function calcularScoreRol(terminos, codigo, nombre) {
             if (terminos.length === 0) return 0;
 
@@ -2131,7 +2173,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 const pesoTermino = terminos.length - i;
                 if (coincideCodigo) {
-                    score += 10 * pesoTermino; // Código pesa más
+                    score += 10 * pesoTermino;
                 } else if (coincideNombre) {
                     score += 5 * pesoTermino;
                 }
@@ -2140,16 +2182,19 @@ document.addEventListener('DOMContentLoaded', function () {
             return score;
         }
 
+        // Reordena las filas en el DOM
         function reordenarDomRoles(lista) {
             lista.forEach(function (fila) {
                 tbodyRoles.appendChild(fila);
             });
         }
 
+        // Restaura el orden original
         function restaurarOrdenOriginalRoles() {
             reordenarDomRoles(ordenOriginalRoles);
         }
 
+        // Aplica filtros y orden por relevancia
         function aplicarFiltrosRoles() {
             const busquedaRaw = normalizar(filtroRolesBuscar.value);
             const terminos = busquedaRaw ? busquedaRaw.split(/\s+/).filter(Boolean) : [];
@@ -2502,7 +2547,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-        // =============================================
+    // =============================================
     // ADMIN USUARIOS: filtros en tiempo real + orden por relevancia
     // =============================================
     const tablaUsuarios = document.getElementById('tablaUsuarios');
@@ -2578,6 +2623,7 @@ document.addEventListener('DOMContentLoaded', function () {
             reordenarDom(ordenOriginal);
         }
 
+        // Aplica filtros por nombre, tipo de rol, rol y estado
         function aplicarFiltrosUsuarios() {
             const busquedaRaw = normalizar(filtroBuscar.value);
             const terminos = busquedaRaw ? busquedaRaw.split(/\s+/).filter(Boolean) : [];
@@ -2658,7 +2704,7 @@ document.addEventListener('DOMContentLoaded', function () {
         aplicarFiltrosUsuarios();
     }
 
-        // =============================================
+    // =============================================
     // MODAL ACCESOS: secciones dinámicas + guardar cambios reales
     // =============================================
     const modalAccesosEl = document.getElementById('modalAccesos');
@@ -2671,7 +2717,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const btnGuardarAccesos = document.getElementById('btnGuardarAccesos');
         const toastCambiosGuardadosEl = document.getElementById('toastCambiosGuardados');
 
-        // Checkboxes y selects internos del modal
+        // Checkboxes internos del modal
         const rolAdmin = document.getElementById('rolAdmin');
         const rolGen = document.getElementById('rolGen');
         const rolApro = document.getElementById('rolApro');
@@ -2684,7 +2730,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (el) el.checked = !!valor;
         }
 
-        // ---------- Actualizar visibilidad de secciones ----------
+        // ---------- Mostrar/ocultar secciones según el tipo de rol ----------
         function actualizarSeccionesAccesos() {
             const valor = selectRolGlobal.value;
 
@@ -2706,8 +2752,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         // ---------- Cargar datos del usuario al abrir el modal ----------
-        // El botón 🔑 debe tener data-bs-toggle="modal" data-bs-target="#modalAccesos"
-        // y estar dentro de un <tr class="usuario-row">
         document.querySelectorAll('[data-bs-target="#modalAccesos"]').forEach(function (btn) {
             btn.addEventListener('click', function () {
                 const fila = btn.closest('.usuario-row');
@@ -2737,12 +2781,12 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         });
 
-        // Al cerrar el modal (por cualquier vía), limpiar la referencia
+        // Al cerrar el modal limpiar la referencia
         modalAccesosEl.addEventListener('hidden.bs.modal', function () {
             filaEnEdicion = null;
         });
 
-                // ---------- Guardar: aplicar cambios a la fila ----------
+        // ---------- Guardar: aplicar cambios a la fila ----------
         if (btnGuardarAccesos) {
             btnGuardarAccesos.addEventListener('click', function () {
                 if (!filaEnEdicion) {
@@ -2761,7 +2805,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     if (rolApro && rolApro.checked) roles.push('aprobador');
                 }
 
-                // 👇 NUEVA CONDICIÓN: si no queda ningún rol marcado, pasa a "Sin rol"
+                // Si no queda ningún rol marcado, pasa a "Sin rol"
                 if (roles.length === 0) {
                     tipoRol = '';
                     roles = [];
@@ -2802,15 +2846,6 @@ document.addEventListener('DOMContentLoaded', function () {
     // Helper: actualizar badges de una fila de usuario
     // =============================================
     function actualizarBadgesFilaUsuario(fila, tipoRol, roles) {
-        // Columnas de la tabla de usuarios:
-        // 0: Usuario Windows
-        // 1: Nombre Completo
-        // 2: Email
-        // 3: Tipo Rol       ← badge
-        // 4: Rol Asignado   ← badges (pueden ser varios)
-        // 5: Estado
-        // 6: Acciones
-
         const celdas = fila.querySelectorAll('td');
         if (celdas.length < 6) return;
 
@@ -2851,7 +2886,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const toastUsuarioActivadoEl = document.getElementById('toastUsuarioActivado');
         const toastUsuarioDesactivadoEl = document.getElementById('toastUsuarioDesactivado');
 
-        // Delegación de eventos: funciona para filas dinámicas también
         tablaUsuariosParaToggle.addEventListener('click', function (e) {
             const btn = e.target.closest('.btn-toggle-estado-usuario');
             if (!btn) return;
@@ -2859,11 +2893,10 @@ document.addEventListener('DOMContentLoaded', function () {
             const fila = btn.closest('.usuario-row');
             if (!fila) return;
 
-            const accion = btn.getAttribute('data-accion'); // "activar" | "desactivar"
+            const accion = btn.getAttribute('data-accion');
             const badgeEstado = fila.querySelector('td:nth-child(6) .badge');
 
             if (accion === 'desactivar') {
-                // Cambiar a estado inactivo
                 fila.setAttribute('data-estado', 'inactivo');
 
                 if (badgeEstado) {
@@ -2872,20 +2905,17 @@ document.addEventListener('DOMContentLoaded', function () {
                     badgeEstado.classList.add('bg-danger');
                 }
 
-                // Cambiar el botón a "Activar" (verde)
                 btn.classList.remove('btn-outline-primary');
                 btn.classList.add('btn-outline-success');
                 btn.setAttribute('title', 'Activar');
                 btn.setAttribute('data-accion', 'activar');
 
-                // Mostrar toast
                 if (toastUsuarioDesactivadoEl) {
                     const toast = new bootstrap.Toast(toastUsuarioDesactivadoEl);
                     toast.show();
                 }
 
             } else if (accion === 'activar') {
-                // Cambiar a estado activo
                 fila.setAttribute('data-estado', 'activo');
 
                 if (badgeEstado) {
@@ -2894,13 +2924,11 @@ document.addEventListener('DOMContentLoaded', function () {
                     badgeEstado.classList.add('bg-success');
                 }
 
-                // Cambiar el botón a "Desactivar" (rojo)
                 btn.classList.remove('btn-outline-success');
                 btn.classList.add('btn-outline-primary');
                 btn.setAttribute('title', 'Desactivar');
                 btn.setAttribute('data-accion', 'desactivar');
 
-                // Mostrar toast
                 if (toastUsuarioActivadoEl) {
                     const toast = new bootstrap.Toast(toastUsuarioActivadoEl);
                     toast.show();
@@ -2909,12 +2937,11 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-        // =============================================
+    // =============================================
     // EXPORTAR CSV: listener genérico y reutilizable
     // Detecta botones con [data-tabla] o .btn-exportar-csv
     // =============================================
     document.querySelectorAll('[data-tabla], .btn-exportar-csv').forEach(function (btn) {
-        // Evitar doble enganche
         if (btn.dataset.exportListener === 'true') return;
         btn.dataset.exportListener = 'true';
 
@@ -2922,12 +2949,10 @@ document.addEventListener('DOMContentLoaded', function () {
             // Prioridad: data-tabla → data-target → tabla cercana
             let selector = btn.getAttribute('data-tabla') || btn.getAttribute('data-target');
 
-            // Si no hay selector, buscar la tabla más cercana en el mismo card
             if (!selector) {
                 const card = btn.closest('.card');
                 const tablaCercana = card ? card.querySelector('table') : null;
                 if (tablaCercana) {
-                    // Le asignamos un id temporal si no tiene
                     if (!tablaCercana.id) {
                         tablaCercana.id = 'tabla-auto-' + Date.now();
                     }
@@ -2940,18 +2965,16 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-            // Nombre del archivo: data-nombre → data-filename → "exportacion"
+            // Nombre del archivo
             const nombre = btn.getAttribute('data-nombre') ||
                         btn.getAttribute('data-filename') ||
                         'exportacion';
 
-            // Columnas a omitir (ej: "0,6") o "auto" para detectar checkboxes/acciones
+            // Columnas a omitir (o "auto" para detección)
             const omitirAttr = btn.getAttribute('data-omitir-columnas');
             let omitirColumnas = [];
 
             if (omitirAttr === 'auto') {
-                // Detección automática: omitir columnas cuyo encabezado esté vacío
-                // (típico de checkbox de selección) o cuyo texto sea "Acciones"
                 const tabla = document.querySelector(selector);
                 if (tabla) {
                     tabla.querySelectorAll('thead th').forEach(function (th, i) {
@@ -2976,7 +2999,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-        // =============================================
+    // =============================================
     // ADMIN MÓDULOS: recargar + toggle estado + Module.json
     // =============================================
     const listaModulos = document.getElementById('listaModulos');
@@ -2993,43 +3016,34 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 // Mostrar el Módulo Ejemplo 3 solo si estaba oculto
                 if (colModuloEjemplo3 && colModuloEjemplo3.classList.contains('d-none')) {
-                    // Pequeño delay para que el toast aparezca primero
                     setTimeout(function () {
-                        // Quitar el d-none para que el card entre en el flujo
                         colModuloEjemplo3.classList.remove('d-none');
-
-                        // Animación de entrada (usa el keyframe fadeIn ya definido en styles.css)
                         colModuloEjemplo3.style.animation = 'fadeIn 0.4s ease-in';
 
-                        // Efecto destello temporal en el card del módulo
                         const card = colModuloEjemplo3.querySelector('.modulo-card');
                         if (card) {
                             card.style.transition = 'box-shadow 0.4s ease, border-color 0.4s ease';
                             card.style.boxShadow = '0 0 0 3px rgba(74, 139, 92, 0.4)';
                             card.style.borderColor = 'var(--cora-success)';
 
-                            // Desvanecer el destello después de 1.2s
                             setTimeout(function () {
                                 card.style.boxShadow = '';
                                 card.style.borderColor = '';
                             }, 1200);
                         }
 
-                        // Limpiar la animación inline para no interferir con futuras animaciones
                         setTimeout(function () {
                             colModuloEjemplo3.style.animation = '';
                         }, 500);
                     }, 300);
                 }
 
-                // Mostrar toast de confirmación (siempre)
                 if (toastModulosRecargadosEl) {
                     const toast = new bootstrap.Toast(toastModulosRecargadosEl);
                     toast.show();
                 }
             });
         }
-
 
         // ---------- Botones "Habilitar/Deshabilitar" ----------
         const toastModuloHabilitadoEl = document.getElementById('toastModuloHabilitado');
@@ -3085,20 +3099,18 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
 
-                // ---------- Botones "Ver Module.json" (descarga) ----------
+        // ---------- Botones "Ver Module.json" (descarga) ----------
         listaModulos.addEventListener('click', function (e) {
             const btn = e.target.closest('.btn-module-json');
             if (!btn) return;
 
             const codigo = btn.getAttribute('data-codigo') || 'Module';
 
-            // Contenido del archivo JSON
             const contenido = JSON.stringify({
                 nombre: 'Hola Mundo',
                 codigo: codigo
             }, null, 2);
 
-            // Crear Blob y descargar
             const blob = new Blob([contenido], { type: 'application/json;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
 
@@ -3113,7 +3125,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-        // =============================================
+    // =============================================
     // ADMIN EMPRESAS: filtros + toggle + toasts
     // =============================================
     const tablaEmpresas = document.getElementById('tablaEmpresas');
@@ -3172,14 +3184,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 const filaTipo = fila.getAttribute('data-tipo') || '';
                 const filaEstado = fila.getAttribute('data-estado') || '';
 
-                // --- Búsqueda por EMPRESA ---
-                // Cada término debe ser prefijo de alguna palabra del nombre
+                // Búsqueda por EMPRESA: cada término debe ser prefijo de alguna palabra
                 const palabrasNombre = nombre.split(/\s+/).filter(Boolean);
                 const coincideNombre = terminosNombre.every(function (t) {
                     return palabrasNombre.some(function (p) { return p.startsWith(t); });
                 });
 
-                // --- Búsqueda por CONTACTO ---
+                // Búsqueda por CONTACTO
                 const palabrasContacto = contacto.split(/\s+/).filter(Boolean);
                 const coincideContacto = terminosContacto.every(function (t) {
                     return palabrasContacto.some(function (p) { return p.startsWith(t); });
@@ -3405,10 +3416,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const toastTipoActivadoEl = document.getElementById('toastTipoActivado');
         const toastTipoDesactivadoEl = document.getElementById('toastTipoDesactivado');
 
-        // ---------------------------------------------------------------
-        // Helper: renombrar un tipo en TODAS las filas de #tablaEmpresas
-        // que lo estén usando (data-tipo === nombreViejo)
-        // ---------------------------------------------------------------
+        // Renombra un tipo en TODAS las filas de #tablaEmpresas que lo usen
         function propagarRenombreTipo(nombreViejo, nombreNuevo) {
             if (nombreViejo === nombreNuevo) return;
 
@@ -3419,20 +3427,15 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (fila.getAttribute('data-tipo') === nombreViejo) {
                     fila.setAttribute('data-tipo', nombreNuevo);
 
-                    // Actualizar badge visible (columna 4, índice 3)
                     const badge = fila.querySelector('td:nth-child(4) .badge');
                     if (badge) badge.textContent = nombreNuevo;
 
-                    // Actualizar data-tipo del botón Editar
                     const btnEditar = fila.querySelector('.btn-editar-empresa');
                     if (btnEditar) btnEditar.setAttribute('data-tipo', nombreNuevo);
                 }
             });
         }
 
-        // ---------------------------------------------------------------
-        // Delegación de eventos: toggle, editar
-        // ---------------------------------------------------------------
         tablaTiposEmpresa.addEventListener('click', function (e) {
             const btnToggle = e.target.closest('.btn-toggle-estado-tipo');
             const btnEditar = e.target.closest('.btn-editar-tipo');
@@ -3595,8 +3598,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
 
-        // Sincronización inicial: por si la tabla de tipos ya tiene datos
-        // que no coinciden con los <option> hardcodeados
+        // Sincronización inicial
         if (typeof window.swcoraSyncTiposEmpresa === 'function') {
             window.swcoraSyncTiposEmpresa('', '');
         }
@@ -3604,7 +3606,6 @@ document.addEventListener('DOMContentLoaded', function () {
         aplicarFiltroTipos();
     }
 
-    
     // =============================================
     // ADMIN DEPARTAMENTOS: filtros, edición y estado
     // =============================================
@@ -3622,7 +3623,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const inputDescripcion = document.getElementById('departamentoDescripcion');
         const btnGuardar = document.getElementById('btnGuardarDepartamento');
 
-        // Reutilizar los toasts del HTML
         const toastGuardadoEl = document.getElementById('toastCambiosGuardados');
         const toastActivadoEl = document.getElementById('toastDepartamentoActivado');
         const toastDesactivadoEl = document.getElementById('toastDepartamentoDesactivado');
@@ -3630,7 +3630,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const tbody = tablaDepartamentos.querySelector('tbody');
         let filaEditando = null;
 
-        // Normalizar texto para que la búsqueda ignore acentos y mayúsculas
         function normalizarDepartamento(valor) {
             return String(valor || '')
                 .trim()
@@ -3639,73 +3638,44 @@ document.addEventListener('DOMContentLoaded', function () {
                 .replace(/[\u0300-\u036f]/g, '');
         }
 
-        // Mostrar un toast de Bootstrap
         function mostrarToastDepartamento(elemento) {
             if (elemento) {
                 new bootstrap.Toast(elemento).show();
             }
         }
 
-        // Aplicar filtros por nombre y estado
+        // Filtros por nombre y estado
         function aplicarFiltrosDepartamentos() {
-            const nombre = normalizarDepartamento(
-                filtroNombre ? filtroNombre.value : ''
-            );
+            const nombre = normalizarDepartamento(filtroNombre ? filtroNombre.value : '');
             const estado = filtroEstado ? filtroEstado.value : '';
 
             let visibles = 0;
 
-            tablaDepartamentos
-                .querySelectorAll('.departamento-row')
-                .forEach(function (fila) {
-                    const nombreFila = normalizarDepartamento(
-                        fila.getAttribute('data-nombre')
-                    );
+            tablaDepartamentos.querySelectorAll('.departamento-row').forEach(function (fila) {
+                const nombreFila = normalizarDepartamento(fila.getAttribute('data-nombre'));
+                const coincideNombre = nombreFila.includes(nombre);
+                const coincideEstado = !estado || fila.getAttribute('data-estado') === estado;
+                const visible = coincideNombre && coincideEstado;
 
-                    const coincideNombre = nombreFila.includes(nombre);
-                    const coincideEstado =
-                        !estado || fila.getAttribute('data-estado') === estado;
+                fila.classList.toggle('d-none', !visible);
+                if (visible) visibles++;
+            });
 
-                    const visible = coincideNombre && coincideEstado;
-
-                    fila.classList.toggle('d-none', !visible);
-
-                    if (visible) {
-                        visibles++;
-                    }
-                });
-
-            if (contador) {
-                contador.textContent = visibles;
-            }
+            if (contador) contador.textContent = visibles;
         }
 
-        // Los filtros se aplican automáticamente
-        if (filtroNombre) {
-            filtroNombre.addEventListener(
-                'input',
-                aplicarFiltrosDepartamentos
-            );
-        }
+        if (filtroNombre) filtroNombre.addEventListener('input', aplicarFiltrosDepartamentos);
+        if (filtroEstado) filtroEstado.addEventListener('change', aplicarFiltrosDepartamentos);
 
-        if (filtroEstado) {
-            filtroEstado.addEventListener(
-                'change',
-                aplicarFiltrosDepartamentos
-            );
-        }
-
-        // Limpiar los filtros
         if (btnLimpiar) {
             btnLimpiar.addEventListener('click', function () {
                 if (filtroNombre) filtroNombre.value = '';
                 if (filtroEstado) filtroEstado.value = '';
-
                 aplicarFiltrosDepartamentos();
             });
         }
 
-        // Limpiar el modal al cerrarse para que la próxima apertura sea en modo CREAR
+        // Limpiar modal al cerrarse
         if (modalEl) {
             modalEl.addEventListener('hidden.bs.modal', function () {
                 filaEditando = null;
@@ -3717,32 +3687,25 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
 
-        // Gestionar los botones Editar y Activar/Desactivar
+        // Delegación: editar y toggle
         tablaDepartamentos.addEventListener('click', function (e) {
             const btnEditar = e.target.closest('.btn-editar-departamento');
 
-            // Editar departamento
             if (btnEditar) {
                 filaEditando = btnEditar.closest('.departamento-row');
-
                 if (!filaEditando) return;
 
                 inputNombre.value = filaEditando.cells[0].textContent.trim();
                 inputDescripcion.value = filaEditando.cells[1].textContent.trim();
-
                 inputNombre.classList.remove('is-invalid');
 
-                modalTitulo.innerHTML =
-                    '<i class="bi bi-pencil"></i> Editar Departamento';
+                modalTitulo.innerHTML = '<i class="bi bi-pencil"></i> Editar Departamento';
 
                 bootstrap.Modal.getOrCreateInstance(modalEl).show();
                 return;
             }
 
-            const btnToggle = e.target.closest(
-                '.btn-toggle-estado-departamento'
-            );
-
+            const btnToggle = e.target.closest('.btn-toggle-estado-departamento');
             if (!btnToggle) return;
 
             const fila = btnToggle.closest('.departamento-row');
@@ -3750,18 +3713,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const activar = btnToggle.dataset.accion === 'activar';
 
-            // Actualizar el estado de la fila
             fila.dataset.estado = activar ? 'activo' : 'inactivo';
 
             const badge = fila.cells[2].querySelector('.badge');
-
             if (badge) {
                 badge.textContent = activar ? 'Activo' : 'Inactivo';
                 badge.classList.toggle('bg-success', activar);
                 badge.classList.toggle('bg-danger', !activar);
             }
 
-            // Cambiar el botón para permitir la acción contraria
             btnToggle.dataset.accion = activar ? 'desactivar' : 'activar';
             btnToggle.title = activar ? 'Desactivar' : 'Activar';
             btnToggle.setAttribute('aria-label', btnToggle.title);
@@ -3769,21 +3729,17 @@ document.addEventListener('DOMContentLoaded', function () {
             btnToggle.classList.toggle('btn-outline-primary', activar);
             btnToggle.classList.toggle('btn-outline-success', !activar);
 
-            // Actualizar filtros y notificar al usuario
             aplicarFiltrosDepartamentos();
 
-            mostrarToastDepartamento(
-                activar ? toastActivadoEl : toastDesactivadoEl
-            );
+            mostrarToastDepartamento(activar ? toastActivadoEl : toastDesactivadoEl);
         });
 
-        // Guardar un departamento nuevo o los cambios de uno existente
+        // Guardar (nuevo o editar)
         if (btnGuardar) {
             btnGuardar.addEventListener('click', function () {
                 const nombre = inputNombre.value.trim();
                 const descripcion = inputDescripcion.value.trim();
 
-                // Validar el campo obligatorio
                 if (!nombre) {
                     inputNombre.classList.add('is-invalid');
                     inputNombre.focus();
@@ -3793,12 +3749,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 inputNombre.classList.remove('is-invalid');
 
                 if (filaEditando) {
-                    // Actualizar departamento existente
+                    // Actualizar
                     filaEditando.cells[0].textContent = nombre;
                     filaEditando.cells[1].textContent = descripcion;
                     filaEditando.dataset.nombre = nombre;
                 } else {
-                    // Crear una nueva fila
+                    // Crear nueva fila
                     const fila = document.createElement('tr');
 
                     fila.className = 'departamento-row';
@@ -3821,24 +3777,17 @@ document.addEventListener('DOMContentLoaded', function () {
                             '</button>' +
                         '</td>';
 
-                    // Asignar el texto sin interpretarlo como HTML
                     fila.cells[0].textContent = nombre;
                     fila.cells[1].textContent = descripcion;
 
                     tbody.appendChild(fila);
                 }
 
-                // Cerrar el modal
                 const modalInstance = bootstrap.Modal.getInstance(modalEl);
 
-                // Registrar el evento antes de cerrar el modal
                 modalEl.addEventListener('hidden.bs.modal', function handler() {
                     mostrarToastDepartamento(toastGuardadoEl);
-
-                    modalEl.removeEventListener(
-                        'hidden.bs.modal',
-                        handler
-                    );
+                    modalEl.removeEventListener('hidden.bs.modal', handler);
                 });
 
                 if (modalInstance) {
@@ -3852,14 +3801,11 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
 
-        // Mostrar contador inicial
         aplicarFiltrosDepartamentos();
     }
 
-    
     // =============================================
     // ADMIN UNIDADES: filtros, edición y estado
-    // Adaptado al HTML actualizado
     // =============================================
     const tablaUnidades = document.getElementById('tablaUnidades');
 
@@ -3876,7 +3822,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const modalTitulo = document.getElementById('modalUnidadTitulo');
         const inputDescripcion = document.getElementById('descripcionUnidad');
 
-        // El HTML puede utilizar cualquiera de estos dos identificadores
         const contador =
             document.getElementById('contadorUnidades') ||
             document.getElementById('contadorRoles');
@@ -3887,7 +3832,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         let filaEditando = null;
 
-        // Normalizar texto para buscar sin distinguir mayúsculas ni acentos
         function normalizarUnidad(texto) {
             return String(texto || '')
                 .trim()
@@ -3896,14 +3840,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 .replace(/[\u0300-\u036f]/g, '');
         }
 
-        // Mostrar notificaciones Bootstrap
         function mostrarToastUnidad(elemento) {
             if (elemento && window.bootstrap) {
                 bootstrap.Toast.getOrCreateInstance(elemento).show();
             }
         }
 
-        // Generar un código interno para las unidades nuevas
+        // Genera un código interno único para nuevas unidades
         function generarCodigoUnidad(descripcion) {
             const base = normalizarUnidad(descripcion)
                 .replace(/[^a-z0-9\s]/g, '')
@@ -3929,15 +3872,10 @@ document.addEventListener('DOMContentLoaded', function () {
             return codigo;
         }
 
-        // Aplicar búsqueda por formato y filtro por estado
+        // Filtros por formato y estado
         function aplicarFiltrosUnidades() {
-            const busqueda = normalizarUnidad(
-                filtroBuscar ? filtroBuscar.value : ''
-            );
-
-            const estadoSeleccionado = filtroEstado
-                ? filtroEstado.value
-                : '';
+            const busqueda = normalizarUnidad(filtroBuscar ? filtroBuscar.value : '');
+            const estadoSeleccionado = filtroEstado ? filtroEstado.value : '';
 
             let visibles = 0;
             const filas = tablaUnidades.querySelectorAll('.unidad-row');
@@ -3946,68 +3884,47 @@ document.addEventListener('DOMContentLoaded', function () {
                 const formato = normalizarUnidad(
                     fila.dataset.descripcion || fila.cells[0].textContent
                 );
-
                 const estado = fila.dataset.estado || 'activo';
 
                 const coincideFormato = formato.includes(busqueda);
-                const coincideEstado =
-                    !estadoSeleccionado || estado === estadoSeleccionado;
+                const coincideEstado = !estadoSeleccionado || estado === estadoSeleccionado;
 
                 const visible = coincideFormato && coincideEstado;
 
                 fila.classList.toggle('d-none', !visible);
-
-                if (visible) {
-                    visibles++;
-                }
+                if (visible) visibles++;
             });
 
-            if (contador) {
-                contador.textContent = visibles;
-            }
+            if (contador) contador.textContent = visibles;
         }
 
-        // Filtro de formato
-        if (filtroBuscar) {
-            filtroBuscar.addEventListener('input', aplicarFiltrosUnidades);
-        }
+        if (filtroBuscar) filtroBuscar.addEventListener('input', aplicarFiltrosUnidades);
+        if (filtroEstado) filtroEstado.addEventListener('change', aplicarFiltrosUnidades);
 
-        // Filtro de estado
-        if (filtroEstado) {
-            filtroEstado.addEventListener('change', aplicarFiltrosUnidades);
-        }
-
-        // Limpiar filtros
         if (btnLimpiar) {
             btnLimpiar.addEventListener('click', function () {
                 if (filtroBuscar) filtroBuscar.value = '';
                 if (filtroEstado) filtroEstado.value = '';
-
                 aplicarFiltrosUnidades();
             });
         }
 
-        // Preparar modal para una unidad nueva
+        // Preparar modal para nueva unidad
         if (btnNueva) {
             btnNueva.addEventListener('click', function () {
                 filaEditando = null;
-
-                modalTitulo.innerHTML =
-                    '<i class="bi bi-rulers"></i> Nueva Unidad de Medida';
-
+                modalTitulo.innerHTML = '<i class="bi bi-rulers"></i> Nueva Unidad de Medida';
                 inputDescripcion.value = '';
                 inputDescripcion.classList.remove('is-invalid');
             });
         }
 
-        // Gestionar acciones de la tabla mediante delegación de eventos
+        // Delegación: editar y toggle
         tablaUnidades.addEventListener('click', function (e) {
             const btnEditar = e.target.closest('.btn-editar-unidad');
 
-            // Editar unidad existente
             if (btnEditar) {
                 filaEditando = btnEditar.closest('.unidad-row');
-
                 if (!filaEditando) return;
 
                 inputDescripcion.value =
@@ -4016,17 +3933,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 inputDescripcion.classList.remove('is-invalid');
 
-                modalTitulo.innerHTML =
-                    '<i class="bi bi-pencil"></i> Editar Unidad de Medida';
+                modalTitulo.innerHTML = '<i class="bi bi-pencil"></i> Editar Unidad de Medida';
 
                 bootstrap.Modal.getOrCreateInstance(modalEl).show();
                 return;
             }
 
-            const btnToggle = e.target.closest(
-                '.btn-toggle-estado-unidad'
-            );
-
+            const btnToggle = e.target.closest('.btn-toggle-estado-unidad');
             if (!btnToggle) return;
 
             const fila = btnToggle.closest('.unidad-row');
@@ -4034,18 +3947,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const activar = btnToggle.dataset.accion === 'activar';
 
-            // Actualizar estado
             fila.dataset.estado = activar ? 'activo' : 'inactivo';
 
             const badge = fila.querySelector('.badge-estado');
-
             if (badge) {
                 badge.textContent = activar ? 'Activo' : 'Inactivo';
                 badge.classList.toggle('bg-success', activar);
                 badge.classList.toggle('bg-danger', !activar);
             }
 
-            // Actualizar botón para la siguiente acción
             btnToggle.dataset.accion = activar ? 'desactivar' : 'activar';
             btnToggle.title = activar ? 'Desactivar' : 'Activar';
             btnToggle.setAttribute('aria-label', btnToggle.title);
@@ -4055,82 +3965,58 @@ document.addEventListener('DOMContentLoaded', function () {
 
             aplicarFiltrosUnidades();
 
-            mostrarToastUnidad(
-                activar ? toastActivado : toastDesactivado
-            );
+            mostrarToastUnidad(activar ? toastActivado : toastDesactivado);
         });
 
-        // Guardar unidad nueva o cambios de una unidad existente
+        // Guardar (nuevo o editar)
         if (btnGuardar) {
             btnGuardar.addEventListener('click', function () {
                 const descripcion = inputDescripcion.value.trim();
 
-                // Validar el formato obligatorio
                 if (!descripcion) {
                     inputDescripcion.classList.add('is-invalid');
                     inputDescripcion.focus();
 
-                    let feedback = inputDescripcion.parentElement.querySelector(
-                        '.invalid-feedback'
-                    );
-
+                    let feedback = inputDescripcion.parentElement.querySelector('.invalid-feedback');
                     if (!feedback) {
                         feedback = document.createElement('div');
                         feedback.className = 'invalid-feedback';
-                        inputDescripcion.insertAdjacentElement(
-                            'afterend',
-                            feedback
-                        );
+                        inputDescripcion.insertAdjacentElement('afterend', feedback);
                     }
-
-                    feedback.textContent =
-                        'Ingresa el formato de la unidad de medida.';
-
+                    feedback.textContent = 'Ingresa el formato de la unidad de medida.';
                     return;
                 }
 
                 inputDescripcion.classList.remove('is-invalid');
 
-                // Evitar formatos duplicados
+                // Evitar duplicados
                 const descripcionNormalizada = normalizarUnidad(descripcion);
 
-                const duplicada = Array.from(
-                    tbody.querySelectorAll('.unidad-row')
-                ).some(function (fila) {
-                    const formatoExistente = normalizarUnidad(
-                        fila.dataset.descripcion || fila.cells[0].textContent
-                    );
-
-                    return fila !== filaEditando &&
-                        formatoExistente === descripcionNormalizada;
-                });
+                const duplicada = Array.from(tbody.querySelectorAll('.unidad-row'))
+                    .some(function (fila) {
+                        const formatoExistente = normalizarUnidad(
+                            fila.dataset.descripcion || fila.cells[0].textContent
+                        );
+                        return fila !== filaEditando && formatoExistente === descripcionNormalizada;
+                    });
 
                 if (duplicada) {
                     inputDescripcion.classList.add('is-invalid');
 
-                    let feedback = inputDescripcion.parentElement.querySelector(
-                        '.invalid-feedback'
-                    );
-
+                    let feedback = inputDescripcion.parentElement.querySelector('.invalid-feedback');
                     if (!feedback) {
                         feedback = document.createElement('div');
                         feedback.className = 'invalid-feedback';
-                        inputDescripcion.insertAdjacentElement(
-                            'afterend',
-                            feedback
-                        );
+                        inputDescripcion.insertAdjacentElement('afterend', feedback);
                     }
-
-                    feedback.textContent =
-                        'Ya existe una unidad con ese formato.';
-
+                    feedback.textContent = 'Ya existe una unidad con ese formato.';
                     inputDescripcion.focus();
                     return;
                 }
 
                 let fila = filaEditando;
 
-                // Crear fila nueva
+                // Crear nueva fila
                 if (!fila) {
                     fila = document.createElement('tr');
                     fila.className = 'unidad-row';
@@ -4161,11 +4047,9 @@ document.addEventListener('DOMContentLoaded', function () {
                     tbody.appendChild(fila);
                 }
 
-                // Actualizar el formato y sus metadatos
                 fila.cells[0].textContent = descripcion;
                 fila.dataset.descripcion = descripcion;
 
-                // Si es una fila nueva, asegurar que tenga estado activo
                 if (!fila.dataset.estado) {
                     fila.dataset.estado = 'activo';
                 }
@@ -4179,30 +4063,15 @@ document.addEventListener('DOMContentLoaded', function () {
                     badge.classList.toggle('bg-danger', !activo);
                 }
 
-                const btnToggle = fila.querySelector(
-                    '.btn-toggle-estado-unidad'
-                );
-
+                const btnToggle = fila.querySelector('.btn-toggle-estado-unidad');
                 if (btnToggle) {
-                    btnToggle.dataset.accion = activo
-                        ? 'desactivar'
-                        : 'activar';
-
+                    btnToggle.dataset.accion = activo ? 'desactivar' : 'activar';
                     btnToggle.title = activo ? 'Desactivar' : 'Activar';
                     btnToggle.setAttribute('aria-label', btnToggle.title);
-
-                    btnToggle.classList.toggle(
-                        'btn-outline-primary',
-                        activo
-                    );
-
-                    btnToggle.classList.toggle(
-                        'btn-outline-success',
-                        !activo
-                    );
+                    btnToggle.classList.toggle('btn-outline-primary', activo);
+                    btnToggle.classList.toggle('btn-outline-success', !activo);
                 }
 
-                // Cerrar el modal y mostrar el toast existente
                 const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
 
                 modalEl.addEventListener('hidden.bs.modal', function handler() {
@@ -4217,15 +4086,13 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
 
-        // Mostrar el total inicial
         aplicarFiltrosUnidades();
     }
 
-    
-    // =========================================================
+    // =============================================
     // ADMIN DEPARTAMENTOS Y UNIDADES:
     // filtros en tiempo real + orden por relevancia
-    // =========================================================
+    // =============================================
 
     function normalizarBusquedaCatalogo(texto) {
         return String(texto || '')
@@ -4267,16 +4134,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             });
 
-            // Todos los términos deben coincidir.
             if (mejorPuntuacion === 0) return -1;
-
-            // Los primeros términos tienen mayor peso.
             puntuacion += mejorPuntuacion * (terminos.length - i);
         }
 
         return puntuacion;
     }
 
+    // Configura un filtro de catálogo (búsqueda + estado + orden por relevancia)
     function configurarFiltroCatalogo(config) {
         const tabla = document.getElementById(config.tabla);
         if (!tabla) return;
@@ -4289,74 +4154,45 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (!tbody) return;
 
-        // Se conserva la referencia original para recuperar el orden.
-        const ordenOriginal = Array.from(
-            tbody.querySelectorAll(config.fila)
-        );
+        const ordenOriginal = Array.from(tbody.querySelectorAll(config.fila));
 
         function obtenerFilas() {
             return Array.from(tbody.querySelectorAll(config.fila));
         }
 
         function aplicarFiltros() {
-            const busqueda = normalizarBusquedaCatalogo(
-                campoBuscar ? campoBuscar.value : ''
-            );
-
-            const terminos = busqueda
-                ? busqueda.split(/\s+/).filter(Boolean)
-                : [];
-
-            const estadoSeleccionado = campoEstado
-                ? campoEstado.value
-                : '';
+            const busqueda = normalizarBusquedaCatalogo(campoBuscar ? campoBuscar.value : '');
+            const terminos = busqueda ? busqueda.split(/\s+/).filter(Boolean) : [];
+            const estadoSeleccionado = campoEstado ? campoEstado.value : '';
 
             const filas = obtenerFilas();
             let visibles = 0;
 
             const resultados = filas.map(function (fila, indice) {
                 const campos = config.campos(fila);
-                const relevancia = calcularRelevanciaCatalogo(
-                    terminos,
-                    campos
-                );
-
-                const estadoFila = normalizarBusquedaCatalogo(
-                    fila.getAttribute('data-estado') || ''
-                );
+                const relevancia = calcularRelevanciaCatalogo(terminos, campos);
+                const estadoFila = normalizarBusquedaCatalogo(fila.getAttribute('data-estado') || '');
 
                 const coincideTexto = relevancia >= 0;
-                const coincideEstado =
-                    !estadoSeleccionado ||
-                    estadoFila === estadoSeleccionado;
+                const coincideEstado = !estadoSeleccionado || estadoFila === estadoSeleccionado;
 
                 const visible = coincideTexto && coincideEstado;
-
                 fila.classList.toggle('d-none', !visible);
 
                 if (visible) visibles++;
 
-                return {
-                    fila: fila,
-                    relevancia: relevancia,
-                    indice: indice
-                };
+                return { fila, relevancia, indice };
             });
 
-            // Ordena los resultados visibles por relevancia.
-            // Las filas ocultas permanecen al final.
+            // Ordenar visibles por relevancia, ocultas al final
             resultados.sort(function (a, b) {
                 const aVisible = !a.fila.classList.contains('d-none');
                 const bVisible = !b.fila.classList.contains('d-none');
 
-                if (aVisible !== bVisible) {
-                    return aVisible ? -1 : 1;
-                }
-
+                if (aVisible !== bVisible) return aVisible ? -1 : 1;
                 if (aVisible && bVisible && b.relevancia !== a.relevancia) {
                     return b.relevancia - a.relevancia;
                 }
-
                 return a.indice - b.indice;
             });
 
@@ -4364,16 +4200,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 tbody.appendChild(resultado.fila);
             });
 
-            if (contador) {
-                contador.textContent = visibles;
-            }
+            if (contador) contador.textContent = visibles;
         }
 
         function limpiarFiltros() {
             if (campoBuscar) campoBuscar.value = '';
             if (campoEstado) campoEstado.value = '';
 
-            // Restaurar el orden original de las filas iniciales.
             ordenOriginal.forEach(function (fila) {
                 if (fila.parentElement === tbody) {
                     tbody.appendChild(fila);
@@ -4383,22 +4216,13 @@ document.addEventListener('DOMContentLoaded', function () {
             aplicarFiltros();
         }
 
-        if (campoBuscar) {
-            campoBuscar.addEventListener('input', aplicarFiltros);
-        }
-
-        if (campoEstado) {
-            campoEstado.addEventListener('change', aplicarFiltros);
-        }
-
-        if (botonLimpiar) {
-            botonLimpiar.addEventListener('click', limpiarFiltros);
-        }
+        if (campoBuscar) campoBuscar.addEventListener('input', aplicarFiltros);
+        if (campoEstado) campoEstado.addEventListener('change', aplicarFiltros);
+        if (botonLimpiar) botonLimpiar.addEventListener('click', limpiarFiltros);
 
         aplicarFiltros();
 
-        // Permite actualizar los resultados después de agregar
-        // o modificar registros desde otros bloques de scripts.
+        // Permite refrescar desde otros bloques
         tabla.addEventListener('catalogo:actualizar-filtros', aplicarFiltros);
     }
 
@@ -4412,10 +4236,8 @@ document.addEventListener('DOMContentLoaded', function () {
         fila: '.departamento-row',
         campos: function (fila) {
             return [
-                fila.getAttribute('data-nombre') ||
-                    fila.cells[0]?.textContent,
-                fila.getAttribute('data-descripcion') ||
-                    fila.cells[1]?.textContent
+                fila.getAttribute('data-nombre') || fila.cells[0]?.textContent,
+                fila.getAttribute('data-descripcion') || fila.cells[1]?.textContent
             ];
         }
     });
@@ -4431,13 +4253,12 @@ document.addEventListener('DOMContentLoaded', function () {
         campos: function (fila) {
             return [
                 fila.getAttribute('data-codigo') || '',
-                fila.getAttribute('data-descripcion') ||
-                    fila.cells[0]?.textContent
+                fila.getAttribute('data-descripcion') || fila.cells[0]?.textContent
             ];
         }
     });
 
-        // =============================================
+    // =============================================
     // ADMIN LOGS: filtros + revisado + exportar CSV
     // =============================================
     const tablaLogs = document.getElementById('tablaLogs');
@@ -4454,7 +4275,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const btnMarcarTodoRevisado = document.getElementById('btnMarcarTodoRevisado');
         const contadorLogs = document.getElementById('contadorLogs');
 
-        // ---------- Utilidad: normalizar texto ----------
         function normalizarLog(texto) {
             return String(texto || '')
                 .toLowerCase()
@@ -4463,7 +4283,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 .replace(/[\u0300-\u036f]/g, '');
         }
 
-        // ---------- Aplicar filtros ----------
+        // Aplica todos los filtros de logs
         function aplicarFiltrosLogs() {
             const usuarioBusqueda = normalizarLog(filtroUsuario.value);
             const desde = filtroDesde.value ? new Date(filtroDesde.value) : null;
@@ -4498,7 +4318,6 @@ document.addEventListener('DOMContentLoaded', function () {
             if (contadorLogs) contadorLogs.textContent = visibles;
         }
 
-        // ---------- Listeners de filtros ----------
         if (filtroUsuario) filtroUsuario.addEventListener('input', aplicarFiltrosLogs);
         if (filtroDesde) filtroDesde.addEventListener('change', aplicarFiltrosLogs);
         if (filtroHasta) filtroHasta.addEventListener('change', aplicarFiltrosLogs);
@@ -4506,7 +4325,6 @@ document.addEventListener('DOMContentLoaded', function () {
         if (filtroModulo) filtroModulo.addEventListener('change', aplicarFiltrosLogs);
         if (filtroCriticidad) filtroCriticidad.addEventListener('change', aplicarFiltrosLogs);
 
-        // ---------- Limpiar filtros ----------
         if (btnLimpiarFiltrosLogs) {
             btnLimpiarFiltrosLogs.addEventListener('click', function () {
                 if (filtroUsuario) filtroUsuario.value = '';
@@ -4519,7 +4337,7 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
 
-        // ---------- Marcar como revisado al hacer clic en la fila ----------
+        // Marca una fila como revisada
         function marcarFilaRevisada(fila) {
             if (fila.getAttribute('data-revisado') === 'true') return;
 
@@ -4534,13 +4352,14 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
 
+        // Clic en una fila → marcar como revisada
         tbodyLogs.addEventListener('click', function (e) {
             const fila = e.target.closest('.log-row');
             if (!fila) return;
             marcarFilaRevisada(fila);
         });
 
-        // ---------- Marcar todo como revisado ----------
+        // Marcar todo como revisado (solo visibles)
         if (btnMarcarTodoRevisado) {
             btnMarcarTodoRevisado.addEventListener('click', function () {
                 tbodyLogs.querySelectorAll('.log-row:not(.d-none)').forEach(function (fila) {
@@ -4549,7 +4368,6 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
 
-        // Inicializar contador
         aplicarFiltrosLogs();
     }
 
@@ -4604,6 +4422,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
         }
 
+        // Badge de estado; recibe el rol para mostrar "Pendiente (Aprobador)"
         function badgeEstadoHTML(estado, rol) {
             const mapa = {
                 'borrador':  { texto: '📝 Borrador',   clase: 'bg-secondary' },
@@ -4621,15 +4440,13 @@ document.addEventListener('DOMContentLoaded', function () {
             return '<span class="badge badge-estado ' + info.clase + '">' + info.texto + '</span>';
         }
 
+        // Construye los botones de acción según estado y rol
         function accionesHTML(s, rol) {
             const estado = s.estado;
-
-            // ===== Clonar: SIEMPRE presente (primero para todos los estados) =====
             let html = '';
 
-            // ===== Ver: para todos los estados excepto 'borrador' =====
+            // Ver: para todos los estados excepto 'borrador'
             if (estado !== 'borrador') {
-                // Si es pendiente, propagar el rol (solicitante o aprobador)
                 const rolParam = (estado === 'pendiente' && rol) ? '&rol=' + encodeURIComponent(rol) : '';
                 html +=
                     '<a href="salidas-detalles.html?folio=' + encodeURIComponent(s.folio || '') +
@@ -4638,10 +4455,10 @@ document.addEventListener('DOMContentLoaded', function () {
                     '" class="btn btn-sm btn-outline-info" title="Ver"><i class="bi bi-eye"></i></a> ';
             }
 
-            // ===== Clonar: SIEMPRE =====
+            // Clonar: SIEMPRE
             html += '<button class="btn btn-sm btn-outline-secondary btn-clonar-salida" title="Clonar"><i class="bi bi-files"></i></button> ';
 
-            // ===== Acciones específicas según estado =====
+            // Acciones según estado
             if (estado === 'pendiente') {
                 if (rol === 'aprobador') {
                     html += '<button class="btn btn-sm btn-outline-success btn-aprobar-salida" title="Aprobar"><i class="bi bi-check-circle"></i></button> ';
@@ -4654,7 +4471,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 html += '<a href="salidas-editar.html?id=' + encodeURIComponent(s.id) +
                         '" class="btn btn-sm btn-outline-success" title="Editar"><i class="bi bi-pencil"></i></a>';
 
-                // Solo se puede eliminar si NO tiene folio
                 if (!s.folio) {
                     html += ' <button class="btn btn-sm btn-outline-danger btn-eliminar-salida" title="Eliminar borrador"><i class="bi bi-trash"></i></button>';
                 }
@@ -4673,22 +4489,21 @@ document.addEventListener('DOMContentLoaded', function () {
             return html;
         }
 
+        // Renderiza todas las salidas; duplica si es pendiente con aprobador
         function renderSalidas() {
             const lista = window.swcoraSalidas.cargar();
             tbodySalidas.innerHTML = '';
 
-            // Si el rol logueado es "generador", no mostramos la vista del aprobador.
-            // El resto de roles (superadmin, administrador, aprobador, sinrol) ven todo.
+            // Ocultar vista del aprobador si el rol logueado es "generador"
             const ocultarVistaAprobador = (ROL_ACTUAL === 'generador');
 
             lista.forEach(function (s) {
                 const esPendienteConAprobador = s.estado === 'pendiente' && s.aprobador;
 
                 if (esPendienteConAprobador) {
-                    // Fila 1: vista del SOLICITANTE (siempre)
+                    // Vista del solicitante
                     tbodySalidas.appendChild(crearFilaSalida(s, 'solicitante'));
-
-                    // Fila 2: vista del APROBADOR (solo si el rol no es "generador")
+                    // Vista del aprobador (si aplica)
                     if (!ocultarVistaAprobador) {
                         tbodySalidas.appendChild(crearFilaSalida(s, 'aprobador'));
                     }
@@ -4701,7 +4516,7 @@ document.addEventListener('DOMContentLoaded', function () {
             aplicarFiltrosSalidas();
         }
 
-        // Helper: construye el <tr> de una salida para un rol dado
+        // Construye el <tr> de una salida para un rol dado
         function crearFilaSalida(s, rol) {
             const fila = document.createElement('tr');
             fila.className = 'salida-row';
@@ -4736,7 +4551,7 @@ document.addEventListener('DOMContentLoaded', function () {
             return fila;
         }
 
-        // ---------- Filtros ----------
+        // Filtros del index de salidas
         function aplicarFiltrosSalidas() {
             const buscar = normalizarSalida(filtroSalidasBuscar.value);
             const estado = filtroSalidasEstado.value;
@@ -4784,7 +4599,7 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
 
-        // ---------- Delegación de acciones ----------
+        // Delegación de acciones de la tabla
         tbodySalidas.addEventListener('click', function (e) {
             const btnPDF = e.target.closest('.btn-pdf-salida');
             const btnClonar = e.target.closest('.btn-clonar-salida');
@@ -4793,6 +4608,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const btnEliminar = e.target.closest('.btn-eliminar-salida');
             const btnCancelar = e.target.closest('.btn-cancelar-salida');
 
+            // ---- Exportar PDF (vacío) ----
             if (btnPDF) {
                 const fila = btnPDF.closest('.salida-row');
                 const folio = fila.getAttribute('data-folio') || 'salida';
@@ -4810,6 +4626,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
+            // ---- Clonar ----
             if (btnClonar) {
                 const fila = btnClonar.closest('.salida-row');
                 if (!fila) return;
@@ -4853,6 +4670,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
+            // ---- Aprobar ----
             if (btnAprobar) {
                 const fila = btnAprobar.closest('.salida-row');
                 if (!fila) return;
@@ -4867,6 +4685,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
+            // ---- Rechazar (modal) ----
             if (btnRechazar) {
                 const fila = btnRechazar.closest('.salida-row');
                 if (!fila) return;
@@ -4880,6 +4699,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
+            // ---- Eliminar borrador (modal) ----
             if (btnEliminar) {
                 filaEliminando = btnEliminar.closest('.salida-row');
                 if (!filaEliminando) return;
@@ -4887,6 +4707,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
+            // ---- Cancelar (modal) ----
             if (btnCancelar) {
                 const fila = btnCancelar.closest('.salida-row');
                 if (!fila) return;
@@ -4956,6 +4777,7 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
 
+        // Limpiar referencias al cerrar modales
         if (modalRechazarEl) modalRechazarEl.addEventListener('hidden.bs.modal', () => filaRechazando = null);
         if (modalCancelarEl) modalCancelarEl.addEventListener('hidden.bs.modal', () => filaCancelando = null);
         if (modalEliminarEl) modalEliminarEl.addEventListener('hidden.bs.modal', () => filaEliminando = null);
@@ -5012,12 +4834,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 'pendiente': { texto: '⏳ Pendiente', clase: 'bg-warning text-dark' },
                 'aprobada':  { texto: '✅ Aprobada',  clase: 'bg-success' },
                 'rechazada': { texto: '❌ Rechazada', clase: 'bg-danger' },
-                'cancelada': { texto: '🚫 Cancelada', clase: 'bg-dark' }   // 👈 NUEVO
+                'cancelada': { texto: '🚫 Cancelada', clase: 'bg-dark' }
             };
             const info = mapa[estado] || mapa['pendiente'];
             return '<span class="badge badge-estado ' + info.clase + '">' + info.texto + '</span>';
         }
 
+        // Renderiza solo las solicitudes del usuario actual
         function renderMisSolicitudes() {
             const todas = window.swcoraSolicitudes.cargar();
             const mias = todas.filter(s => s.usuario === USUARIO_ACTUAL);
@@ -5059,6 +4882,7 @@ document.addEventListener('DOMContentLoaded', function () {
             aplicarFiltrosMis();
         }
 
+        // Filtros de "Mis Solicitudes"
         function aplicarFiltrosMis() {
             const buscar = normalizarMis(filtroMisBuscar.value);
             const estado = filtroMisEstado.value;
@@ -5106,7 +4930,7 @@ document.addEventListener('DOMContentLoaded', function () {
             bootstrap.Modal.getOrCreateInstance(modalCancelarEl).show();
         });
 
-        // Confirmar cancelación → cambiar estado a "cancelada" (no eliminar)
+        // Confirmar cancelación (cambia estado a "cancelada", no elimina)
         if (btnConfirmarCancelar) {
             btnConfirmarCancelar.addEventListener('click', function () {
                 if (!filaCancelando) {
@@ -5132,7 +4956,6 @@ document.addEventListener('DOMContentLoaded', function () {
             modalCancelarEl.addEventListener('hidden.bs.modal', () => filaCancelando = null);
         }
 
-        // Inicializar
         renderMisSolicitudes();
     }
 
@@ -5147,6 +4970,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const idParam = params.get('id');
         const rolParam = params.get('rol');
 
+        // Buscar la salida por id o por folio
         let salida = null;
         if (idParam) salida = window.swcoraSalidas.porId(idParam);
         if (!salida && folioParam) salida = window.swcoraSalidas.porFolio(folioParam);
@@ -5176,12 +5000,20 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!salida) {
             detallesContainer.innerHTML = '<div class="alert alert-danger"><i class="bi bi-exclamation-triangle"></i> No se encontró la salida solicitada.</div>';
         } else {
-            // ============ RENDER DE DATOS ============
+            // Helpers tolerantes a campos inexistentes
+            function setText(id, val) {
+                const el = document.getElementById(id);
+                if (el) el.textContent = (val == null || val === '') ? '—' : val;
+            }
+            function setHTML(id, html) {
+                const el = document.getElementById(id);
+                if (el) el.innerHTML = html;
+            }
 
-            // Header
+            // ---------- Header ----------
             document.getElementById('detFolio').textContent = salida.folio || '(sin folio)';
 
-            // Calcular esAprobador ANTES del badge (para que el texto sea coherente)
+            // Calcular esAprobador para el badge
             let esAprobadorHeader = false;
             if (salida.estado === 'pendiente') {
                 if (rolParam === 'aprobador') {
@@ -5210,12 +5042,12 @@ document.addEventListener('DOMContentLoaded', function () {
             }
             setHTML('detEstado', badgeHTML);
 
-            // Aprobación
+            // ---------- Aprobación ----------
             document.getElementById('detAprobador').textContent = salida.aprobador || '—';
             document.getElementById('detAprobadoPor').textContent = salida.aprobadoPor || '—';
             document.getElementById('detFechaAprobacion').textContent = salida.fechaAprobacion || '—';
 
-            // Materiales
+            // ---------- Materiales ----------
             const tbodyMat = document.getElementById('detMaterialesBody');
             tbodyMat.innerHTML = '';
             (salida.materialesLista || []).forEach(function (m, i) {
@@ -5229,25 +5061,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 tbodyMat.appendChild(tr);
             });
 
-                        // ✅ Helper tolerante: si el id no existe en el HTML, no rompe
-            function setText(id, val) {
-                const el = document.getElementById(id);
-                if (el) el.textContent = (val == null || val === '') ? '—' : val;
-            }
-            function setHTML(id, html) {
-                const el = document.getElementById(id);
-                if (el) el.innerHTML = html;
-            }
-
-            // Info General (detInfoFolio y detInfoFecha ya NO existen en el HTML;
-            // los omitimos intencionalmente porque son redundantes con el header)
+            // ---------- Info General ----------
             setText('detInfoDefinitiva', salida.esDefinitiva ? 'Sí' : 'No');
             setText('detInfoRetorno', salida.retornoEsperado || '—');
             setText('detInfoUsuario', salida.usuario || '—');
             setText('detInfoDepto', salida.departamento || '—');
             setText('detInfoCreada', salida.fechaCreacion || '—');
 
-            // Empresa
+            // ---------- Empresa ----------
             setText('detEmpresa', salida.empresa || '—');
             const tipoBadge = { 'Proveedor': 'bg-warning', 'Cliente': 'bg-danger', 'Mensajería': 'bg-secondary', 'Filial': 'bg-info' }[salida.tipoEmpresa] || 'bg-secondary';
             setHTML('detTipoEmpresa', salida.tipoEmpresa
@@ -5255,13 +5076,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 : '—');
             setText('detContacto', salida.contacto || '—');
 
-            // Descripción
+            // ---------- Descripción ----------
             setText('detDescripcion', salida.descripcion || '—');
             setText('detCausa', salida.causa || '—');
             setText('detCategoria', salida.categoria || '—');
             setText('detComentarios', salida.comentarios || '—');
 
-            // Historial
+            // ---------- Historial ----------
             const tbodyHist = document.getElementById('detHistorialBody');
             tbodyHist.innerHTML =
                 '<tr><td>' + escaparHTML(salida.fechaCreacion) + '</td><td>' + escaparHTML(salida.creadoPor) + '</td><td><span class="badge bg-primary">Creación</span></td><td>Salida creada</td></tr>' +
@@ -5270,16 +5091,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 (salida.estado === 'rechazada' ? '<tr><td>' + escaparHTML(salida.fechaAprobacion) + '</td><td>' + escaparHTML(salida.aprobadoPor) + '</td><td><span class="badge bg-danger">Rechazo</span></td><td>Motivo: ' + escaparHTML(salida.motivo) + '</td></tr>' : '') +
                 (salida.estado === 'cancelada' ? '<tr><td>—</td><td>—</td><td><span class="badge bg-dark">Cancelación</span></td><td>Motivo: ' + escaparHTML(salida.motivo) + '</td></tr>' : '');
 
-            // ============ GENERAR BOTONES DINÁMICOS ============
-                        // ============ GENERAR BOTONES DINÁMICOS ============
+            // ---------- Botones dinámicos ----------
             const contBotones = document.getElementById('detBotonesAccion');
 
-            // Determinar si estamos en la "vista del aprobador" o "vista del solicitante"
-            // 1) Si viene ?rol=aprobador → es aprobador
-            // 2) Si viene ?rol=solicitante → es solicitante
-            // 3) Si no viene rol (acceso directo por URL), inferir:
-            //    - Si el usuario actual es el aprobador asignado → aprobador
-            //    - Si no → solicitante
+            // Calcular esAprobador para botones
             let esAprobador = false;
             if (salida.estado === 'pendiente') {
                 if (rolParam === 'aprobador') {
@@ -5287,44 +5102,38 @@ document.addEventListener('DOMContentLoaded', function () {
                 } else if (rolParam === 'solicitante') {
                     esAprobador = false;
                 } else {
-                    // Fallback: inferir por el usuario actual
                     esAprobador = !!salida.aprobador && salida.aprobador === USUARIO_ACTUAL;
                 }
             }
 
             let htmlBotones = '';
 
-            // Aprobar / Rechazar (solo pendiente y el usuario es el aprobador)
             if (esAprobador) {
                 htmlBotones += ' <button class="btn btn-success" id="btnDetAprobar"><i class="bi bi-check-circle"></i> Aprobar</button>';
                 htmlBotones += ' <button class="btn btn-danger" id="btnDetRechazar"><i class="bi bi-x-circle"></i> Rechazar</button>';
             }
 
-            // Cancelar (solo pendiente y el usuario es el solicitante)
             if (salida.estado === 'pendiente' && !esAprobador) {
                 htmlBotones += ' <button class="btn btn-danger" id="btnDetCancelar"><i class="bi bi-dash-circle"></i> Cancelar</button>';
             }
 
-            // PDF (solo aprobada)
             if (salida.estado === 'aprobada') {
                 htmlBotones += ' <button class="btn btn-outline-primary" id="btnDetPDF"><i class="bi bi-file-pdf"></i> PDF</button>';
             }
 
-            // Editar (borrador o cancelada)
             if (salida.estado === 'borrador' || salida.estado === 'cancelada') {
                 htmlBotones += ' <a href="salidas-editar.html?id=' + encodeURIComponent(salida.id) + '" class="btn btn-outline-success"><i class="bi bi-pencil"></i> Editar</a>';
             }
 
-            // Eliminar (solo borrador sin folio)
             if (salida.estado === 'borrador' && !salida.folio) {
                 htmlBotones += ' <button class="btn btn-outline-danger" id="btnDetEliminar"><i class="bi bi-trash"></i> Eliminar</button>';
             }
 
             contBotones.innerHTML = htmlBotones;
 
-            // ============ LISTENERS DE ACCIONES ============
+            // ---------- Listeners de acciones ----------
 
-            // ---- Aprobar ----
+            // Aprobar
             const btnAprobar = document.getElementById('btnDetAprobar');
             if (btnAprobar) {
                 btnAprobar.addEventListener('click', function () {
@@ -5334,13 +5143,11 @@ document.addEventListener('DOMContentLoaded', function () {
                         fechaAprobacion: new Date().toLocaleString('es-MX')
                     });
                     mostrarToastDet('Salida aprobada', 'La solicitud fue aprobada correctamente.', 'success');
-                    setTimeout(function () {
-                        window.location.href = 'salidas-index.html';
-                    }, 1500);
+                    setTimeout(function () { window.location.href = 'salidas-index.html'; }, 1500);
                 });
             }
 
-            // ---- Rechazar (modal) ----
+            // Rechazar (modal)
             const btnRechazar = document.getElementById('btnDetRechazar');
             const modalRechazarDetEl = document.getElementById('modalRechazarSalida');
             if (btnRechazar && modalRechazarDetEl) {
@@ -5368,14 +5175,12 @@ document.addEventListener('DOMContentLoaded', function () {
                         });
                         bootstrap.Modal.getInstance(modalRechazarDetEl).hide();
                         mostrarToastDet('Salida rechazada', 'La solicitud fue rechazada. Motivo: ' + motivo, 'danger');
-                        setTimeout(function () {
-                            window.location.href = 'salidas-index.html';
-                        }, 1500);
+                        setTimeout(function () { window.location.href = 'salidas-index.html'; }, 1500);
                     });
                 }
             }
 
-            // ---- Cancelar (modal) ----
+            // Cancelar (modal)
             const btnCancelar = document.getElementById('btnDetCancelar');
             const modalCancelarDetEl = document.getElementById('modalCancelarSalida');
             if (btnCancelar && modalCancelarDetEl) {
@@ -5401,14 +5206,12 @@ document.addEventListener('DOMContentLoaded', function () {
                         });
                         bootstrap.Modal.getInstance(modalCancelarDetEl).hide();
                         mostrarToastDet('Salida cancelada', 'La solicitud fue cancelada. Motivo: ' + motivo, 'danger');
-                        setTimeout(function () {
-                            window.location.href = 'salidas-index.html';
-                        }, 1500);
+                        setTimeout(function () { window.location.href = 'salidas-index.html'; }, 1500);
                     });
                 }
             }
 
-            // ---- PDF ----
+            // PDF
             const btnPDF = document.getElementById('btnDetPDF');
             if (btnPDF) {
                 btnPDF.addEventListener('click', function () {
@@ -5426,7 +5229,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
             }
 
-            // ---- Eliminar (modal) ----
+            // Eliminar (modal)
             const btnEliminar = document.getElementById('btnDetEliminar');
             const modalEliminarDetEl = document.getElementById('modalEliminarSalida');
             if (btnEliminar && modalEliminarDetEl) {
@@ -5440,9 +5243,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         window.swcoraSalidas.eliminar(salida.id);
                         bootstrap.Modal.getInstance(modalEliminarDetEl).hide();
                         mostrarToastDet('Borrador eliminado', 'El registro fue eliminado.', 'danger');
-                        setTimeout(function () {
-                            window.location.href = 'salidas-index.html';
-                        }, 1500);
+                        setTimeout(function () { window.location.href = 'salidas-index.html'; }, 1500);
                     });
                 }
             }
@@ -5455,11 +5256,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const editContainer = document.querySelector('.salida-form-grid');
     const tbodyMaterialesEdit = document.getElementById('tbodyMateriales');
 
-    // Detectar si estamos en salidas-editar.html por la presencia de elementos únicos
     const btnGuardarCambios = document.getElementById('btnGuardarCambiosSalida');
     const btnConfirmarEnvioAprob = document.getElementById('btnConfirmarEnvioAprobacion');
     const btnEnviarAprobacion = document.getElementById('btnEnviarAprobacion');
-    // Toast de edición
+
     const toastEditarEl = document.getElementById('toastEditarSalida');
     const toastEditarTitulo = document.getElementById('toastEditarTitulo');
     const toastEditarMensaje = document.getElementById('toastEditarMensaje');
@@ -5478,7 +5278,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 ? 'var(--cora-accent)' : 'var(--cora-success)';
         }
 
-        // Si hay callback, ejecutarlo cuando el toast se oculte
         if (callback) {
             const handler = function () {
                 toastEditarEl.removeEventListener('hidden.bs.toast', handler);
@@ -5499,8 +5298,8 @@ document.addEventListener('DOMContentLoaded', function () {
             salidaEditando = window.swcoraSalidas.porId(idEdit) || window.swcoraSalidas.porFolio(idEdit);
         }
 
+        // Precargar datos del formulario
         if (salidaEditando) {
-            // Precargar campos de texto
             const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
             setVal('editDescripcion', salidaEditando.descripcion);
             setVal('editCausa', salidaEditando.causa);
@@ -5536,7 +5335,6 @@ document.addEventListener('DOMContentLoaded', function () {
                         '<td class="text-center"><button type="button" class="btn btn-sm btn-outline-danger btn-eliminar-material" title="Eliminar"><i class="bi bi-trash"></i></button></td>';
                     tbodyMaterialesEdit.appendChild(tr);
                 });
-                // Actualizar contador
                 const contMat = document.getElementById('contadorMateriales');
                 if (contMat) contMat.textContent = salidaEditando.materialesLista.length;
             }
@@ -5546,7 +5344,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (h2) h2.innerHTML = '<i class="bi bi-pencil"></i> Editar Salida' + (salidaEditando.folio ? ' (Folio ' + salidaEditando.folio + ')' : ' (Sin Folio)');
         }
 
-        // Función para leer los materiales del formulario
+        // Lee los materiales del formulario
         function leerMaterialesFormulario() {
             if (!tbodyMaterialesEdit) return [];
             const lista = [];
@@ -5560,7 +5358,7 @@ document.addEventListener('DOMContentLoaded', function () {
             return lista;
         }
 
-        // Guardar cambios
+        // ---------- Guardar cambios ----------
         if (btnGuardarCambios) {
             btnGuardarCambios.addEventListener('click', function () {
                 if (!salidaEditando) {
@@ -5568,7 +5366,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     return;
                 }
 
-                // Deshabilitar
                 btnGuardarCambios.disabled = true;
                 const textoOriginal = btnGuardarCambios.innerHTML;
                 btnGuardarCambios.innerHTML =
@@ -5576,8 +5373,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 const mat = leerMaterialesFormulario();
 
-                // 🔑 Si la salida estaba cancelada, al guardar cambios pasa a borrador
-                //    conservando el folio ya asignado y limpiando el motivo de cancelación
+                // Si estaba cancelada, al guardar vuelve a borrador (conserva folio)
                 const cambios = {
                     descripcion: document.getElementById('editDescripcion').value.trim(),
                     causa: document.getElementById('editCausa').value.trim(),
@@ -5593,7 +5389,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (salidaEditando.estado === 'cancelada') {
                     cambios.estado = 'borrador';
                     cambios.motivo = '';
-                    // El folio se conserva: no se toca `folio`
                 }
 
                 window.swcoraSalidas.actualizar(salidaEditando.id, cambios);
@@ -5613,7 +5408,7 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
 
-        // Enviar a aprobación
+        // ---------- Enviar a aprobación ----------
         if (btnConfirmarEnvioAprob) {
             btnConfirmarEnvioAprob.addEventListener('click', function () {
                 const selectAprob = document.getElementById('selectAprobadorSalida');
@@ -5628,7 +5423,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     return;
                 }
 
-                // 🚫 Deshabilitar AMBOS botones para evitar doble clic
                 btnConfirmarEnvioAprob.disabled = true;
                 const textoOriginalConfirmar = btnConfirmarEnvioAprob.innerHTML;
                 btnConfirmarEnvioAprob.innerHTML =
@@ -5660,7 +5454,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     materiales: mat.length
                 });
 
-                // ✅ Cerrar el modal inmediatamente
+                // Cerrar modal inmediatamente
                 const modalEl = document.getElementById('modalEnviarAprobacion');
                 if (modalEl) {
                     const modalInstance = bootstrap.Modal.getInstance(modalEl);
@@ -5675,7 +5469,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                 }
 
-                // Mostrar toast y redirigir al ocultarse
                 mostrarToastEditar(
                     'Salida enviada a aprobación',
                     'La salida se envió con folio ' + folio + '.',
@@ -5685,8 +5478,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                 );
 
-                // 🛟 Red de seguridad: si por alguna razón no se redirige,
-                // restaurar ambos botones después de 3s
+                // Red de seguridad: restaurar botones si no redirige
                 setTimeout(function () {
                     if (btnConfirmarEnvioAprob) {
                         btnConfirmarEnvioAprob.disabled = false;
@@ -5708,12 +5500,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const btnEnviarAprobacionCrear = document.getElementById('btnEnviarAprobacion');
     const btnConfirmarEnvioCrear = document.getElementById('btnConfirmarEnvioCrear');
 
-    // Detectar si estamos en salidas-crear.html
     if (btnGuardarBorrador || btnConfirmarEnvioCrear) {
         const tbodyMaterialesCrear = document.getElementById('tbodyMateriales');
         const contadorMaterialesCrear = document.getElementById('contadorMateriales');
 
-        // Toast
         const toastCrearEl = document.getElementById('toastCrearSalida');
         const toastCrearTitulo = document.getElementById('toastCrearTitulo');
         const toastCrearMensaje = document.getElementById('toastCrearMensaje');
@@ -5743,7 +5533,7 @@ document.addEventListener('DOMContentLoaded', function () {
             bootstrap.Toast.getOrCreateInstance(toastCrearEl).show();
         }
 
-        // ---------- Leer materiales del formulario ----------
+        // Lee los materiales del formulario
         function leerMaterialesCrear() {
             if (!tbodyMaterialesCrear) return [];
             const lista = [];
@@ -5759,16 +5549,14 @@ document.addEventListener('DOMContentLoaded', function () {
             return lista;
         }
 
-        // ---------- Leer datos generales del formulario ----------
+        // Lee los datos generales del formulario
         function leerDatosCrear() {
             const selectEmpresa = document.getElementById('selectEmpresa');
             const empresaTexto = selectEmpresa && selectEmpresa.selectedIndex > 0
                 ? selectEmpresa.options[selectEmpresa.selectedIndex].textContent.trim()
                 : '';
-            // Limpiar el sufijo "(Proveedor)" etc.
             const empresa = empresaTexto.replace(/\s*\([^)]*\)\s*$/, '').trim();
 
-            // Detectar tipo de empresa del texto
             let tipoEmpresa = '';
             if (/\(Proveedor\)/i.test(empresaTexto)) tipoEmpresa = 'Proveedor';
             else if (/\(Cliente\)/i.test(empresaTexto)) tipoEmpresa = 'Cliente';
@@ -5787,7 +5575,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 fechaCreacion: fechaVisible + ' ' + horaVisible,
                 usuario: USUARIO_ACTUAL,
                 creadoPor: USUARIO_ACTUAL,
-                departamento: 'Sistemas', // Mockup: podría venir de un select o del perfil
+                departamento: 'Sistemas',
                 empresa: empresa,
                 tipoEmpresa: tipoEmpresa,
                 contacto: (document.getElementById('contactoInput') || {}).value?.trim() || '',
@@ -5800,7 +5588,7 @@ document.addEventListener('DOMContentLoaded', function () {
             };
         }
 
-        // ---------- Validación básica ----------
+        // Validación básica
         function validarFormularioCrear() {
             const datos = leerDatosCrear();
             const materiales = leerMaterialesCrear();
@@ -5884,7 +5672,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 const validado = validarFormularioCrear();
                 if (!validado) return;
 
-                // Deshabilitar botones
                 btnConfirmarEnvioCrear.disabled = true;
                 const textoOriginalConfirmar = btnConfirmarEnvioCrear.innerHTML;
                 btnConfirmarEnvioCrear.innerHTML =

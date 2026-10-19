@@ -4,17 +4,31 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Configuración - SWCORA</title>
+
+    <!-- HOJAS DE ESTILO -->
+    <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Estilos CSS -->
     <link rel="stylesheet" href="../css/styles.css">
 </head>
+
+<!-- BODY DE LA PÁGINA -->
 <body>
+    <!-- HEADER / NAVBAR -->
     <header>
         <nav class="navbar navbar-expand-sm">
             <div class="container-fluid">
+
+                <!-- logo y nombre -->
                 <a class="navbar-brand" href="index.html"><i class="bi bi-lightning-charge-fill"></i> SWCORA</a>
+
+                <!-- CONTENIDO COLAPSABLE DEL NAVBAR -->
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
+
+                        <!-- ITEM: ACCESO A MÓDULOS -->
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="bi bi-key"></i> Acceso a Módulos</a>
                             <ul class="dropdown-menu">
@@ -23,21 +37,37 @@
                             </ul>
                         </li>
                     </ul>
+
+                    <!-- MENÚ SECUNDARIO (derecha) -->
                     <ul class="navbar-nav">
+
+                        <!-- ITEM: NOTIFICACIONES -->
                         <li class="nav-item">
                             <a class="nav-link position-relative" href="notificaciones.html">
                                 <i class="bi bi-bell"></i>
+                                <!-- Badge rojo con contador de notificaciones no leídas -->
                                 <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">3</span>
                             </a>
                         </li>
+
+                        <!-- ITEM: MENÚ DE USUARIO -->
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <a class="nav-link dropdown-toggle"
+                                href="#"
+                                role="button"
+                                data-bs-toggle="dropdown">
                                 <i class="bi bi-person-circle"></i> Juan Pérez
                             </a>
+
                             <ul class="dropdown-menu dropdown-menu-end">
+                                <!-- Enlaces del perfil -->
                                 <li><a class="dropdown-item" href="mi-perfil.html"><i class="bi bi-person"></i> Mi perfil</a></li>
                                 <li><a class="dropdown-item" href="configuracion.html"><i class="bi bi-gear"></i> Configuración</a></li>
+
+                                <!-- Separador antes de cerrar sesión -->
                                 <li><hr class="dropdown-divider"></li>
+
+                                <!-- Acción: cerrar sesión (redirige al login raíz) -->
                                 <li><a class="dropdown-item text-danger" href="../index.html"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</a></li>
                             </ul>
                         </li>
@@ -46,8 +76,11 @@
             </div>
         </nav>
     </header>
-    
+
+    <!-- CONTENIDO PRINCIPAL (ancho limitado a 960px) -->
     <div class="container mt-4" style="max-width: 960px;">
+
+        <!-- ENCABEZADO DE LA PÁGINA -->
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
                 <h2><i class="bi bi-gear"></i> Configuración</h2>
@@ -55,9 +88,10 @@
             </div>
         </div>
 
-        <!-- Pestañas -->
+        <!-- PESTAÑAS: Notificaciones / Región -->
         <ul class="nav nav-pills mb-4" id="configTabs" role="tablist">
             <li class="nav-item" role="presentation">
+                <!-- Tab activo por defecto -->
                 <button class="nav-link active" id="tab-notif-btn" data-bs-toggle="pill" data-bs-target="#tab-notif" type="button" role="tab">
                     <i class="bi bi-bell"></i> Notificaciones
                 </button>
@@ -72,14 +106,15 @@
         <form id="formConfiguracion">
             <div class="tab-content">
 
-                <!-- ============================================= -->
-                <!-- TAB: NOTIFICACIONES                            -->
-                <!-- ============================================= -->
+                <!-- TAB: NOTIFICACIONES -->
                 <div class="tab-pane fade show active" id="tab-notif" role="tabpanel">
 
+                    <!-- CARD: Canales de Notificación -->
                     <div class="card mb-4">
                         <div class="card-header"><h5 class="mb-0"><i class="bi bi-envelope"></i> Canales de Notificación</h5></div>
                         <div class="card-body">
+
+                            <!-- Switch: notificaciones por email -->
                             <div class="form-check form-switch mb-3">
                                 <input class="form-check-input" type="checkbox" id="notifEmail" checked>
                                 <label class="form-check-label" for="notifEmail">
@@ -88,6 +123,7 @@
                                 </label>
                             </div>
 
+                            <!-- Switch: notificaciones dentro del sistema -->
                             <div class="form-check form-switch mb-3">
                                 <input class="form-check-input" type="checkbox" id="notifSistema" checked>
                                 <label class="form-check-label" for="notifSistema">
@@ -96,6 +132,7 @@
                                 </label>
                             </div>
 
+                            <!-- Switch: notificaciones push del navegador -->
                             <div class="form-check form-switch mb-3">
                                 <input class="form-check-input" type="checkbox" id="notifPush">
                                 <label class="form-check-label" for="notifPush">
@@ -106,11 +143,13 @@
                         </div>
                     </div>
 
+                    <!-- CARD: Tipos de Notificación -->
                     <div class="card mb-4">
                         <div class="card-header"><h5 class="mb-0"><i class="bi bi-list-check"></i> Tipos de Notificación</h5></div>
                         <div class="card-body">
                             <p class="text-muted mb-3">Elige qué categorías de eventos quieres recibir.</p>
 
+                            <!-- Checkbox: Salidas de Material -->
                             <div class="form-check mb-2">
                                 <input class="form-check-input" type="checkbox" id="tipoSalidas" checked>
                                 <label class="form-check-label" for="tipoSalidas">
@@ -119,6 +158,7 @@
                                 </label>
                             </div>
 
+                            <!-- Checkbox: Solicitudes de Acceso -->
                             <div class="form-check mb-2">
                                 <input class="form-check-input" type="checkbox" id="tipoSolicitudes" checked>
                                 <label class="form-check-label" for="tipoSolicitudes">
@@ -127,6 +167,7 @@
                                 </label>
                             </div>
 
+                            <!-- Checkbox: Sistema -->
                             <div class="form-check mb-2">
                                 <input class="form-check-input" type="checkbox" id="tipoSistema">
                                 <label class="form-check-label" for="tipoSistema">
@@ -136,14 +177,12 @@
                             </div>
                         </div>
                     </div>
-
                 </div>
 
-                <!-- ============================================= -->
-                <!-- TAB: REGIÓN                                    -->
-                <!-- ============================================= -->
+                <!-- TAB: REGIÓN -->
                 <div class="tab-pane fade" id="tab-region" role="tabpanel">
 
+                    <!-- CARD: Preferencias Regionales -->
                     <div class="card mb-4">
                         <div class="card-header"><h5 class="mb-0"><i class="bi bi-globe"></i> Preferencias Regionales</h5></div>
                         <div class="card-body">
@@ -165,19 +204,22 @@
                             </div>
                         </div>
                     </div>
-
                 </div>
             </div>
         </form>
     </div>
 
+    <!-- FOOTER -->
     <footer class="footer">
         <div class="container text-center">
             &copy; 2026 SWCORA - Sistema Web de Control de Recursos y Activos | v1.0.0
         </div>
     </footer>
 
+    <!-- SCRIPTS -->
+    <!-- Bootstrap bundle (incluye Popper para tabs y dropdowns) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Scripts propios del sistema (guardar preferencias, etc.) -->
     <script src="../js/scripts.js"></script>
 </body>
 </html>

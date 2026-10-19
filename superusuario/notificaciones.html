@@ -1,204 +1,324 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Notificaciones - SWCORA</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="../css/styles.css">
-</head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-sm">
-            <div class="container-fluid">
-                <a class="navbar-brand" href="index.html"><i class="bi bi-lightning-charge-fill"></i> SWCORA</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
-                    <span class="navbar-toggler-icon"></span>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Notificaciones - SWCORA</title>
+
+        <!-- HOJAS DE ESTILO -->
+        <!-- Bootstrap 5 -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+        <!-- Bootstrap Icons: iconos usados-->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+        <!-- Estilos CSS -->
+        <link rel="stylesheet" href="../css/styles.css">
+    </head>
+
+    <!-- BODY DE LA PÁGINA -->
+    <body>
+        <!-- HEADER / NAVBAR -->
+        <header>
+            <nav class="navbar navbar-expand-sm">
+                <div class="container-fluid">
+
+                    <!-- logo y nombre -->
+                    <a class="navbar-brand" href="index.html">
+                        <i class="bi bi-lightning-charge-fill"></i> SWCORA
+                    </a>
+
+                    <!-- Botón hamburguesa que aparece en pantallas pequeñas -->
+                    <button class="navbar-toggler"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target=".navbar-collapse">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+
+                    <!-- CONTENIDO COLAPSABLE DEL NAVBAR -->
+                    <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+
+                        <!-- MENÚ PRINCIPAL (izquierda) -->
+                        <ul class="navbar-nav flex-grow-1">
+
+                            <!-- ITEM: INICIO -->
+                            <li class="nav-item">
+                                <a class="nav-link" href="index.html">
+                                    <i class="bi bi-house-door"></i> Inicio
+                                </a>
+                            </li>
+
+                            <!-- ITEM: ADMINISTRACIÓN -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle"
+                                   href="#"
+                                   role="button"
+                                   data-bs-toggle="dropdown">
+                                    <i class="bi bi-gear"></i> Administración
+                                </a>
+
+                                <ul class="dropdown-menu">
+                                    <!-- Enlaces directos a las páginas de administración -->
+                                    <li><a class="dropdown-item" href="admin-usuarios.html"><i class="bi bi-people"></i> Usuarios</a></li>
+                                    <li><a class="dropdown-item" href="admin-roles.html"><i class="bi bi-shield-lock"></i> Roles</a></li>
+                                    <li><a class="dropdown-item" href="admin-modulos.html"><i class="bi bi-box-seam"></i> Módulos</a></li>
+                                    <li><a class="dropdown-item" href="admin-empresas.html"><i class="bi bi-building"></i> Empresas</a></li>
+                                    <li><a class="dropdown-item" href="admin-departamentos.html"><i class="bi bi-diagram-3"></i> Departamentos</a></li>
+
+                                    <!-- Separador antes de catálogos -->
+                                    <li><hr class="dropdown-divider"></li>
+
+                                    <!-- SUBMENÚ: CATÁLOGOS (anidado nivel 1) -->
+                                    <li class="dropdown-submenu">
+                                        <a class="dropdown-item dropdown-toggle"
+                                           href="#"
+                                           role="button"
+                                           data-bs-toggle="dropdown">
+                                            <i class="bi bi-collection"></i> Catálogos
+                                        </a>
+
+                                        <ul class="dropdown-menu">
+                                            <!-- SUBMENÚ: SALIDAS DE MATERIAL (nivel 2) -->
+                                            <li class="dropdown-submenu">
+                                                <a class="dropdown-item dropdown-toggle"
+                                                   href="#"
+                                                   role="button"
+                                                   data-bs-toggle="dropdown">
+                                                    <i class="bi bi-clipboard-check"></i> Salidas de Material
+                                                </a>
+
+                                                <ul class="dropdown-menu">
+                                                    <!-- Enlace a Unidades dentro del catálogo de Salidas -->
+                                                    <li>
+                                                        <a class="dropdown-item" href="admin-unidades.html">
+                                                            <i class="bi bi-rulers"></i> Unidades
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                        </ul>
+                                    </li>
+
+                                    <!-- Separador antes de logs -->
+                                    <li><hr class="dropdown-divider"></li>
+
+                                    <!-- Enlace a Logs del sistema -->
+                                    <li><a class="dropdown-item" href="admin-logs.html"><i class="bi bi-journal-text"></i> Logs</a></li>
+                                </ul>
+                            </li>
+
+                            <!-- ITEM: MÓDULOS -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle"
+                                   href="#"
+                                   role="button"
+                                   data-bs-toggle="dropdown">
+                                    <i class="bi bi-box-seam"></i> Módulos
+                                </a>
+
+                                <ul class="dropdown-menu">
+                                    <!-- Enlace al módulo de salidas de material -->
+                                    <li><a class="dropdown-item" href="salidas-index.html"><i class="bi bi-clipboard-check"></i> Salidas de Material</a></li>
+                                </ul>
+                            </li>
+
+                            <!-- ITEM: ACCESO A MÓDULOS -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle"
+                                   href="#"
+                                   role="button"
+                                   data-bs-toggle="dropdown">
+                                    <i class="bi bi-key"></i> Acceso a Módulos
+                                </a>
+
+                                <ul class="dropdown-menu">
+                                    <!-- Formulario de nueva solicitud de acceso -->
+                                    <li><a class="dropdown-item" href="acceso-solicitar.html"><i class="bi bi-pencil-square"></i> Solicitar acceso</a></li>
+                                    <!-- Listado de solicitudes propias -->
+                                    <li><a class="dropdown-item" href="acceso-mis-solicitudes.html"><i class="bi bi-list-check"></i> Mis solicitudes</a></li>
+                                    <!-- Aprobaciones pendientes del usuario aprobador -->
+                                    <li><a class="dropdown-item" href="acceso-aprobar.html"><i class="bi bi-check2-circle"></i> Aprobaciones pendientes</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+
+                        <!-- MENÚ SECUNDARIO (derecha) -->
+                        <ul class="navbar-nav">
+
+                            <!-- ITEM: NOTIFICACIONES (activo en esta página) -->
+                            <li class="nav-item">
+                                <a class="nav-link position-relative" href="notificaciones.html">
+                                    <i class="bi bi-bell"></i>
+                                    <!-- Badge rojo con contador de notificaciones no leídas -->
+                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">3</span>
+                                </a>
+                            </li>
+
+                            <!-- ITEM: MENÚ DE USUARIO -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle"
+                                   href="#"
+                                   role="button"
+                                   data-bs-toggle="dropdown">
+                                    <i class="bi bi-person-circle"></i> Juan Pérez
+                                </a>
+
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <!-- Enlaces del perfil -->
+                                    <li><a class="dropdown-item" href="mi-perfil.html"><i class="bi bi-person"></i> Mi perfil</a></li>
+                                    <li><a class="dropdown-item" href="configuracion.html"><i class="bi bi-gear"></i> Configuración</a></li>
+
+                                    <!-- Separador antes de cerrar sesión -->
+                                    <li><hr class="dropdown-divider"></li>
+
+                                    <!-- Acción: cerrar sesión (redirige al login raíz) -->
+                                    <li><a class="dropdown-item text-danger" href="../index.html"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        </header>
+
+        <!-- CONTENIDO PRINCIPAL -->
+        <div class="container mt-4">
+
+            <!-- ENCABEZADO DE LA PÁGINA -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="bi bi-bell"></i> Notificaciones</h2>
+
+                <!-- Botón: marcar todas como leídas -->
+                <button class="btn btn-outline-primary" id="btnMarcarTodasLeidas">
+                    <i class="bi bi-check-all"></i> Marcar todas como leídas
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item"><a class="nav-link" href="index.html"><i class="bi bi-house-door"></i> Inicio</a></li>
+            </div>
 
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="bi bi-gear"></i> Administración</a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="admin-usuarios.html"><i class="bi bi-people"></i> Usuarios</a></li>
-                                <li><a class="dropdown-item" href="admin-roles.html"><i class="bi bi-shield-lock"></i> Roles</a></li>
-                                <li><a class="dropdown-item" href="admin-modulos.html"><i class="bi bi-box-seam"></i> Módulos</a></li>
-                                <li><a class="dropdown-item" href="admin-empresas.html"><i class="bi bi-building"></i> Empresas</a></li>
-                                <li><a class="dropdown-item" href="admin-departamentos.html"><i class="bi bi-diagram-3"></i> Departamentos</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li class="dropdown-submenu">
-                                    <a class="dropdown-item dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                        <i class="bi bi-collection"></i> Catálogos
-                                    </a>
-                                    <ul class="dropdown-menu">
-                                        <li class="dropdown-submenu">
-                                            <a class="dropdown-item dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                                <i class="bi bi-clipboard-check"></i> Salidas de Material
-                                            </a>
-                                            <ul class="dropdown-menu">
-                                                <li>
-                                                    <a class="dropdown-item" href="admin-unidades.html">
-                                                        <i class="bi bi-rulers"></i> Unidades
-                                                    </a>
-                                                </li>
-                                            </ul>
-                                        </li>
-                                    </ul>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="admin-logs.html"><i class="bi bi-journal-text"></i> Logs</a></li>
-                            </ul>
-                        </li>
+            <!-- PESTAÑAS DE FILTRO -->
+            <ul class="nav nav-pills mb-3" id="tabsNotificaciones">
 
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="bi bi-box-seam"></i> Módulos</a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="salidas-index.html"><i class="bi bi-clipboard-check"></i> Salidas de Material</a></li>
-                            </ul>
-                        </li>
-                        
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="bi bi-key"></i> Acceso a Módulos</a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="acceso-solicitar.html"><i class="bi bi-pencil-square"></i> Solicitar acceso</a></li>
-                                <li><a class="dropdown-item" href="acceso-mis-solicitudes.html"><i class="bi bi-list-check"></i> Mis solicitudes</a></li>
-                                <li><a class="dropdown-item" href="acceso-aprobar.html"><i class="bi bi-check2-circle"></i> Aprobaciones pendientes</a></li>
-                            </ul>
-                        </li>
-                    </ul>
-                    <ul class="navbar-nav">
-                        <li class="nav-item">
-                            <a class="nav-link position-relative" href="notificaciones.html">
-                                <i class="bi bi-bell"></i>
-                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">3</span>
-                            </a>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                <i class="bi bi-person-circle"></i> Juan Pérez
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="mi-perfil.html"><i class="bi bi-person"></i> Mi perfil</a></li>
-                                <li><a class="dropdown-item" href="configuracion.html"><i class="bi bi-gear"></i> Configuración</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item text-danger" href="../index.html"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</a></li>
-                            </ul>
-                        </li>
-                    </ul>
+                <!-- Filtro: todas -->
+                <li class="nav-item">
+                    <a class="nav-link active" href="#" data-filtro="todas">
+                        Todas (<span id="contadorTodas">0</span>)
+                    </a>
+                </li>
+
+                <!-- Filtro: no leídas -->
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-filtro="no-leidas">
+                        No leídas (<span id="contadorNoLeidas">0</span>)
+                    </a>
+                </li>
+
+                <!-- Filtro: leídas -->
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-filtro="leidas">
+                        Leídas (<span id="contadorLeidas">0</span>)
+                    </a>
+                </li>
+            </ul>
+
+            <!-- LISTA DE NOTIFICACIONES -->
+            <div class="card">
+                <div class="list-group list-group-flush" id="listaNotificaciones">
+
+                    <!-- NOTIFICACIÓN 1: No leída (salida aprobada) -->
+                    <div class="list-group-item d-flex align-items-start notificacion-item no-leida"
+                         data-leida="false"
+                         style="background-color: var(--cora-bg);">
+
+                        <!-- Icono verde de aprobación -->
+                        <i class="bi bi-check-circle-fill fs-3 me-3" style="color: var(--cora-success);"></i>
+
+                        <!-- Contenido principal + timestamp -->
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between">
+                                <strong>✅ Salida 00000001 aprobada</strong>
+                                <small class="text-muted">Hace 5 minutos</small>
+                            </div>
+                            <p class="mb-0 text-muted">Tu salida fue aprobada por María Gómez.</p>
+                        </div>
+
+                        <!-- Botón para marcarla como leída (se elimina al hacer click) -->
+                        <button class="btn btn-sm btn-outline-secondary btn-marcar-leida" title="Marcar como leída">
+                            <i class="bi bi-check"></i>
+                        </button>
+                    </div>
+
+                    <!-- NOTIFICACIÓN 2: No leída (nueva solicitud) -->
+                    <div class="list-group-item d-flex align-items-start notificacion-item no-leida"
+                         data-leida="false"
+                         style="background-color: var(--cora-bg);">
+
+                        <!-- Icono de documento (rojo acento) -->
+                        <i class="bi bi-file-text-fill fs-3 me-3" style="color: var(--cora-accent);"></i>
+
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between">
+                                <strong>📋 Nueva solicitud de acceso</strong>
+                                <small class="text-muted">Hace 15 minutos</small>
+                            </div>
+                            <p class="mb-0 text-muted">Carlos Ruiz solicita acceso al módulo Salidas de Material con rol Generador.</p>
+                        </div>
+
+                        <button class="btn btn-sm btn-outline-secondary btn-marcar-leida" title="Marcar como leída">
+                            <i class="bi bi-check"></i>
+                        </button>
+                    </div>
+
+                    <!-- NOTIFICACIÓN 3: No leída (retorno vencido) -->
+                    <div class="list-group-item d-flex align-items-start notificacion-item no-leida"
+                         data-leida="false"
+                         style="background-color: var(--cora-bg);">
+
+                        <!-- Icono de reloj (advertencia) -->
+                        <i class="bi bi-clock-fill fs-3 me-3" style="color: var(--cora-warning);"></i>
+
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between">
+                                <strong>⏰ Retorno vencido: Salida 00000003</strong>
+                                <small class="text-muted">Hace 1 hora</small>
+                            </div>
+                            <p class="mb-0 text-muted">El retorno esperado venció el 15/09/2026.</p>
+                        </div>
+
+                        <button class="btn btn-sm btn-outline-secondary btn-marcar-leida" title="Marcar como leída">
+                            <i class="bi bi-check"></i>
+                        </button>
+                    </div>
+
+                    <!-- NOTIFICACIÓN 4: Ya leída (salida rechazada) -->
+                    <div class="list-group-item d-flex align-items-start notificacion-item leida"
+                         data-leida="true">
+
+                        <!-- Icono de rechazo -->
+                        <i class="bi bi-x-circle-fill fs-3 me-3" style="color: var(--cora-accent);"></i>
+
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between">
+                                <strong>❌ Salida 00000004 rechazada</strong>
+                                <small class="text-muted">Hace 2 horas</small>
+                            </div>
+                            <p class="mb-0 text-muted">Motivo: Material no autorizado.</p>
+                        </div>
+
+                        <!-- Sin botón porque ya está leída -->
+                    </div>
                 </div>
             </div>
-        </nav>
-    </header>
-
-    <div class="container mt-4">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2><i class="bi bi-bell"></i> Notificaciones</h2>
-            <button class="btn btn-outline-primary" id="btnMarcarTodasLeidas">
-                <i class="bi bi-check-all"></i> Marcar todas como leídas
-            </button>
         </div>
 
-        <!-- Tabs de filtro -->
-        <ul class="nav nav-pills mb-3" id="tabsNotificaciones">
-            <li class="nav-item">
-                <a class="nav-link active" href="#" data-filtro="todas">
-                    Todas (<span id="contadorTodas">0</span>)
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#" data-filtro="no-leidas">
-                    No leídas (<span id="contadorNoLeidas">0</span>)
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#" data-filtro="leidas">
-                    Leídas (<span id="contadorLeidas">0</span>)
-                </a>
-            </li>
-        </ul>
-
-        <!-- Lista de notificaciones -->
-        <div class="card">
-            <div class="list-group list-group-flush" id="listaNotificaciones">
-
-                <!-- Notificación 1 (No leída) -->
-                <div class="list-group-item d-flex align-items-start notificacion-item no-leida"
-                    data-leida="false"
-                    style="background-color: var(--cora-bg);">
-                    <i class="bi bi-check-circle-fill fs-3 me-3" style="color: var(--cora-success);"></i>
-                    <div class="flex-grow-1">
-                        <div class="d-flex justify-content-between">
-                            <strong>✅ Salida 00000001 aprobada</strong>
-                            <small class="text-muted">Hace 5 minutos</small>
-                        </div>
-                        <p class="mb-0 text-muted">Tu salida fue aprobada por María Gómez.</p>
-                    </div>
-                    <button class="btn btn-sm btn-outline-secondary btn-marcar-leida" title="Marcar como leída">
-                        <i class="bi bi-check"></i>
-                    </button>
-                </div>
-
-                <!-- Notificación 2 (No leída) -->
-                <div class="list-group-item d-flex align-items-start notificacion-item no-leida"
-                    data-leida="false"
-                    style="background-color: var(--cora-bg);">
-                    <i class="bi bi-file-text-fill fs-3 me-3" style="color: var(--cora-accent);"></i>
-                    <div class="flex-grow-1">
-                        <div class="d-flex justify-content-between">
-                            <strong>📋 Nueva solicitud de acceso</strong>
-                            <small class="text-muted">Hace 15 minutos</small>
-                        </div>
-                        <p class="mb-0 text-muted">Carlos Ruiz solicita acceso al módulo Salidas de Material con rol Generador.</p>
-                    </div>
-                    <button class="btn btn-sm btn-outline-secondary btn-marcar-leida" title="Marcar como leída">
-                        <i class="bi bi-check"></i>
-                    </button>
-                </div>
-
-                <!-- Notificación 3 (No leída) -->
-                <div class="list-group-item d-flex align-items-start notificacion-item no-leida"
-                    data-leida="false"
-                    style="background-color: var(--cora-bg);">
-                    <i class="bi bi-clock-fill fs-3 me-3" style="color: var(--cora-warning);"></i>
-                    <div class="flex-grow-1">
-                        <div class="d-flex justify-content-between">
-                            <strong>⏰ Retorno vencido: Salida 00000003</strong>
-                            <small class="text-muted">Hace 1 hora</small>
-                        </div>
-                        <p class="mb-0 text-muted">El retorno esperado venció el 15/09/2026.</p>
-                    </div>
-                    <button class="btn btn-sm btn-outline-secondary btn-marcar-leida" title="Marcar como leída">
-                        <i class="bi bi-check"></i>
-                    </button>
-                </div>
-
-                <!-- Notificación 4 (Ya leída) -->
-                <div class="list-group-item d-flex align-items-start notificacion-item leida"
-                    data-leida="true">
-                    <i class="bi bi-x-circle-fill fs-3 me-3" style="color: var(--cora-accent);"></i>
-                    <div class="flex-grow-1">
-                        <div class="d-flex justify-content-between">
-                            <strong>❌ Salida 00000004 rechazada</strong>
-                            <small class="text-muted">Hace 2 horas</small>
-                        </div>
-                        <p class="mb-0 text-muted">Motivo: Material no autorizado.</p>
-                    </div>
-                </div>
-
+        <!-- FOOTER -->
+        <footer class="footer">
+            <div class="container text-center">
+                &copy; 2026 SWCORA - Sistema Web de Control de Recursos y Activos | v1.0.0
             </div>
-        </div>
-    </div>
+        </footer>
 
-    <footer class="footer">
-        <div class="container text-center">
-            &copy; 2026 SWCORA - Sistema Web de Control de Recursos y Activos | v1.0.0
-        </div>
-    </footer>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../js/scripts.js"></script>
-</body>
+        <!-- SCRIPTS -->
+        <!-- Bootstrap bundle (incluye Popper para dropdowns y tabs) -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- Scripts propios del sistema (filtros y acciones de notificaciones) -->
+        <script src="../js/scripts.js"></script>
+    </body>
 </html>

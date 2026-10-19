@@ -4,21 +4,39 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Roles - SWCORA</title>
+
+    <!-- HOJAS DE ESTILO -->
+    <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Estilos CSS -->
     <link rel="stylesheet" href="../css/styles.css">
 </head>
+
+<!-- BODY DE LA PÁGINA -->
 <body>
+    <!-- HEADER / NAVBAR -->
     <header>
         <nav class="navbar navbar-expand-sm">
             <div class="container-fluid">
+
+                <!-- logo y nombre -->
                 <a class="navbar-brand" href="index.html"><i class="bi bi-lightning-charge-fill"></i> SWCORA</a>
+
+                <!-- Botón hamburguesa -->
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
                     <span class="navbar-toggler-icon"></span>
                 </button>
+
+                <!-- CONTENIDO COLAPSABLE DEL NAVBAR -->
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
+
+                        <!-- ITEM: INICIO -->
                         <li class="nav-item"><a class="nav-link" href="index.html"><i class="bi bi-house-door"></i> Inicio</a></li>
+
+                        <!-- ITEM: ADMINISTRACIÓN -->
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                                 <i class="bi bi-gear"></i> Administración
@@ -30,6 +48,8 @@
                                 <li><a class="dropdown-item" href="admin-empresas.html"><i class="bi bi-building"></i> Empresas</a></li>
                                 <li><a class="dropdown-item" href="admin-departamentos.html"><i class="bi bi-diagram-3"></i> Departamentos</a></li>
                                 <li><hr class="dropdown-divider"></li>
+
+                                <!-- SUBMENÚ: CATÁLOGOS -->
                                 <li class="dropdown-submenu">
                                     <a class="dropdown-item dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                                         <i class="bi bi-collection"></i> Catálogos
@@ -54,6 +74,7 @@
                             </ul>
                         </li>
 
+                        <!-- ITEM: MÓDULOS -->
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                                 <i class="bi bi-box-seam"></i> Módulos
@@ -62,6 +83,8 @@
                                 <li><a class="dropdown-item" href="salidas-index.html"><i class="bi bi-clipboard-check"></i> Salidas de Material</a></li>
                             </ul>
                         </li>
+
+                        <!-- ITEM: ACCESO A MÓDULOS -->
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="bi bi-key"></i> Acceso a Módulos</a>
                             <ul class="dropdown-menu">
@@ -71,6 +94,8 @@
                             </ul>
                         </li>
                     </ul>
+
+                    <!-- MENÚ SECUNDARIO (derecha) -->
                     <ul class="navbar-nav">
                         <li class="nav-item">
                             <a class="nav-link position-relative" href="notificaciones.html">
@@ -95,35 +120,40 @@
         </nav>
     </header>
 
+    <!-- CONTENIDO PRINCIPAL -->
     <div class="container-fluid mt-4">
+
+        <!-- ENCABEZADO + BOTÓN NUEVO ROL -->
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2><i class="bi bi-shield-lock"></i> Gestión de Roles</h2>
+
+            <!-- Abre modal de creación de rol -->
             <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalCrearRol">
                 <i class="bi bi-plus-circle"></i> Nuevo Rol
             </button>
         </div>
 
-        <!-- ============================================= -->
-        <!-- GRID 30/70 INVERTIDO: Filtros izq / Roles der  -->
-        <!-- ============================================= -->
+        <!-- GRID 30/70 INVERTIDO: filtros izq / roles der -->
         <div class="salida-form-grid-invertido">
 
-            <!-- ============================================= -->
-            <!-- COLUMNA IZQUIERDA (30%): Filtros               -->
-            <!-- ============================================= -->
+            <!-- COLUMNA IZQUIERDA (30%): Filtros -->
             <div class="col-izquierda">
                 <div class="card">
+
+                    <!-- Cabecera con título y botón limpiar -->
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="mb-0"><i class="bi bi-funnel"></i> Filtros</h5>
                         <button class="btn btn-sm btn-outline-secondary" id="btnLimpiarFiltrosRoles"><i class="bi bi-arrow-clockwise"></i> Limpiar</button>
                     </div>
-                    <div class="card-body">
 
+                    <div class="card-body">
+                        <!-- Filtro: búsqueda por nombre -->
                         <div class="mb-3">
                             <label class="form-label">Buscar</label>
                             <input type="text" class="form-control" id="filtroRolesBuscar" placeholder="Nombre del rol...">
                         </div>
 
+                        <!-- Filtro: tipo (global / local) -->
                         <div class="mb-3">
                             <label class="form-label">Tipo</label>
                             <select class="form-select" id="filtroRolesTipo">
@@ -133,6 +163,7 @@
                             </select>
                         </div>
 
+                        <!-- Filtro: módulo asociado -->
                         <div class="mb-0">
                             <label class="form-label">Módulo</label>
                             <select class="form-select" id="filtroRolesModulo">
@@ -140,8 +171,9 @@
                                 <option value="salidas">Salidas de Material</option>
                             </select>
                         </div>
-
                     </div>
+
+                    <!-- Pie con nota informativa -->
                     <div class="card-footer">
                         <small class="text-muted">
                             <i class="bi bi-info-circle"></i> Los filtros se aplican automáticamente.
@@ -150,15 +182,17 @@
                 </div>
             </div>
 
-            <!-- ============================================= -->
-            <!-- COLUMNA DERECHA (70%): Roles                   -->
-            <!-- ============================================= -->
+            <!-- COLUMNA DERECHA (70%): Tabla de roles -->
             <div class="col-derecha">
                 <div class="card">
+
+                    <!-- Cabecera con título y botón exportar -->
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="mb-0"><i class="bi bi-list-ul"></i> Roles</h5>
                         <button class="btn btn-sm btn-outline-success" id="btnExportarRoles" data-tabla="#tablaRoles" data-nombre="roles"><i class="bi bi-file-excel"></i> Exportar CSV</button>
                     </div>
+
+                    <!-- card-body sin padding para que la tabla llegue a los bordes -->
                     <div class="card-body p-0">
                         <div class="table-responsive">
                             <table class="table table-hover mb-0" id="tablaRoles">
@@ -175,6 +209,34 @@
                                     </tr>
                                 </thead>
                                 <tbody>
+
+                                    <!-- ROL: Superusuario (bloqueado, del sistema) -->
+                                    <tr class="rol-row"
+                                        data-codigo="Superusuario"
+                                        data-nombre="Superusuario"
+                                        data-descripcion="Acceso total al sistema"
+                                        data-tipo="global"
+                                        data-modulo=""
+                                        data-origen="sistema"
+                                        data-estado="activo"
+                                        data-bloqueado="true"
+                                        data-permisos="">
+                                        <td>Superusuario</td>
+                                        <td>Acceso total al sistema</td>
+                                        <td><span class="badge" style="background-color: var(--cora-accent);">🌐 Global</span></td>
+                                        <td>—</td>
+                                        <td><span class="badge bg-success">Sí</span></td>
+                                        <td><span class="badge bg-dark">Sistema</span></td>
+                                        <td><span class="badge bg-success">Activo</span></td>
+                                        <td class="text-center">
+                                            <!-- Botón deshabilitado: rol del sistema no editable -->
+                                            <button class="btn btn-sm btn-outline-secondary" disabled title="Rol del sistema, no editable">
+                                                <i class="bi bi-lock"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+
+                                    <!-- ROL: Administrador (bloqueado, del sistema) -->
                                     <tr class="rol-row"
                                         data-codigo="Administrador"
                                         data-nombre="Administrador"
@@ -198,6 +260,8 @@
                                             </button>
                                         </td>
                                     </tr>
+
+                                    <!-- ROL: Generador de Salidas (precargado) -->
                                     <tr class="rol-row"
                                         data-codigo="Generador"
                                         data-nombre="Generador de Salidas"
@@ -220,6 +284,8 @@
                                             </button>
                                         </td>
                                     </tr>
+
+                                    <!-- ROL: Aprobador de Salidas (precargado) -->
                                     <tr class="rol-row"
                                         data-codigo="Aprobador"
                                         data-nombre="Aprobador de Salidas"
@@ -242,6 +308,8 @@
                                             </button>
                                         </td>
                                     </tr>
+
+                                    <!-- ROL: Auditor de Salidas (personalizado, editable) -->
                                     <tr class="rol-row"
                                         data-codigo="Auditor"
                                         data-nombre="Auditor de Salidas"
@@ -259,10 +327,12 @@
                                         <td><span class="badge bg-secondary">Personalizado</span></td>
                                         <td><span class="badge bg-success">Activo</span></td>
                                         <td class="text-center">
+                                            <!-- Editar rol (solo personalizados) -->
                                             <button class="btn btn-sm btn-outline-info btn-editar-rol" title="Editar"
                                                     data-bs-toggle="modal" data-bs-target="#modalCrearRol">
                                                 <i class="bi bi-pencil"></i>
                                             </button>
+                                            <!-- Activar/desactivar rol -->
                                             <button class="btn btn-sm btn-outline-primary btn-toggle-estado-rol" title="Desactivar" data-accion="desactivar">
                                                 <i class="bi bi-power"></i>
                                             </button>
@@ -272,6 +342,8 @@
                             </table>
                         </div>
                     </div>
+
+                    <!-- Contador de registros -->
                     <div class="card-footer">
                         <small class="text-muted">Mostrando <span id="contadorRoles">5</span> de 5 roles</small>
                     </div>
@@ -280,19 +352,22 @@
         </div>
     </div>
 
-    <!-- ============================================= -->
-    <!-- MODAL: Crear / Editar Rol                      -->
-    <!-- ============================================= -->
+    <!-- MODAL: CREAR / EDITAR ROL -->
     <div class="modal fade" id="modalCrearRol" tabindex="-1" data-bs-backdrop="static">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
+
+                <!-- Cabecera del modal -->
                 <div class="modal-header" style="background-color: var(--cora-success); color: white;">
                     <h5 class="modal-title" id="modalCrearRolTitulo" style="color: var(--cora-white);">
                         <i class="bi bi-plus-circle"></i> Crear Rol
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
+
                 <div class="modal-body">
+
+                    <!-- SECCIÓN: INFORMACIÓN BÁSICA -->
                     <h6 class="border-bottom pb-2 mb-3">📌 Información Básica</h6>
                     <div class="row g-2 mb-3">
                         <div class="col-md-6">
@@ -308,7 +383,10 @@
                         </div>
                     </div>
 
+                    <!-- SECCIÓN: ÁRBOL DE PERMISOS -->
                     <h6 class="border-bottom pb-2 mb-3">🌳 Árbol de Permisos</h6>
+
+                    <!-- Botones de acción sobre el árbol -->
                     <div class="mb-2">
                         <button class="btn btn-sm btn-outline-secondary" type="button" id="btnColapsarArbol">
                             <i class="bi bi-arrows-collapse"></i> Colapsar
@@ -323,24 +401,33 @@
                             <i class="bi bi-x-circle"></i> Deseleccionar
                         </button>
                     </div>
+
+                    <!-- Árbol jerárquico de permisos -->
                     <div class="tree-container" id="arbolPermisos">
+
+                        <!-- Nodo raíz: SWCORA -->
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="nodo1">
                             <label class="form-check-label fw-bold" for="nodo1"><i class="bi bi-globe"></i> SWCORA (Sistema)</label>
                         </div>
                         <ul>
+
+                            <!-- Rama: Módulos -->
                             <li>
                                 <div class="form-check">
                                     <input class="form-check-input permiso-checkbox" type="checkbox" id="p-modulos" data-nivel="1">
                                     <label class="form-check-label fw-bold" for="p-modulos"><i class="bi bi-box-seam"></i> Módulos</label>
                                 </div>
                                 <ul>
+
+                                    <!-- Subrama: Salidas de Material -->
                                     <li>
                                         <div class="form-check">
                                             <input class="form-check-input permiso-checkbox" type="checkbox" id="p-salidas" data-nivel="2">
                                             <label class="form-check-label fw-bold" for="p-salidas"><i class="bi bi-clipboard-check"></i> Salidas de Material</label>
                                         </div>
                                         <ul>
+                                            <!-- Permisos individuales del módulo Salidas -->
                                             <li><div class="form-check"><input class="form-check-input permiso-checkbox" type="checkbox" id="p-salidas-crear"><label class="form-check-label" for="p-salidas-crear">➕ Crear salida</label></div></li>
                                             <li><div class="form-check"><input class="form-check-input permiso-checkbox" type="checkbox" id="p-salidas-editar"><label class="form-check-label" for="p-salidas-editar">✏️ Editar salida</label></div></li>
                                             <li><div class="form-check"><input class="form-check-input permiso-checkbox" type="checkbox" id="p-salidas-ver"><label class="form-check-label" for="p-salidas-ver">👁️ Ver salidas</label></div></li>
@@ -359,12 +446,14 @@
                                 </ul>
                             </li>
 
+                            <!-- Rama: Acceso a Módulos -->
                             <li>
                                 <div class="form-check">
                                     <input class="form-check-input permiso-checkbox" type="checkbox" id="p-acceso" data-nivel="1">
                                     <label class="form-check-label fw-bold" for="p-acceso"><i class="bi bi-key"></i> Acceso a Módulos</label>
                                 </div>
                                 <ul>
+                                    <!-- Permisos del módulo Acceso -->
                                     <li><div class="form-check"><input class="form-check-input permiso-checkbox" type="checkbox" id="p-acceso-solicitar"><label class="form-check-label" for="p-acceso-solicitar">📝 Solicitar acceso</label></div></li>
                                     <li><div class="form-check"><input class="form-check-input permiso-checkbox" type="checkbox" id="p-acceso-mis"><label class="form-check-label" for="p-acceso-mis">📋 Ver mis solicitudes</label></div></li>
                                     <li><div class="form-check"><input class="form-check-input permiso-checkbox" type="checkbox" id="p-acceso-pendientes"><label class="form-check-label" for="p-acceso-pendientes">📋 Ver Aprobaciones Pendientes</label></div></li>
@@ -375,12 +464,15 @@
                                 </ul>
                             </li>
 
+                            <!-- Rama: Administración -->
                             <li>
                                 <div class="form-check">
                                     <input class="form-check-input permiso-checkbox" type="checkbox" id="p-admin" data-nivel="1">
                                     <label class="form-check-label fw-bold" for="p-admin"><i class="bi bi-gear"></i> Administración</label>
                                 </div>
                                 <ul>
+
+                                    <!-- Subrama: Usuarios -->
                                     <li>
                                         <div class="form-check">
                                             <input class="form-check-input permiso-checkbox" type="checkbox" id="p-admin-usuarios" data-nivel="2">
@@ -395,6 +487,8 @@
                                             <li><div class="form-check"><input class="form-check-input permiso-checkbox" type="checkbox" id="p-admin-usuarios-informe"><label class="form-check-label" for="p-admin-usuarios-informe">📊 Exportar CSV</label></div></li>
                                         </ul>
                                     </li>
+
+                                    <!-- Subrama: Roles -->
                                     <li>
                                         <div class="form-check">
                                             <input class="form-check-input permiso-checkbox" type="checkbox" id="p-admin-roles" data-nivel="2">
@@ -413,6 +507,8 @@
                         </ul>
                     </div>
                 </div>
+
+                <!-- Pie del modal con acciones -->
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Cancelar</button>
                     <button type="button" class="btn btn-success" id="btnGuardarRol"><i class="bi bi-save"></i> Guardar Rol</button>
@@ -421,11 +517,10 @@
         </div>
     </div>
 
-    <!-- ============================================= -->
-    <!-- TOASTS                                          -->
-    <!-- ============================================= -->
+    <!-- TOASTS -->
     <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1090;">
 
+        <!-- TOAST: CAMBIOS GUARDADOS -->
         <div id="toastCambiosGuardados" class="toast" role="alert" data-bs-delay="3500">
             <div class="toast-header" style="background-color: var(--cora-success); color: white;">
                 <i class="bi bi-check-circle me-2"></i>
@@ -437,6 +532,7 @@
             </div>
         </div>
 
+        <!-- TOAST: ROL ACTIVADO -->
         <div id="toastRolActivado" class="toast" role="alert" data-bs-delay="3500">
             <div class="toast-header" style="background-color: var(--cora-success); color: white;">
                 <i class="bi bi-check-circle me-2"></i>
@@ -448,6 +544,7 @@
             </div>
         </div>
 
+        <!-- TOAST: ROL DESACTIVADO -->
         <div id="toastRolDesactivado" class="toast" role="alert" data-bs-delay="3500">
             <div class="toast-header" style="background-color: var(--cora-accent); color: white;">
                 <i class="bi bi-x-circle me-2"></i>
@@ -458,16 +555,19 @@
                 Se ha desactivado el rol.
             </div>
         </div>
-
     </div>
 
+    <!-- FOOTER -->
     <footer class="footer">
         <div class="container text-center">
             &copy; 2026 SWCORA - Sistema Web de Control de Recursos y Activos | v1.0.0
         </div>
     </footer>
 
+    <!-- SCRIPTS -->
+    <!-- Bootstrap bundle (incluye Popper para dropdowns y modales) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Scripts propios del sistema (filtros, árbol de permisos, toasts, etc.) -->
     <script src="../js/scripts.js"></script>
 </body>
 </html>

@@ -4,21 +4,39 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Usuarios - SWCORA</title>
+
+    <!-- HOJAS DE ESTILO -->
+    <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Estilos CSS -->
     <link rel="stylesheet" href="../css/styles.css">
 </head>
+
+<!-- BODY DE LA PÁGINA -->
 <body>
+    <!-- HEADER / NAVBAR -->
     <header>
         <nav class="navbar navbar-expand-sm">
             <div class="container-fluid">
+
+                <!-- logo y nombre -->
                 <a class="navbar-brand" href="index.html"><i class="bi bi-lightning-charge-fill"></i> SWCORA</a>
+
+                <!-- Botón hamburguesa -->
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
                     <span class="navbar-toggler-icon"></span>
                 </button>
+
+                <!-- CONTENIDO COLAPSABLE DEL NAVBAR -->
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
+
+                        <!-- ITEM: INICIO -->
                         <li class="nav-item"><a class="nav-link" href="index.html"><i class="bi bi-house-door"></i> Inicio</a></li>
+
+                        <!-- ITEM: ADMINISTRACIÓN -->
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                                 <i class="bi bi-gear"></i> Administración
@@ -30,6 +48,8 @@
                                 <li><a class="dropdown-item" href="admin-empresas.html"><i class="bi bi-building"></i> Empresas</a></li>
                                 <li><a class="dropdown-item" href="admin-departamentos.html"><i class="bi bi-diagram-3"></i> Departamentos</a></li>
                                 <li><hr class="dropdown-divider"></li>
+
+                                <!-- SUBMENÚ: CATÁLOGOS -->
                                 <li class="dropdown-submenu">
                                     <a class="dropdown-item dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                                         <i class="bi bi-collection"></i> Catálogos
@@ -54,6 +74,7 @@
                             </ul>
                         </li>
 
+                        <!-- ITEM: MÓDULOS -->
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                                 <i class="bi bi-box-seam"></i> Módulos
@@ -62,6 +83,8 @@
                                 <li><a class="dropdown-item" href="salidas-index.html"><i class="bi bi-clipboard-check"></i> Salidas de Material</a></li>
                             </ul>
                         </li>
+
+                        <!-- ITEM: ACCESO A MÓDULOS -->
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="bi bi-key"></i> Acceso a Módulos</a>
                             <ul class="dropdown-menu">
@@ -71,6 +94,8 @@
                             </ul>
                         </li>
                     </ul>
+
+                    <!-- MENÚ SECUNDARIO (derecha) -->
                     <ul class="navbar-nav">
                         <li class="nav-item">
                             <a class="nav-link position-relative" href="notificaciones.html">
@@ -95,33 +120,37 @@
         </nav>
     </header>
 
+    <!-- CONTENIDO PRINCIPAL -->
     <div class="container-fluid mt-4">
+
+        <!-- ENCABEZADO + BADGE INFORMATIVO -->
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2><i class="bi bi-people"></i> Gestión de Usuarios</h2>
+            <!-- Nota: los usuarios se crean automáticamente desde AD -->
             <span class="badge bg-info">Los usuarios se crean automáticamente al primer acceso</span>
         </div>
 
-        <!-- GRID 60/40 -->
-        <!-- GRID 30/70 INVERTIDO: Filtros a la izquierda / Usuarios a la derecha -->
+        <!-- GRID 30/70 INVERTIDO: filtros izq / usuarios der -->
         <div class="salida-form-grid-invertido">
 
-            <!-- ============================================= -->
-            <!-- COLUMNA IZQUIERDA (30%): Filtros               -->
-            <!-- ============================================= -->
+            <!-- COLUMNA IZQUIERDA (30%): Filtros -->
             <div class="col-izquierda">
-
                 <div class="card">
+
+                    <!-- Cabecera con título y botón limpiar -->
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="mb-0"><i class="bi bi-funnel"></i> Filtros</h5>
                         <button class="btn btn-sm btn-outline-secondary" id="btnLimpiarFiltrosUsuarios"><i class="bi bi-arrow-clockwise"></i> Limpiar</button>
                     </div>
-                    <div class="card-body">
 
+                    <div class="card-body">
+                        <!-- Filtro: nombre o email -->
                         <div class="mb-3">
                             <label class="form-label">Nombre o email</label>
                             <input type="text" class="form-control" id="filtroUsuariosBuscar" placeholder="Buscar por nombre o email...">
                         </div>
 
+                        <!-- Filtro: tipo de rol (global / local / sin rol) -->
                         <div class="mb-3">
                             <label class="form-label">Tipo de Rol</label>
                             <select class="form-select" id="filtroUsuariosTipoRol">
@@ -132,6 +161,7 @@
                             </select>
                         </div>
 
+                        <!-- Filtro: rol asignado -->
                         <div class="mb-3">
                             <label class="form-label">Rol Asignado</label>
                             <select class="form-select" id="filtroUsuariosRol">
@@ -142,6 +172,7 @@
                             </select>
                         </div>
 
+                        <!-- Filtro: estado activo/inactivo -->
                         <div class="mb-0">
                             <label class="form-label">Estado</label>
                             <select class="form-select" id="filtroUsuariosEstado">
@@ -150,8 +181,9 @@
                                 <option value="inactivo">Inactivos</option>
                             </select>
                         </div>
-
                     </div>
+
+                    <!-- Pie con nota informativa -->
                     <div class="card-footer">
                         <small class="text-muted">
                             <i class="bi bi-info-circle"></i> Los filtros se aplican automáticamente.
@@ -160,15 +192,17 @@
                 </div>
             </div>
 
-            <!-- ============================================= -->
-            <!-- COLUMNA DERECHA (70%): Usuarios                -->
-            <!-- ============================================= -->
+            <!-- COLUMNA DERECHA (70%): Tabla de usuarios -->
             <div class="col-derecha">
                 <div class="card">
+
+                    <!-- Cabecera con título y botón exportar -->
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="mb-0"><i class="bi bi-list-ul"></i> Usuarios</h5>
                         <button class="btn btn-sm btn-outline-success" id="btnExportarUsuarios" data-tabla="#tablaUsuarios"><i class="bi bi-file-excel"></i> Exportar CSV</button>
                     </div>
+
+                    <!-- card-body sin padding para que la tabla llegue a los bordes -->
                     <div class="card-body p-0">
                         <div class="table-responsive">
                             <table class="table table-hover mb-0" id="tablaUsuarios">
@@ -184,7 +218,8 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <!-- Usuario 1: sin rol, activo -->
+
+                                    <!-- USUARIO 1: sin rol, activo -->
                                     <tr class="usuario-row"
                                         data-nombre="Juan Pérez"
                                         data-email="juan.perez@empresa.com"
@@ -198,14 +233,16 @@
                                         <td>—</td>
                                         <td><span class="badge bg-success">Activo</span></td>
                                         <td class="text-center">
+                                            <!-- Abre modal de gestión de accesos -->
                                             <button class="btn btn-sm btn-outline-info" title="Gestionar Accesos" data-bs-toggle="modal" data-bs-target="#modalAccesos"><i class="bi bi-key"></i></button>
+                                            <!-- Activar/desactivar usuario -->
                                             <button class="btn btn-sm btn-outline-primary btn-toggle-estado-usuario" title="Desactivar" data-accion="desactivar">
                                                 <i class="bi bi-power"></i>
                                             </button>
                                         </td>
                                     </tr>
 
-                                    <!-- Usuario 2: global administrador, activo -->
+                                    <!-- USUARIO 2: global administrador, activo -->
                                     <tr class="usuario-row"
                                         data-nombre="María Gómez"
                                         data-email="maria.gomez@empresa.com"
@@ -226,7 +263,7 @@
                                         </td>
                                     </tr>
 
-                                    <!-- Usuario 3: local, generador + aprobador, inactivo -->
+                                    <!-- USUARIO 3: local, generador + aprobador, inactivo -->
                                     <tr class="usuario-row"
                                         data-nombre="Carlos Ruiz"
                                         data-email="carlos.ruiz@empresa.com"
@@ -238,19 +275,21 @@
                                         <td>carlos.ruiz@empresa.com</td>
                                         <td><span class="badge bg-info">Local</span></td>
                                         <td>
+                                            <!-- Múltiples badges por múltiples roles -->
                                             <span class="badge bg-info">Generador de Salidas</span>
                                             <span class="badge bg-warning">Aprobador de Salidas</span>
                                         </td>
                                         <td><span class="badge bg-danger">Inactivo</span></td>
                                         <td class="text-center">
                                             <button class="btn btn-sm btn-outline-info" title="Gestionar Accesos" data-bs-toggle="modal" data-bs-target="#modalAccesos"><i class="bi bi-key"></i></button>
+                                            <!-- Acción de activar (usuario inactivo) -->
                                             <button class="btn btn-sm btn-outline-success btn-toggle-estado-usuario" title="Activar" data-accion="activar">
                                                 <i class="bi bi-power"></i>
                                             </button>
                                         </td>
                                     </tr>
 
-                                    <!-- Usuario 4: local, aprobador, activo -->
+                                    <!-- USUARIO 4: local, aprobador, activo -->
                                     <tr class="usuario-row"
                                         data-nombre="Jorge Sanchez"
                                         data-email="jorge.sanchez@empresa.com"
@@ -271,7 +310,7 @@
                                         </td>
                                     </tr>
 
-                                    <!-- Usuario 5: local, generador, activo -->
+                                    <!-- USUARIO 5: local, generador, activo -->
                                     <tr class="usuario-row"
                                         data-nombre="Sarai Silva"
                                         data-email="sarai.silva@empresa.com"
@@ -295,6 +334,8 @@
                             </table>
                         </div>
                     </div>
+
+                    <!-- Contador de registros (recalculado por scripts.js) -->
                     <div class="card-footer">
                         <div class="d-flex justify-content-between align-items-center">
                             <small class="text-muted">Mostrando <span id="contadorUsuarios">5</span> de 5 usuarios</small>
@@ -305,17 +346,17 @@
         </div>
     </div>
 
-
-    <!-- ============================================= -->
-    <!-- MODAL: Gestionar Accesos                       -->
-    <!-- ============================================= -->
+    <!-- MODAL: GESTIONAR ACCESOS -->
     <div class="modal fade" id="modalAccesos" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
+
+                <!-- Cabecera del modal -->
                 <div class="modal-header" style="background-color: var(--cora-success); color: white;">
                     <h5 class="modal-title" style="color: var(--cora-white);"><i class="bi bi-key"></i> Gestionar Accesos</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
+
                 <div class="modal-body">
 
                     <!-- Selector de Rol Global -->
@@ -329,7 +370,7 @@
                         <small class="text-muted">El rol Superusuario no es asignable.</small>
                     </div>
 
-                    <!-- Sección: Roles Globales (visible solo cuando se elige "Global") -->
+                    <!-- Sección: Roles Globales (visible solo al elegir "Global") -->
                     <div id="seccionRolesGlobales" class="d-none">
                         <h6 class="border-bottom pb-2 mb-3">🌐 Roles Globales</h6>
                         <div class="card mb-3">
@@ -345,7 +386,7 @@
                         </div>
                     </div>
 
-                    <!-- Sección: Salidas de Materiales (visible solo cuando se elige "Local") -->
+                    <!-- Sección: Salidas de Materiales (visible solo al elegir "Local") -->
                     <div id="seccionSalidasMateriales" class="d-none">
                         <h6 class="border-bottom pb-2 mb-3">📦 Salidas de Materiales</h6>
                         <div class="card mb-2">
@@ -353,6 +394,7 @@
                                 <div class="d-flex justify-content-between align-items-center mb-2">
                                     <strong><i class="bi bi-clipboard-check"></i> Salidas de Material</strong>
                                 </div>
+                                <!-- Checkboxes de roles dentro del módulo -->
                                 <div class="form-check form-check-inline">
                                     <input class="form-check-input" type="checkbox" id="rolGen" checked>
                                     <label class="form-check-label" for="rolGen">Generador</label>
@@ -369,8 +411,9 @@
                     <div id="seccionSinRol" class="alert alert-info mb-0">
                         <i class="bi bi-info-circle"></i> Selecciona un tipo de rol global para ver las opciones disponibles.
                     </div>
-
                 </div>
+
+                <!-- Pie del modal con acciones -->
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Cancelar</button>
                     <button type="button" class="btn btn-success" id="btnGuardarAccesos"><i class="bi bi-save"></i> Guardar</button>
@@ -379,12 +422,10 @@
         </div>
     </div>
 
-    <!-- ============================================= -->
-    <!-- TOASTS                                          -->
-    <!-- ============================================= -->
+    <!-- TOASTS -->
     <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1090;">
 
-        <!-- Toast: Cambios guardados -->
+        <!-- TOAST: CAMBIOS GUARDADOS -->
         <div id="toastCambiosGuardados" class="toast" role="alert" data-bs-delay="3500">
             <div class="toast-header" style="background-color: var(--cora-success); color: white;">
                 <i class="bi bi-check-circle me-2"></i>
@@ -396,7 +437,7 @@
             </div>
         </div>
 
-        <!-- Toast: Usuario activado -->
+        <!-- TOAST: USUARIO ACTIVADO -->
         <div id="toastUsuarioActivado" class="toast" role="alert" data-bs-delay="3500">
             <div class="toast-header" style="background-color: var(--cora-success); color: white;">
                 <i class="bi bi-check-circle me-2"></i>
@@ -408,7 +449,7 @@
             </div>
         </div>
 
-        <!-- Toast: Usuario desactivado -->
+        <!-- TOAST: USUARIO DESACTIVADO -->
         <div id="toastUsuarioDesactivado" class="toast" role="alert" data-bs-delay="3500">
             <div class="toast-header" style="background-color: var(--cora-accent); color: white;">
                 <i class="bi bi-x-circle me-2"></i>
@@ -419,16 +460,19 @@
                 Se ha desactivado el usuario.
             </div>
         </div>
-
     </div>
 
+    <!-- FOOTER -->
     <footer class="footer">
         <div class="container text-center">
             &copy; 2026 SWCORA - Sistema Web de Control de Recursos y Activos | v1.0.0
         </div>
     </footer>
 
+    <!-- SCRIPTS -->
+    <!-- Bootstrap bundle (incluye Popper para dropdowns y modales) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Scripts propios del sistema (filtros, accesos, toasts, etc.) -->
     <script src="../js/scripts.js"></script>
 </body>
 </html>

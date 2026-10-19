@@ -4,29 +4,47 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Salidas de Material - SWCORA</title>
+
+    <!-- HOJAS DE ESTILO -->
+    <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Estilos CSS -->
     <link rel="stylesheet" href="../css/styles.css">
 </head>
+
+<!-- BODY DE LA PÁGINA -->
 <body>
+    <!-- HEADER / NAVBAR -->
     <header>
         <nav class="navbar navbar-expand-sm">
             <div class="container-fluid">
+
+                <!-- logo y nombre -->
                 <a class="navbar-brand" href="index.html"><i class="bi bi-lightning-charge-fill"></i> SWCORA</a>
+
+                <!-- Botón hamburguesa -->
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
                     <span class="navbar-toggler-icon"></span>
                 </button>
+
+                <!-- CONTENIDO COLAPSABLE DEL NAVBAR -->
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
+
+                        <!-- ITEM: INICIO -->
                         <li class="nav-item"><a class="nav-link" href="index.html"><i class="bi bi-house-door"></i> Inicio</a></li>
 
+                        <!-- ITEM: MÓDULOS (activo) -->
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle active" href="#" role="button" data-bs-toggle="dropdown"><i class="bi bi-box-seam"></i> Módulos</a>
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="salidas-index.html"><i class="bi bi-clipboard-check"></i> Salidas de Material</a></li>
                             </ul>
                         </li>
-                        
+
+                        <!-- ITEM: ACCESO A MÓDULOS -->
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="bi bi-key"></i> Acceso a Módulos</a>
                             <ul class="dropdown-menu">
@@ -36,21 +54,37 @@
                             </ul>
                         </li>
                     </ul>
+
+                    <!-- MENÚ SECUNDARIO (derecha) -->
                     <ul class="navbar-nav">
+
+                        <!-- ITEM: NOTIFICACIONES -->
                         <li class="nav-item">
                             <a class="nav-link position-relative" href="notificaciones.html">
                                 <i class="bi bi-bell"></i>
+                                <!-- Badge rojo con contador de notificaciones no leídas -->
                                 <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">3</span>
                             </a>
                         </li>
+
+                        <!-- ITEM: MENÚ DE USUARIO -->
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <a class="nav-link dropdown-toggle"
+                                href="#"
+                                role="button"
+                                data-bs-toggle="dropdown">
                                 <i class="bi bi-person-circle"></i> Juan Pérez
                             </a>
+
                             <ul class="dropdown-menu dropdown-menu-end">
+                                <!-- Enlaces del perfil -->
                                 <li><a class="dropdown-item" href="mi-perfil.html"><i class="bi bi-person"></i> Mi perfil</a></li>
                                 <li><a class="dropdown-item" href="configuracion.html"><i class="bi bi-gear"></i> Configuración</a></li>
+
+                                <!-- Separador antes de cerrar sesión -->
                                 <li><hr class="dropdown-divider"></li>
+
+                                <!-- Acción: cerrar sesión (redirige al login raíz) -->
                                 <li><a class="dropdown-item text-danger" href="../index.html"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</a></li>
                             </ul>
                         </li>
@@ -60,39 +94,44 @@
         </nav>
     </header>
 
+    <!-- CONTENIDO PRINCIPAL -->
     <div class="container-fluid mt-4">
+
+        <!-- ENCABEZADO + BOTÓN NUEVA SALIDA -->
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2><i class="bi bi-clipboard-check"></i> Salidas de Material</h2>
             <div>
+                <!-- Redirige al formulario de creación -->
                 <a href="salidas-crear.html" class="btn btn-success">
                     <i class="bi bi-plus-circle"></i> Nueva Salida
                 </a>
             </div>
         </div>
 
-        <!-- ============================================= -->
-        <!-- GRID 30/70 INVERTIDO: Filtros izq / Salidas der -->
-        <!-- ============================================= -->
+        <!-- GRID 30/70 INVERTIDO: filtros izq / salidas der -->
         <div class="salida-form-grid-invertido">
 
-            <!-- ============================================= -->
-            <!-- COLUMNA IZQUIERDA (30%): Filtros               -->
-            <!-- ============================================= -->
+            <!-- COLUMNA IZQUIERDA (30%): Filtros -->
             <div class="col-izquierda">
                 <div class="card">
+
+                    <!-- Cabecera con título y botón limpiar -->
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="mb-0"><i class="bi bi-funnel"></i> Filtros</h5>
                         <button class="btn btn-sm btn-outline-secondary" id="btnLimpiarFiltrosSalidas">
                             <i class="bi bi-arrow-clockwise"></i> Limpiar
                         </button>
                     </div>
+
                     <div class="card-body">
+                        <!-- Filtro: búsqueda por texto -->
                         <div class="mb-3">
                             <label class="form-label">Buscar</label>
                             <input type="text" class="form-control"
                                 id="filtroSalidasBuscar"
                                 placeholder="Usuario, Folio, descripción...">
                         </div>
+                        <!-- Filtro: estado -->
                         <div class="mb-3">
                             <label class="form-label">Estado</label>
                             <select class="form-select" id="filtroSalidasEstado">
@@ -104,15 +143,19 @@
                                 <option value="cancelada">Cancelada</option>
                             </select>
                         </div>
+                        <!-- Filtro: fecha desde -->
                         <div class="mb-3">
                             <label class="form-label">Desde</label>
                             <input type="date" class="form-control" id="filtroSalidasDesde">
                         </div>
+                        <!-- Filtro: fecha hasta -->
                         <div class="mb-0">
                             <label class="form-label">Hasta</label>
                             <input type="date" class="form-control" id="filtroSalidasHasta">
                         </div>
                     </div>
+
+                    <!-- Pie con nota informativa -->
                     <div class="card-footer">
                         <small class="text-muted">
                             <i class="bi bi-info-circle"></i> Los filtros se aplican automáticamente.
@@ -121,13 +164,14 @@
                 </div>
             </div>
 
-            <!-- ============================================= -->
-            <!-- COLUMNA DERECHA (70%): Salidas                 -->
-            <!-- ============================================= -->
+            <!-- COLUMNA DERECHA (70%): Tabla de salidas -->
             <div class="col-derecha">
                 <div class="card">
+
+                    <!-- Cabecera con título y botón exportar -->
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="mb-0"><i class="bi bi-list-ul"></i> Salidas</h5>
+                        <!-- Exporta la tabla a CSV (listener global en scripts.js) -->
                         <button class="btn btn-sm btn-outline-success"
                                 id="btnExportarSalidas"
                                 data-tabla="#tablaSalidas"
@@ -136,6 +180,8 @@
                             <i class="bi bi-file-excel"></i> Exportar CSV
                         </button>
                     </div>
+
+                    <!-- card-body sin padding para que la tabla llegue a los bordes -->
                     <div class="card-body p-0">
                         <div class="table-responsive">
                             <table class="table table-hover mb-0" id="tablaSalidas">
@@ -153,7 +199,7 @@
                                 </thead>
                                 <tbody id="tbodySalidas">
 
-                                    <!-- Salida aprobada -->
+                                    <!-- SALIDA APROBADA (acciones: ver, PDF, clonar) -->
                                     <tr class="salida-row"
                                         data-folio="00000001"
                                         data-fecha="2026-09-20"
@@ -176,7 +222,7 @@
                                         </td>
                                     </tr>
 
-                                    <!-- Salida pendiente (Aprobador) -->
+                                    <!-- SALIDA PENDIENTE (Aprobador): acciones de aprobar/rechazar -->
                                     <tr class="salida-row"
                                         data-folio="00000002"
                                         data-fecha="2026-09-19"
@@ -199,7 +245,7 @@
                                         </td>
                                     </tr>
 
-                                    <!-- Borrador -->
+                                    <!-- BORRADOR: acciones de ver, editar, eliminar -->
                                     <tr class="salida-row"
                                         data-folio=""
                                         data-fecha="2026-09-18"
@@ -222,7 +268,7 @@
                                         </td>
                                     </tr>
 
-                                    <!-- Rechazada -->
+                                    <!-- SALIDA RECHAZADA (motivo en la celda) -->
                                     <tr class="salida-row"
                                         data-folio="00000004"
                                         data-fecha="2026-09-17"
@@ -244,7 +290,7 @@
                                         </td>
                                     </tr>
 
-                                    <!-- Cancelada -->
+                                    <!-- SALIDA CANCELADA -->
                                     <tr class="salida-row"
                                         data-folio="00000005"
                                         data-fecha="2026-09-16"
@@ -267,7 +313,7 @@
                                         </td>
                                     </tr>
 
-                                    <!-- Pendiente (puede cancelarse) -->
+                                    <!-- SALIDA PENDIENTE (puede cancelarse) -->
                                     <tr class="salida-row"
                                         data-folio="00000006"
                                         data-fecha="2026-09-19"
@@ -294,6 +340,8 @@
                             </table>
                         </div>
                     </div>
+
+                    <!-- Contador de registros (recalculado por scripts.js) -->
                     <div class="card-footer">
                         <div class="d-flex justify-content-between align-items-center">
                             <small class="text-muted">Mostrando <span id="contadorSalidas">6</span> de <span id="totalSalidas">95</span> registros</small>
@@ -305,21 +353,24 @@
         </div>
     </div>
 
-    <!-- ============================================= -->
-    <!-- MODAL: Confirmar Rechazo                        -->
-    <!-- ============================================= -->
+    <!-- MODAL: CONFIRMAR RECHAZO -->
     <div class="modal fade" id="modalRechazarSalida" tabindex="-1" data-bs-backdrop="static">
         <div class="modal-dialog">
             <div class="modal-content">
+
+                <!-- Cabecera del modal -->
                 <div class="modal-header" style="background-color: var(--cora-accent); color: white;">
                     <h5 class="modal-title" style="color: var(--cora-white);">
                         <i class="bi bi-x-circle"></i> Rechazar Solicitud
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
+
                 <div class="modal-body">
                     <p>¿Estás seguro de que deseas <strong>rechazar</strong> la solicitud con folio
                         <strong id="rechazarFolio">—</strong>?</p>
+
+                    <!-- Campo: motivo del rechazo (obligatorio) -->
                     <div class="mb-3">
                         <label class="form-label">Motivo del rechazo <span class="text-danger">*</span></label>
                         <textarea class="form-control" id="rechazarMotivo" rows="3"
@@ -330,6 +381,8 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Pie del modal -->
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                         <i class="bi bi-x"></i> Cancelar
@@ -342,21 +395,24 @@
         </div>
     </div>
 
-    <!-- ============================================= -->
-    <!-- MODAL: Confirmar Cancelación                    -->
-    <!-- ============================================= -->
+    <!-- MODAL: CONFIRMAR CANCELACIÓN -->
     <div class="modal fade" id="modalCancelarSalida" tabindex="-1" data-bs-backdrop="static">
         <div class="modal-dialog">
             <div class="modal-content">
+
+                <!-- Cabecera del modal -->
                 <div class="modal-header" style="background-color: var(--cora-accent); color: white;">
                     <h5 class="modal-title" style="color: var(--cora-white);">
                         <i class="bi bi-dash-circle"></i> Cancelar Solicitud
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
+
                 <div class="modal-body">
                     <p>¿Estás seguro de que deseas <strong>cancelar</strong> la solicitud con folio
                         <strong id="cancelarFolio">—</strong>?</p>
+
+                    <!-- Campo: motivo de la cancelación (obligatorio) -->
                     <div class="mb-3">
                         <label class="form-label">Motivo de la cancelación <span class="text-danger">*</span></label>
                         <textarea class="form-control" id="cancelarMotivo" rows="3"
@@ -367,6 +423,8 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Pie del modal -->
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                         <i class="bi bi-x"></i> Volver
@@ -379,18 +437,19 @@
         </div>
     </div>
 
-    <!-- ============================================= -->
-    <!-- MODAL: Confirmar Eliminación de Borrador        -->
-    <!-- ============================================= -->
+    <!-- MODAL: CONFIRMAR ELIMINACIÓN DE BORRADOR -->
     <div class="modal fade" id="modalEliminarSalida" tabindex="-1" data-bs-backdrop="static">
         <div class="modal-dialog">
             <div class="modal-content">
+
+                <!-- Cabecera del modal -->
                 <div class="modal-header" style="background-color: var(--cora-accent); color: white;">
                     <h5 class="modal-title" style="color: var(--cora-white);">
                         <i class="bi bi-trash"></i> Eliminar Borrador
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
+
                 <div class="modal-body">
                     <p>¿Estás seguro de que deseas <strong>eliminar</strong> este borrador?</p>
                     <p class="text-muted mb-0">
@@ -398,6 +457,8 @@
                         Esta acción es permanente y no se puede deshacer.
                     </p>
                 </div>
+
+                <!-- Pie del modal -->
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                         <i class="bi bi-x"></i> Volver
@@ -410,8 +471,10 @@
         </div>
     </div>
 
-    <!-- Toast para acciones de salidas -->
+    <!-- TOAST: acciones sobre salidas -->
     <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1090;">
+
+        <!-- Toast reutilizable: título y mensaje se actualizan vía JS -->
         <div id="toastSalidaAccion" class="toast" role="alert" data-bs-delay="3500">
             <div class="toast-header" style="background-color: var(--cora-success); color: white;">
                 <i class="bi bi-check-circle me-2"></i>
@@ -422,13 +485,17 @@
         </div>
     </div>
 
+    <!-- FOOTER -->
     <footer class="footer">
         <div class="container text-center">
             &copy; 2026 SWCORA - Sistema Web de Control de Recursos y Activos | v1.0.0
         </div>
     </footer>
 
+    <!-- SCRIPTS -->
+    <!-- Bootstrap bundle (incluye Popper para dropdowns y modales) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Scripts propios del sistema (filtros, acciones de salidas, toasts, etc.) -->
     <script src="../js/scripts.js"></script>
 </body>
 </html>

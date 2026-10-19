@@ -1,523 +1,647 @@
 /* =============================================
    CORA - Paleta de Colores
+   Documentación de los colores base del sistema.
    #F2F3F5 - Fondo claro
    #B9BCC2 - Gris claro
-   #70757F - Gris medio
    #C02F4A - Rojo acento
    #1F2328 - Negro suave
-   ============================================= */
+   =============================================
+*/
 
+/* Bloque :root — declara variables CSS globales reutilizables en todo el archivo */
 :root {
-    --cora-bg: #F2F3F5;
-    --cora-gray-light: #B9BCC2;
-    --cora-gray: #70757F;
-    --cora-accent: #C02F4A;
-    --cora-dark: #1F2328;
-    --cora-white: #FFFFFF;
-    --cora-success: #4A8B5C;
-    --cora-warning: #D9A441;
-    --cora-info: #5A7BA5;
+    --cora-bg: #F2F3F5;          /* Color de fondo general del sistema (gris muy claro) */
+    --cora-gray-light: #B9BCC2;  /* Gris claro para bordes y separadores suaves */
+    --cora-gray: #70757F;        /* Gris medio para textos secundarios y badges neutros */
+    --cora-accent: #C02F4A;      /* Rojo de acento: marca, botones primarios y alertas peligrosas */
+    --cora-dark: #1F2328;        /* Negro suave para navbar, footer y textos principales */
+    --cora-white: #FFFFFF;       /* Blanco para fondos de cards, modales y textos sobre oscuro */
+    --cora-success: #4A8B5C;     /* Verde para estados exitosos (aprobada, activo) */
+    --cora-warning: #D9A441;     /* Ámbar para advertencias (pendiente, en revisión) */
+    --cora-info: #5A7BA5;        /* Azul para información secundaria y estados informativos */
 }
 
+/* Selector universal — aplica box-sizing: border-box a TODOS los elementos */
 * {
-    box-sizing: border-box;
+    box-sizing: border-box;       /* El padding y border se incluyen dentro del width/height */
 }
 
+/* Reset del body — define tipografía, colores base y layout de página completa */
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: var(--cora-bg);
-    color: var(--cora-dark);
-    font-size: 14px;
-    line-height: 1.6;
-    margin: 0;
-    padding: 0;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;  /* Tipografía base del sistema */
+    background-color: var(--cora-bg);   /* Fondo general gris muy claro */
+    color: var(--cora-dark);            /* Texto principal negro suave */
+    font-size: 14px;                    /* Tamaño base de texto del sistema */
+    line-height: 1.6;                   /* Altura de línea cómoda para lectura */
+    margin: 0;                          /* Elimina margen por defecto del navegador */
+    padding: 0;                         /* Elimina padding por defecto del navegador */
+    min-height: 100vh;                  /* Ocupa al menos el 100% del alto de la ventana */
+    display: flex;                      /* Flexbox para layout vertical de la página */
+    flex-direction: column;             /* Apila header, main y footer verticalmente */
 }
 
+/* Tipografía de encabezados h1-h6 — todos comparten peso y tracking */
 h1, h2, h3, h4, h5, h6 {
-    color: var(--cora-dark);
-    font-weight: 600;
-    letter-spacing: -0.02em;
+    color: var(--cora-dark);      /* Color de texto uniforme para encabezados */
+    font-weight: 600;             /* Semi-negrita para jerarquía visual */
+    letter-spacing: -0.02em;      /* Tracking ligeramente negativo para títulos compactos */
 }
 
-h1 { font-size: 2rem; }
-h2 { font-size: 1.75rem; }
-h3 { font-size: 1.5rem; }
-h4 { font-size: 1.25rem; }
+/* Tamaños específicos por nivel de encabezado */
+h1 { font-size: 2rem; }           /* Título principal: 32px */
+h2 { font-size: 1.75rem; }        /* Título de sección: 28px */
+h3 { font-size: 1.5rem; }         /* Subtítulo: 24px */
+h4 { font-size: 1.25rem; }        /* Encabezado pequeño: 20px */
 
+/* Clase utilitaria para textos secundarios */
 .text-muted {
-    color: var(--cora-gray) !important;
+    color: var(--cora-gray) !important;  /* Fuerza el gris medio sobre cualquier regla de Bootstrap */
 }
 
-/* Navbar */
+/* =============================================
+   NAVBAR
+   Barra de navegación superior oscura.
+   ============================================= */
 .navbar {
-    background-color: var(--cora-dark) !important;
-    padding: 0.75rem 1.5rem;
-    box-shadow: 0 2px 8px rgba(31, 35, 40, 0.15);
+    background-color: var(--cora-dark) !important;   /* Fondo negro suave (override de Bootstrap) */
+    padding: 0.75rem 1.5rem;                          /* Espaciado interno vertical y horizontal */
+    box-shadow: 0 2px 8px rgba(31, 35, 40, 0.15);    /* Sombra sutil para separar del contenido */
 }
 
+/* Marca del sistema (logo + nombre) */
 .navbar-brand {
-    font-size: 1.4rem;
-    font-weight: 700;
-    letter-spacing: 2px;
-    color: var(--cora-white) !important;
+    font-size: 1.4rem;                /* Tamaño destacado para el nombre SWCORA */
+    font-weight: 700;                 /* Negrita fuerte */
+    letter-spacing: 2px;              /* Espaciado amplio entre letras */
+    color: var(--cora-white) !important;  /* Texto blanco sobre fondo oscuro */
 }
 
+/* Icono dentro de la marca (rayo) */
 .navbar-brand i {
-    color: var(--cora-accent);
+    color: var(--cora-accent);        /* Rojo de acento para el icono del rayo */
 }
 
+/* Enlaces del navbar */
 .navbar .nav-link {
-    color: rgba(255, 255, 255, 0.85) !important;
-    font-weight: 500;
-    transition: all 0.2s ease;
-    padding: 0.5rem 1rem;
+    color: rgba(255, 255, 255, 0.85) !important;  /* Blanco con 85% opacidad por defecto */
+    font-weight: 500;                              /* Peso medio para legibilidad */
+    transition: all 0.2s ease;                     /* Transición suave en hover */
+    padding: 0.5rem 1rem;                          /* Espaciado interno cómodo */
 }
 
+/* Estado hover de los enlaces del navbar */
 .navbar .nav-link:hover {
-    color: var(--cora-white) !important;
-    background-color: rgba(255, 255, 255, 0.08);
-    border-radius: 6px;
+    color: var(--cora-white) !important;            /* Blanco puro al pasar el cursor */
+    background-color: rgba(255, 255, 255, 0.08);    /* Fondo sutil translúcido */
+    border-radius: 6px;                             /* Esquinas redondeadas del highlight */
 }
 
+/* Menús desplegables del navbar */
 .navbar .dropdown-menu {
-    background-color: var(--cora-white);
-    border: 1px solid var(--cora-gray-light);
-    border-radius: 10px;
-    box-shadow: 0 4px 20px rgba(31, 35, 40, 0.12);
-    padding: 0.5rem;
-    margin-top: 0.5rem;
+    background-color: var(--cora-white);                    /* Fondo blanco para los dropdowns */
+    border: 1px solid var(--cora-gray-light);               /* Borde gris claro */
+    border-radius: 10px;                                    /* Esquinas redondeadas */
+    box-shadow: 0 4px 20px rgba(31, 35, 40, 0.12);          /* Sombra elevada */
+    padding: 0.5rem;                                        /* Espaciado interno del menú */
+    margin-top: 0.5rem;                                     /* Separación respecto al navbar */
 }
 
+/* Items dentro de los dropdowns */
 .navbar .dropdown-item {
-    border-radius: 6px;
-    padding: 0.6rem 1rem;
-    color: var(--cora-dark);
-    font-size: 0.9rem;
-    transition: all 0.15s ease;
+    border-radius: 6px;                         /* Esquinas redondeadas por item */
+    padding: 0.6rem 1rem;                       /* Espaciado interno por item */
+    color: var(--cora-dark);                    /* Texto oscuro */
+    font-size: 0.9rem;                          /* Tamaño ligeramente menor al base */
+    transition: all 0.15s ease;                 /* Transición rápida en hover */
 }
 
+/* Hover de los items del dropdown */
 .navbar .dropdown-item:hover {
-    background-color: var(--cora-bg);
-    color: var(--cora-accent);
+    background-color: var(--cora-bg);           /* Fondo gris claro al pasar el cursor */
+    color: var(--cora-accent);                  /* Texto en rojo de acento */
 }
 
+/* Iconos dentro de los items del dropdown */
 .navbar .dropdown-item i {
-    color: var(--cora-gray);
-    margin-right: 0.5rem;
+    color: var(--cora-gray);                    /* Gris medio por defecto */
+    margin-right: 0.5rem;                       /* Separación entre icono y texto */
 }
 
-/* Nav pills */
+/* =============================================
+   NAV PILLS
+   Pestañas tipo "pill" usadas en modales (ej. Plantillas).
+   ============================================= */
 .nav-pills .nav-link {
-    color: var(--cora-gray);
-    font-weight: 500;
-    border-radius: 8px;
-    transition: all 0.15s ease;
+    color: var(--cora-gray);            /* Texto gris para pestañas inactivas */
+    font-weight: 500;                   /* Peso medio */
+    border-radius: 8px;                 /* Esquinas redondeadas */
+    transition: all 0.15s ease;         /* Transición suave */
 }
 
+/* Hover de las nav-pills */
 .nav-pills .nav-link:hover {
-    color: var(--cora-success);
-    background-color: var(--cora-bg);
+    color: var(--cora-success);         /* Verde al pasar el cursor */
+    background-color: var(--cora-bg);   /* Fondo gris claro */
 }
 
+/* Pestaña activa (y su estado .show cuando se despliega) */
 .nav-pills .nav-link.active,
 .nav-pills .show > .nav-link {
-    background-color: var(--cora-success);
-    color: var(--cora-white);
-    font-weight: 600;
+    background-color: var(--cora-success);   /* Fondo verde para pestaña activa */
+    color: var(--cora-white);                 /* Texto blanco */
+    font-weight: 600;                         /* Semi-negrita para destacar */
 }
 
+/* Iconos dentro de la pestaña activa */
 .nav-pills .nav-link.active i,
 .nav-pills .nav-link.active:hover i {
-    color: var(--cora-white);
+    color: var(--cora-white);                 /* Icono blanco sobre fondo verde */
 }
 
-/* Badges */
+/* =============================================
+   BADGES
+   Etiquetas pequeñas de estado.
+   ============================================= */
 .badge {
-    font-weight: 500;
-    padding: 0.4rem 0.75rem;
-    border-radius: 6px;
-    font-size: 0.75rem;
-    letter-spacing: 0.02em;
+    font-weight: 500;             /* Peso medio del texto */
+    padding: 0.4rem 0.75rem;      /* Espaciado interno cómodo */
+    border-radius: 6px;           /* Esquinas redondeadas */
+    font-size: 0.75rem;           /* Texto pequeño */
+    letter-spacing: 0.02em;       /* Tracking ligeramente ampliado */
 }
 
-.badge.bg-primary { background-color: var(--cora-accent) !important; }
-.badge.bg-success { background-color: var(--cora-success) !important; }
-.badge.bg-warning { background-color: var(--cora-warning) !important; color: var(--cora-dark) !important; }
-.badge.bg-danger  { background-color: var(--cora-accent) !important; }
-.badge.bg-secondary { background-color: var(--cora-gray) !important; }
-.badge.bg-info    { background-color: var(--cora-info) !important; }
+/* Colores de badges según el contexto semántico */
+.badge.bg-primary { background-color: var(--cora-accent) !important; }    /* Primario → rojo acento */
+.badge.bg-success { background-color: var(--cora-success) !important; }   /* Éxito → verde */
+.badge.bg-warning { background-color: var(--cora-warning) !important; color: var(--cora-dark) !important; } /* Advertencia → ámbar con texto oscuro */
+.badge.bg-danger  { background-color: var(--cora-accent) !important; }    /* Peligro → rojo acento */
+.badge.bg-secondary { background-color: var(--cora-gray) !important; }    /* Secundario → gris medio */
+.badge.bg-info    { background-color: var(--cora-info) !important; }      /* Info → azul */
 
-/* Botones */
+/* =============================================
+   BOTONES
+   Estilos base y variantes semánticas.
+   ============================================= */
 .btn {
-    font-weight: 500;
-    border-radius: 8px;
-    padding: 0.5rem 1.25rem;
-    transition: all 0.2s ease;
-    letter-spacing: 0.01em;
+    font-weight: 500;              /* Peso medio del texto */
+    border-radius: 8px;            /* Esquinas redondeadas */
+    padding: 0.5rem 1.25rem;       /* Espaciado interno estándar */
+    transition: all 0.2s ease;     /* Transición suave en hover/focus */
+    letter-spacing: 0.01em;        /* Tracking sutil */
 }
 
+/* Botón primario — rojo acento */
 .btn-primary {
-    background-color: var(--cora-accent);
-    border-color: var(--cora-accent);
-    color: var(--cora-white);
-    --bs-btn-active-bg: #A62641;
-    --bs-btn-active-border-color: #A62641;
-    --bs-btn-active-color: var(--cora-white);
-    --bs-btn-focus-shadow-rgb: 192, 47, 74;
+    background-color: var(--cora-accent);     /* Fondo rojo */
+    border-color: var(--cora-accent);         /* Borde rojo */
+    color: var(--cora-white);                 /* Texto blanco */
+    --bs-btn-active-bg: #A62641;              /* Fondo al hacer click (rojo más oscuro) */
+    --bs-btn-active-border-color: #A62641;    /* Borde al hacer click */
+    --bs-btn-active-color: var(--cora-white); /* Texto al hacer click */
+    --bs-btn-focus-shadow-rgb: 192, 47, 74;   /* Sombra de focus en rgba del rojo acento */
 }
 
+/* Hover del botón primario */
 .btn-primary:hover {
-    background-color: var(--cora-accent);
-    border-color: var(--cora-accent);
-    color: var(--cora-white);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(192, 47, 74, 0.3);
+    background-color: var(--cora-accent);                       /* Mantiene rojo */
+    border-color: var(--cora-accent);                           /* Mantiene rojo */
+    color: var(--cora-white);                                   /* Texto blanco */
+    transform: translateY(-1px);                                /* Ligero levantamiento */
+    box-shadow: 0 4px 12px rgba(192, 47, 74, 0.3);              /* Sombra rojiza */
 }
 
+/* Botón de éxito — verde */
 .btn-success { background-color: var(--cora-success); border-color: var(--cora-success); }
-.btn-success:hover { background-color: #3D7349; border-color: #3D7349; }
+.btn-success:hover { background-color: #3D7349; border-color: #3D7349; }  /* Verde más oscuro al hover */
+
+/* Botón peligro — rojo acento */
 .btn-danger  { background-color: var(--cora-accent); border-color: var(--cora-accent); }
-.btn-danger:hover { background-color: #A62641; border-color: #A62641; }
+.btn-danger:hover { background-color: #A62641; border-color: #A62641; }   /* Rojo más oscuro al hover */
+
+/* Botón advertencia — ámbar */
 .btn-warning { background-color: var(--cora-warning); border-color: var(--cora-warning); color: var(--cora-dark); }
 
+/* Botón outline primario — borde rojo, fondo transparente */
 .btn-outline-primary {
-    color: var(--cora-accent);
-    border-color: var(--cora-accent);
-    --bs-btn-active-bg: #A62641;
-    --bs-btn-active-border-color: #A62641;
-    --bs-btn-active-color: var(--cora-white);
-    --bs-btn-focus-shadow-rgb: 192, 47, 74;
+    color: var(--cora-accent);                /* Texto rojo */
+    border-color: var(--cora-accent);         /* Borde rojo */
+    --bs-btn-active-bg: #A62641;              /* Fondo al click */
+    --bs-btn-active-border-color: #A62641;    /* Borde al click */
+    --bs-btn-active-color: var(--cora-white); /* Texto al click */
+    --bs-btn-focus-shadow-rgb: 192, 47, 74;   /* Sombra de focus */
 }
 
+/* Hover del outline primario */
 .btn-outline-primary:hover {
-    background-color: var(--cora-accent);
-    border-color: var(--cora-accent);
-    color: var(--cora-white);
+    background-color: var(--cora-accent);     /* Rellena de rojo */
+    border-color: var(--cora-accent);         /* Mantiene borde rojo */
+    color: var(--cora-white);                 /* Texto blanco */
 }
 
+/* Botón outline secundario — gris claro */
 .btn-outline-secondary {
-    color: var(--cora-gray);
-    border-color: var(--cora-gray-light);
+    color: var(--cora-gray);                  /* Texto gris */
+    border-color: var(--cora-gray-light);     /* Borde gris claro */
 }
 
+/* Hover del outline secundario */
 .btn-outline-secondary:hover {
-    background-color: var(--cora-gray);
-    border-color: var(--cora-gray);
-    color: var(--cora-white);
+    background-color: var(--cora-gray);       /* Rellena de gris medio */
+    border-color: var(--cora-gray);           /* Borde gris medio */
+    color: var(--cora-white);                 /* Texto blanco */
 }
 
+/* Botón secundario sólido */
 .btn-secondary {
-    background-color: var(--cora-gray);
-    border-color: var(--cora-gray);
+    background-color: var(--cora-gray);       /* Fondo gris medio */
+    border-color: var(--cora-gray);           /* Borde gris medio */
 }
 
+/* Botón outline info — azul */
 .btn-outline-info {
-    color: var(--cora-info);
-    border-color: var(--cora-info);
+    color: var(--cora-info);                  /* Texto azul */
+    border-color: var(--cora-info);           /* Borde azul */
 }
 
+/* Hover del outline info */
 .btn-outline-info:hover {
-    background-color: var(--cora-info);
-    border-color: var(--cora-info);
-    color: var(--cora-white);
-    --bs-btn-active-bg: #506d92;
-    --bs-btn-active-border-color: #506d92;
-    --bs-btn-active-color: var(--cora-white);
+    background-color: var(--cora-info);       /* Rellena de azul */
+    border-color: var(--cora-info);           /* Borde azul */
+    color: var(--cora-white);                 /* Texto blanco */
+    --bs-btn-active-bg: #506d92;              /* Fondo al click (azul más oscuro) */
+    --bs-btn-active-border-color: #506d92;    /* Borde al click */
+    --bs-btn-active-color: var(--cora-white); /* Texto al click */
 }
 
+/* Botón outline success — verde */
 .btn-outline-success {
-    color: var(--cora-success);
-    border-color: var(--cora-success);
+    color: var(--cora-success);               /* Texto verde */
+    border-color: var(--cora-success);        /* Borde verde */
 }
 
+/* Hover del outline success */
 .btn-outline-success:hover {
-    background-color: var(--cora-success);
-    border-color: var(--cora-success);
-    color: var(--cora-white);
+    background-color: var(--cora-success);    /* Rellena de verde */
+    border-color: var(--cora-success);        /* Borde verde */
+    color: var(--cora-white);                 /* Texto blanco */
 }
 
+/* Botón outline danger — rojo acento */
 .btn-outline-danger {
-    color: var(--cora-accent);
-    border-color: var(--cora-accent);
+    color: var(--cora-accent);                /* Texto rojo */
+    border-color: var(--cora-accent);         /* Borde rojo */
 }
 
+/* Hover del outline danger */
 .btn-outline-danger:hover {
-    background-color: var(--cora-accent);
-    border-color: var(--cora-accent);
-    color: var(--cora-white);
+    background-color: var(--cora-accent);     /* Rellena de rojo */
+    border-color: var(--cora-accent);         /* Borde rojo */
+    color: var(--cora-white);                 /* Texto blanco */
 }
 
-/* Cards */
+/* =============================================
+   CARDS
+   Tarjetas contenedoras de contenido.
+   ============================================= */
 .card {
-    background-color: var(--cora-white);
-    border: 1px solid var(--cora-gray-light);
-    border-radius: 12px;
-    box-shadow: 0 1px 4px rgba(31, 35, 40, 0.06);
-    transition: all 0.2s ease;
+    background-color: var(--cora-white);                    /* Fondo blanco */
+    border: 1px solid var(--cora-gray-light);               /* Borde gris claro */
+    border-radius: 12px;                                    /* Esquinas redondeadas */
+    box-shadow: 0 1px 4px rgba(31, 35, 40, 0.06);           /* Sombra muy sutil */
+    transition: all 0.2s ease;                              /* Transición suave */
 }
 
+/* Hover del card — sombra más pronunciada */
 .card:hover {
-    box-shadow: 0 6px 20px rgba(31, 35, 40, 0.1);
+    box-shadow: 0 6px 20px rgba(31, 35, 40, 0.1);           /* Eleva visualmente la card */
 }
 
+/* Encabezado del card */
 .card-header {
-    background-color: var(--cora-white);
-    border-bottom: 1px solid var(--cora-gray-light);
-    border-radius: 12px 12px 0 0 !important;
-    padding: 1rem 1.25rem;
-    font-weight: 600;
-    color: var(--cora-dark);
+    background-color: var(--cora-white);                    /* Fondo blanco */
+    border-bottom: 1px solid var(--cora-gray-light);        /* Separador inferior gris claro */
+    border-radius: 12px 12px 0 0 !important;                /* Solo esquinas superiores redondeadas */
+    padding: 1rem 1.25rem;                                  /* Espaciado interno */
+    font-weight: 600;                                       /* Semi-negrita */
+    color: var(--cora-dark);                                /* Texto oscuro */
 }
 
-.card-body { padding: 1.25rem; }
+/* Cuerpo del card */
+.card-body { padding: 1.25rem; }                            /* Padding uniforme para contenido */
 
+/* Pie del card */
 .card-footer {
-    background-color: var(--cora-bg);
-    border-top: 1px solid var(--cora-gray-light);
-    padding: 0.75rem 1.25rem;
-    border-radius: 0 0 12px 12px !important;
+    background-color: var(--cora-bg);                       /* Fondo gris claro */
+    border-top: 1px solid var(--cora-gray-light);           /* Separador superior */
+    padding: 0.75rem 1.25rem;                               /* Espaciado interno */
+    border-radius: 0 0 12px 12px !important;                /* Solo esquinas inferiores redondeadas */
 }
 
-/* Tablas */
+/* =============================================
+   TABLAS
+   Estilos base para tablas del sistema.
+   ============================================= */
 .table {
-    color: var(--cora-dark);
-    margin-bottom: 0;
+    color: var(--cora-dark);       /* Texto oscuro en celdas */
+    margin-bottom: 0;              /* Elimina margen inferior por defecto de Bootstrap */
 }
 
+/* Encabezados de tabla */
 .table thead th {
-    background-color: var(--cora-bg);
-    color: var(--cora-gray);
-    font-weight: 600;
-    font-size: 0.8rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    border-bottom: 1px solid var(--cora-gray-light);
-    padding: 0.9rem 1rem;
+    background-color: var(--cora-bg);              /* Fondo gris claro */
+    color: var(--cora-gray);                       /* Texto gris medio */
+    font-weight: 600;                              /* Semi-negrita */
+    font-size: 0.8rem;                             /* Texto pequeño */
+    text-transform: uppercase;                     /* Todo en MAYÚSCULAS */
+    letter-spacing: 0.05em;                        /* Tracking amplio */
+    border-bottom: 1px solid var(--cora-gray-light);  /* Borde inferior */
+    padding: 0.9rem 1rem;                          /* Espaciado interno amplio */
 }
 
+/* Celdas del cuerpo */
 .table tbody td {
-    padding: 0.9rem 1rem;
-    border-bottom: 1px solid var(--cora-gray-light);
-    vertical-align: middle;
+    padding: 0.9rem 1rem;                          /* Espaciado interno uniforme */
+    border-bottom: 1px solid var(--cora-gray-light);  /* Separador entre filas */
+    vertical-align: middle;                        /* Alineación vertical centrada */
 }
 
+/* Hover de filas */
 .table tbody tr:hover {
-    background-color: var(--cora-bg);
+    background-color: var(--cora-bg);              /* Fondo gris claro al pasar cursor */
 }
 
+/* Última fila sin borde inferior */
 .table tbody tr:last-child td {
-    border-bottom: none;
+    border-bottom: none;                           /* Evita borde duplicado con el footer del card */
 }
 
-/* Alertas */
+/* =============================================
+   ALERTAS
+   Mensajes informativos por color semántico.
+   ============================================= */
 .alert {
-    border: none;
-    border-radius: 10px;
-    padding: 1rem 1.25rem;
-    font-weight: 500;
+    border: none;                 /* Sin borde por defecto */
+    border-radius: 10px;          /* Esquinas redondeadas */
+    padding: 1rem 1.25rem;        /* Espaciado interno */
+    font-weight: 500;             /* Peso medio del texto */
 }
 
+/* Alerta info — azul con borde izquierdo */
 .alert-info {
-    background-color: #E8EEF5;
-    color: var(--cora-info);
-    border-left: 4px solid var(--cora-info);
+    background-color: #E8EEF5;             /* Fondo azul muy claro */
+    color: var(--cora-info);               /* Texto azul */
+    border-left: 4px solid var(--cora-info); /* Barra lateral azul */
 }
 
+/* Alerta success — verde con borde izquierdo */
 .alert-success {
-    background-color: #EAF3EC;
-    color: var(--cora-success);
-    border-left: 4px solid var(--cora-success);
+    background-color: #EAF3EC;             /* Fondo verde muy claro */
+    color: var(--cora-success);            /* Texto verde */
+    border-left: 4px solid var(--cora-success);  /* Barra lateral verde */
 }
 
+/* Alerta warning — ámbar con borde izquierdo */
 .alert-warning {
-    background-color: #FBF4E6;
-    color: #8B6B1F;
-    border-left: 4px solid var(--cora-warning);
+    background-color: #FBF4E6;             /* Fondo ámbar muy claro */
+    color: #8B6B1F;                        /* Texto marrón oscuro para contraste */
+    border-left: 4px solid var(--cora-warning);  /* Barra lateral ámbar */
 }
 
+/* Alerta danger — rojo con borde izquierdo */
 .alert-danger {
-    background-color: #F9E8EC;
-    color: var(--cora-accent);
-    border-left: 4px solid var(--cora-accent);
+    background-color: #F9E8EC;             /* Fondo rojo muy claro */
+    color: var(--cora-accent);             /* Texto rojo */
+    border-left: 4px solid var(--cora-accent);  /* Barra lateral roja */
 }
 
-/* Formularios */
+/* =============================================
+   FORMULARIOS
+   Labels, inputs y selects con estilo unificado.
+   ============================================= */
 .form-label {
-    font-weight: 600;
-    color: var(--cora-dark);
-    font-size: 0.85rem;
-    margin-bottom: 0.4rem;
+    font-weight: 600;             /* Semi-negrita */
+    color: var(--cora-dark);      /* Texto oscuro */
+    font-size: 0.85rem;           /* Tamaño pequeño */
+    margin-bottom: 0.4rem;        /* Separación respecto al input */
 }
 
+/* Inputs y selects */
 .form-control, .form-select {
-    border: 1px solid var(--cora-gray-light);
-    border-radius: 8px;
-    padding: 0.6rem 0.9rem;
-    color: var(--cora-dark);
-    font-size: 0.9rem;
-    transition: all 0.2s ease;
-    background-color: var(--cora-white);
+    border: 1px solid var(--cora-gray-light);     /* Borde gris claro */
+    border-radius: 8px;                           /* Esquinas redondeadas */
+    padding: 0.6rem 0.9rem;                       /* Espaciado interno cómodo */
+    color: var(--cora-dark);                      /* Texto oscuro */
+    font-size: 0.9rem;                            /* Tamaño ligeramente menor al base */
+    transition: all 0.2s ease;                    /* Transición suave */
+    background-color: var(--cora-white);          /* Fondo blanco */
 }
 
+/* Focus de inputs y selects */
 .form-control:focus, .form-select:focus {
-    border-color: var(--cora-accent);
-    box-shadow: 0 0 0 3px rgba(192, 47, 74, 0.1);
-    outline: none;
+    border-color: var(--cora-accent);             /* Borde rojo al enfocar */
+    box-shadow: 0 0 0 3px rgba(192, 47, 74, 0.1); /* Anillo rojo translúcido */
+    outline: none;                                /* Elimina outline del navegador */
 }
 
+/* Placeholder de inputs */
 .form-control::placeholder {
-    color: var(--cora-gray-light);
+    color: var(--cora-gray-light);                /* Texto placeholder gris claro */
 }
 
+/* Inputs readonly y disabled */
 .form-control:read-only, .form-control:disabled {
-    background-color: var(--cora-bg);
-    color: var(--cora-gray);
+    background-color: var(--cora-bg);             /* Fondo gris para distinguirlos */
+    color: var(--cora-gray);                      /* Texto gris atenuado */
 }
 
+/* Checkboxes y radios marcados */
 .form-check-input:checked {
-    background-color: var(--cora-success);
-    border-color: var(--cora-success);
+    background-color: var(--cora-success);        /* Verde cuando marcado */
+    border-color: var(--cora-success);            /* Borde verde */
 }
 
-/* Footer */
+/* =============================================
+   FOOTER
+   Pie de página oscuro.
+   ============================================= */
 .footer {
-    background-color: var(--cora-dark);
-    color: var(--cora-gray-light);
-    padding: 1.5rem 0;
-    margin-top: 3rem;
-    font-size: 0.85rem;
-    position: static;
-    width: 100%;
-    margin-top: auto;
-    flex-shrink: 0;
-    white-space: normal;
-    line-height: 1.6;
+    background-color: var(--cora-dark);            /* Fondo negro suave */
+    color: var(--cora-gray-light);                 /* Texto gris claro */
+    padding: 1.5rem 0;                             /* Espaciado vertical */
+    margin-top: 3rem;                              /* Separación respecto al contenido (sobrescrito abajo) */
+    font-size: 0.85rem;                            /* Texto pequeño */
+    position: static;                              /* Posición estática (no fixed) */
+    width: 100%;                                   /* Ancho completo */
+    margin-top: auto;                              /* Empuja el footer al fondo con flexbox */
+    flex-shrink: 0;                                /* No se encoge cuando el contenido crece */
+    white-space: normal;                           /* Permite saltos de línea */
+    line-height: 1.6;                              /* Altura de línea cómoda */
 }
 
-.footer a { color: var(--cora-gray-light); text-decoration: none; }
-.footer a:hover { color: var(--cora-white); }
+/* Enlaces dentro del footer */
+.footer a { color: var(--cora-gray-light); text-decoration: none; }  /* Gris claro sin subrayado */
+.footer a:hover { color: var(--cora-white); }                        /* Blanco al hover */
 
-/* Paginación */
+/* =============================================
+   PAGINACIÓN
+   ============================================= */
 .pagination .page-link {
-    color: var(--cora-dark);
-    border: 1px solid var(--cora-gray-light);
-    border-radius: 8px;
-    margin: 0 2px;
-    padding: 0.4rem 0.8rem;
-    font-size: 0.85rem;
+    color: var(--cora-dark);                       /* Texto oscuro */
+    border: 1px solid var(--cora-gray-light);      /* Borde gris claro */
+    border-radius: 8px;                            /* Esquinas redondeadas */
+    margin: 0 2px;                                 /* Separación entre botones */
+    padding: 0.4rem 0.8rem;                        /* Espaciado interno */
+    font-size: 0.85rem;                            /* Texto pequeño */
 }
 
+/* Página activa */
 .pagination .page-item.active .page-link {
-    background-color: var(--cora-gray);
-    border-color: var(--cora-gray);
-    color: var(--cora-white);
+    background-color: var(--cora-gray);            /* Fondo gris medio */
+    border-color: var(--cora-gray);                /* Borde gris medio */
+    color: var(--cora-white);                      /* Texto blanco */
 }
 
+/* Hover de los enlaces de paginación */
 .pagination .page-link:hover {
-    background-color: var(--cora-bg);
-    border-color: var(--cora-gray);
-    color: var(--cora-gray);
+    background-color: var(--cora-bg);              /* Fondo gris claro */
+    border-color: var(--cora-gray);                /* Borde gris medio */
+    color: var(--cora-gray);                       /* Texto gris medio */
 }
 
-/* Login Superusuario */
+/* =============================================
+   LOGIN SUPERUSUARIO
+   Tarjeta de login con cabecera de color.
+   ============================================= */
 .login-card {
-    border-radius: 16px;
-    overflow: hidden;
-    box-shadow: 0 10px 40px rgba(31, 35, 40, 0.15);
+    border-radius: 16px;                          /* Esquinas más redondeadas */
+    overflow: hidden;                             /* Recorta el contenido dentro de las esquinas */
+    box-shadow: 0 10px 40px rgba(31, 35, 40, 0.15);  /* Sombra elevada */
 }
 
+/* Cabecera del login */
 .login-header {
-    background: linear-gradient(135deg, var(--cora-accent) 0%);
-    color: var(--cora-white);
-    padding: 2rem;
-    text-align: center;
+    background: linear-gradient(135deg, var(--cora-accent) 0%);  /* Gradiente (solo primer color aquí) */
+    color: var(--cora-white);                                    /* Texto blanco */
+    padding: 2rem;                                               /* Espaciado amplio */
+    text-align: center;                                          /* Centrado horizontal */
 }
 
-.login-header i { font-size: 3rem; margin-bottom: 0.5rem; }
-.login-body { padding: 2rem; background-color: var(--cora-white); }
+/* Icono del login */
+.login-header i { font-size: 3rem; margin-bottom: 0.5rem; }      /* Icono grande con separación inferior */
 
-/* Árbol de permisos */
-.permiso-nodo { padding: 0.3rem 0; }
-.permiso-nodo .form-check { padding-left: 1.75em; }
-.form-check-input { border-color: var(--cora-gray-light); }
+/* Cuerpo del login */
+.login-body { padding: 2rem; background-color: var(--cora-white); }  /* Fondo blanco con padding */
+
+/* =============================================
+   ÁRBOL DE PERMISOS
+   Nodos con checkbox + label.
+   ============================================= */
+.permiso-nodo { padding: 0.3rem 0; }                       /* Espaciado vertical por nodo */
+.permiso-nodo .form-check { padding-left: 1.75em; }        /* Indentación del checkbox respecto al borde */
+.form-check-input { border-color: var(--cora-gray-light); } /* Borde gris claro por defecto */
+
+/* Focus del checkbox */
 .form-check-input:focus {
-    box-shadow: 0 0 0 3px rgba(192, 47, 74, 0.1);
-    border-color: var(--cora-accent);
+    box-shadow: 0 0 0 3px rgba(192, 47, 74, 0.1);          /* Anillo rojo translúcido */
+    border-color: var(--cora-accent);                      /* Borde rojo */
 }
 
-/* Modales */
+/* =============================================
+   MODALES
+   ============================================= */
 .modal-content {
-    border: none;
-    border-radius: 12px;
-    box-shadow: 0 20px 60px rgba(31, 35, 40, 0.2);
+    border: none;                                /* Sin borde */
+    border-radius: 12px;                         /* Esquinas redondeadas */
+    box-shadow: 0 20px 60px rgba(31, 35, 40, 0.2);  /* Sombra profunda */
 }
 
+/* Cabecera del modal */
 .modal-header {
-    border-bottom: 1px solid var(--cora-gray-light);
-    padding: 1.25rem 1.5rem;
-    border-radius: 12px 12px 0 0;
+    border-bottom: 1px solid var(--cora-gray-light);  /* Separador inferior */
+    padding: 1.25rem 1.5rem;                          /* Espaciado interno */
+    border-radius: 12px 12px 0 0;                     /* Esquinas superiores redondeadas */
 }
 
+/* Cabecera primaria (fondo rojo, texto blanco) */
 .modal-header.bg-primary {
-    background-color: var(--cora-accent) !important;
-    color: var(--cora-white);
+    background-color: var(--cora-accent) !important;  /* Fondo rojo */
+    color: var(--cora-white);                         /* Texto blanco */
 }
 
-.modal-body { padding: 1.5rem; }
+/* Cuerpo del modal */
+.modal-body { padding: 1.5rem; }                      /* Padding uniforme */
+
+/* Pie del modal */
 .modal-footer {
-    border-top: 1px solid var(--cora-gray-light);
-    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--cora-gray-light);     /* Separador superior */
+    padding: 1rem 1.5rem;                             /* Espaciado interno */
 }
 
-/* Progress bars */
-.progress { background-color: var(--cora-bg); border-radius: 8px; height: 25px; }
-.progress-bar { background-color: var(--cora-accent); font-size: 0.8rem; font-weight: 600; }
+/* =============================================
+   PROGRESS BARS
+   ============================================= */
+.progress { background-color: var(--cora-bg); border-radius: 8px; height: 25px; }  /* Pista gris con altura fija */
+.progress-bar { background-color: var(--cora-accent); font-size: 0.8rem; font-weight: 600; }  /* Barra roja con texto destacado */
 
-/* List group */
+/* =============================================
+   LIST GROUP
+   ============================================= */
 .list-group-item {
-    border-color: var(--cora-gray-light);
-    padding: 1rem 1.25rem;
+    border-color: var(--cora-gray-light);         /* Borde gris claro */
+    padding: 1rem 1.25rem;                        /* Espaciado interno */
 }
 
-.list-group-item.bg-light { background-color: var(--cora-bg) !important; }
+/* Item con fondo claro */
+.list-group-item.bg-light { background-color: var(--cora-bg) !important; }  /* Forzar gris claro */
 
-/* Código */
+/* =============================================
+   CÓDIGO
+   ============================================= */
 code {
-    color: var(--cora-accent);
-    background-color: var(--cora-bg);
-    padding: 0.15rem 0.4rem;
-    border-radius: 4px;
-    font-size: 0.85rem;
-    font-weight: 500;
+    color: var(--cora-accent);                    /* Texto rojo */
+    background-color: var(--cora-bg);             /* Fondo gris claro */
+    padding: 0.15rem 0.4rem;                      /* Espaciado interno compacto */
+    border-radius: 4px;                           /* Esquinas redondeadas */
+    font-size: 0.85rem;                           /* Texto pequeño */
+    font-weight: 500;                             /* Peso medio */
 }
 
-/* Iconos */
-.bi { vertical-align: middle; }
+/* =============================================
+   ICONOS
+   ============================================= */
+.bi { vertical-align: middle; }                    /* Alineación vertical de iconos Bootstrap Icons */
 
-/* Animaciones */
+/* =============================================
+   ANIMACIONES
+   ============================================= */
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(8px); }
-    to   { opacity: 1; transform: translateY(0); }
+    from { opacity: 0; transform: translateY(8px); }  /* Inicio: invisible, desplazado hacia abajo */
+    to   { opacity: 1; transform: translateY(0); }    /* Fin: visible, en posición original */
 }
 
+/* Aplicar fadeIn a los contenedores principales al cargar */
 .container-fluid, .container { animation: fadeIn 0.3s ease-in; }
 
-/* Scrollbar */
-::-webkit-scrollbar { width: 8px; height: 8px; }
-::-webkit-scrollbar-track { background: var(--cora-bg); }
-::-webkit-scrollbar-thumb { background: var(--cora-gray-light); border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: var(--cora-gray); }
+/* =============================================
+   SCROLLBAR
+   Personalización del scroll del navegador.
+   ============================================= */
+::-webkit-scrollbar { width: 8px; height: 8px; }                    /* Ancho de la barra vertical y horizontal */
+::-webkit-scrollbar-track { background: var(--cora-bg); }           /* Pista gris claro */
+::-webkit-scrollbar-thumb { background: var(--cora-gray-light); border-radius: 4px; }  /* Pulgar gris claro redondeado */
+::-webkit-scrollbar-thumb:hover { background: var(--cora-gray); }   /* Pulgar gris medio al hover */
 
-/* Responsive */
+/* =============================================
+   RESPONSIVE
+   Ajustes para móviles (≤768px).
+   ============================================= */
 @media (max-width: 768px) {
-    h1 { font-size: 1.5rem; }
-    h2 { font-size: 1.25rem; }
+    h1 { font-size: 1.5rem; }                    /* Reduce h1 en móvil */
+    h2 { font-size: 1.25rem; }                   /* Reduce h2 en móvil */
 
-    .card-body { padding: 1rem; }
+    .card-body { padding: 1rem; }                /* Padding más compacto */
 
+    /* Reduce padding y tamaño de fuente en tablas */
     .table thead th,
     .table tbody td {
         padding: 0.6rem 0.5rem;
@@ -529,217 +653,260 @@ code {
    SWCORA - Estilos adicionales
    ============================================= */
 
+/* Checkbox indeterminado (padres de árbol de permisos) */
 .permiso-nodo input[type="checkbox"]:indeterminate {
-    background-color: var(--cora-accent);
-    border-color: var(--cora-accent);
+    background-color: var(--cora-accent);        /* Fondo rojo */
+    border-color: var(--cora-accent);            /* Borde rojo */
 }
 
-#modalTiposEmpresa .table { font-size: 0.9rem; }
-#modalTiposEmpresa .table td { vertical-align: middle; }
+/* Tabla dentro del modal de tipos de empresa */
+#modalTiposEmpresa .table { font-size: 0.9rem; }              /* Texto ligeramente menor */
+#modalTiposEmpresa .table td { vertical-align: middle; }      /* Alineación vertical centrada */
 
-.modal .modal { z-index: 1060; }
+/* Modales anidados (sub-modal dentro de un modal) */
+.modal .modal { z-index: 1060; }                              /* Z-index mayor para superponerse */
 
-.select-with-action { display: flex; gap: 0.5rem; }
-.select-with-action .form-select { flex: 1; }
+/* Grupo de select + botón de acción a la derecha */
+.select-with-action { display: flex; gap: 0.5rem; }           /* Layout horizontal con separación */
+.select-with-action .form-select { flex: 1; }                 /* El select ocupa el espacio disponible */
 
-.card-border-left { border-left: 4px solid var(--cora-accent); }
-.card-border-left-warning { border-left: 4px solid var(--cora-warning); }
-.card-border-left-success { border-left: 4px solid var(--cora-success); }
-.card-border-left-info { border-left: 4px solid var(--cora-info); }
+/* Bordes de color a la izquierda del card (por tipo) */
+.card-border-left { border-left: 4px solid var(--cora-accent); }         /* Rojo acento */
+.card-border-left-warning { border-left: 4px solid var(--cora-warning); } /* Ámbar */
+.card-border-left-success { border-left: 4px solid var(--cora-success); } /* Verde */
+.card-border-left-info { border-left: 4px solid var(--cora-info); }       /* Azul */
 
+/* Contenedor del árbol de permisos */
 .tree-container {
-    max-height: 400px;
-    overflow-y: auto;
-    background-color: var(--cora-bg);
-    border: 1px solid var(--cora-gray-light);
-    border-radius: 8px;
-    padding: 1rem;
+    max-height: 400px;                        /* Altura máxima con scroll interno */
+    overflow-y: auto;                         /* Scroll vertical si es necesario */
+    background-color: var(--cora-bg);         /* Fondo gris claro */
+    border: 1px solid var(--cora-gray-light); /* Borde gris claro */
+    border-radius: 8px;                       /* Esquinas redondeadas */
+    padding: 1rem;                            /* Espaciado interno */
 }
 
+/* Listas dentro del árbol (sin viñetas) */
 .tree-container ul { list-style: none; padding-left: 1.25rem; margin: 0; }
 .tree-container li { padding: 0.15rem 0; list-style: none; }
 
-tr.selected { background-color: rgba(192, 47, 74, 0.05) !important; }
+/* Fila seleccionada (ej. selección en tabla) */
+tr.selected { background-color: rgba(192, 47, 74, 0.05) !important; }  /* Rojo muy translúcido */
 
-/* Sticky footer */
+/* Sticky footer — mantiene el footer al fondo */
 body > header,
 body > .container,
 body > .container-fluid,
-body > main { flex: 0 0 auto; }
+body > main { flex: 0 0 auto; }               /* No crecen ni se encogen */
 
-body > .footer { margin-top: auto; }
+body > .footer { margin-top: auto; }          /* Empuja el footer al fondo del viewport */
 
 /* =============================================
    Formulario de Salida - Layout 2 columnas (30/70 invertido)
-   Variante para admin-usuarios: filtros a la izquierda, tabla a la derecha
+   Filtros a la izquierda, tabla a la derecha.
    ============================================= */
 .salida-form-grid-invertido {
-    display: grid;
-    grid-template-columns: 2.5fr 7.5fr;
-    gap: 1.5rem;
-    align-items: start;
+    display: grid;                            /* Grid layout */
+    grid-template-columns: 2.5fr 7.5fr;      /* 25% filtros + 75% tabla */
+    gap: 1.5rem;                              /* Separación entre columnas */
+    align-items: start;                       /* Alineación al top de las columnas */
 }
 
+/* Columnas internas del grid invertido */
 .salida-form-grid-invertido .col-izquierda,
 .salida-form-grid-invertido .col-derecha {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    min-width: 0;
+    display: flex;                            /* Flexbox vertical dentro de cada columna */
+    flex-direction: column;                   /* Apila los cards verticalmente */
+    gap: 1.5rem;                              /* Separación entre cards */
+    min-width: 0;                             /* Permite que el contenido encoja sin desbordar */
 }
 
-/* Responsive: en pantallas pequeñas se apila (filtros arriba, usuarios abajo) */
+/* Responsive: apila las columnas en pantallas pequeñas */
 @media (max-width: 992px) {
     .salida-form-grid-invertido {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr;           /* Una sola columna apilada */
     }
 }
 
-/* Formulario de Salida - Layout 2 columnas (70/30) */
+/* =============================================
+   Formulario de Salida - Layout 2 columnas (70/30)
+   Contenido principal a la izquierda, acordeón a la derecha.
+   ============================================= */
 .salida-form-grid {
-    display: grid;
-    grid-template-columns: 7fr 3fr;
-    gap: 1.5rem;
-    align-items: stretch;
-    min-height: 500px;
+    display: grid;                            /* Grid layout */
+    grid-template-columns: 7fr 3fr;           /* 70% izquierda + 30% derecha */
+    gap: 1.5rem;                              /* Separación entre columnas */
+    align-items: stretch;                     /* Estira verticalmente las columnas */
+    min-height: 500px;                        /* Altura mínima para equilibrar */
 }
 
+/* Columnas internas del grid principal */
 .salida-form-grid .col-left,
 .salida-form-grid .col-right {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    min-width: 0;
+    display: flex;                            /* Flexbox vertical */
+    flex-direction: column;                   /* Apila los cards */
+    gap: 1.5rem;                              /* Separación entre cards */
+    min-width: 0;                             /* Permite encoger el contenido */
 }
 
-.salida-form-grid .col-right { justify-content: flex-start; }
+.salida-form-grid .col-right { justify-content: flex-start; }  /* Alinea contenido al top */
 
-/* Mi Perfil - Layout 2 columnas (60/40) */
+/* =============================================
+   Mi Perfil - Layout 2 columnas (60/40)
+   ============================================= */
 .perfil-form-grid {
-    display: grid;
-    grid-template-columns: 6fr 4fr;
-    gap: 1.5rem;
-    align-items: start;
+    display: grid;                            /* Grid layout */
+    grid-template-columns: 6fr 4fr;           /* 60% izquierda + 40% derecha */
+    gap: 1.5rem;                              /* Separación */
+    align-items: start;                       /* Alinea al top */
 }
 
+/* Columnas internas del perfil */
 .perfil-form-grid .perfil-col-left,
 .perfil-form-grid .perfil-col-right {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    min-width: 0;
+    display: flex;                            /* Flex vertical */
+    flex-direction: column;                   /* Apila cards */
+    gap: 1.5rem;                              /* Separación */
+    min-width: 0;                             /* Permite encoger */
 }
 
-.perfil-form-grid .card { margin-bottom: 0; }
+.perfil-form-grid .card { margin-bottom: 0; } /* Anula margen por defecto */
 
+/* Responsive del perfil */
 @media (max-width: 992px) {
-    .perfil-form-grid { grid-template-columns: 1fr; }
-    .salida-form-grid { grid-template-columns: 1fr; min-height: auto; }
+    .perfil-form-grid { grid-template-columns: 1fr; }              /* Apila columnas */
+    .salida-form-grid { grid-template-columns: 1fr; min-height: auto; }  /* Apila y quita altura mínima */
 }
 
-/* Cards plegables */
+/* =============================================
+   Cards plegables
+   ============================================= */
 .card-collapsible .card-header {
-    cursor: pointer;
-    user-select: none;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    transition: background-color 0.15s ease;
+    cursor: pointer;                          /* Cursor de mano (clickeable) */
+    user-select: none;                        /* Evita seleccionar texto al hacer doble click */
+    display: flex;                            /* Flex para distribuir título y flecha */
+    justify-content: space-between;           /* Título a la izquierda, flecha a la derecha */
+    align-items: center;                      /* Centrado vertical */
+    transition: background-color 0.15s ease;  /* Transición de fondo al hover */
 }
 
-.card-collapsible .card-header:hover { background-color: var(--cora-bg); }
+.card-collapsible .card-header:hover { background-color: var(--cora-bg); }  /* Fondo gris claro al hover */
 
+/* Icono de flecha dentro del header */
 .card-collapsible .card-header .toggle-icon {
-    transition: transform 0.25s ease;
-    color: var(--cora-gray);
-    font-size: 0.9rem;
+    transition: transform 0.25s ease;         /* Transición al rotar la flecha */
+    color: var(--cora-gray);                  /* Color gris */
+    font-size: 0.9rem;                        /* Tamaño pequeño */
 }
 
-.card-collapsible.collapsed .card-header .toggle-icon { transform: rotate(-90deg); }
+/* Rotación de la flecha cuando está colapsado */
+.card-collapsible.collapsed .card-header .toggle-icon { transform: rotate(-90deg); }  /* Gira -90° */
 
+/* Contenedor del cuerpo colapsable */
 .card-collapsible .card-body-wrapper {
-    overflow: hidden;
-    transition: max-height 0.3s ease, opacity 0.2s ease;
-    max-height: 2000px;
-    opacity: 1;
+    overflow: hidden;                         /* Oculta el contenido al colapsar */
+    transition: max-height 0.3s ease, opacity 0.2s ease;  /* Transición de alto y opacidad */
+    max-height: 2000px;                       /* Altura máxima abierto (para animación) */
+    opacity: 1;                               /* Totalmente visible cuando abierto */
 }
 
-.card-collapsible.collapsed .card-body-wrapper { max-height: 0; opacity: 0; }
+/* Estado colapsado del card */
+.card-collapsible.collapsed .card-body-wrapper { max-height: 0; opacity: 0; }  /* Contrae y oculta */
 
-/* Submenús anidados */
-.dropdown-submenu { position: relative; }
+/* =============================================
+   Submenús anidados en el navbar
+   ============================================= */
+.dropdown-submenu { position: relative; }     /* Posición relativa para posicionar el submenú absoluto */
 
+/* Submenú anidado — a la derecha del item padre */
 .dropdown-submenu > .dropdown-menu {
-    top: 0;
-    left: 100%;
-    margin-top: -0.5rem;
-    margin-left: 0.1rem;
-    border-radius: 10px;
-    box-shadow: 0 4px 20px rgba(31, 35, 40, 0.12);
+    top: 0;                                   /* Alineado arriba con el item padre */
+    left: 100%;                               /* Aparece a la derecha */
+    margin-top: -0.5rem;                      /* Ajuste fino vertical */
+    margin-left: 0.1rem;                      /* Separación mínima */
+    border-radius: 10px;                      /* Esquinas redondeadas */
+    box-shadow: 0 4px 20px rgba(31, 35, 40, 0.12);  /* Sombra elevada */
 }
 
+/* Mostrar el submenú al pasar el cursor (desktop) */
 .dropdown-submenu:hover > .dropdown-menu { display: block; }
 
+/* Flecha indicadora en items con submenú */
 .dropdown-submenu > .dropdown-item::after {
-    content: "\F285";
-    font-family: "bootstrap-icons";
-    position: absolute;
-    right: 1rem;
-    font-size: 0.75rem;
-    color: var(--cora-gray);
+    content: "\F285";                         /* Código Unicode de la flecha (Bootstrap Icons) */
+    font-family: "bootstrap-icons";           /* Fuente de iconos */
+    position: absolute;                       /* Posicionamiento absoluto respecto al item */
+    right: 1rem;                              /* Alineada a la derecha */
+    font-size: 0.75rem;                       /* Tamaño pequeño */
+    color: var(--cora-gray);                  /* Color gris */
 }
 
+/* Evita la flecha doble cuando el item usa .dropdown-toggle */
 .dropdown-submenu > .dropdown-item.dropdown-toggle::after { display: none; }
 
+/* Responsive del submenú en móvil */
 @media (max-width: 576px) {
     .dropdown-submenu > .dropdown-menu {
-        position: static;
-        margin-left: 1rem;
-        border: none;
-        box-shadow: none;
-        background-color: transparent;
+        position: static;                     /* Quita posicionamiento absoluto */
+        margin-left: 1rem;                    /* Indentación simple */
+        border: none;                         /* Sin borde */
+        box-shadow: none;                     /* Sin sombra */
+        background-color: transparent;        /* Fondo transparente */
     }
 }
 
-/* Árbol de permisos: plegado individual */
-#arbolPermisos ul.nodo-colapsado { display: none; }
+/* =============================================
+   Árbol de permisos: plegado individual
+   ============================================= */
+#arbolPermisos ul.nodo-colapsado { display: none; }  /* Oculta sublistas colapsadas */
 
+/* Icono de plegado (caret) */
 #arbolPermisos .toggle-nodo {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 1.25rem;
-    height: 1.25rem;
-    margin-right: 0.35rem;
-    cursor: pointer;
-    color: var(--cora-gray);
-    font-size: 0.7rem;
-    vertical-align: middle;
-    user-select: none;
-    transition: color 0.15s ease;
+    display: inline-flex;                    /* Permite centrar el icono */
+    align-items: center;                     /* Centrado vertical */
+    justify-content: center;                 /* Centrado horizontal */
+    width: 1.25rem;                          /* Ancho fijo */
+    height: 1.25rem;                         /* Alto fijo */
+    margin-right: 0.35rem;                   /* Separación con el checkbox */
+    cursor: pointer;                         /* Cursor de mano */
+    color: var(--cora-gray);                 /* Color gris */
+    font-size: 0.7rem;                       /* Icono pequeño */
+    vertical-align: middle;                  /* Alineación con el texto */
+    user-select: none;                       /* No seleccionable */
+    transition: color 0.15s ease;            /* Transición de color */
 }
 
-#arbolPermisos .toggle-nodo:hover { color: var(--cora-accent); }
+/* Hover del caret */
+#arbolPermisos .toggle-nodo:hover { color: var(--cora-accent); }  /* Rojo al hover */
+
+/* Transición de rotación del icono */
 #arbolPermisos .toggle-nodo i { transition: transform 0.2s ease; }
+
+/* Estado colapsado: flecha apuntando a la derecha */
 #arbolPermisos .toggle-nodo.colapsado i { transform: rotate(0deg); }
+
+/* Estado expandido: flecha apuntando hacia abajo */
 #arbolPermisos .toggle-nodo:not(.colapsado) i { transform: rotate(90deg); }
 
+/* Placeholder invisible (nodos hoja sin hijos) */
 #arbolPermisos .toggle-nodo.placeholder {
-    cursor: default;
-    pointer-events: none;
-    visibility: hidden;
+    cursor: default;                          /* Sin cursor de mano */
+    pointer-events: none;                     /* No clickeable */
+    visibility: hidden;                       /* Oculto visualmente pero ocupa espacio */
 }
 
+/* Alineación del form-check dentro del <li> */
 #arbolPermisos li > .form-check {
-    display: inline-flex;
-    align-items: center;
-    vertical-align: middle;
+    display: inline-flex;                     /* Flex inline */
+    align-items: center;                      /* Centrado vertical */
+    vertical-align: middle;                   /* Alineación con el resto del texto */
 }
 
+/* Checkbox dentro del form-check */
 #arbolPermisos li > .form-check .form-check-input {
-    margin-top: 0;
-    margin-right: 0.4rem;
+    margin-top: 0;                            /* Sin margen superior */
+    margin-right: 0.4rem;                     /* Separación con la etiqueta */
 }
 
+/* Cursor pointer en la etiqueta */
 #arbolPermisos li > .form-check .form-check-label { cursor: pointer; }
-

@@ -4,29 +4,47 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Salidas de Material - SWCORA</title>
+
+    <!-- HOJAS DE ESTILO -->
+    <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Estilos CSS -->
     <link rel="stylesheet" href="../css/styles.css">
 </head>
+
+<!-- BODY DE LA PÁGINA -->
 <body>
+    <!-- HEADER / NAVBAR -->
     <header>
         <nav class="navbar navbar-expand-sm">
             <div class="container-fluid">
+
+                <!-- logo y nombre -->
                 <a class="navbar-brand" href="index.html"><i class="bi bi-lightning-charge-fill"></i> SWCORA</a>
+
+                <!-- Botón hamburguesa -->
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
                     <span class="navbar-toggler-icon"></span>
                 </button>
+
+                <!-- CONTENIDO COLAPSABLE DEL NAVBAR -->
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
+
+                        <!-- ITEM: INICIO -->
                         <li class="nav-item"><a class="nav-link" href="index.html"><i class="bi bi-house-door"></i> Inicio</a></li>
 
+                        <!-- ITEM: MÓDULOS (activo) -->
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle active" href="#" role="button" data-bs-toggle="dropdown"><i class="bi bi-box-seam"></i> Módulos</a>
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="salidas-index.html"><i class="bi bi-clipboard-check"></i> Salidas de Material</a></li>
                             </ul>
                         </li>
-                        
+
+                        <!-- ITEM: ACCESO A MÓDULOS -->
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="bi bi-key"></i> Acceso a Módulos</a>
                             <ul class="dropdown-menu">
@@ -35,21 +53,37 @@
                             </ul>
                         </li>
                     </ul>
+
+                    <!-- MENÚ SECUNDARIO (derecha) -->
                     <ul class="navbar-nav">
+
+                        <!-- ITEM: NOTIFICACIONES -->
                         <li class="nav-item">
                             <a class="nav-link position-relative" href="notificaciones.html">
                                 <i class="bi bi-bell"></i>
+                                <!-- Badge rojo con contador de notificaciones no leídas -->
                                 <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">3</span>
                             </a>
                         </li>
+
+                        <!-- ITEM: MENÚ DE USUARIO -->
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <a class="nav-link dropdown-toggle"
+                                href="#"
+                                role="button"
+                                data-bs-toggle="dropdown">
                                 <i class="bi bi-person-circle"></i> Juan Pérez
                             </a>
+
                             <ul class="dropdown-menu dropdown-menu-end">
+                                <!-- Enlaces del perfil -->
                                 <li><a class="dropdown-item" href="mi-perfil.html"><i class="bi bi-person"></i> Mi perfil</a></li>
                                 <li><a class="dropdown-item" href="configuracion.html"><i class="bi bi-gear"></i> Configuración</a></li>
+
+                                <!-- Separador antes de cerrar sesión -->
                                 <li><hr class="dropdown-divider"></li>
+
+                                <!-- Acción: cerrar sesión (redirige al login raíz) -->
                                 <li><a class="dropdown-item text-danger" href="../index.html"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</a></li>
                             </ul>
                         </li>
@@ -59,39 +93,45 @@
         </nav>
     </header>
 
+    <!-- CONTENIDO PRINCIPAL -->
     <div class="container-fluid mt-4">
+
+        <!-- ENCABEZADO + BOTÓN NUEVA SALIDA -->
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2><i class="bi bi-clipboard-check"></i> Salidas de Material</h2>
             <div>
+                <!-- Redirige al formulario de creación -->
                 <a href="salidas-crear.html" class="btn btn-success">
                     <i class="bi bi-plus-circle"></i> Nueva Salida
                 </a>
             </div>
         </div>
 
-        <!-- ============================================= -->
-        <!-- GRID 30/70 INVERTIDO: Filtros izq / Salidas der -->
-        <!-- ============================================= -->
+        <!-- GRID 30/70 INVERTIDO: filtros izq / tabla der -->
         <div class="salida-form-grid-invertido">
 
-            <!-- ============================================= -->
-            <!-- COLUMNA IZQUIERDA (30%): Filtros               -->
-            <!-- ============================================= -->
+            <!-- COLUMNA IZQUIERDA (30%): Filtros -->
             <div class="col-izquierda">
                 <div class="card">
+
+                    <!-- Cabecera con título y botón limpiar -->
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="mb-0"><i class="bi bi-funnel"></i> Filtros</h5>
                         <button class="btn btn-sm btn-outline-secondary" id="btnLimpiarFiltrosSalidas">
                             <i class="bi bi-arrow-clockwise"></i> Limpiar
                         </button>
                     </div>
+
                     <div class="card-body">
+                        <!-- Filtro: búsqueda por texto -->
                         <div class="mb-3">
                             <label class="form-label">Buscar</label>
                             <input type="text" class="form-control"
                                 id="filtroSalidasBuscar"
                                 placeholder="Usuario, Folio, descripción...">
                         </div>
+
+                        <!-- Filtro: estado de la salida -->
                         <div class="mb-3">
                             <label class="form-label">Estado</label>
                             <select class="form-select" id="filtroSalidasEstado">
@@ -103,15 +143,21 @@
                                 <option value="cancelada">Cancelada</option>
                             </select>
                         </div>
+
+                        <!-- Filtro: rango desde -->
                         <div class="mb-3">
                             <label class="form-label">Desde</label>
                             <input type="date" class="form-control" id="filtroSalidasDesde">
                         </div>
+
+                        <!-- Filtro: rango hasta -->
                         <div class="mb-0">
                             <label class="form-label">Hasta</label>
                             <input type="date" class="form-control" id="filtroSalidasHasta">
                         </div>
                     </div>
+
+                    <!-- Pie con nota informativa -->
                     <div class="card-footer">
                         <small class="text-muted">
                             <i class="bi bi-info-circle"></i> Los filtros se aplican automáticamente.
@@ -120,13 +166,14 @@
                 </div>
             </div>
 
-            <!-- ============================================= -->
-            <!-- COLUMNA DERECHA (70%): Salidas                 -->
-            <!-- ============================================= -->
+            <!-- COLUMNA DERECHA (70%): Tabla de Salidas -->
             <div class="col-derecha">
                 <div class="card">
+
+                    <!-- Cabecera con título y botón exportar -->
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="mb-0"><i class="bi bi-list-ul"></i> Salidas</h5>
+                        <!-- Exporta la tabla a CSV (listener global en scripts.js) -->
                         <button class="btn btn-sm btn-outline-success"
                                 id="btnExportarSalidas"
                                 data-tabla="#tablaSalidas"
@@ -135,6 +182,8 @@
                             <i class="bi bi-file-excel"></i> Exportar CSV
                         </button>
                     </div>
+
+                    <!-- card-body sin padding para que la tabla llegue a los bordes -->
                     <div class="card-body p-0">
                         <div class="table-responsive">
                             <table class="table table-hover mb-0" id="tablaSalidas">
@@ -152,7 +201,7 @@
                                 </thead>
                                 <tbody id="tbodySalidas">
 
-                                    <!-- Salida aprobada -->
+                                    <!-- SALIDA 1: Aprobada -->
                                     <tr class="salida-row"
                                         data-folio="00000001"
                                         data-fecha="2026-09-20"
@@ -169,13 +218,14 @@
                                         <td class="motivo-celda"><em class="text-muted">—</em></td>
                                         <td class="text-center"><span class="badge bg-secondary">5</span></td>
                                         <td class="text-center text-nowrap">
+                                            <!-- Ver detalles / PDF / Clonar -->
                                             <a href="salidas-detalles.html" class="btn btn-sm btn-outline-info" title="Ver"><i class="bi bi-eye"></i></a>
                                             <button class="btn btn-sm btn-outline-primary btn-pdf-salida" title="Exportar PDF"><i class="bi bi-file-pdf"></i></button>
                                             <button class="btn btn-sm btn-outline-secondary btn-clonar-salida" title="Clonar"><i class="bi bi-files"></i></button>
                                         </td>
                                     </tr>
 
-                                    <!-- Salida pendiente (Aprobador) -->
+                                    <!-- SALIDA 2: Pendiente (Aprobador) -->
                                     <tr class="salida-row"
                                         data-folio="00000002"
                                         data-fecha="2026-09-19"
@@ -192,13 +242,14 @@
                                         <td class="motivo-celda"><em class="text-muted">—</em></td>
                                         <td class="text-center"><span class="badge bg-secondary">3</span></td>
                                         <td class="text-center text-nowrap">
+                                            <!-- Ver / Aprobar / Rechazar -->
                                             <a href="salidas-detalles.html" class="btn btn-sm btn-outline-info" title="Ver"><i class="bi bi-eye"></i></a>
                                             <button class="btn btn-sm btn-outline-success btn-aprobar-salida" title="Aprobar"><i class="bi bi-check-circle"></i></button>
                                             <button class="btn btn-sm btn-outline-danger btn-rechazar-salida" title="Rechazar"><i class="bi bi-x-circle"></i></button>
                                         </td>
                                     </tr>
 
-                                    <!-- Borrador -->
+                                    <!-- SALIDA 3: Borrador (sin folio) -->
                                     <tr class="salida-row"
                                         data-folio=""
                                         data-fecha="2026-09-18"
@@ -215,13 +266,14 @@
                                         <td class="motivo-celda"><em class="text-muted">—</em></td>
                                         <td class="text-center"><span class="badge bg-secondary">2</span></td>
                                         <td class="text-center text-nowrap">
+                                            <!-- Ver / Editar / Eliminar -->
                                             <a href="salidas-detalles.html" class="btn btn-sm btn-outline-info" title="Ver"><i class="bi bi-eye"></i></a>
                                             <a href="salidas-editar.html" class="btn btn-sm btn-outline-success" title="Editar"><i class="bi bi-pencil"></i></a>
                                             <button class="btn btn-sm btn-outline-danger btn-eliminar-salida" title="Eliminar borrador"><i class="bi bi-trash"></i></button>
                                         </td>
                                     </tr>
 
-                                    <!-- Rechazada -->
+                                    <!-- SALIDA 4: Rechazada (con motivo) -->
                                     <tr class="salida-row"
                                         data-folio="00000004"
                                         data-fecha="2026-09-17"
@@ -238,12 +290,13 @@
                                         <td>Material no autorizado</td>
                                         <td class="text-center"><span class="badge bg-secondary">4</span></td>
                                         <td class="text-center text-nowrap">
+                                            <!-- Ver / Clonar -->
                                             <a href="salidas-detalles.html" class="btn btn-sm btn-outline-info" title="Ver"><i class="bi bi-eye"></i></a>
                                             <button class="btn btn-sm btn-outline-secondary btn-clonar-salida" title="Clonar"><i class="bi bi-files"></i></button>
                                         </td>
                                     </tr>
 
-                                    <!-- Cancelada -->
+                                    <!-- SALIDA 5: Cancelada -->
                                     <tr class="salida-row"
                                         data-folio="00000005"
                                         data-fecha="2026-09-16"
@@ -260,13 +313,14 @@
                                         <td>Material pendiente de agregar</td>
                                         <td class="text-center"><span class="badge bg-secondary">1</span></td>
                                         <td class="text-center text-nowrap">
+                                            <!-- Ver / Editar / Clonar -->
                                             <a href="salidas-detalles.html" class="btn btn-sm btn-outline-info" title="Ver"><i class="bi bi-eye"></i></a>
                                             <a href="salidas-editar.html" class="btn btn-sm btn-outline-success" title="Editar"><i class="bi bi-pencil"></i></a>
                                             <button class="btn btn-sm btn-outline-secondary btn-clonar-salida" title="Clonar"><i class="bi bi-files"></i></button>
                                         </td>
                                     </tr>
 
-                                    <!-- Pendiente (puede cancelarse) -->
+                                    <!-- SALIDA 6: Pendiente (puede cancelarse) -->
                                     <tr class="salida-row"
                                         data-folio="00000006"
                                         data-fecha="2026-09-19"
@@ -275,7 +329,7 @@
                                         data-descripcion="Materiales de obra"
                                         data-motivo=""
                                         data-materiales="3">
-                                        <td><strong>00000006</strong></td>  
+                                        <td><strong>00000006</strong></td>
                                         <td>19/09/2026</td>
                                         <td><span class="badge bg-warning text-dark badge-estado">⏳ Pendiente</span></td>
                                         <td>María Gómez</td>
@@ -283,16 +337,18 @@
                                         <td class="motivo-celda"><em class="text-muted">—</em></td>
                                         <td class="text-center"><span class="badge bg-secondary">3</span></td>
                                         <td class="text-center text-nowrap">
+                                            <!-- Ver / Clonar / Cancelar -->
                                             <a href="salidas-detalles.html" class="btn btn-sm btn-outline-info" title="Ver"><i class="bi bi-eye"></i></a>
                                             <button class="btn btn-sm btn-outline-secondary btn-clonar-salida" title="Clonar"><i class="bi bi-files"></i></button>
                                             <button class="btn btn-sm btn-outline-danger btn-cancelar-salida" title="Cancelar"><i class="bi bi-dash-circle"></i></button>
                                         </td>
                                     </tr>
-
                                 </tbody>
                             </table>
                         </div>
                     </div>
+
+                    <!-- Contador de registros -->
                     <div class="card-footer">
                         <div class="d-flex justify-content-between align-items-center">
                             <small class="text-muted">Mostrando <span id="contadorSalidas">6</span> de <span id="totalSalidas">95</span> registros</small>
@@ -300,25 +356,27 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 
-    <!-- ============================================= -->
-    <!-- MODAL: Confirmar Rechazo                        -->
-    <!-- ============================================= -->
+    <!-- MODAL: CONFIRMAR RECHAZO -->
     <div class="modal fade" id="modalRechazarSalida" tabindex="-1" data-bs-backdrop="static">
         <div class="modal-dialog">
             <div class="modal-content">
+
+                <!-- Cabecera del modal -->
                 <div class="modal-header" style="background-color: var(--cora-accent); color: white;">
                     <h5 class="modal-title" style="color: var(--cora-white);">
                         <i class="bi bi-x-circle"></i> Rechazar Solicitud
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
+
                 <div class="modal-body">
                     <p>¿Estás seguro de que deseas <strong>rechazar</strong> la solicitud con folio
                         <strong id="rechazarFolio">—</strong>?</p>
+
+                    <!-- Motivo del rechazo (obligatorio) -->
                     <div class="mb-3">
                         <label class="form-label">Motivo del rechazo <span class="text-danger">*</span></label>
                         <textarea class="form-control" id="rechazarMotivo" rows="3"
@@ -329,6 +387,8 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Pie del modal con acciones -->
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                         <i class="bi bi-x"></i> Cancelar
@@ -341,21 +401,24 @@
         </div>
     </div>
 
-    <!-- ============================================= -->
-    <!-- MODAL: Confirmar Cancelación                    -->
-    <!-- ============================================= -->
+    <!-- MODAL: CONFIRMAR CANCELACIÓN -->
     <div class="modal fade" id="modalCancelarSalida" tabindex="-1" data-bs-backdrop="static">
         <div class="modal-dialog">
             <div class="modal-content">
+
+                <!-- Cabecera del modal -->
                 <div class="modal-header" style="background-color: var(--cora-accent); color: white;">
                     <h5 class="modal-title" style="color: var(--cora-white);">
                         <i class="bi bi-dash-circle"></i> Cancelar Solicitud
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
+
                 <div class="modal-body">
                     <p>¿Estás seguro de que deseas <strong>cancelar</strong> la solicitud con folio
                         <strong id="cancelarFolio">—</strong>?</p>
+
+                    <!-- Motivo de la cancelación (obligatorio) -->
                     <div class="mb-3">
                         <label class="form-label">Motivo de la cancelación <span class="text-danger">*</span></label>
                         <textarea class="form-control" id="cancelarMotivo" rows="3"
@@ -366,6 +429,8 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Pie del modal con acciones -->
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                         <i class="bi bi-x"></i> Volver
@@ -378,18 +443,19 @@
         </div>
     </div>
 
-    <!-- ============================================= -->
-    <!-- MODAL: Confirmar Eliminación de Borrador        -->
-    <!-- ============================================= -->
+    <!-- MODAL: CONFIRMAR ELIMINACIÓN DE BORRADOR -->
     <div class="modal fade" id="modalEliminarSalida" tabindex="-1" data-bs-backdrop="static">
         <div class="modal-dialog">
             <div class="modal-content">
+
+                <!-- Cabecera del modal -->
                 <div class="modal-header" style="background-color: var(--cora-accent); color: white;">
                     <h5 class="modal-title" style="color: var(--cora-white);">
                         <i class="bi bi-trash"></i> Eliminar Borrador
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
+
                 <div class="modal-body">
                     <p>¿Estás seguro de que deseas <strong>eliminar</strong> este borrador?</p>
                     <p class="text-muted mb-0">
@@ -397,6 +463,8 @@
                         Esta acción es permanente y no se puede deshacer.
                     </p>
                 </div>
+
+                <!-- Pie del modal con acciones -->
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                         <i class="bi bi-x"></i> Volver
@@ -409,8 +477,9 @@
         </div>
     </div>
 
-    <!-- Toast para acciones de salidas -->
+    <!-- TOAST -->
     <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1090;">
+        <!-- Toast reutilizable: título y mensaje se actualizan vía JS -->
         <div id="toastSalidaAccion" class="toast" role="alert" data-bs-delay="3500">
             <div class="toast-header" style="background-color: var(--cora-success); color: white;">
                 <i class="bi bi-check-circle me-2"></i>
@@ -421,13 +490,17 @@
         </div>
     </div>
 
+    <!-- FOOTER -->
     <footer class="footer">
         <div class="container text-center">
             &copy; 2026 SWCORA - Sistema Web de Control de Recursos y Activos | v1.0.0
         </div>
     </footer>
 
+    <!-- SCRIPTS -->
+    <!-- Bootstrap bundle (incluye Popper para dropdowns y modales) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Scripts propios del sistema (filtros, acciones sobre salidas, toasts, etc.) -->
     <script src="../js/scripts.js"></script>
 </body>
 </html>

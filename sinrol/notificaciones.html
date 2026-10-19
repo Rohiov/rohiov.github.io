@@ -4,40 +4,68 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Notificaciones - SWCORA</title>
+
+    <!-- HOJAS DE ESTILO -->
+    <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Estilos CSS -->
     <link rel="stylesheet" href="../css/styles.css">
 </head>
+
+<!-- BODY DE LA PÁGINA -->
 <body>
+    <!-- HEADER / NAVBAR -->
     <header>
         <nav class="navbar navbar-expand-sm">
             <div class="container-fluid">
+
+                <!-- logo y nombre -->
                 <a class="navbar-brand" href="index.html"><i class="bi bi-lightning-charge-fill"></i> SWCORA</a>
+
+                <!-- CONTENIDO COLAPSABLE DEL NAVBAR -->
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
+
+                        <!-- ITEM: ACCESO A MÓDULOS (menú reducido para usuarios sin admin) -->
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="bi bi-key"></i> Acceso a Módulos</a>
                             <ul class="dropdown-menu">
+                                <!-- Formulario de nueva solicitud de acceso -->
                                 <li><a class="dropdown-item" href="index.html"><i class="bi bi-pencil-square"></i> Solicitar acceso</a></li>
+                                <!-- Listado de solicitudes propias -->
                                 <li><a class="dropdown-item" href="acceso-mis-solicitudes.html"><i class="bi bi-list-check"></i> Mis solicitudes</a></li>
                             </ul>
                         </li>
                     </ul>
+
+                    <!-- MENÚ SECUNDARIO (derecha) -->
                     <ul class="navbar-nav">
+
+                        <!-- ITEM: NOTIFICACIONES (activo en esta página) -->
                         <li class="nav-item">
                             <a class="nav-link position-relative" href="notificaciones.html">
                                 <i class="bi bi-bell"></i>
+                                <!-- Badge rojo con contador de notificaciones no leídas -->
                                 <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">3</span>
                             </a>
                         </li>
+
+                        <!-- ITEM: MENÚ DE USUARIO (dropdown) -->
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                                 <i class="bi bi-person-circle"></i> Juan Pérez
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end">
+                                <!-- Enlaces del perfil -->
                                 <li><a class="dropdown-item" href="mi-perfil.html"><i class="bi bi-person"></i> Mi perfil</a></li>
                                 <li><a class="dropdown-item" href="configuracion.html"><i class="bi bi-gear"></i> Configuración</a></li>
+
+                                <!-- Separador antes de cerrar sesión -->
                                 <li><hr class="dropdown-divider"></li>
+
+                                <!-- Acción: cerrar sesión (redirige al login raíz) -->
                                 <li><a class="dropdown-item text-danger" href="../index.html"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</a></li>
                             </ul>
                         </li>
@@ -47,17 +75,23 @@
         </nav>
     </header>
 
+    <!-- CONTENIDO PRINCIPAL -->
     <div class="container mt-4">
+
+        <!-- ENCABEZADO + BOTÓN MARCAR TODAS COMO LEÍDAS -->
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2><i class="bi bi-bell"></i> Notificaciones</h2>
+
+            <!-- Marca todas las notificaciones como leídas de una vez -->
             <button class="btn btn-outline-primary" id="btnMarcarTodasLeidas">
                 <i class="bi bi-check-all"></i> Marcar todas como leídas
             </button>
         </div>
 
-        <!-- Tabs de filtro -->
+        <!-- TABS DE FILTRO: Todas / No leídas / Leídas -->
         <ul class="nav nav-pills mb-3" id="tabsNotificaciones">
             <li class="nav-item">
+                <!-- Tab activo por defecto -->
                 <a class="nav-link active" href="#" data-filtro="todas">
                     Todas (<span id="contadorTodas">0</span>)
                 </a>
@@ -74,32 +108,42 @@
             </li>
         </ul>
 
-        <!-- Lista de notificaciones -->
+        <!-- LISTA DE NOTIFICACIONES -->
         <div class="card">
+            <!-- list-group-flush para que los items lleguen a los bordes -->
             <div class="list-group list-group-flush" id="listaNotificaciones">
 
-                <!-- Notificación 1 (No leída) -->
+                <!-- NOTIFICACIÓN 1: No leída (fondo resaltado) -->
                 <div class="list-group-item d-flex align-items-start notificacion-item no-leida"
                     data-leida="false"
                     style="background-color: var(--cora-bg);">
+
+                    <!-- Icono verde de aprobación -->
                     <i class="bi bi-check-circle-fill fs-3 me-3" style="color: var(--cora-success);"></i>
+
                     <div class="flex-grow-1">
                         <div class="d-flex justify-content-between">
                             <strong>✅ Solicitud de acceso aprobada</strong>
+                            <!-- Timestamp relativo -->
                             <small class="text-muted">Hace 5 minutos</small>
                         </div>
                         <p class="mb-0 text-muted">Tu salida fue aprobada por María Gómez.</p>
                     </div>
+
+                    <!-- Botón para marcar como leída -->
                     <button class="btn btn-sm btn-outline-secondary btn-marcar-leida" title="Marcar como leída">
                         <i class="bi bi-check"></i>
                     </button>
                 </div>
 
-                <!-- Notificación 2 (No leída) -->
+                <!-- NOTIFICACIÓN 2: No leída (fondo resaltado) -->
                 <div class="list-group-item d-flex align-items-start notificacion-item no-leida"
                     data-leida="false"
                     style="background-color: var(--cora-bg);">
+
+                    <!-- Icono amarillo de documento pendiente -->
                     <i class="bi bi-file-text-fill fs-3 me-3" style="color: var(--cora-warning);"></i>
+
                     <div class="flex-grow-1">
                         <div class="d-flex justify-content-between">
                             <strong>📋 Solicitud de acceso pendiente de aprobación</strong>
@@ -107,15 +151,19 @@
                         </div>
                         <p class="mb-0 text-muted">Carlos Ruiz solicita acceso al módulo Salidas de Material con rol Generador.</p>
                     </div>
+
                     <button class="btn btn-sm btn-outline-secondary btn-marcar-leida" title="Marcar como leída">
                         <i class="bi bi-check"></i>
                     </button>
                 </div>
 
-                <!-- Notificación 4 (Ya leída) -->
+                <!-- NOTIFICACIÓN 3: Ya leída (sin fondo resaltado, sin botón) -->
                 <div class="list-group-item d-flex align-items-start notificacion-item leida"
                     data-leida="true">
+
+                    <!-- Icono rojo de rechazo -->
                     <i class="bi bi-x-circle-fill fs-3 me-3" style="color: var(--cora-accent);"></i>
+
                     <div class="flex-grow-1">
                         <div class="d-flex justify-content-between">
                             <strong>❌ Solicitud de acceso rechazada</strong>
@@ -124,18 +172,21 @@
                         <p class="mb-0 text-muted">Motivo: No indicó motivo de solicitud.</p>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
 
+    <!-- FOOTER -->
     <footer class="footer">
         <div class="container text-center">
             &copy; 2026 SWCORA - Sistema Web de Control de Recursos y Activos | v1.0.0
         </div>
     </footer>
 
+    <!-- SCRIPTS -->
+    <!-- Bootstrap bundle (incluye Popper para dropdowns) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Scripts propios del sistema (tabs, marcar leídas, contadores, etc.) -->
     <script src="../js/scripts.js"></script>
 </body>
 </html>

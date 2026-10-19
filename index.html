@@ -1,136 +1,237 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Acceso Superusuario - SWCORA</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="css/styles.css">
-</head>
-<body>
-    <div class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-md-5">
-                <div class="card login-card">
-                    <div class="login-header">
-                        <i class="bi bi-shield-lock-fill"></i>
-                        <h3 class="mb-0" style="color: var(--cora-white);">Acceso de Superusuario</h3>
-                    </div>
-                    <div class="login-body">
-                        <div class="alert alert-warning text-center">
-                            <i class="bi bi-exclamation-triangle-fill"></i> <strong>Acceso Restringido</strong>
+    <!-- HEADER DE LA PÁGINA -->
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Acceso Superusuario - SWCORA</title>
+
+        <!-- HOJAS DE ESTILO -->
+        <!-- Bootstrap 5 -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+        <!-- Bootstrap Icons: iconos usados-->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+        <!-- Estilos CSS -->
+        <link rel="stylesheet" href="css/styles.css">
+    </head>
+
+    <!-- BODY DE LA PÁGINA -->
+    <body>
+        <!-- CONTENEDOR PRINCIPAL DEL LOGIN -->
+        <div class="container mt-5">
+
+            <!-- Fila de Bootstrap para centrar horizontalmente la tarjeta -->
+            <div class="row justify-content-center">
+
+                <!-- Columna de 5/12 en pantallas medianas -->
+                <div class="col-md-5">
+
+                    <!-- TARJETA DE LOGIN -->
+                    <div class="card login-card">
+
+                        <!-- CABECERA DE LA TARJETA -->
+                        <div class="login-header">
+                            <!-- Icono de candado -->
+                            <i class="bi bi-shield-lock-fill"></i>
+                            <!-- Título de la tarjeta en blanco para contraste -->
+                            <h3 class="mb-0" style="color: var(--cora-white);">Inicio de sesión</h3>
                         </div>
 
-                        <div id="loginError" class="alert alert-danger d-none" role="alert"></div>
+                        <!-- formulario -->
+                        <div class="login-body">
 
-                        <form id="superAdminLoginForm">
-                            <div class="mb-3">
-                                <label class="form-label">📌 Usuario</label>
-                                <div class="input-group">
-                                    <span class="input-group-text" style="background-color: var(--cora-bg); border-color: var(--cora-gray-light);">
-                                        <i class="bi bi-person"></i>
-                                    </span>
-                                    <input type="text" name="usuario" id="usuario" class="form-control" placeholder="Ingresa tu usuario" list="listaUsuarios" autocomple="off" required>
+                            <!-- Aviso de acceso restringido (Oculto para pruebas del prototipo)
+                            <div class="alert alert-warning text-center">
+                                <i class="bi bi-exclamation-triangle-fill"></i> <strong>Inicio de</strong>
+                            </div> -->
+
+                            <!-- Contenedor de mensajes de error del login (oculto por defecto) -->
+                            <div id="loginError" class="alert alert-danger d-none" role="alert"></div>
+
+                            <!-- FORMULARIO DE LOGIN -->
+                            <form id="superAdminLoginForm">
+
+                                <!-- CAMPO: Usuario -->
+                                <div class="mb-3">
+                                    <label class="form-label">📌 Usuario</label>
+
+                                    <!-- input-group: agrega un icono decorativo a la izquierda del input -->
+                                    <div class="input-group">
+
+                                        <!-- Icono de persona como prefijo visual del input -->
+                                        <span class="input-group-text"
+                                            style="background-color: var(--cora-bg); border-color: var(--cora-gray-light);">
+                                            <i class="bi bi-person"></i>
+                                        </span>
+
+                                        <!-- Input de texto para el usuario. -->
+                                        <input type="text"
+                                            name="usuario"
+                                            id="usuario"
+                                            class="form-control"
+                                            placeholder="Ingresa tu usuario"
+                                            list="listaUsuarios"
+                                            autocomple="off"
+                                            required>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <div class="mb-3">
-                                <label class="form-label">🔑 Contraseña</label>
-                                <div class="input-group">
-                                    <span class="input-group-text" style="background-color: var(--cora-bg); border-color: var(--cora-gray-light);">
-                                        <i class="bi bi-key"></i>
-                                    </span>
-                                    <input type="password" name="password" id="password" class="form-control" placeholder="Ingresa tu contraseña" required>
-                                    <button type="button" class="btn btn-outline-secondary" id="btnTogglePassword"><i class="bi bi-eye"></i></button>
+                                <!-- CAMPO: Contraseña -->
+                                <div class="mb-3">
+                                    <label class="form-label">🔑 Contraseña</label>
+
+                                    <div class="input-group">
+
+                                        <!-- Icono de llave como prefijo visual -->
+                                        <span class="input-group-text"
+                                            style="background-color: var(--cora-bg); border-color: var(--cora-gray-light);">
+                                            <i class="bi bi-key"></i>
+                                        </span>
+
+                                        <!-- Input de contraseña (oculta los caracteres por defecto) -->
+                                        <input type="password"
+                                            name="password"
+                                            id="password"
+                                            class="form-control"
+                                            placeholder="Ingresa tu contraseña"
+                                            required>
+
+                                        <!-- Botón toggle para mostrar/ocultar la contraseña. -->
+                                        <button type="button"
+                                                class="btn btn-outline-secondary"
+                                                id="btnTogglePassword">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <div class="form-check mb-3">
-                                <input class="form-check-input" type="checkbox" id="recordar">
-                                <label class="form-check-label" for="recordar">Recordarme</label>
-                            </div>
+                                <!-- Checkbox Recordarme -->
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" id="recordar">
+                                    <label class="form-check-label" for="recordar">Recordarme</label>
+                                </div>
 
-                            <button type="submit" class="btn btn-success w-100 py-2">
-                                <i class="bi bi-box-arrow-in-right"></i> Iniciar Sesión
-                            </button>
+                                <!-- BOTÓN PRINCIPAL DE LOGIN -->
+                                <button type="submit" class="btn btn-success w-100 py-2">
+                                    <i class="bi bi-box-arrow-in-right"></i> Iniciar Sesión
+                                </button>
 
-                            <div class="text-center mt-3">
-                                <a href="#" id="linkRecuperarPassword" class="text-decoration-none small" style="color: var(--cora-accent);">
-                                    <i class="bi bi-question-circle"></i> ¿Olvidaste tu contraseña?
-                                </a>
-                            </div>
-                        </form>
+                                <!-- ENLACE: RECUPERAR CONTRASEÑA                  -->
+                                <div class="text-center mt-3">
+                                    <a href="#"
+                                    id="linkRecuperarPassword"
+                                    class="text-decoration-none small"
+                                    style="color: var(--cora-accent);">
+                                        <i class="bi bi-question-circle"></i> ¿Olvidaste tu contraseña?
+                                    </a>
+                                </div>
+                            </form>
 
-                        <datalist id="listaUsuarios">
-                            <option value="superusuario">
-                            <option value="administrador">
-                            <option value="aprobador">
-                            <option value="generador">
-                            <option value="sinrol">
-                        </datalist>
+                            <!-- DATALIST DE USUARIOS SUGERIDOS -->
+                            <datalist id="listaUsuarios">
+                                <option value="superusuario">
+                                <option value="administrador">
+                                <option value="aprobador">
+                                <option value="generador">
+                                <option value="sinrol">
+                            </datalist>
 
-                        <hr class="my-4">
+                            <!-- Separador visual antes del aviso inferior -->
+                            <hr class="my-4">
 
-                        <p class="text-muted text-center small mb-0">
-                            <i class="bi bi-info-circle"></i> Esta es la página de acceso para el Superusuario.<br>
-                            Los usuarios normales deben usar la autenticación de Windows.
-                        </p>
+                            <!-- Nota informativa de uso del sistema -->
+                            <p class="text-muted text-center small mb-0">
+                                <i class="bi bi-info-circle"></i> Esta es la página de acceso para el Superusuario.
+                                <br> Los usuarios normales usan la autenticación de Windows de ASP.NET Core MVC.
+                            </p>
+                        </div>
                     </div>
-                </div>
-                <p class="text-center text-muted mt-3">
-                    &copy; 2026 SWCORA - Sistema Web de Control de Recursos y Activos
-                </p>
-            </div>
-        </div>
-    </div>
 
-    <!-- ============================================= -->
-    <!-- MODAL: RECUPERAR CONTRASEÑA                     -->
-    <!-- ============================================= -->
-    <div class="modal fade" id="modalRecuperarPassword" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header" style="background-color: var(--cora-accent); color: white;">
-                    <h5 class="modal-title" style="color: var(--cora-white);"><i class="bi bi-key"></i> Recuperar Contraseña</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body text-center">
-                    <i class="bi bi-shield-exclamation fs-1 mb-3" style="color: var(--cora-warning);"></i>
-                    <p class="mb-2"><strong>¿Realmente desea iniciar el proceso de recuperación de contraseña del Superusuario?</strong></p>
-                    <p class="text-muted small mb-0">
-                        Se enviará una contraseña temporal al correo electrónico registrado para el Superusuario.
+                    <!-- Pie de página -->
+                    <p class="text-center text-muted mt-3">
+                        &copy; 2026 SWCORA - Sistema Web de Control de Recursos y Activos
                     </p>
                 </div>
-                <div class="modal-footer justify-content-center">
-                    <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">
-                        <i class="bi bi-x-circle"></i> No
-                    </button>
-                    <button type="button" class="btn btn-success" id="btnConfirmarRecuperar">
-                        <i class="bi bi-check-circle"></i> Sí, enviar
-                    </button>
+            </div>
+        </div>
+
+        <!-- MODAL: Recuperar Contraseña  -->
+        <div class="modal fade" id="modalRecuperarPassword" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+
+                    <!-- Cabecera del modal en color de acento -->
+                    <div class="modal-header"
+                        style="background-color: var(--cora-accent); color: white;">
+                        <h5 class="modal-title" style="color: var(--cora-white);">
+                            <i class="bi bi-key"></i> Recuperar Contraseña
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <!-- Cuerpo del modal con icono y mensajes -->
+                    <div class="modal-body text-center">
+                        <!-- Icono de advertencia para reforzar el mensaje -->
+                        <i class="bi bi-shield-exclamation fs-1 mb-3" style="color: var(--cora-warning);"></i>
+
+                        <!-- Pregunta principal de confirmación -->
+                        <p class="mb-2">
+                            <strong>¿Realmente desea iniciar el proceso de recuperación de contraseña del Superusuario?</strong>
+                        </p>
+
+                        <!-- Texto secundario explicando el proceso -->
+                        <p class="text-muted small mb-0">
+                            Se enviará una contraseña temporal al correo electrónico registrado para el Superusuario.
+                        </p>
+                    </div>
+
+                    <!-- Botones de acción del modal -->
+                    <div class="modal-footer justify-content-center">
+                        <!-- Botón para cancelar -->
+                        <button type="button"
+                                class="btn btn-outline-primary"
+                                data-bs-dismiss="modal">
+                            <i class="bi bi-x-circle"></i> No
+                        </button>
+
+                        <!-- Botón para confirmar → el JS muestra el toast y cierra el modal -->
+                        <button type="button"
+                                class="btn btn-success"
+                                id="btnConfirmarRecuperar">
+                            <i class="bi bi-check-circle"></i> Sí, enviar
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- ============================================= -->
-    <!-- TOAST: CONFIRMACIÓN                             -->
-    <!-- ============================================= -->
-    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1090;">
-        <div id="toastRecuperarPassword" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="toast-header bg-success text-white">
-                <i class="bi bi-check-circle-fill me-2"></i>
-                <strong class="me-auto">Correo enviado</strong>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
-            </div>
-            <div class="toast-body">
-                <i class="bi bi-envelope-check"></i> La contraseña del Superusuario ha sido enviada al email registrado.
+        <!-- TOAST: CONFIRMACIÓN DE ENVÍO                  -->
+        <!-- Toast para confirmar la recuperación de contraseña. -->
+        <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1090;">
+            <div id="toastRecuperarPassword"
+                class="toast"
+                role="alert"
+                aria-live="assertive"
+                aria-atomic="true">
+
+                <!-- Cabecera del toast con icono verde de éxito -->
+                <div class="toast-header bg-success text-white">
+                    <i class="bi bi-check-circle-fill me-2"></i>
+                    <strong class="me-auto">Correo enviado</strong>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+                </div>
+
+                <!-- Cuerpo del toast con el mensaje de confirmación -->
+                <div class="toast-body">
+                    <i class="bi bi-envelope-check"></i> La contraseña del Superusuario ha sido enviada al email registrado.
+                </div>
             </div>
         </div>
-    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/scripts.js"></script>
-</body>
+        <!-- SCRIPTS -->
+        <!-- Bootstrap bundle (incluye Popper y utilidades de modales/toasts) -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- Scripts propios del sistema (login, modales, validaciones, etc.) -->
+        <script src="js/scripts.js"></script>
+    </body>
 </html>

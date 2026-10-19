@@ -1,321 +1,446 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Mi Perfil - SWCORA</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="../css/styles.css">
-</head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-sm">
-            <div class="container-fluid">
-                <a class="navbar-brand" href="index.html"><i class="bi bi-lightning-charge-fill"></i> SWCORA</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item"><a class="nav-link" href="index.html"><i class="bi bi-house-door"></i> Inicio</a></li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                <i class="bi bi-gear"></i> Administración
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="admin-usuarios.html"><i class="bi bi-people"></i> Usuarios</a></li>
-                                <li><a class="dropdown-item" href="admin-roles.html"><i class="bi bi-shield-lock"></i> Roles</a></li>
-                                <li><a class="dropdown-item" href="admin-modulos.html"><i class="bi bi-box-seam"></i> Módulos</a></li>
-                                <li><a class="dropdown-item" href="admin-empresas.html"><i class="bi bi-building"></i> Empresas</a></li>
-                                <li><a class="dropdown-item" href="admin-departamentos.html"><i class="bi bi-diagram-3"></i> Departamentos</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li class="dropdown-submenu">
-                                    <a class="dropdown-item dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                        <i class="bi bi-collection"></i> Catálogos
-                                    </a>
-                                    <ul class="dropdown-menu">
-                                        <li class="dropdown-submenu">
-                                            <a class="dropdown-item dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                                <i class="bi bi-clipboard-check"></i> Salidas de Material
-                                            </a>
-                                            <ul class="dropdown-menu">
-                                                <li>
-                                                    <a class="dropdown-item" href="admin-unidades.html">
-                                                        <i class="bi bi-rulers"></i> Unidades
-                                                    </a>
-                                                </li>
-                                            </ul>
-                                        </li>
-                                    </ul>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="admin-logs.html"><i class="bi bi-journal-text"></i> Logs</a></li>
-                            </ul>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                <i class="bi bi-box-seam"></i> Módulos
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="salidas-index.html"><i class="bi bi-clipboard-check"></i> Salidas de Material</a></li>
-                            </ul>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="bi bi-key"></i> Acceso a Módulos</a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="acceso-solicitar.html"><i class="bi bi-pencil-square"></i> Solicitar acceso</a></li>
-                                <li><a class="dropdown-item" href="acceso-mis-solicitudes.html"><i class="bi bi-list-check"></i> Mis solicitudes</a></li>
-                                <li><a class="dropdown-item" href="acceso-aprobar.html"><i class="bi bi-check2-circle"></i> Aprobaciones pendientes</a></li>
-                            </ul>
-                        </li>
-                    </ul>
-                    <ul class="navbar-nav">
-                        <li class="nav-item">
-                            <a class="nav-link position-relative" href="notificaciones.html">
-                                <i class="bi bi-bell"></i>
-                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">3</span>
-                            </a>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="bi bi-person-circle"></i> Juan Pérez</a>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="mi-perfil.html"><i class="bi bi-person"></i> Mi perfil</a></li>
-                                <li><a class="dropdown-item" href="configuracion.html"><i class="bi bi-gear"></i> Configuración</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item text-danger" href="../index.html"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</a></li>
-                            </ul>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    </header>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Mi Perfil - SWCORA</title>
 
-    <div class="container mt-4" style="max-width: 1100px;">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h2><i class="bi bi-person-circle"></i> Mi Perfil</h2>
-                <p class="text-muted mb-0">Consulta tu información personal y gestiona la seguridad de tu cuenta.</p>
-            </div>
-        </div>
+        <!-- HOJAS DE ESTILO -->
+        <!-- Bootstrap 5 -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+        <!-- Bootstrap Icons: iconos usados-->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+        <!-- Estilos CSS -->
+        <link rel="stylesheet" href="../css/styles.css">
+    </head>
 
-        <!-- ============================================= -->
-        <!-- GRID 60/40                                     -->
-        <!-- Izquierda: Datos Personales                    -->
-        <!-- Derecha: Seguridad + Roles y Accesos           -->
-        <!-- ============================================= -->
-        <div class="perfil-form-grid mb-4">
+    <!-- BODY DE LA PÁGINA -->
+    <body>
+        <!-- HEADER / NAVBAR -->
+        <header>
+            <nav class="navbar navbar-expand-sm">
+                <div class="container-fluid">
 
-            <!-- ============================================= -->
-            <!-- COLUMNA IZQUIERDA (60%)                        -->
-            <!-- ============================================= -->
-            <div class="perfil-col-left">
+                    <!-- logo y nombre -->
+                    <a class="navbar-brand" href="index.html">
+                        <i class="bi bi-lightning-charge-fill"></i> SWCORA
+                    </a>
 
-                <!-- Datos Personales -->
-                <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0"><i class="bi bi-person-badge"></i> Datos Personales</h5>
-                        <span class="badge bg-info">
-                            <i class="bi bi-info-circle"></i> Sincronizado con AD
-                        </span>
-                    </div>
-                    <div class="card-body">
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label class="form-label">Usuario Windows</label>
-                                <input type="text" class="form-control" value="DOMINIO\juan.perez" readonly>
-                                <small class="text-muted">Este dato no se puede modificar.</small>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Nombre completo</label>
-                                <input type="text" class="form-control" value="Juan Pérez" readonly>
-                                <small class="text-muted">Proviene del Directorio Activo.</small>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Email</label>
-                                <input type="email" class="form-control" value="juan.perez@empresa.com" readonly>
-                                <small class="text-muted">Proviene del Directorio Activo.</small>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Departamento</label>
-                                <input type="text" class="form-control" value="Sistemas" readonly>
-                                <small class="text-muted">Asignado por el Administrador.</small>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Último acceso</label>
-                                <input type="text" class="form-control" value="20/09/2026 10:30" readonly>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Fecha de registro</label>
-                                <input type="text" class="form-control" value="15/01/2026" readonly>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-
-            <!-- ============================================= -->
-            <!-- COLUMNA DERECHA (40%)                          -->
-            <!-- ============================================= -->
-            <div class="perfil-col-right">
-
-
-                <!-- Roles y Accesos -->
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="mb-0"><i class="bi bi-shield-check"></i> Roles y Accesos</h5>
-                    </div>
-                    <div class="card-body">
-                        <h6 class="text-muted mb-2">Rol Asignado</h6>
-                        <p class="mb-3"><span class="badge bg-secondary">Global</span></p>
-
-                        <h6 class="text-muted mb-2">Tipo de Rol</h6>
-                        <div class="mb-0">
-                            <span class="badge bg-primary mb-1">Administrador</span>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </div>
-
-    <!-- ============================================= -->
-    <!-- MODAL: CAMBIAR CONTRASEÑA                       -->
-    <!-- ============================================= -->
-    <div class="modal fade" id="modalCambiarPassword" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header" style="background-color: var(--cora-success); color: white;">
-                    <h5 class="modal-title" style="color: var(--cora-white);"><i class="bi bi-key"></i> Cambiar Contraseña</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">Contraseña actual <span class="text-danger">*</span></label>
-                        <input type="password" class="form-control" id="inputPasswordActual" required>
-                        <div class="invalid-feedback">Debes ingresar tu contraseña actual.</div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Nueva contraseña <span class="text-danger">*</span></label>
-                        <input type="password" class="form-control" id="inputPasswordNueva" required>
-                        <small class="text-muted">Mínimo 8 caracteres.</small>
-                        <div class="invalid-feedback">La contraseña debe tener al menos 8 caracteres.</div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Confirmar nueva contraseña <span class="text-danger">*</span></label>
-                        <input type="password" class="form-control" id="inputPasswordConfirmar" required>
-                        <div class="invalid-feedback">Las contraseñas no coinciden.</div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary" id="btnGuardarPassword">
-                        <i class="bi bi-save"></i> Guardar
+                    <!-- Botón hamburguesa que aparece en pantallas pequeñas -->
+                    <button class="navbar-toggler"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target=".navbar-collapse">
+                        <span class="navbar-toggler-icon"></span>
                     </button>
+
+                    <!-- CONTENIDO COLAPSABLE DEL NAVBAR -->
+                    <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+
+                        <!-- MENÚ PRINCIPAL (izquierda) -->
+                        <ul class="navbar-nav flex-grow-1">
+
+                            <!-- ITEM: INICIO -->
+                            <li class="nav-item">
+                                <a class="nav-link" href="index.html">
+                                    <i class="bi bi-house-door"></i> Inicio
+                                </a>
+                            </li>
+
+                            <!-- ITEM: ADMINISTRACIÓN -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle"
+                                   href="#"
+                                   role="button"
+                                   data-bs-toggle="dropdown">
+                                    <i class="bi bi-gear"></i> Administración
+                                </a>
+
+                                <ul class="dropdown-menu">
+                                    <!-- Enlaces directos a las páginas de administración -->
+                                    <li><a class="dropdown-item" href="admin-usuarios.html"><i class="bi bi-people"></i> Usuarios</a></li>
+                                    <li><a class="dropdown-item" href="admin-roles.html"><i class="bi bi-shield-lock"></i> Roles</a></li>
+                                    <li><a class="dropdown-item" href="admin-modulos.html"><i class="bi bi-box-seam"></i> Módulos</a></li>
+                                    <li><a class="dropdown-item" href="admin-empresas.html"><i class="bi bi-building"></i> Empresas</a></li>
+                                    <li><a class="dropdown-item" href="admin-departamentos.html"><i class="bi bi-diagram-3"></i> Departamentos</a></li>
+
+                                    <!-- Separador antes de catálogos -->
+                                    <li><hr class="dropdown-divider"></li>
+
+                                    <!-- SUBMENÚ: CATÁLOGOS (anidado nivel 1) -->
+                                    <li class="dropdown-submenu">
+                                        <a class="dropdown-item dropdown-toggle"
+                                           href="#"
+                                           role="button"
+                                           data-bs-toggle="dropdown">
+                                            <i class="bi bi-collection"></i> Catálogos
+                                        </a>
+
+                                        <ul class="dropdown-menu">
+                                            <!-- SUBMENÚ: SALIDAS DE MATERIAL (nivel 2) -->
+                                            <li class="dropdown-submenu">
+                                                <a class="dropdown-item dropdown-toggle"
+                                                   href="#"
+                                                   role="button"
+                                                   data-bs-toggle="dropdown">
+                                                    <i class="bi bi-clipboard-check"></i> Salidas de Material
+                                                </a>
+
+                                                <ul class="dropdown-menu">
+                                                    <!-- Enlace a Unidades dentro del catálogo de Salidas -->
+                                                    <li>
+                                                        <a class="dropdown-item" href="admin-unidades.html">
+                                                            <i class="bi bi-rulers"></i> Unidades
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                        </ul>
+                                    </li>
+
+                                    <!-- Separador antes de logs -->
+                                    <li><hr class="dropdown-divider"></li>
+
+                                    <!-- Enlace a Logs del sistema -->
+                                    <li><a class="dropdown-item" href="admin-logs.html"><i class="bi bi-journal-text"></i> Logs</a></li>
+                                </ul>
+                            </li>
+
+                            <!-- ITEM: MÓDULOS -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle"
+                                   href="#"
+                                   role="button"
+                                   data-bs-toggle="dropdown">
+                                    <i class="bi bi-box-seam"></i> Módulos
+                                </a>
+
+                                <ul class="dropdown-menu">
+                                    <!-- Enlace al módulo de salidas de material -->
+                                    <li><a class="dropdown-item" href="salidas-index.html"><i class="bi bi-clipboard-check"></i> Salidas de Material</a></li>
+                                </ul>
+                            </li>
+
+                            <!-- ITEM: ACCESO A MÓDULOS -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle"
+                                   href="#"
+                                   role="button"
+                                   data-bs-toggle="dropdown">
+                                    <i class="bi bi-key"></i> Acceso a Módulos
+                                </a>
+
+                                <ul class="dropdown-menu">
+                                    <!-- Formulario de nueva solicitud de acceso -->
+                                    <li><a class="dropdown-item" href="acceso-solicitar.html"><i class="bi bi-pencil-square"></i> Solicitar acceso</a></li>
+                                    <!-- Listado de solicitudes propias -->
+                                    <li><a class="dropdown-item" href="acceso-mis-solicitudes.html"><i class="bi bi-list-check"></i> Mis solicitudes</a></li>
+                                    <!-- Aprobaciones pendientes del usuario aprobador -->
+                                    <li><a class="dropdown-item" href="acceso-aprobar.html"><i class="bi bi-check2-circle"></i> Aprobaciones pendientes</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+
+                        <!-- MENÚ SECUNDARIO (derecha) -->
+                        <ul class="navbar-nav">
+
+                            <!-- ITEM: NOTIFICACIONES -->
+                            <li class="nav-item">
+                                <a class="nav-link position-relative" href="notificaciones.html">
+                                    <i class="bi bi-bell"></i>
+                                    <!-- Badge rojo con contador de notificaciones no leídas -->
+                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">3</span>
+                                </a>
+                            </li>
+
+                            <!-- ITEM: MENÚ DE USUARIO -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle"
+                                   href="#"
+                                   role="button"
+                                   data-bs-toggle="dropdown">
+                                    <i class="bi bi-person-circle"></i> Juan Pérez
+                                </a>
+
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <!-- Enlaces del perfil -->
+                                    <li><a class="dropdown-item" href="mi-perfil.html"><i class="bi bi-person"></i> Mi perfil</a></li>
+                                    <li><a class="dropdown-item" href="configuracion.html"><i class="bi bi-gear"></i> Configuración</a></li>
+
+                                    <!-- Separador antes de cerrar sesión -->
+                                    <li><hr class="dropdown-divider"></li>
+
+                                    <!-- Acción: cerrar sesión (redirige al login raíz) -->
+                                    <li><a class="dropdown-item text-danger" href="../index.html"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        </header>
+
+        <!-- CONTENIDO PRINCIPAL -->
+        <div class="container mt-4" style="max-width: 1100px;">
+
+            <!-- ENCABEZADO DE LA PÁGINA -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2><i class="bi bi-person-circle"></i> Mi Perfil</h2>
+                    <p class="text-muted mb-0">Consulta tu información personal y gestiona la seguridad de tu cuenta.</p>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <!-- ============================================= -->
-    <!-- MODAL: CERRAR SESIÓN INDIVIDUAL                 -->
-    <!-- ============================================= -->
-    <div class="modal fade" id="modalCerrarSesionIndividual" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header bg-success text-white">
-                    <h5 class="modal-title"><i class="bi bi-exclamation-triangle"></i> Cerrar Sesión</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <p>¿Estás seguro de que quieres cerrar esta sesión?</p>
-                    <div class="alert alert-secondary mb-0">
-                        <div class="mb-1">
-                            <strong>Dispositivo:</strong> <span id="cerrarDispositivo">—</span>
+            <!-- GRID 60/40 -->
+            <div class="perfil-form-grid mb-4">
+
+                <!-- COLUMNA IZQUIERDA (60%) -->
+                <div class="perfil-col-left">
+
+                    <!-- CARD: DATOS PERSONALES -->
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0"><i class="bi bi-person-badge"></i> Datos Personales</h5>
+                            <!-- Badge informativo: campos sincronizados desde AD -->
+                            <span class="badge bg-info">
+                                <i class="bi bi-info-circle"></i> Sincronizado con AD
+                            </span>
                         </div>
-                        <div>
-                            <strong>Usuario:</strong> <span id="cerrarUsuario">—</span>
+
+                        <div class="card-body">
+                            <div class="row g-3">
+
+                                <!-- Campo: Usuario Windows (solo lectura) -->
+                                <div class="col-md-6">
+                                    <label class="form-label">Usuario Windows</label>
+                                    <input type="text" class="form-control" value="DOMINIO\juan.perez" readonly>
+                                    <small class="text-muted">Este dato no se puede modificar.</small>
+                                </div>
+
+                                <!-- Campo: Nombre completo (solo lectura) -->
+                                <div class="col-md-6">
+                                    <label class="form-label">Nombre completo</label>
+                                    <input type="text" class="form-control" value="Juan Pérez" readonly>
+                                    <small class="text-muted">Proviene del Directorio Activo.</small>
+                                </div>
+
+                                <!-- Campo: Email (solo lectura) -->
+                                <div class="col-md-6">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" class="form-control" value="juan.perez@empresa.com" readonly>
+                                    <small class="text-muted">Proviene del Directorio Activo.</small>
+                                </div>
+
+                                <!-- Campo: Departamento (solo lectura) -->
+                                <div class="col-md-6">
+                                    <label class="form-label">Departamento</label>
+                                    <input type="text" class="form-control" value="Sistemas" readonly>
+                                    <small class="text-muted">Asignado por el Administrador.</small>
+                                </div>
+
+                                <!-- Campo: Último acceso (solo lectura) -->
+                                <div class="col-md-6">
+                                    <label class="form-label">Último acceso</label>
+                                    <input type="text" class="form-control" value="20/09/2026 10:30" readonly>
+                                </div>
+
+                                <!-- Campo: Fecha de registro (solo lectura) -->
+                                <div class="col-md-6">
+                                    <label class="form-label">Fecha de registro</label>
+                                    <input type="text" class="form-control" value="15/01/2026" readonly>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <p class="text-muted small mt-3 mb-0">
-                        El usuario tendrá que volver a iniciar sesión en ese dispositivo.
-                    </p>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-danger" id="btnConfirmarCerrarSesion">
-                        <i class="bi bi-box-arrow-right"></i> Cerrar sesión
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- ============================================= -->
-    <!-- MODAL: CERRAR TODAS LAS SESIONES                -->
-    <!-- ============================================= -->
-    <div class="modal fade" id="modalCerrarTodasSesiones" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header bg-success text-white">
-                    <h5 class="modal-title"><i class="bi bi-exclamation-triangle"></i> Cerrar Todas las Sesiones</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <p>¿Estás seguro de que quieres cerrar <strong>todas las sesiones activas</strong>?</p>
-                    <div class="alert alert-warning mb-0">
-                        <i class="bi bi-exclamation-triangle"></i> Se cerrará la sesión en <strong>todos los dispositivos</strong>, excepto la actual. Tendrás que volver a iniciar sesión desde cada uno.
+                <!-- COLUMNA DERECHA (40%) -->
+                <div class="perfil-col-right">
+
+                    <!-- CARD: ROLES Y ACCESOS -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="bi bi-shield-check"></i> Roles y Accesos</h5>
+                        </div>
+
+                        <div class="card-body">
+                            <!-- Subsección: Rol Global -->
+                            <h6 class="text-muted mb-2">Tipo de Rol</h6>
+                            <p class="mb-3"><span class="badge bg-secondary">Global</span></p>
+
+                            <!-- Subsección: Accesos a Módulos -->
+                            <h6 class="text-muted mb-2">Rol Asignado</h6>
+                            <div class="mb-0">
+                                <span class="badge bg-primary mb-1">Administrador</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-danger" id="btnConfirmarCerrarTodas">
-                        <i class="bi bi-box-arrow-right"></i> Cerrar todas
-                    </button>
+            </div>
+        </div>
+
+        <!-- MODAL: CAMBIAR CONTRASEÑA -->
+        <div class="modal fade" id="modalCambiarPassword" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+
+                    <!-- Cabecera del modal -->
+                    <div class="modal-header" style="background-color: var(--cora-success); color: white;">
+                        <h5 class="modal-title" style="color: var(--cora-white);"><i class="bi bi-key"></i> Cambiar Contraseña</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <!-- Cuerpo del modal con los 3 campos -->
+                    <div class="modal-body">
+
+                        <!-- Campo: contraseña actual -->
+                        <div class="mb-3">
+                            <label class="form-label">Contraseña actual <span class="text-danger">*</span></label>
+                            <input type="password" class="form-control" id="inputPasswordActual" required>
+                            <div class="invalid-feedback">Debes ingresar tu contraseña actual.</div>
+                        </div>
+
+                        <!-- Campo: nueva contraseña -->
+                        <div class="mb-3">
+                            <label class="form-label">Nueva contraseña <span class="text-danger">*</span></label>
+                            <input type="password" class="form-control" id="inputPasswordNueva" required>
+                            <small class="text-muted">Mínimo 8 caracteres.</small>
+                            <div class="invalid-feedback">La contraseña debe tener al menos 8 caracteres.</div>
+                        </div>
+
+                        <!-- Campo: confirmar nueva contraseña -->
+                        <div class="mb-3">
+                            <label class="form-label">Confirmar nueva contraseña <span class="text-danger">*</span></label>
+                            <input type="password" class="form-control" id="inputPasswordConfirmar" required>
+                            <div class="invalid-feedback">Las contraseñas no coinciden.</div>
+                        </div>
+                    </div>
+
+                    <!-- Botones de acción -->
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <!-- El JS valida los campos y muestra el toast -->
+                        <button type="button" class="btn btn-primary" id="btnGuardarPassword">
+                            <i class="bi bi-save"></i> Guardar
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- ============================================= -->
-    <!-- TOAST: Sesión cerrada con éxito                -->
-    <!-- ============================================= -->
-    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1090;">
-        <!-- Toast: Contraseña actualizada -->
-        <div id="toastPasswordActualizada" class="toast" role="alert" data-bs-delay="4000">
-            <div class="toast-header" style="background-color: var(--cora-success); color: white;">
-                <i class="bi bi-check-circle me-2"></i>
-                <strong class="me-auto">Contraseña actualizada</strong>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
-            </div>
-            <div class="toast-body">
-                Tu contraseña ha sido actualizada con éxito.
+        <!-- MODAL: CERRAR SESIÓN INDIVIDUAL -->
+        <div class="modal fade" id="modalCerrarSesionIndividual" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+
+                    <!-- Cabecera del modal -->
+                    <div class="modal-header bg-success text-white">
+                        <h5 class="modal-title"><i class="bi bi-exclamation-triangle"></i> Cerrar Sesión</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <!-- Cuerpo: pregunta y datos del dispositivo/usuario -->
+                    <div class="modal-body">
+                        <p>¿Estás seguro de que quieres cerrar esta sesión?</p>
+
+                        <!-- Bloque con los datos que el JS rellena al abrir el modal -->
+                        <div class="alert alert-secondary mb-0">
+                            <div class="mb-1">
+                                <strong>Dispositivo:</strong> <span id="cerrarDispositivo">—</span>
+                            </div>
+                            <div>
+                                <strong>Usuario:</strong> <span id="cerrarUsuario">—</span>
+                            </div>
+                        </div>
+
+                        <p class="text-muted small mt-3 mb-0">
+                            El usuario tendrá que volver a iniciar sesión en ese dispositivo.
+                        </p>
+                    </div>
+
+                    <!-- Botones de acción -->
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <!-- El JS cierra el modal y muestra el toast -->
+                        <button type="button" class="btn btn-danger" id="btnConfirmarCerrarSesion">
+                            <i class="bi bi-box-arrow-right"></i> Cerrar sesión
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- Toast: Sesión Cerrada -->
-        <div id="toastSesionCerrada" class="toast" role="alert" data-bs-delay="4000">
-            <div class="toast-header" style="background-color: var(--cora-success); color: white;">
-                <i class="bi bi-check-circle me-2"></i>
-                <strong class="me-auto">Sesión cerrada</strong>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
-            </div>
-            <div class="toast-body">
-                Se ha cerrado con éxito.
+        <!-- MODAL: CERRAR TODAS LAS SESIONES -->
+        <div class="modal fade" id="modalCerrarTodasSesiones" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+
+                    <!-- Cabecera del modal -->
+                    <div class="modal-header bg-success text-white">
+                        <h5 class="modal-title"><i class="bi bi-exclamation-triangle"></i> Cerrar Todas las Sesiones</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <!-- Cuerpo: pregunta y advertencia -->
+                    <div class="modal-body">
+                        <p>¿Estás seguro de que quieres cerrar <strong>todas las sesiones activas</strong>?</p>
+
+                        <div class="alert alert-warning mb-0">
+                            <i class="bi bi-exclamation-triangle"></i> Se cerrará la sesión en <strong>todos los dispositivos</strong>, excepto la actual. Tendrás que volver a iniciar sesión desde cada uno.
+                        </div>
+                    </div>
+
+                    <!-- Botones de acción -->
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <!-- El JS cierra el modal y muestra el toast -->
+                        <button type="button" class="btn btn-danger" id="btnConfirmarCerrarTodas">
+                            <i class="bi bi-box-arrow-right"></i> Cerrar todas
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
 
-    <footer class="footer">
-        <div class="container text-center">
-            &copy; 2026 SWCORA - Sistema Web de Control de Recursos y Activos | v1.0.0
+        <!-- TOASTS -->
+        <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1090;">
+
+            <!-- TOAST: CONTRASEÑA ACTUALIZADA -->
+            <div id="toastPasswordActualizada" class="toast" role="alert" data-bs-delay="4000">
+                <div class="toast-header" style="background-color: var(--cora-success); color: white;">
+                    <i class="bi bi-check-circle me-2"></i>
+                    <strong class="me-auto">Contraseña actualizada</strong>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+                </div>
+                <div class="toast-body">
+                    Tu contraseña ha sido actualizada con éxito.
+                </div>
+            </div>
+
+            <!-- TOAST: SESIÓN CERRADA -->
+            <div id="toastSesionCerrada" class="toast" role="alert" data-bs-delay="4000">
+                <div class="toast-header" style="background-color: var(--cora-success); color: white;">
+                    <i class="bi bi-check-circle me-2"></i>
+                    <strong class="me-auto">Sesión cerrada</strong>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+                </div>
+                <div class="toast-body">
+                    Se ha cerrado con éxito.
+                </div>
+            </div>
         </div>
-    </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../js/scripts.js"></script>
-</body>
+        <!-- FOOTER -->
+        <footer class="footer">
+            <div class="container text-center">
+                &copy; 2026 SWCORA - Sistema Web de Control de Recursos y Activos | v1.0.0
+            </div>
+        </footer>
+
+        <!-- SCRIPTS -->
+        <!-- Bootstrap bundle (incluye Popper para dropdowns y modales) -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- Scripts propios del sistema (modal de contraseña, cierre de sesión, etc.) -->
+        <script src="../js/scripts.js"></script>
+    </body>
 </html>
