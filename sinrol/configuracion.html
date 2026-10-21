@@ -84,7 +84,12 @@
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
                 <h2><i class="bi bi-gear"></i> Configuración</h2>
-                <p class="text-muted mb-0">Administra tus preferencias personales del sistema.</p>
+                <p class="text-muted mb-0">
+                    Administra tus preferencias personales del sistema.
+                    <span class="badge bg-info ms-2" title="Los cambios se guardan automáticamente">
+                        <i class="bi bi-lightning-charge"></i> Autoguardado
+                    </span>
+                </p>
             </div>
         </div>
 
@@ -200,6 +205,18 @@
                                         <option value="America/Buenos_Aires">(GMT-3) Buenos Aires</option>
                                     </select>
                                     <small class="text-muted">Se usará para mostrar fechas y horas.</small>
+                                </div>
+
+                                <!-- Select: Elementos por página -->
+                                <div class="col-md-6">
+                                    <label class="form-label" for="itemsPorPagina">Elementos por página</label>
+                                    <select class="form-select config-input" id="itemsPorPagina" data-config-key="itemsPorPagina">
+                                        <option value="10">10</option>
+                                        <option value="25" selected>25</option>
+                                        <option value="50">50</option>
+                                        <option value="100">100</option>
+                                    </select>
+                                    <small class="text-muted">Aplica a todas las tablas del sistema.</small>
                                 </div>
                             </div>
                         </div>

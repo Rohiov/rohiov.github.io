@@ -187,11 +187,16 @@
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
                     <h2><i class="bi bi-gear"></i> Configuración</h2>
-                    <p class="text-muted mb-0">Administra tus preferencias personales del sistema.</p>
+                    <p class="text-muted mb-0">
+                        Administra tus preferencias personales del sistema.
+                        <span class="badge bg-info ms-2" title="Los cambios se guardan automáticamente">
+                            <i class="bi bi-lightning-charge"></i> Autoguardado
+                        </span>
+                    </p>
                 </div>
             </div>
 
-            <!-- PESTAÑAS: NOTIFICACIONES / REGIÓN -->
+            <!-- PESTAÑAS: NOTIFICACIONES / GENERAL / SISTEMA -->
             <ul class="nav nav-pills mb-4" id="configTabs" role="tablist">
 
                 <!-- Pestaña: Notificaciones (activa por defecto) -->
@@ -206,24 +211,38 @@
                     </button>
                 </li>
 
-                <!-- Pestaña: Región -->
+                <!-- Pestaña: General -->
                 <li class="nav-item" role="presentation">
                     <button class="nav-link"
-                            id="tab-region-btn"
+                            id="tab-general-btn"
                             data-bs-toggle="pill"
-                            data-bs-target="#tab-region"
+                            data-bs-target="#tab-general"
                             type="button"
                             role="tab">
-                        <i class="bi bi-globe"></i> Región
+                        <i class="bi bi-globe"></i> General
+                    </button>
+                </li>
+
+                <!-- Pestaña: Sistema -->
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link"
+                            id="tab-sistema-btn"
+                            data-bs-toggle="pill"
+                            data-bs-target="#tab-sistema"
+                            type="button"
+                            role="tab">
+                        <i class="bi bi-server"></i> Sistema
                     </button>
                 </li>
             </ul>
 
-            <!-- FORMULARIO DE CONFIGURACIÓN -->
-            <form id="formConfiguracion">
+            <!-- FORMULARIO DE CONFIGURACIÓN (sin botón Guardar: autoguardado) -->
+            <form id="formConfiguracion" autocomplete="off">
                 <div class="tab-content">
 
-                    <!-- TAB: NOTIFICACIONES -->
+
+                    <!-- TAB: NOTIFICACIONES                            -->
+
                     <div class="tab-pane fade show active" id="tab-notif" role="tabpanel">
 
                         <!-- CARD: CANALES DE NOTIFICACIÓN -->
@@ -236,7 +255,7 @@
 
                                 <!-- Switch: email -->
                                 <div class="form-check form-switch mb-3">
-                                    <input class="form-check-input" type="checkbox" id="notifEmail" checked>
+                                    <input class="form-check-input config-input" type="checkbox" id="notifEmail" data-config-key="notifEmail" checked>
                                     <label class="form-check-label" for="notifEmail">
                                         <strong>Notificaciones por email</strong>
                                         <small class="text-muted d-block">Recibe un correo cuando ocurran eventos importantes (aprobaciones, rechazos, solicitudes).</small>
@@ -245,7 +264,7 @@
 
                                 <!-- Switch: dentro del sistema -->
                                 <div class="form-check form-switch mb-3">
-                                    <input class="form-check-input" type="checkbox" id="notifSistema" checked>
+                                    <input class="form-check-input config-input" type="checkbox" id="notifSistema" data-config-key="notifSistema" checked>
                                     <label class="form-check-label" for="notifSistema">
                                         <strong>Notificaciones dentro del sistema</strong>
                                         <small class="text-muted d-block">Muestra alertas en la campana del navbar.</small>
@@ -254,7 +273,7 @@
 
                                 <!-- Switch: push del navegador -->
                                 <div class="form-check form-switch mb-3">
-                                    <input class="form-check-input" type="checkbox" id="notifPush">
+                                    <input class="form-check-input config-input" type="checkbox" id="notifPush" data-config-key="notifPush">
                                     <label class="form-check-label" for="notifPush">
                                         <strong>Notificaciones Push (navegador)</strong>
                                         <small class="text-muted d-block">Recibe avisos incluso cuando SWCORA no está abierto.</small>
@@ -274,7 +293,7 @@
 
                                 <!-- Tipo: Salidas de Material -->
                                 <div class="form-check mb-2">
-                                    <input class="form-check-input" type="checkbox" id="tipoSalidas" checked>
+                                    <input class="form-check-input config-input" type="checkbox" id="tipoSalidas" data-config-key="tipoSalidas" checked>
                                     <label class="form-check-label" for="tipoSalidas">
                                         <strong>Salidas de Material</strong>
                                         <small class="text-muted d-block">Creación, envío, aprobación, rechazo y cancelación de salidas.</small>
@@ -283,7 +302,7 @@
 
                                 <!-- Tipo: Solicitudes de Acceso -->
                                 <div class="form-check mb-2">
-                                    <input class="form-check-input" type="checkbox" id="tipoSolicitudes" checked>
+                                    <input class="form-check-input config-input" type="checkbox" id="tipoSolicitudes" data-config-key="tipoSolicitudes" checked>
                                     <label class="form-check-label" for="tipoSolicitudes">
                                         <strong>Solicitudes de Acceso</strong>
                                         <small class="text-muted d-block">Nuevas solicitudes, aprobaciones y rechazos.</small>
@@ -292,7 +311,7 @@
 
                                 <!-- Tipo: Sistema -->
                                 <div class="form-check mb-2">
-                                    <input class="form-check-input" type="checkbox" id="tipoSistema">
+                                    <input class="form-check-input config-input" type="checkbox" id="tipoSistema" data-config-key="tipoSistema">
                                     <label class="form-check-label" for="tipoSistema">
                                         <strong>Sistema</strong>
                                         <small class="text-muted d-block">Avisos generales, mantenimientos, cambios importantes.</small>
@@ -300,15 +319,16 @@
                                 </div>
                             </div>
                         </div>
+
                     </div>
 
-                    <!-- TAB: REGIÓN -->
-                    <div class="tab-pane fade" id="tab-region" role="tabpanel">
+                    <!-- TAB: GENERAL                                   -->
+                    <div class="tab-pane fade" id="tab-general" role="tabpanel">
 
-                        <!-- CARD: PREFERENCIAS REGIONALES -->
+                        <!-- CARD: PREFERENCIAS GENERALES -->
                         <div class="card mb-4">
                             <div class="card-header">
-                                <h5 class="mb-0"><i class="bi bi-globe"></i> Preferencias Regionales</h5>
+                                <h5 class="mb-0"><i class="bi bi-globe"></i> Preferencias Generales</h5>
                             </div>
 
                             <div class="card-body">
@@ -316,8 +336,8 @@
 
                                     <!-- Select: Zona Horaria -->
                                     <div class="col-md-6">
-                                        <label class="form-label">Zona Horaria</label>
-                                        <select class="form-select" id="zonaHoraria">
+                                        <label class="form-label" for="zonaHoraria">Zona Horaria</label>
+                                        <select class="form-select config-input" id="zonaHoraria" data-config-key="zonaHoraria">
                                             <option value="America/Mexico_City" selected>(GMT-6) Ciudad de México</option>
                                             <option value="America/Monterrey">(GMT-6) Monterrey</option>
                                             <option value="America/Tijuana">(GMT-8) Tijuana</option>
@@ -329,12 +349,283 @@
                                         </select>
                                         <small class="text-muted">Se usará para mostrar fechas y horas.</small>
                                     </div>
+
+                                    <!-- Select: Elementos por página -->
+                                    <div class="col-md-6">
+                                        <label class="form-label" for="itemsPorPagina">Elementos por página</label>
+                                        <select class="form-select config-input" id="itemsPorPagina" data-config-key="itemsPorPagina">
+                                            <option value="10">10</option>
+                                            <option value="25" selected>25</option>
+                                            <option value="50">50</option>
+                                            <option value="100">100</option>
+                                        </select>
+                                        <small class="text-muted">Aplica a todas las tablas del sistema.</small>
+                                    </div>
+
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB: SISTEMA -->
+                    <div class="tab-pane fade" id="tab-sistema" role="tabpanel">
+
+                        <!-- CARD: RETENCIÓN DE LOGS -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0"><i class="bi bi-clock-history"></i> Retención de Logs</h5>
+                            </div>
+
+                            <div class="card-body">
+                                <div class="row g-3">
+
+                                    <!-- Select: Tiempo de retención -->
+                                    <div class="col-md-6">
+                                        <label class="form-label" for="retencionLogs">Tiempo de retención</label>
+                                        <select class="form-select config-input" id="retencionLogs" data-config-key="retencionLogs">
+                                            <option value="30">30 días</option>
+                                            <option value="90" selected>90 días</option>
+                                            <option value="180">180 días</option>
+                                            <option value="365">365 días (1 año)</option>
+                                            <option value="0">Indefinido</option>
+                                        </select>
+                                        <small class="text-muted">Los logs más antiguos se eliminarán automáticamente.</small>
+                                    </div>
+
+                                    <!-- Input: correo de alerta para logs críticos -->
+                                    <div class="col-md-6">
+                                        <label class="form-label" for="emailAlertasLogs">Correo de alerta para logs críticos</label>
+                                        <input type="email" class="form-control config-input" id="emailAlertasLogs" data-config-key="emailAlertasLogs" placeholder="admin@empresa.com">
+                                        <small class="text-muted">Se enviará un correo cuando ocurra un evento crítico.</small>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- CARD: EVENTOS A REGISTRAR -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0"><i class="bi bi-list-check"></i> Eventos a Registrar</h5>
+                            </div>
+
+                            <div class="card-body">
+
+                                <!-- Switch: inicios de sesión -->
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input config-input" type="checkbox" id="logIniciosSesion" data-config-key="logIniciosSesion" checked>
+                                    <label class="form-check-label" for="logIniciosSesion">
+                                        <strong>Inicios y cierres de sesión</strong>
+                                        <small class="text-muted d-block">Registra cada acceso al sistema.</small>
+                                    </label>
+                                </div>
+
+                                <!-- Switch: cambios de configuración -->
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input config-input" type="checkbox" id="logCambiosConfig" data-config-key="logCambiosConfig" checked>
+                                    <label class="form-check-label" for="logCambiosConfig">
+                                        <strong>Cambios de configuración</strong>
+                                        <small class="text-muted d-block">Roles, permisos, usuarios y catálogos.</small>
+                                    </label>
+                                </div>
+
+                                <!-- Switch: acciones sobre salidas -->
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input config-input" type="checkbox" id="logAccionesSalidas" data-config-key="logAccionesSalidas" checked>
+                                    <label class="form-check-label" for="logAccionesSalidas">
+                                        <strong>Acciones sobre Salidas de Material</strong>
+                                        <small class="text-muted d-block">Creación, aprobación, rechazo, cancelación.</small>
+                                    </label>
+                                </div>
+
+                                <!-- Switch: solo críticos -->
+                                <div class="form-check form-switch mb-0">
+                                    <input class="form-check-input config-input" type="checkbox" id="logSoloCriticos" data-config-key="logSoloCriticos">
+                                    <label class="form-check-label" for="logSoloCriticos">
+                                        <strong>Registrar solo eventos críticos</strong>
+                                        <small class="text-muted d-block">Reduce el ruido; útil en entornos de alta actividad.</small>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- CARD: EXPORTACIÓN AUTOMÁTICA -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0"><i class="bi bi-download"></i> Exportación Automática</h5>
+                            </div>
+
+                            <div class="card-body">
+                                <div class="row g-3">
+
+                                    <!-- Select: Frecuencia -->
+                                    <div class="col-md-6">
+                                        <label class="form-label" for="frecuenciaExportLogs">Frecuencia de exportación</label>
+                                        <select class="form-select config-input" id="frecuenciaExportLogs" data-config-key="frecuenciaExportLogs">
+                                            <option value="nunca" selected>Nunca</option>
+                                            <option value="diario">Diario</option>
+                                            <option value="semanal">Semanal</option>
+                                            <option value="mensual">Mensual</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Select: Formato -->
+                                    <div class="col-md-6">
+                                        <label class="form-label" for="formatoExportLogs">Formato de exportación</label>
+                                        <select class="form-select config-input" id="formatoExportLogs" data-config-key="formatoExportLogs">
+                                            <option value="csv" selected>CSV</option>
+                                            <option value="json">JSON</option>
+                                            <option value="xlsx">XLSX</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- CARD: SERVIDOR SMTP -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0"><i class="bi bi-server"></i> Servidor SMTP</h5>
+                            </div>
+
+                            <div class="card-body">
+                                <div class="row g-3">
+
+                                    <!-- Servidor SMTP -->
+                                    <div class="col-md-4">
+                                        <label class="form-label" for="smtpHost">Servidor SMTP</label>
+                                        <input type="text" class="form-control config-input" id="smtpHost" data-config-key="smtpHost" placeholder="smtp.gmail.com">
+                                        <small class="text-muted">Dirección del servidor de correo saliente.</small>
+                                    </div>
+
+                                    <!-- Puerto -->
+                                    <div class="col-md-2">
+                                        <label class="form-label" for="smtpPuerto">Puerto</label>
+                                        <input type="number" class="form-control config-input" id="smtpPuerto" data-config-key="smtpPuerto" value="587" min="1" max="65535">
+                                        <small class="text-muted">587 (TLS) o 465 (SSL).</small>
+                                    </div>
+
+                                    <!-- Cifrado -->
+                                    <div class="col-md-2">
+                                        <label class="form-label" for="smtpCifrado">Cifrado</label>
+                                        <select class="form-select config-input" id="smtpCifrado" data-config-key="smtpCifrado">
+                                            <option value="tls" selected>TLS</option>
+                                            <option value="ssl">SSL</option>
+                                            <option value="ninguno">Ninguno</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Autenticación requerida -->
+                                    <div class="col-md-4 d-flex align-items-center">
+                                        <div class="form-check form-switch mt-4">
+                                            <input class="form-check-input config-input" type="checkbox" id="smtpAuth" data-config-key="smtpAuth" checked>
+                                            <label class="form-check-label" for="smtpAuth">El servidor requiere autenticación</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- CARD: CUENTA SMTP -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0"><i class="bi bi-person-lock"></i> Cuenta SMTP</h5>
+                            </div>
+
+                            <div class="card-body">
+                                <div class="row g-3">
+
+                                    <!-- Usuario SMTP -->
+                                    <div class="col-md-6">
+                                        <label class="form-label" for="smtpUsuario">Cuenta SMTP (usuario)</label>
+                                        <input type="email" class="form-control config-input" id="smtpUsuario" data-config-key="smtpUsuario" placeholder="notificaciones@empresa.com">
+                                    </div>
+
+                                    <!-- Contraseña SMTP -->
+                                    <div class="col-md-6">
+                                        <label class="form-label" for="smtpPassword">Contraseña SMTP</label>
+                                        <div class="input-group">
+                                            <input type="password" class="form-control config-input" id="smtpPassword" data-config-key="smtpPassword" placeholder="••••••••">
+                                            <button class="btn btn-outline-secondary" type="button" id="btnToggleSmtpPassword" title="Mostrar/Ocultar">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                        </div>
+                                        <small class="text-muted">Se almacena cifrada.</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- CARD: MENSAJE DE ENVÍO -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0"><i class="bi bi-envelope-paper"></i> Mensaje de Envío</h5>
+                            </div>
+
+                            <div class="card-body">
+                                <div class="row g-3">
+
+                                    <!-- Nombre remitente -->
+                                    <div class="col-md-6">
+                                        <label class="form-label" for="smtpNombreRemitente">Nombre del remitente</label>
+                                        <input type="text" class="form-control config-input" id="smtpNombreRemitente" data-config-key="smtpNombreRemitente" value="SWCORA – Notificaciones" maxlength="100">
+                                    </div>
+
+                                    <!-- Correo remitente -->
+                                    <div class="col-md-6">
+                                        <label class="form-label" for="smtpCorreoRemitente">Correo del remitente</label>
+                                        <input type="email" class="form-control config-input" id="smtpCorreoRemitente" data-config-key="smtpCorreoRemitente" value="no-reply@swcora.com">
+                                    </div>
+
+                                    <!-- Firma -->
+                                    <div class="col-12">
+                                        <label class="form-label" for="smtpFirma">Firma del correo (opcional)</label>
+                                        <textarea class="form-control config-input" id="smtpFirma" data-config-key="smtpFirma" rows="2">Este mensaje fue generado automáticamente. No responder.</textarea>
+                                    </div>
+
+                                    <!-- Límite diario -->
+                                    <div class="col-md-6">
+                                        <label class="form-label" for="smtpLimiteDiario">Límite diario de envíos</label>
+                                        <input type="number" class="form-control config-input" id="smtpLimiteDiario" data-config-key="smtpLimiteDiario" value="500" min="1" max="10000">
+                                        <small class="text-muted">Protección contra envíos masivos accidentales.</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- CARD: PROBAR CONFIGURACIÓN -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0"><i class="bi bi-send-check"></i> Probar Configuración</h5>
+                            </div>
+
+                            <div class="card-body">
+                                <div class="d-flex align-items-center gap-2 flex-wrap">
+                                    <input type="email" class="form-control" style="max-width: 320px;" id="smtpCorreoPrueba" placeholder="correo@ejemplo.com">
+                                    <button type="button" class="btn btn-outline-success" id="btnEnviarCorreoPrueba">
+                                        <i class="bi bi-send"></i> Enviar correo de prueba
+                                    </button>
+                                </div>
+                                <small class="text-muted d-block mt-2">Se enviará un correo usando la configuración actual.</small>
                             </div>
                         </div>
                     </div>
                 </div>
             </form>
+        </div>
+
+        <!-- TOAST: CAMBIOS GUARDADOS -->
+        <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1090;">
+            <div id="toastConfigGuardada" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="2500">
+                <div class="toast-header" style="background-color: var(--cora-success); color: white;">
+                    <i class="bi bi-check-circle me-2"></i>
+                    <strong class="me-auto">Configuración guardada</strong>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+                </div>
+                <div class="toast-body" id="toastConfigGuardadaMensaje">
+                    Los cambios se guardaron automáticamente.
+                </div>
+            </div>
         </div>
 
         <!-- FOOTER -->

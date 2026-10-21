@@ -543,6 +543,78 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     // =============================================
+    // HELPERS DE UNIDADES DE MEDIDA
+    // Fuente: #tablaUnidades (admin-unidades) → localStorage
+    // =============================================
+    const STORAGE_KEY_UNIDADES = 'swcora_unidades_medida';
+
+    // Seed por si admin-unidades nunca se ha visitado
+    const SEED_UNIDADES = [
+        { codigo: 'PZS', descripcion: 'Piezas',     activo: true },
+        { codigo: 'KG',  descripcion: 'Kilogramos', activo: true },
+        { codigo: 'MTS', descripcion: 'Metros',     activo: true },
+        { codigo: 'LTS', descripcion: 'Litros',     activo: true },
+        { codigo: 'CJA', descripcion: 'Cajas',      activo: true }
+    ];
+
+    function cargarUnidades() {
+        try {
+            const raw = localStorage.getItem(STORAGE_KEY_UNIDADES);
+            if (!raw) {
+                localStorage.setItem(STORAGE_KEY_UNIDADES, JSON.stringify(SEED_UNIDADES));
+                return SEED_UNIDADES.slice();
+            }
+            const data = JSON.parse(raw);
+            return Array.isArray(data) ? data : SEED_UNIDADES.slice();
+        } catch (e) {
+            return SEED_UNIDADES.slice();
+        }
+    }
+
+    // Devuelve la descripción legible de un código ("PZS" → "Piezas")
+    function obtenerDescripcionUnidad(codigo) {
+        if (!codigo) return '—';
+        const lista = cargarUnidades();
+        const encontrada = lista.find(u =>
+            u.codigo.toLowerCase() === String(codigo).toLowerCase()
+        );
+        return encontrada ? encontrada.descripcion : codigo;
+    }
+
+    // Rellena un <select> con las unidades activas
+    function poblarSelectUnidades(select, valorSeleccionado) {
+        if (!select) return;
+        const lista = cargarUnidades().filter(u => u.activo !== false);
+
+        const valor = valorSeleccionado || select.value || (lista[0] && lista[0].codigo) || '';
+
+        select.innerHTML = '';
+        lista.forEach(function (u) {
+            const opt = document.createElement('option');
+            opt.value = u.codigo;
+            opt.textContent = u.descripcion;
+            if (u.codigo === valor) opt.selected = true;
+            select.appendChild(opt);
+        });
+    }
+
+    // Refresca todos los selects .input-unidad de la página
+    function refrescarSelectsUnidades() {
+        document.querySelectorAll('select.input-unidad').forEach(function (sel) {
+            const valorActual = sel.value;
+            poblarSelectUnidades(sel, valorActual);
+        });
+    }
+
+    // Exponer
+    window.swcoraUnidades = {
+        cargar: cargarUnidades,
+        descripcion: obtenerDescripcionUnidad,
+        poblarSelect: poblarSelectUnidades,
+        refrescarSelects: refrescarSelectsUnidades
+    };
+
+    // =============================================
     // HELPERS GLOBALES: Sincronización de Tipos de Empresa
     // =============================================
 
@@ -2942,6 +3014,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Detecta botones con [data-tabla] o .btn-exportar-csv
     // =============================================
     document.querySelectorAll('[data-tabla], .btn-exportar-csv').forEach(function (btn) {
+        if (btn.id === 'btnExportarSalidas') return;
         if (btn.dataset.exportListener === 'true') return;
         btn.dataset.exportListener = 'true';
 
@@ -3804,6 +3877,9 @@ document.addEventListener('DOMContentLoaded', function () {
         aplicarFiltrosDepartamentos();
     }
 
+    // Poblar selects de unidades al cargar la página
+    refrescarSelectsUnidades();
+
     // =============================================
     // ADMIN UNIDADES: filtros, edición y estado
     // =============================================
@@ -3846,7 +3922,23 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
 
-        // Genera un código interno único para nuevas unidades
+        // Persiste las unidades actuales de la tabla en localStorage
+        function persistirUnidadesDesdeTabla() {
+            const filas = document.querySelectorAll('#tablaUnidades .unidad-row');
+            const lista = [];
+            filas.forEach(function (fila) {
+                lista.push({
+                    codigo: fila.dataset.codigo || '',
+                    descripcion: fila.dataset.descripcion || fila.cells[0].textContent.trim(),
+                    activo: fila.dataset.estado !== 'inactivo'
+                });
+            });
+            try {
+                localStorage.setItem('swcora_unidades_medida', JSON.stringify(lista));
+            } catch (e) { console.warn(e); }
+            refrescarSelectsUnidades();
+        }
+
         function generarCodigoUnidad(descripcion) {
             const base = normalizarUnidad(descripcion)
                 .replace(/[^a-z0-9\s]/g, '')
@@ -3872,7 +3964,6 @@ document.addEventListener('DOMContentLoaded', function () {
             return codigo;
         }
 
-        // Filtros por formato y estado
         function aplicarFiltrosUnidades() {
             const busqueda = normalizarUnidad(filtroBuscar ? filtroBuscar.value : '');
             const estadoSeleccionado = filtroEstado ? filtroEstado.value : '';
@@ -3909,7 +4000,6 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
 
-        // Preparar modal para nueva unidad
         if (btnNueva) {
             btnNueva.addEventListener('click', function () {
                 filaEditando = null;
@@ -3964,6 +4054,7 @@ document.addEventListener('DOMContentLoaded', function () {
             btnToggle.classList.toggle('btn-outline-success', !activar);
 
             aplicarFiltrosUnidades();
+            persistirUnidadesDesdeTabla();
 
             mostrarToastUnidad(activar ? toastActivado : toastDesactivado);
         });
@@ -3989,7 +4080,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 inputDescripcion.classList.remove('is-invalid');
 
-                // Evitar duplicados
                 const descripcionNormalizada = normalizarUnidad(descripcion);
 
                 const duplicada = Array.from(tbody.querySelectorAll('.unidad-row'))
@@ -4016,7 +4106,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 let fila = filaEditando;
 
-                // Crear nueva fila
                 if (!fila) {
                     fila = document.createElement('tr');
                     fila.className = 'unidad-row';
@@ -4071,6 +4160,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     btnToggle.classList.toggle('btn-outline-primary', activo);
                     btnToggle.classList.toggle('btn-outline-success', !activo);
                 }
+
+                persistirUnidadesDesdeTabla();
 
                 const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
 
@@ -4494,16 +4585,13 @@ document.addEventListener('DOMContentLoaded', function () {
             const lista = window.swcoraSalidas.cargar();
             tbodySalidas.innerHTML = '';
 
-            // Ocultar vista del aprobador si el rol logueado es "generador"
             const ocultarVistaAprobador = (ROL_ACTUAL === 'generador');
 
             lista.forEach(function (s) {
                 const esPendienteConAprobador = s.estado === 'pendiente' && s.aprobador;
 
                 if (esPendienteConAprobador) {
-                    // Vista del solicitante
                     tbodySalidas.appendChild(crearFilaSalida(s, 'solicitante'));
-                    // Vista del aprobador (si aplica)
                     if (!ocultarVistaAprobador) {
                         tbodySalidas.appendChild(crearFilaSalida(s, 'aprobador'));
                     }
@@ -4526,6 +4614,9 @@ document.addEventListener('DOMContentLoaded', function () {
             fila.setAttribute('data-estado', s.estado);
             fila.setAttribute('data-usuario', s.usuario);
             fila.setAttribute('data-descripcion', s.descripcion);
+            fila.setAttribute('data-empresa', s.empresa || '');
+            fila.setAttribute('data-destinatario', s.contacto || '');
+            fila.setAttribute('data-retorno', s.retornoEsperado || '');
             fila.setAttribute('data-motivo', s.motivo || '');
             fila.setAttribute('data-materiales', s.materiales);
             if (rol) fila.setAttribute('data-rol', rol);
@@ -4533,6 +4624,18 @@ document.addEventListener('DOMContentLoaded', function () {
             const folioCell = s.folio
                 ? '<strong>' + escaparHTML(s.folio) + '</strong>'
                 : '<em class="text-muted">(sin folio)</em>';
+
+            const empresaCell = s.empresa
+                ? escaparHTML(s.empresa)
+                : '<em class="text-muted">—</em>';
+
+            const destinatarioCell = s.contacto
+                ? escaparHTML(s.contacto)
+                : '<em class="text-muted">—</em>';
+
+            const retornoCell = s.retornoEsperado
+                ? escaparHTML(s.retornoEsperado)
+                : '<em class="text-muted">—</em>';
 
             const motivoCell = s.motivo
                 ? escaparHTML(s.motivo)
@@ -4544,6 +4647,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 '<td>' + badgeEstadoHTML(s.estado, rol) + '</td>' +
                 '<td>' + escaparHTML(s.usuario) + '</td>' +
                 '<td>' + escaparHTML(s.descripcion) + '</td>' +
+                '<td>' + empresaCell + '</td>' +
+                '<td>' + destinatarioCell + '</td>' +
+                '<td>' + retornoCell + '</td>' +
                 '<td class="motivo-celda">' + motivoCell + '</td>' +
                 '<td class="text-center"><span class="badge bg-secondary">' + (s.materiales || 0) + '</span></td>' +
                 '<td class="text-center text-nowrap">' + accionesHTML(s, rol) + '</td>';
@@ -4784,6 +4890,112 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Inicializar
         renderSalidas();
+    }
+
+        // =============================================
+    // EXPORTACIÓN CSV ESPECIAL: salidas-index (con todos los detalles)
+    // =============================================
+    const btnExportarSalidasDetalle = document.getElementById('btnExportarSalidas');
+    if (btnExportarSalidasDetalle && document.getElementById('tablaSalidas')) {
+
+        // Quitar el atributo para que el listener genérico no se dispare
+        btnExportarSalidasDetalle.removeAttribute('data-tabla');
+
+        // Evitar listeners duplicados
+        if (btnExportarSalidasDetalle.dataset.exportDetalle !== 'true') {
+            btnExportarSalidasDetalle.dataset.exportDetalle = 'true';
+
+            btnExportarSalidasDetalle.addEventListener('click', function () {
+                const lista = window.swcoraSalidas.cargar();
+
+                // Encabezados completos (incluye TODA la info del detalle)
+                const encabezados = [
+                    'Folio',
+                    'Fecha',
+                    'Estado',
+                    'Usuario',
+                    'Descripción',
+                    'Empresa',
+                    'Tipo Empresa',
+                    'Destinatario (Contacto)',
+                    'Retorno Esperado',
+                    'Es Definitiva',
+                    'Motivo',
+                    'Departamento',
+                    'Aprobador',
+                    'Aprobado Por',
+                    'Fecha Aprobación',
+                    'Causa',
+                    'Categoría',
+                    'Comentarios',
+                    'Total Materiales',
+                    'Materiales (detalle)'
+                ];
+
+                const filas = lista.map(function (s) {
+                    const detalleMat = (s.materialesLista || []).map(function (m, i) {
+                        const unidadLegible = obtenerDescripcionUnidad(m.unidad);
+                        return (i + 1) + ') ' + m.cantidad + ' ' +
+                            unidadLegible + ' — ' + (m.descripcion || '') +
+                            (m.comentario ? ' (' + m.comentario + ')' : '');
+                    }).join(' | ');
+
+                    return [
+                        s.folio || '(sin folio)',
+                        s.fechaVisible || '',
+                        s.estado || '',
+                        s.usuario || '',
+                        s.descripcion || '',
+                        s.empresa || '',
+                        s.tipoEmpresa || '',
+                        s.contacto || '',
+                        s.retornoEsperado || '',
+                        s.esDefinitiva ? 'Sí' : 'No',
+                        s.motivo || '',
+                        s.departamento || '',
+                        s.aprobador || '',
+                        s.aprobadoPor || '',
+                        s.fechaAprobacion || '',
+                        s.causa || '',
+                        s.categoria || '',
+                        s.comentarios || '',
+                        (s.materialesLista || []).length,
+                        detalleMat
+                    ];
+                });
+
+                // Escapar CSV
+                function esc(v) {
+                    const t = String(v == null ? '' : v);
+                    if (t.indexOf(',') !== -1 || t.indexOf('"') !== -1 ||
+                        t.indexOf('\n') !== -1 || t.indexOf('\r') !== -1) {
+                        return '"' + t.replace(/"/g, '""') + '"';
+                    }
+                    return t;
+                }
+
+                const lineas = [encabezados.map(esc).join(',')];
+                filas.forEach(function (f) { lineas.push(f.map(esc).join(',')); });
+
+                const contenido = '\uFEFF' + lineas.join('\r\n');
+                const blob = new Blob([contenido], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+
+                const d = new Date();
+                const pad = n => String(n).padStart(2, '0');
+                const ts = d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate()) +
+                           '_' + pad(d.getHours()) + pad(d.getMinutes());
+
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'salidas_completo_' + ts + '.csv';
+                a.style.display = 'none';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            });
+        }
     }
 
     // =============================================
@@ -5055,7 +5267,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 tr.innerHTML =
                     '<td>' + (i + 1) + '</td>' +
                     '<td>' + escaparHTML(m.cantidad) + '</td>' +
-                    '<td>' + escaparHTML(m.unidad) + '</td>' +
+                    '<td>' + escaparHTML(obtenerDescripcionUnidad(m.unidad)) + '</td>' +
                     '<td>' + escaparHTML(m.descripcion) + '</td>' +
                     '<td>' + (m.comentario ? escaparHTML(m.comentario) : '—') + '</td>';
                 tbodyMat.appendChild(tr);
@@ -5319,16 +5531,24 @@ document.addEventListener('DOMContentLoaded', function () {
             // Precargar materiales
             if (tbodyMaterialesEdit && Array.isArray(salidaEditando.materialesLista)) {
                 tbodyMaterialesEdit.innerHTML = '';
+
+                // Unidades activas desde localStorage (consistente con admin-unidades)
+                const unidadesActivas = cargarUnidades().filter(u => u.activo !== false);
+
                 salidaEditando.materialesLista.forEach(function (m, i) {
+                    const opcionesUnidad = unidadesActivas.map(function (u) {
+                        return '<option value="' + u.codigo + '"' +
+                            (u.codigo === m.unidad ? ' selected' : '') + '>' +
+                            u.descripcion + '</option>';
+                    }).join('');
+
                     const tr = document.createElement('tr');
                     tr.className = 'material-row';
                     tr.innerHTML =
                         '<td class="numero-linea">' + (i + 1) + '</td>' +
                         '<td><input type="number" class="form-control form-control-sm input-cantidad" value="' + (m.cantidad || 1) + '" step="1" min="1"></td>' +
                         '<td><select class="form-select form-select-sm input-unidad">' +
-                            ['PZS','KG','MTS','LTS','CJA'].map(function(u) {
-                                return '<option' + (u === m.unidad ? ' selected' : '') + '>' + u + '</option>';
-                            }).join('') +
+                            opcionesUnidad +
                         '</select></td>' +
                         '<td><input type="text" class="form-control form-control-sm input-descripcion" value="' + String(m.descripcion || '').replace(/"/g, '&quot;') + '"></td>' +
                         '<td><input type="text" class="form-control form-control-sm input-comentario" value="' + String(m.comentario || '').replace(/"/g, '&quot;') + '"></td>' +
@@ -5755,6 +5975,152 @@ document.addEventListener('DOMContentLoaded', function () {
         // Actualizar contador de materiales al cargar
         if (contadorMaterialesCrear && tbodyMaterialesCrear) {
             contadorMaterialesCrear.textContent = tbodyMaterialesCrear.querySelectorAll('.material-row').length;
+        }
+    }
+
+    // =============================================
+    // CONFIGURACIÓN: autoguardado + toast
+    // Detecta todos los elementos .config-input
+    // y persiste sus valores en localStorage.
+    // =============================================
+    const formConfiguracion = document.getElementById('formConfiguracion');
+
+    if (formConfiguracion) {
+        const STORAGE_KEY_CONFIG = 'swcora_configuracion';
+        const toastConfigEl = document.getElementById('toastConfigGuardada');
+        const toastConfigMensajeEl = document.getElementById('toastConfigGuardadaMensaje');
+
+        // ---------- Utilidades de storage ----------
+        function cargarConfiguracion() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY_CONFIG);
+                return raw ? JSON.parse(raw) : {};
+            } catch (e) {
+                console.warn('Error leyendo configuración:', e);
+                return {};
+            }
+        }
+
+        function guardarConfiguracion(obj) {
+            try {
+                localStorage.setItem(STORAGE_KEY_CONFIG, JSON.stringify(obj));
+                return true;
+            } catch (e) {
+                console.error('Error guardando configuración:', e);
+                return false;
+            }
+        }
+
+        // ---------- Toast de confirmación ----------
+        function mostrarToastConfig(mensaje) {
+            if (!toastConfigEl) return;
+            if (toastConfigMensajeEl) {
+                toastConfigMensajeEl.textContent = mensaje || 'Los cambios se guardaron automáticamente.';
+            }
+            bootstrap.Toast.getOrCreateInstance(toastConfigEl).show();
+        }
+
+        // ---------- Detectar tipo de input y leer su valor ----------
+        function leerValorInput(el) {
+            if (el.type === 'checkbox') return el.checked;
+            if (el.type === 'number') {
+                const n = parseInt(el.value, 10);
+                return isNaN(n) ? 0 : n;
+            }
+            return el.value;
+        }
+
+        // ---------- Aplicar valor guardado al input ----------
+        function aplicarValorInput(el, valor) {
+            if (valor === undefined || valor === null) return;
+            if (el.type === 'checkbox') {
+                el.checked = !!valor;
+            } else {
+                el.value = valor;
+            }
+        }
+
+        // ---------- Cargar valores al iniciar ----------
+        const configGuardada = cargarConfiguracion();
+
+        formConfiguracion.querySelectorAll('.config-input').forEach(function (el) {
+            const key = el.getAttribute('data-config-key');
+            if (!key) return;
+            if (Object.prototype.hasOwnProperty.call(configGuardada, key)) {
+                aplicarValorInput(el, configGuardada[key]);
+            }
+        });
+
+        // ---------- Autoguardado en cada cambio ----------
+        // Debounce para inputs de texto (evita guardar en cada tecla)
+        let timerDebounce = null;
+
+        function persistirCambio(el) {
+            const key = el.getAttribute('data-config-key');
+            if (!key) return;
+
+            const config = cargarConfiguracion();
+            config[key] = leerValorInput(el);
+            guardarConfiguracion(config);
+
+            mostrarToastConfig('Se guardó: ' + key);
+        }
+
+        formConfiguracion.querySelectorAll('.config-input').forEach(function (el) {
+            // Cambios inmediatos: checkbox, select, date, number, email, password, textarea
+            if (el.type === 'checkbox' || el.tagName === 'SELECT') {
+                el.addEventListener('change', function () {
+                    persistirCambio(el);
+                });
+            } else if (el.tagName === 'TEXTAREA' || el.type === 'text' || el.type === 'email' || el.type === 'password' || el.type === 'number') {
+                // Texto: debounce de 500 ms
+                el.addEventListener('input', function () {
+                    clearTimeout(timerDebounce);
+                    timerDebounce = setTimeout(function () {
+                        persistirCambio(el);
+                    }, 500);
+                });
+            }
+        });
+
+        // ---------- Toggle mostrar/ocultar contraseña SMTP ----------
+        const btnToggleSmtpPassword = document.getElementById('btnToggleSmtpPassword');
+        const smtpPasswordInput = document.getElementById('smtpPassword');
+
+        if (btnToggleSmtpPassword && smtpPasswordInput) {
+            btnToggleSmtpPassword.addEventListener('click', function () {
+                const icon = this.querySelector('i');
+                if (smtpPasswordInput.type === 'password') {
+                    smtpPasswordInput.type = 'text';
+                    icon.classList.remove('bi-eye');
+                    icon.classList.add('bi-eye-slash');
+                } else {
+                    smtpPasswordInput.type = 'password';
+                    icon.classList.remove('bi-eye-slash');
+                    icon.classList.add('bi-eye');
+                }
+            });
+        }
+
+        // ---------- Botón "Enviar correo de prueba" ----------
+        const btnEnviarCorreoPrueba = document.getElementById('btnEnviarCorreoPrueba');
+        if (btnEnviarCorreoPrueba) {
+            btnEnviarCorreoPrueba.addEventListener('click', function () {
+                const correoInput = document.getElementById('smtpCorreoPrueba');
+                const correo = correoInput ? correoInput.value.trim() : '';
+
+                if (!correo) {
+                    if (correoInput) {
+                        correoInput.classList.add('is-invalid');
+                        correoInput.focus();
+                    }
+                    return;
+                }
+                correoInput.classList.remove('is-invalid');
+
+                // Simulación (mockup): solo mostramos toast
+                mostrarToastConfig('Correo de prueba enviado a: ' + correo);
+            });
         }
     }
 });

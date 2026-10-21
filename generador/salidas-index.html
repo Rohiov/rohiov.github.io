@@ -194,20 +194,28 @@
                                         <th>Estado</th>
                                         <th>Usuario</th>
                                         <th>Descripción</th>
+                                        <th>Empresa</th>
+                                        <th>Destinatario</th>
+                                        <th>Retorno esperado</th>
                                         <th>Motivo</th>
                                         <th class="text-center">Materiales</th>
                                         <th class="text-center">Acciones</th>
                                     </tr>
                                 </thead>
+
+                                <!-- Filas de ejemplo: el JS las reemplaza dinámicamente al cargar -->
                                 <tbody id="tbodySalidas">
 
-                                    <!-- SALIDA 1: Aprobada -->
+                                    <!-- Salida aprobada (folio 00000001) -->
                                     <tr class="salida-row"
                                         data-folio="00000001"
                                         data-fecha="2026-09-20"
                                         data-estado="aprobada"
                                         data-usuario="Juan Pérez"
                                         data-descripcion="Devolución a proveedor"
+                                        data-empresa="XEROX, S.A. DE C.V."
+                                        data-destinatario="Juan Hernández"
+                                        data-retorno="—"
                                         data-motivo=""
                                         data-materiales="5">
                                         <td><strong>00000001</strong></td>
@@ -215,23 +223,24 @@
                                         <td><span class="badge bg-success badge-estado">✅ Aprobada</span></td>
                                         <td>Juan Pérez</td>
                                         <td>Devolución a proveedor</td>
+                                        <td>XEROX, S.A. DE C.V.</td>
+                                        <td>Juan Hernández</td>
+                                        <td><em class="text-muted">—</em></td>
                                         <td class="motivo-celda"><em class="text-muted">—</em></td>
                                         <td class="text-center"><span class="badge bg-secondary">5</span></td>
-                                        <td class="text-center text-nowrap">
-                                            <!-- Ver detalles / PDF / Clonar -->
-                                            <a href="salidas-detalles.html" class="btn btn-sm btn-outline-info" title="Ver"><i class="bi bi-eye"></i></a>
-                                            <button class="btn btn-sm btn-outline-primary btn-pdf-salida" title="Exportar PDF"><i class="bi bi-file-pdf"></i></button>
-                                            <button class="btn btn-sm btn-outline-secondary btn-clonar-salida" title="Clonar"><i class="bi bi-files"></i></button>
-                                        </td>
+                                        <td class="text-center text-nowrap">...</td>
                                     </tr>
 
-                                    <!-- SALIDA 2: Pendiente (Aprobador) -->
+                                    <!-- Salida pendiente (Aprobador) (folio 00000002) -->
                                     <tr class="salida-row"
                                         data-folio="00000002"
                                         data-fecha="2026-09-19"
                                         data-estado="pendiente"
                                         data-usuario="María Gómez"
                                         data-descripcion="Materiales de obra"
+                                        data-empresa="HEWLETT PACKARD"
+                                        data-destinatario="María López"
+                                        data-retorno="2026-10-15"
                                         data-motivo=""
                                         data-materiales="3">
                                         <td><strong>00000002</strong></td>
@@ -239,23 +248,28 @@
                                         <td><span class="badge bg-warning text-dark badge-estado">⏳ Pendiente (Aprobador)</span></td>
                                         <td>María Gómez</td>
                                         <td>Materiales de obra</td>
+                                        <td>HEWLETT PACKARD</td>
+                                        <td>María López</td>
+                                        <td><em class="text-muted">2026-10-15</em></td>
                                         <td class="motivo-celda"><em class="text-muted">—</em></td>
                                         <td class="text-center"><span class="badge bg-secondary">3</span></td>
                                         <td class="text-center text-nowrap">
-                                            <!-- Ver / Aprobar / Rechazar -->
                                             <a href="salidas-detalles.html" class="btn btn-sm btn-outline-info" title="Ver"><i class="bi bi-eye"></i></a>
                                             <button class="btn btn-sm btn-outline-success btn-aprobar-salida" title="Aprobar"><i class="bi bi-check-circle"></i></button>
                                             <button class="btn btn-sm btn-outline-danger btn-rechazar-salida" title="Rechazar"><i class="bi bi-x-circle"></i></button>
                                         </td>
                                     </tr>
 
-                                    <!-- SALIDA 3: Borrador (sin folio) -->
+                                    <!-- Borrador (sin folio) -->
                                     <tr class="salida-row"
                                         data-folio=""
                                         data-fecha="2026-09-18"
                                         data-estado="borrador"
                                         data-usuario="Carlos Ruiz"
                                         data-descripcion="Equipos de cómputo"
+                                        data-empresa="XEROX, S.A. DE C.V."
+                                        data-destinatario="Juan Hernández"
+                                        data-retorno="—"
                                         data-motivo=""
                                         data-materiales="2">
                                         <td><em class="text-muted">(sin folio)</em></td>
@@ -263,23 +277,28 @@
                                         <td><span class="badge bg-secondary badge-estado">📝 Borrador</span></td>
                                         <td>Carlos Ruiz</td>
                                         <td>Equipos de cómputo</td>
+                                        <td>XEROX, S.A. DE C.V.</td>
+                                        <td>Juan Hernández</td>
+                                        <td><em class="text-muted">—</em></td>
                                         <td class="motivo-celda"><em class="text-muted">—</em></td>
                                         <td class="text-center"><span class="badge bg-secondary">2</span></td>
                                         <td class="text-center text-nowrap">
-                                            <!-- Ver / Editar / Eliminar -->
                                             <a href="salidas-detalles.html" class="btn btn-sm btn-outline-info" title="Ver"><i class="bi bi-eye"></i></a>
                                             <a href="salidas-editar.html" class="btn btn-sm btn-outline-success" title="Editar"><i class="bi bi-pencil"></i></a>
                                             <button class="btn btn-sm btn-outline-danger btn-eliminar-salida" title="Eliminar borrador"><i class="bi bi-trash"></i></button>
                                         </td>
                                     </tr>
 
-                                    <!-- SALIDA 4: Rechazada (con motivo) -->
+                                    <!-- Salida rechazada (folio 00000004) -->
                                     <tr class="salida-row"
                                         data-folio="00000004"
                                         data-fecha="2026-09-17"
                                         data-estado="rechazada"
                                         data-usuario="Ana Martínez"
                                         data-descripcion="Herramientas de reparación"
+                                        data-empresa="SWCORA FILIAL NORTE"
+                                        data-destinatario="Carlos Ruiz"
+                                        data-retorno="—"
                                         data-materiales="4"
                                         data-motivo="Material no autorizado">
                                         <td><strong>00000004</strong></td>
@@ -287,22 +306,27 @@
                                         <td><span class="badge bg-danger badge-estado">❌ Rechazada</span></td>
                                         <td>Ana Martínez</td>
                                         <td>Herramientas de reparación</td>
+                                        <td>SWCORA FILIAL NORTE</td>
+                                        <td>Carlos Ruiz</td>
+                                        <td><em class="text-muted">—</em></td>
                                         <td>Material no autorizado</td>
                                         <td class="text-center"><span class="badge bg-secondary">4</span></td>
                                         <td class="text-center text-nowrap">
-                                            <!-- Ver / Clonar -->
                                             <a href="salidas-detalles.html" class="btn btn-sm btn-outline-info" title="Ver"><i class="bi bi-eye"></i></a>
                                             <button class="btn btn-sm btn-outline-secondary btn-clonar-salida" title="Clonar"><i class="bi bi-files"></i></button>
                                         </td>
                                     </tr>
 
-                                    <!-- SALIDA 5: Cancelada -->
+                                    <!-- Salida cancelada (folio 00000005) -->
                                     <tr class="salida-row"
                                         data-folio="00000005"
                                         data-fecha="2026-09-16"
                                         data-estado="cancelada"
                                         data-usuario="Juan Pérez"
                                         data-descripcion="Salida cancelada"
+                                        data-empresa="HEWLETT PACKARD"
+                                        data-destinatario="María López"
+                                        data-retorno="2026-10-10"
                                         data-motivo="Material pendiente de agregar"
                                         data-materiales="1">
                                         <td><strong>00000005</strong></td>
@@ -310,23 +334,28 @@
                                         <td><span class="badge bg-dark badge-estado">🚫 Cancelada</span></td>
                                         <td>Juan Pérez</td>
                                         <td>Salida cancelada</td>
+                                        <td>HEWLETT PACKARD</td>
+                                        <td>María López</td>
+                                        <td><em class="text-muted">2026-10-10</em></td>
                                         <td>Material pendiente de agregar</td>
                                         <td class="text-center"><span class="badge bg-secondary">1</span></td>
                                         <td class="text-center text-nowrap">
-                                            <!-- Ver / Editar / Clonar -->
                                             <a href="salidas-detalles.html" class="btn btn-sm btn-outline-info" title="Ver"><i class="bi bi-eye"></i></a>
                                             <a href="salidas-editar.html" class="btn btn-sm btn-outline-success" title="Editar"><i class="bi bi-pencil"></i></a>
                                             <button class="btn btn-sm btn-outline-secondary btn-clonar-salida" title="Clonar"><i class="bi bi-files"></i></button>
                                         </td>
                                     </tr>
 
-                                    <!-- SALIDA 6: Pendiente (puede cancelarse) -->
+                                    <!-- Salida pendiente (puede cancelarse) (folio 00000006) -->
                                     <tr class="salida-row"
                                         data-folio="00000006"
                                         data-fecha="2026-09-19"
                                         data-estado="pendiente"
                                         data-usuario="María Gómez"
                                         data-descripcion="Materiales de obra"
+                                        data-empresa="XEROX, S.A. DE C.V."
+                                        data-destinatario="Juan Hernández"
+                                        data-retorno="—"
                                         data-motivo=""
                                         data-materiales="3">
                                         <td><strong>00000006</strong></td>
@@ -334,10 +363,12 @@
                                         <td><span class="badge bg-warning text-dark badge-estado">⏳ Pendiente</span></td>
                                         <td>María Gómez</td>
                                         <td>Materiales de obra</td>
+                                        <td>XEROX, S.A. DE C.V.</td>
+                                        <td>Juan Hernández</td>
+                                        <td><em class="text-muted">—</em></td>
                                         <td class="motivo-celda"><em class="text-muted">—</em></td>
                                         <td class="text-center"><span class="badge bg-secondary">3</span></td>
                                         <td class="text-center text-nowrap">
-                                            <!-- Ver / Clonar / Cancelar -->
                                             <a href="salidas-detalles.html" class="btn btn-sm btn-outline-info" title="Ver"><i class="bi bi-eye"></i></a>
                                             <button class="btn btn-sm btn-outline-secondary btn-clonar-salida" title="Clonar"><i class="bi bi-files"></i></button>
                                             <button class="btn btn-sm btn-outline-danger btn-cancelar-salida" title="Cancelar"><i class="bi bi-dash-circle"></i></button>
