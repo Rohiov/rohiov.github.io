@@ -7678,3 +7678,1765 @@ IModuleDbContextRegistration.cs	Nuevo, en Core
 ModuleLoader.cs	Registra DbContexts de módulos
 SalidaService.cs	Inyecta dos contextos
 PdfGenerator.cs	Reescrito para iText 8
+
+
+
+
+
+
+
+*************-*-*-*-*-*-*-*-*-*-*-*-*----------------------------
+
+
+SWCORA.Core/Interfaces/IModuleDbContextRegistration.cs
+csharp
+using Microsoft.Extensions.DependencyInjection;
+
+namespace SWCORA.Core.Interfaces
+{
+    /// <summary>
+    /// Interfaz que cada módulo implementa para registrar su DbContext
+    /// en el contenedor de dependencias de la aplicación principal.
+    /// </summary>
+    public interface IModuleDbContextRegistration
+    {
+        /// <summary>
+        /// Registra el DbContext del módulo en la colección de servicios.
+        /// Se ejecuta ANTES de builder.Build().
+        /// </summary>
+        void RegisterDbContext(IServiceCollection services, string connectionString);
+    }
+}
+2. SWCORA.Infrastructure/Modules/ModuleLoader.cs
+csharp
+using System.Reflection;
+using System.Text.Json;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using SWCORA.Core.Entities;
+using SWCORA.Core.Interfaces;
+using SWCORA.Infrastructure.Data;
+
+namespace SWCORA.Infrastructure.Modules
+{
+    /// <summary>
+    /// Cargador de módulos.
+    /// Descubre los ensamblados en wwwroot/modules, los registra en BD,
+    /// registra sus DbContext y expone sus ApplicationParts.
+    /// IMPORTANTE: debe ejecutarse ANTES de builder.Build().
+    /// </summary>
+    public class ModuleLoader
+    {
+        private readonly IHostEnvironment _env;
+        private readonly ILogger<ModuleLoader> _logger;
+        private readonly IServiceCollection _services;
+        private readonly string _connectionString;
+        private readonly ApplicationDbContext _dbContext;
+        private readonly List<ModuloInfo> _modulosCargados = new();
+
+        public ModuleLoader(
+            IHostEnvironment env,
+            ILogger<ModuleLoader> logger,
+            IServiceCollection services,
+            string connectionString,
+            ApplicationDbContext dbContext)
+        {
+            _env = env;
+            _logger = logger;
+            _services = services;
+            _connectionString = connectionString;
+            _dbContext = dbContext;
+        }
+
+        /// <summary>
+        /// Descubre y carga todos los módulos de wwwroot/modules.
+        /// Registra DbContexts, roles en BD y guarda los assemblies.
+        /// </summary>
+        public async Task<List<ModuloInfo>> CargarModulosAsync()
+        {
+            var modulesPath = Path.Combine(_env.ContentRootPath, "wwwroot", "modules");
+            if (!Directory.Exists(modulesPath))
+            {
+                Directory.CreateDirectory(modulesPath);
+                _logger.LogWarning("Carpeta wwwroot/modules creada.");
+                return new List<ModuloInfo>();
+            }
+
+            _logger.LogInformation("🔍 Buscando módulos en {Path}", modulesPath);
+
+            foreach (var moduleDir in Directory.GetDirectories(modulesPath))
+            {
+                try
+                {
+                    // 1. Leer Module.json
+                    var moduleJsonPath = Path.Combine(moduleDir, "Module.json");
+                    if (!File.Exists(moduleJsonPath))
+                    {
+                        _logger.LogWarning("⚠️ No hay Module.json en {Dir}", moduleDir);
+                        continue;
+                    }
+
+                    var json = await File.ReadAllTextAsync(moduleJsonPath);
+                    var config = JsonSerializer.Deserialize<ModuleConfig>(json,
+                        new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                    if (config == null)
+                    {
+                        _logger.LogError("❌ Module.json inválido en {Dir}", moduleDir);
+                        continue;
+                    }
+
+                    // 2. Cargar ensamblado
+                    var dllPath = Path.Combine(moduleDir, config.AssemblyName);
+                    if (!File.Exists(dllPath))
+                    {
+                        _logger.LogError("❌ No se encontró {Dll}", config.AssemblyName);
+                        continue;
+                    }
+
+                    var assembly = Assembly.LoadFrom(dllPath);
+
+                    // 3. Registrar módulo y roles en BD
+                    await RegistrarModuloEnBaseDatosAsync(config);
+
+                    // 4. Registrar DbContext del módulo
+                    var registrationType = assembly.GetTypes()
+                        .FirstOrDefault(t => typeof(IModuleDbContextRegistration).IsAssignableFrom(t)
+                                          && !t.IsInterface
+                                          && !t.IsAbstract);
+
+                    if (registrationType != null)
+                    {
+                        var registration = (IModuleDbContextRegistration)Activator.CreateInstance(registrationType)!;
+                        registration.RegisterDbContext(_services, _connectionString);
+                        _logger.LogInformation("✅ DbContext del módulo registrado: {Modulo}", config.ModuleName);
+                    }
+                    else
+                    {
+                        _logger.LogWarning("⚠️ El módulo {Modulo} no tiene registrador de DbContext.",
+                            config.ModuleName);
+                    }
+
+                    // 5. Registrar servicios del módulo (opcional, vía IModuleStartup)
+                    RegistrarServiciosDelModulo(assembly, config);
+
+                    // 6. Guardar info del módulo
+                    _modulosCargados.Add(new ModuloInfo
+                    {
+                        ModuleId = config.ModuleId,
+                        ModuleName = config.ModuleName,
+                        Description = config.Description ?? "",
+                        Version = config.Version ?? "1.0.0",
+                        Assembly = assembly,
+                        AssemblyPath = dllPath,
+                        ModuleDirectory = moduleDir,
+                        EntryPointType = config.EntryPoint ?? ""
+                    });
+
+                    _logger.LogInformation("✅ Módulo cargado: {Nombre}", config.ModuleName);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "❌ Error cargando módulo en {Dir}", moduleDir);
+                }
+            }
+
+            return _modulosCargados;
+        }
+
+        /// <summary>
+        /// Registra los ApplicationParts (controladores) de los módulos cargados.
+        /// Se llama desde Program.cs con el IMvcBuilder capturado.
+        /// </summary>
+        public void RegistrarApplicationParts(IMvcBuilder mvcBuilder)
+        {
+            foreach (var modulo in _modulosCargados)
+            {
+                try
+                {
+                    mvcBuilder.AddApplicationPart(modulo.Assembly);
+                    _logger.LogInformation("✅ ApplicationPart registrado: {Modulo}", modulo.ModuleName);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "❌ Error registrando ApplicationPart: {Modulo}", modulo.ModuleName);
+                }
+            }
+        }
+
+        public List<ModuloInfo> GetModulosCargados() => _modulosCargados;
+
+        private async Task RegistrarModuloEnBaseDatosAsync(ModuleConfig config)
+        {
+            var existente = await _dbContext.Modulos.FirstOrDefaultAsync(m => m.Codigo == config.ModuleId);
+
+            if (existente == null)
+            {
+                var modulo = new Modulo
+                {
+                    Codigo = config.ModuleId,
+                    Nombre = config.ModuleName,
+                    Descripcion = config.Description,
+                    Version = config.Version ?? "1.0.0",
+                    AssemblyName = config.AssemblyName,
+                    EntryPoint = config.EntryPoint,
+                    EsActivo = true,
+                    FechaRegistro = DateTime.Now,
+                    UltimaActualizacion = DateTime.Now
+                };
+                _dbContext.Modulos.Add(modulo);
+                await _dbContext.SaveChangesAsync();
+
+                foreach (var rc in config.Roles ?? new List<RoleConfig>())
+                {
+                    _dbContext.Roles.Add(new Rol
+                    {
+                        Tipo = "Local",
+                        IdModulo = modulo.IdModulo,
+                        Codigo = rc.Codigo,
+                        Nombre = rc.Nombre,
+                        Descripcion = rc.Descripcion,
+                        NivelJerarquico = rc.NivelJerarquico,
+                        EsActivo = true,
+                        EsSistema = false,
+                        PuedeAprobar = rc.Codigo == "Aprobador",
+                        Origen = "Precargado",
+                        FechaCreacion = DateTime.Now
+                    });
+                }
+                await _dbContext.SaveChangesAsync();
+                _logger.LogInformation("✅ Módulo registrado en BD: {Nombre}", config.ModuleName);
+            }
+            else
+            {
+                existente.Nombre = config.ModuleName;
+                existente.Descripcion = config.Description;
+                existente.Version = config.Version ?? "1.0.0";
+                existente.UltimaActualizacion = DateTime.Now;
+                await _dbContext.SaveChangesAsync();
+            }
+        }
+
+        private void RegistrarServiciosDelModulo(Assembly assembly, ModuleConfig config)
+        {
+            if (string.IsNullOrEmpty(config.EntryPoint)) return;
+
+            try
+            {
+                var entryType = assembly.GetType(config.EntryPoint);
+                if (entryType == null) return;
+
+                var startupInterface = entryType.GetInterface(nameof(IModuleStartup));
+                if (startupInterface != null)
+                {
+                    var instance = Activator.CreateInstance(entryType);
+                    var method = entryType.GetMethod("ConfigureServices");
+                    method?.Invoke(instance, new object[] { _services });
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "❌ Error registrando servicios del módulo {Modulo}", config.ModuleName);
+            }
+        }
+    }
+
+    // =============================================
+    // MODELOS AUXILIARES
+    // =============================================
+
+    public class ModuleConfig
+    {
+        public string ModuleId { get; set; } = "";
+        public string ModuleName { get; set; } = "";
+        public string? Description { get; set; }
+        public string? Version { get; set; }
+        public string AssemblyName { get; set; } = "";
+        public string? EntryPoint { get; set; }
+        public List<RoleConfig> Roles { get; set; } = new();
+    }
+
+    public class RoleConfig
+    {
+        public string Codigo { get; set; } = "";
+        public string Nombre { get; set; } = "";
+        public string? Descripcion { get; set; }
+        public int NivelJerarquico { get; set; } = 1;
+    }
+
+    public class ModuloInfo
+    {
+        public string ModuleId { get; set; } = "";
+        public string ModuleName { get; set; } = "";
+        public string Description { get; set; } = "";
+        public string Version { get; set; } = "";
+        public Assembly Assembly { get; set; } = null!;
+        public string AssemblyPath { get; set; } = "";
+        public string ModuleDirectory { get; set; } = "";
+        public string EntryPointType { get; set; } = "";
+    }
+}
+3. SWCORA.Web/Program.cs
+csharp
+using Microsoft.AspNetCore.Authentication.Negotiate;
+using Microsoft.EntityFrameworkCore;
+using SWCORA.Infrastructure.Data;
+using SWCORA.Infrastructure.Data.Repositories;
+using SWCORA.Infrastructure.Modules;
+using SWCORA.Infrastructure.Services;
+using SWCORA.Modules.SalidasMaterial.Data;
+using SWCORA.Modules.SalidasMaterial.Helpers;
+using SWCORA.Modules.SalidasMaterial.Hubs;
+using SWCORA.Modules.SalidasMaterial.Services;
+using SWCORA.Web.Middleware;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// =============================================
+// 1. CONFIGURACIÓN BÁSICA
+// =============================================
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")!;
+
+// =============================================
+// 2. DbContext del Core
+// =============================================
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+
+// =============================================
+// 3. Autenticación
+// =============================================
+builder.Services
+    .AddAuthentication(NegotiateDefaults.AuthenticationScheme)
+    .AddNegotiate()
+    .AddCookie("SuperAdmin", options =>
+    {
+        options.LoginPath = "/SuperAdmin/Login";
+        options.LogoutPath = "/SuperAdmin/Logout";
+        options.AccessDeniedPath = "/SuperAdmin/Login";
+        options.ExpireTimeSpan = TimeSpan.FromHours(8);
+        options.SlidingExpiration = true;
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SecurePolicy = builder.Environment.IsDevelopment()
+            ? CookieSecurePolicy.SameAsRequest
+            : CookieSecurePolicy.Always;
+        options.Cookie.Name = "SWCORA.SuperAdmin";
+    });
+
+builder.Services.AddAuthorization();
+
+// =============================================
+// 4. Repositorios del Core
+// =============================================
+builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+builder.Services.AddScoped<IRolRepository, RolRepository>();
+builder.Services.AddScoped<IPermisoRepository, PermisoRepository>();
+builder.Services.AddScoped<IModuloRepository, ModuloRepository>();
+builder.Services.AddScoped<IEmpresaRepository, EmpresaRepository>();
+builder.Services.AddScoped<ITipoEmpresaRepository, TipoEmpresaRepository>();
+builder.Services.AddScoped<IUnidadRepository, UnidadRepository>();
+builder.Services.AddScoped<IDepartamentoRepository, DepartamentoRepository>();
+builder.Services.AddScoped<ISolicitudAccesoRepository, SolicitudAccesoRepository>();
+builder.Services.AddScoped<INotificacionRepository, NotificacionRepository>();
+
+// =============================================
+// 5. Servicios del Core
+// =============================================
+builder.Services.AddScoped<NotificacionService>();
+builder.Services.AddScoped<LogService>();
+builder.Services.AddScoped<AuthenticationService>();
+
+// =============================================
+// 6. Claims Transformer
+// =============================================
+builder.Services.AddTransient<IClaimsTransformation, CustomClaimsTransformer>();
+
+// =============================================
+// 7. MVC
+// =============================================
+var mvcBuilder = builder.Services.AddControllersWithViews();
+builder.Services.AddRazorPages();
+
+// =============================================
+// 8. Infraestructura
+// =============================================
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddSignalR();
+builder.Services.AddMemoryCache();
+
+// =============================================
+// 9. Registro manual de servicios del módulo
+//    (porque el módulo aún no se ha cargado)
+// =============================================
+builder.Services.AddScoped<ISalidaService, SalidaService>();
+builder.Services.AddScoped<IPlantillaService, PlantillaService>();
+builder.Services.AddScoped<IHistorialSalidaService, HistorialSalidaService>();
+builder.Services.AddScoped<IExportacionService, ExportacionService>();
+builder.Services.AddScoped<IDashboardService, DashboardService>();
+builder.Services.AddScoped<PdfGenerator>();
+
+// =============================================
+// 10. ModuleLoader (ANTES de Build)
+//     - Carga módulos desde wwwroot/modules
+//     - Registra DbContexts de módulos
+//     - Guarda assemblies para ApplicationParts
+// =============================================
+var tempOptions = new DbContextOptionsBuilder<ApplicationDbContext>()
+    .UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))
+    .Options;
+using var tempDb = new ApplicationDbContext(tempOptions);
+
+var loggerFactory = LoggerFactory.Create(b => b.AddConsole());
+var moduleLoader = new ModuleLoader(
+    builder.Environment,
+    loggerFactory.CreateLogger<ModuleLoader>(),
+    builder.Services,
+    connectionString,
+    tempDb);
+
+// Ejecuta la carga de módulos de forma síncrona en el arranque
+moduleLoader.CargarModulosAsync().GetAwaiter().GetResult();
+
+// Registra los ApplicationParts (controladores del módulo)
+moduleLoader.RegistrarApplicationParts(mvcBuilder);
+
+// =============================================
+// 11. Construir la app
+// =============================================
+var app = builder.Build();
+
+// =============================================
+// 12. Pipeline
+// =============================================
+if (app.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
+}
+else
+{
+    app.UseExceptionHandler("/Home/Error");
+    app.UseHsts();
+}
+
+app.UseHttpsRedirection();
+app.UseStaticFiles();
+app.UseRouting();
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.UseMiddleware<RedirectUnauthorizedMiddleware>();
+app.UseMiddleware<AuditoriaMiddleware>();
+
+// =============================================
+// 13. Rutas
+// =============================================
+app.MapControllerRoute(
+    name: "areas",
+    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
+
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
+
+app.MapRazorPages();
+app.MapHub<SalidasHub>("/hubs/salidas");
+
+app.Run();
+4. SWCORA.Modules/SalidasMaterial/Data/SalidaDbContextRegistration.cs
+csharp
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using SWCORA.Core.Interfaces;
+
+namespace SWCORA.Modules.SalidasMaterial.Data
+{
+    /// <summary>
+    /// Registrador del DbContext del módulo SalidasMaterial.
+    /// El ModuleLoader lo descubre por reflexión y ejecuta RegisterDbContext.
+    /// </summary>
+    public class SalidaDbContextRegistration : IModuleDbContextRegistration
+    {
+        public void RegisterDbContext(IServiceCollection services, string connectionString)
+        {
+            services.AddDbContext<SalidaDbContext>(options =>
+                options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+        }
+    }
+}
+5. SWCORA.Modules/SalidasMaterial/Data/SalidaDbContext.cs
+csharp
+using Microsoft.EntityFrameworkCore;
+using SWCORA.Modules.SalidasMaterial.Entities;
+
+namespace SWCORA.Modules.SalidasMaterial.Data
+{
+    /// <summary>
+    /// DbContext del módulo SalidasMaterial.
+    /// Independiente del ApplicationDbContext del Core.
+    /// Apunta a la misma BD (cora_db) pero solo conoce sus 5 entidades.
+    /// </summary>
+    public class SalidaDbContext : DbContext
+    {
+        public SalidaDbContext(DbContextOptions<SalidaDbContext> options)
+            : base(options) { }
+
+        public DbSet<Salida> Salidas { get; set; }
+        public DbSet<SalidaDetalle> SalidasDetalles { get; set; }
+        public DbSet<HistorialSalida> HistorialSalidas { get; set; }
+        public DbSet<PlantillaMaterial> PlantillaMaterial { get; set; }
+        public DbSet<PlantillaDetalle> PlantillaDetalles { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            // Salida
+            modelBuilder.Entity<Salida>().HasIndex(s => s.Folio).IsUnique();
+            modelBuilder.Entity<Salida>().HasIndex(s => s.Estado);
+            modelBuilder.Entity<Salida>().HasIndex(s => s.FechaCreacion);
+            modelBuilder.Entity<Salida>().HasIndex(s => s.IdUsuario);
+            modelBuilder.Entity<Salida>().HasIndex(s => s.IdEmpresa);
+
+            modelBuilder.Entity<Salida>()
+                .HasMany(s => s.Detalles).WithOne(d => d.Salida)
+                .HasForeignKey(d => d.IdSalida).OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Salida>()
+                .HasMany(s => s.Historial).WithOne(h => h.Salida)
+                .HasForeignKey(h => h.IdSalida).OnDelete(DeleteBehavior.Cascade);
+
+            // SalidaDetalle
+            modelBuilder.Entity<SalidaDetalle>().HasIndex(d => d.IdSalida);
+            modelBuilder.Entity<SalidaDetalle>().HasIndex(d => d.IdUnidad);
+
+            // HistorialSalida
+            modelBuilder.Entity<HistorialSalida>().HasIndex(h => h.IdSalida);
+            modelBuilder.Entity<HistorialSalida>().HasIndex(h => h.Fecha);
+
+            // PlantillaMaterial
+            modelBuilder.Entity<PlantillaMaterial>()
+                .HasMany(p => p.Detalles).WithOne(d => d.Plantilla)
+                .HasForeignKey(d => d.IdPlantillaMaterial).OnDelete(DeleteBehavior.Cascade);
+        }
+    }
+}
+6. SWCORA.Modules/SalidasMaterial/SWCORA.Modules.SalidasMaterial.csproj
+xml
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="10.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.2.0" />
+    <PackageReference Include="itext" Version="8.0.4" />
+    <PackageReference Include="EPPlus" Version="7.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\SWCORA.Core\SWCORA.Core.csproj" />
+    <ProjectReference Include="..\..\SWCORA.Infrastructure\SWCORA.Infrastructure.csproj" />
+  </ItemGroup>
+</Project>
+7. SWCORA.Infrastructure/SWCORA.Infrastructure.csproj
+xml
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Negotiate" Version="10.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.0" />
+    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="10.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0" />
+    <PackageReference Include="System.Text.Json" Version="10.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SWCORA.Core\SWCORA.Core.csproj" />
+  </ItemGroup>
+</Project>
+8. SWCORA.Modules/SalidasMaterial/Helpers/PdfGenerator.cs
+csharp
+using iText.IO.Image;
+using iText.Kernel.Colors;
+using iText.Kernel.Pdf;
+using iText.Layout;
+using iText.Layout.Borders;
+using iText.Layout.Element;
+using iText.Layout.Properties;
+using SWCORA.Core.Entities;
+using SWCORA.Modules.SalidasMaterial.Entities;
+
+namespace SWCORA.Modules.SalidasMaterial.Helpers
+{
+    /// <summary>
+    /// Generador de PDF para salidas de material.
+    /// Usa iText 8 (reemplazo de iTextSharp 5 que está EOL).
+    /// </summary>
+    public class PdfGenerator
+    {
+        private readonly ILogger<PdfGenerator> _logger;
+        private readonly IWebHostEnvironment _env;
+
+        public PdfGenerator(ILogger<PdfGenerator> logger, IWebHostEnvironment env)
+        {
+            _logger = logger;
+            _env = env;
+        }
+
+        public async Task<byte[]> GenerarPdfSalidaAsync(
+            Salida salida, Usuario? usuario, Empresa? empresa, Usuario? aprobador)
+        {
+            using var ms = new MemoryStream();
+            using var writer = new PdfWriter(ms);
+            using var pdf = new PdfDocument(writer);
+            using var document = new Document(pdf);
+
+            try
+            {
+                // =============================================
+                // ENCABEZADO
+                // =============================================
+                var headerTable = new Table(2).UseAllAvailableWidth();
+                headerTable.SetWidths(new float[] { 30f, 70f });
+
+                var logoCell = new Cell().SetBorder(Border.NO_BORDER);
+                var logoPath = Path.Combine(_env.WebRootPath, "images", "logo.png");
+                if (File.Exists(logoPath))
+                {
+                    var img = new Image(ImageDataFactory.Create(logoPath));
+                    img.ScaleToFit(80f, 60f);
+                    logoCell.Add(img);
+                }
+                headerTable.AddCell(logoCell);
+
+                var titleCell = new Cell().SetBorder(Border.NO_BORDER)
+                    .SetTextAlignment(TextAlignment.CENTER);
+                titleCell.Add(new Paragraph("SWCORA").SetFontSize(16).SetBold());
+                titleCell.Add(new Paragraph("CONTROL DE SALIDA DE MATERIAL").SetFontSize(10).SetBold());
+                headerTable.AddCell(titleCell);
+                document.Add(headerTable);
+
+                // =============================================
+                // DATOS PRINCIPALES
+                // =============================================
+                var dataTable = new Table(3).UseAllAvailableWidth().SetMarginTop(10);
+                dataTable.SetWidths(new float[] { 33f, 33f, 34f });
+                dataTable.AddCell(new Cell().Add(new Paragraph($"Folio: {salida.Folio}").SetBold().SetFontSize(9))
+                    .SetTextAlignment(TextAlignment.CENTER).SetPadding(5));
+                dataTable.AddCell(new Cell().Add(new Paragraph($"Fecha: {salida.FechaCreacion:dd/MM/yyyy}").SetBold().SetFontSize(9))
+                    .SetTextAlignment(TextAlignment.CENTER).SetPadding(5));
+                dataTable.AddCell(new Cell().Add(new Paragraph($"Estado: {salida.Estado.ToUpper()}").SetBold().SetFontSize(9))
+                    .SetTextAlignment(TextAlignment.CENTER).SetPadding(5));
+                document.Add(dataTable);
+
+                // =============================================
+                // DATOS DE USUARIO Y EMPRESA
+                // =============================================
+                var userTable = new Table(2).UseAllAvailableWidth().SetMarginTop(5);
+                userTable.AddCell(new Cell().Add(new Paragraph($"Usuario: {usuario?.NombreCompleto ?? "N/A"}").SetFontSize(9)).SetPadding(5));
+                userTable.AddCell(new Cell().Add(new Paragraph($"Empresa: {empresa?.Nombre ?? "N/A"}").SetFontSize(9)).SetPadding(5));
+                userTable.AddCell(new Cell().Add(new Paragraph($"Contacto: {salida.ContactoNombre}").SetFontSize(9)).SetPadding(5));
+                userTable.AddCell(new Cell().Add(new Paragraph($"Retorno esperado: {salida.RetornoEsperado?.ToString("dd/MM/yyyy") ?? "N/A"}").SetFontSize(9)).SetPadding(5));
+                document.Add(userTable);
+
+                // =============================================
+                // DESCRIPCIÓN
+                // =============================================
+                var descTable = new Table(1).UseAllAvailableWidth().SetMarginTop(5);
+                descTable.AddCell(new Cell().Add(new Paragraph($"Descripción: {salida.Descripcion}").SetFontSize(9)).SetPadding(5));
+                descTable.AddCell(new Cell().Add(new Paragraph($"Causa/Motivo: {salida.CausaMotivo}").SetFontSize(9)).SetPadding(5));
+                descTable.AddCell(new Cell().Add(new Paragraph($"Categoría: {salida.Categoria}").SetFontSize(9)).SetPadding(5));
+                descTable.AddCell(new Cell().Add(new Paragraph($"Comentarios: {salida.Comentarios}").SetFontSize(9)).SetPadding(5));
+                document.Add(descTable);
+
+                // =============================================
+                // TABLA DE MATERIALES
+                // =============================================
+                var matTable = new Table(5).UseAllAvailableWidth().SetMarginTop(10);
+                matTable.SetWidths(new float[] { 8f, 12f, 10f, 50f, 20f });
+
+                string[] headers = { "NL", "Cantidad", "Unidad", "Descripción", "Comentario" };
+                foreach (var h in headers)
+                {
+                    matTable.AddHeaderCell(new Cell()
+                        .Add(new Paragraph(h).SetBold().SetFontSize(9))
+                        .SetTextAlignment(TextAlignment.CENTER)
+                        .SetBackgroundColor(ColorConstants.LIGHT_GRAY)
+                        .SetPadding(4));
+                }
+
+                foreach (var d in salida.Detalles.OrderBy(x => x.NumeroLinea))
+                {
+                    matTable.AddCell(new Cell().Add(new Paragraph(d.NumeroLinea.ToString()).SetFontSize(8))
+                        .SetTextAlignment(TextAlignment.CENTER).SetPadding(3));
+                    matTable.AddCell(new Cell().Add(new Paragraph(d.Cantidad.ToString("N2")).SetFontSize(8))
+                        .SetTextAlignment(TextAlignment.RIGHT).SetPadding(3));
+                    matTable.AddCell(new Cell().Add(new Paragraph(d.Unidad?.Nombre ?? "").SetFontSize(8))
+                        .SetTextAlignment(TextAlignment.CENTER).SetPadding(3));
+                    matTable.AddCell(new Cell().Add(new Paragraph(d.Descripcion).SetFontSize(8))
+                        .SetPadding(3));
+                    matTable.AddCell(new Cell().Add(new Paragraph(d.Comentario ?? "").SetFontSize(8))
+                        .SetPadding(3));
+                }
+                document.Add(matTable);
+
+                // =============================================
+                // FIRMAS
+                // =============================================
+                var firmaTable = new Table(4).UseAllAvailableWidth().SetMarginTop(30);
+                firmaTable.SetWidths(new float[] { 25f, 25f, 25f, 25f });
+
+                var firmas = new (string label, string nombre)[]
+                {
+                    ("Solicita", usuario?.NombreCompleto ?? "_________________"),
+                    ("Autoriza", aprobador?.NombreCompleto ?? "_________________"),
+                    ("Recibe", "_________________"),
+                    ("Vigilancia", "_________________")
+                };
+
+                foreach (var (label, nombre) in firmas)
+                {
+                    var cell = new Cell().SetBorder(Border.NO_BORDER)
+                        .SetTextAlignment(TextAlignment.CENTER);
+                    cell.Add(new Paragraph(label).SetBold().SetFontSize(8));
+                    cell.Add(new Paragraph("_____________________").SetFontSize(8));
+                    cell.Add(new Paragraph(nombre).SetFontSize(8));
+                    firmaTable.AddCell(cell);
+                }
+                document.Add(firmaTable);
+
+                // =============================================
+                // PIE
+                // =============================================
+                document.Add(new Paragraph($"\nGenerado: {DateTime.Now:dd/MM/yyyy HH:mm} | Documento sin valor fiscal")
+                    .SetFontSize(7)
+                    .SetFontColor(ColorConstants.GRAY)
+                    .SetTextAlignment(TextAlignment.CENTER));
+            }
+            finally
+            {
+                document.Close();
+            }
+
+            return await Task.FromResult(ms.ToArray());
+        }
+    }
+}
+9. SWCORA.Modules/SalidasMaterial/Services/SalidaService.cs
+csharp
+using Microsoft.EntityFrameworkCore;
+using SWCORA.Core.Entities;
+using SWCORA.Infrastructure.Data;
+using SWCORA.Infrastructure.Data.Repositories;
+using SWCORA.Modules.SalidasMaterial.Data;
+using SWCORA.Modules.SalidasMaterial.Entities;
+using SWCORA.Modules.SalidasMaterial.Helpers;
+using SWCORA.Modules.SalidasMaterial.Models;
+
+namespace SWCORA.Modules.SalidasMaterial.Services
+{
+    /// <summary>
+    /// Servicio de Salidas.
+    /// Inyecta DOS DbContext:
+    ///   - SalidaDbContext (módulo): Salidas, SalidasDetalles, HistorialSalidas, Plantillas
+    ///   - ApplicationDbContext (Core): Usuarios, Empresas, Unidades, Departamentos
+    /// Las operaciones que cruzan ambos contextos se coordinan en el servicio.
+    /// </summary>
+    public class SalidaService : ISalidaService
+    {
+        private readonly SalidaDbContext _context;
+        private readonly ApplicationDbContext _core;
+        private readonly ILogger<SalidaService> _logger;
+        private readonly IUsuarioRepository _usuarioRepository;
+        private readonly IEmpresaRepository _empresaRepository;
+        private readonly IHistorialSalidaService _historialService;
+        private readonly PdfGenerator _pdfGenerator;
+
+        public SalidaService(
+            SalidaDbContext context,
+            ApplicationDbContext core,
+            ILogger<SalidaService> logger,
+            IUsuarioRepository usuarioRepository,
+            IEmpresaRepository empresaRepository,
+            IHistorialSalidaService historialService,
+            PdfGenerator pdfGenerator)
+        {
+            _context = context;
+            _core = core;
+            _logger = logger;
+            _usuarioRepository = usuarioRepository;
+            _empresaRepository = empresaRepository;
+            _historialService = historialService;
+            _pdfGenerator = pdfGenerator;
+        }
+
+        // =============================================
+        // CONSULTAS
+        // =============================================
+
+        public async Task<SalidaIndexViewModel> GetSalidasAsync(int usuarioId, int pagina = 1, int pageSize = 10,
+            string? filtroEstado = null, string? busqueda = null)
+        {
+            var esSuper = await _usuarioRepository.EsSuperusuarioAsync(usuarioId);
+            var esAdmin = await _usuarioRepository.EsAdministradorAsync(usuarioId);
+
+            var query = _context.Salidas.AsQueryable();
+
+            if (!esSuper && !esAdmin)
+                query = query.Where(s => s.IdUsuario == usuarioId
+                                      || s.AprobadorAsignado == usuarioId
+                                      || s.AprobadoPor == usuarioId);
+
+            if (!string.IsNullOrEmpty(filtroEstado))
+                query = query.Where(s => s.Estado == filtroEstado);
+
+            if (!string.IsNullOrEmpty(busqueda))
+                query = query.Where(s => (s.Folio != null && s.Folio.Contains(busqueda))
+                                      || s.Descripcion.Contains(busqueda)
+                                      || s.CausaMotivo.Contains(busqueda));
+
+            var total = await query.CountAsync();
+
+            var raw = await query
+                .OrderByDescending(s => s.FechaCreacion)
+                .Skip((pagina - 1) * pageSize).Take(pageSize)
+                .Select(s => new
+                {
+                    s.IdSalida, s.Folio, s.FechaCreacion, s.Estado,
+                    s.IdUsuario, s.IdEmpresa, s.AprobadorAsignado, s.AprobadoPor,
+                    s.Descripcion, s.EsDefinitiva,
+                    Cantidad = s.Detalles.Count
+                }).ToListAsync();
+
+            // Cargar usuarios y empresas del Core en batch
+            var idsUsuarios = raw.Select(s => s.IdUsuario)
+                .Concat(raw.Where(s => s.AprobadorAsignado.HasValue).Select(s => s.AprobadorAsignado!.Value))
+                .Concat(raw.Where(s => s.AprobadoPor.HasValue).Select(s => s.AprobadoPor!.Value))
+                .Distinct().ToList();
+            var idsEmpresas = raw.Select(s => s.IdEmpresa).Distinct().ToList();
+
+            var usuariosDict = await _core.Usuarios.Where(u => idsUsuarios.Contains(u.IdUsuario))
+                .ToDictionaryAsync(u => u.IdUsuario, u => u.NombreCompleto);
+            var empresasDict = await _core.Empresas.Where(e => idsEmpresas.Contains(e.IdEmpresa))
+                .ToDictionaryAsync(e => e.IdEmpresa, e => e.Nombre);
+
+            var salidas = raw.Select(s => new SalidaListItemDto
+            {
+                IdSalida = s.IdSalida,
+                Folio = s.Folio,
+                Fecha = s.FechaCreacion,
+                Estado = s.Estado,
+                UsuarioNombre = usuariosDict.GetValueOrDefault(s.IdUsuario, ""),
+                EmpresaNombre = empresasDict.GetValueOrDefault(s.IdEmpresa, ""),
+                Descripcion = s.Descripcion,
+                CantidadMateriales = s.Cantidad,
+                EsDefinitiva = s.EsDefinitiva,
+                PuedeEditar = s.Estado == "Borrador" && (s.IdUsuario == usuarioId || esSuper),
+                PuedeEliminar = s.Estado == "Borrador" && (s.IdUsuario == usuarioId || esAdmin || esSuper),
+                PuedeAprobar = s.Estado == "PendienteAprobacion" && (s.AprobadorAsignado == usuarioId || esAdmin || esSuper),
+                PuedeRechazar = s.Estado == "PendienteAprobacion" && (s.AprobadorAsignado == usuarioId || esAdmin || esSuper),
+                PuedeCancelar = s.Estado == "PendienteAprobacion" && s.IdUsuario == usuarioId,
+                PuedeClonar = s.Estado == "Aprobada" || s.Estado == "Rechazada" || s.Estado == "Cancelada",
+                PuedeDescargarPdf = s.Estado == "Aprobada"
+            }).ToList();
+
+            return new SalidaIndexViewModel
+            {
+                Salidas = salidas,
+                TotalRegistros = total,
+                PaginaActual = pagina,
+                PaginasTotales = (int)Math.Ceiling(total / (double)pageSize),
+                FiltroEstado = filtroEstado,
+                FiltroBusqueda = busqueda,
+                EsSuperusuario = esSuper,
+                EsAdministrador = esAdmin
+            };
+        }
+
+        public async Task<Salida?> GetSalidaByIdAsync(int id) =>
+            await _context.Salidas.Include(s => s.Detalles).ThenInclude(d => d.Unidad)
+                .Include(s => s.Historial).FirstOrDefaultAsync(s => s.IdSalida == id);
+
+        public async Task<DetalleSalidaViewModel?> GetDetalleSalidaAsync(int id, int usuarioId)
+        {
+            var salida = await GetSalidaByIdAsync(id);
+            if (salida == null) return null;
+
+            var usuario = await _usuarioRepository.GetByIdAsync(salida.IdUsuario);
+            var empresa = await _empresaRepository.GetByIdAsync(salida.IdEmpresa);
+            var departamento = await _core.Departamentos.FindAsync(salida.IdDepartamento);
+            var aprobador = salida.AprobadorAsignado.HasValue
+                ? await _usuarioRepository.GetByIdAsync(salida.AprobadorAsignado.Value) : null;
+            var aprobadoPor = salida.AprobadoPor.HasValue
+                ? await _usuarioRepository.GetByIdAsync(salida.AprobadoPor.Value) : null;
+
+            var esSuper = await _usuarioRepository.EsSuperusuarioAsync(usuarioId);
+            var esAdmin = await _usuarioRepository.EsAdministradorAsync(usuarioId);
+            var esAprobador = await _usuarioRepository.TieneRolModuloAsync(usuarioId, "SalidasMaterial", "Aprobador");
+
+            return new DetalleSalidaViewModel
+            {
+                IdSalida = salida.IdSalida,
+                Folio = salida.Folio,
+                Fecha = salida.FechaCreacion,
+                Estado = salida.Estado,
+                EsDefinitiva = salida.EsDefinitiva,
+                RetornoEsperado = salida.RetornoEsperado,
+                UsuarioNombre = usuario?.NombreCompleto ?? "",
+                DepartamentoNombre = departamento?.Nombre ?? "",
+                EmpresaNombre = empresa?.Nombre ?? "",
+                ContactoNombre = salida.ContactoNombre,
+                Descripcion = salida.Descripcion,
+                CausaMotivo = salida.CausaMotivo,
+                Categoria = salida.Categoria,
+                Comentarios = salida.Comentarios,
+                AprobadorNombre = aprobador?.NombreCompleto,
+                AprobadoPorNombre = aprobadoPor?.NombreCompleto,
+                FechaAprobacion = salida.FechaAprobacion,
+                MotivoRechazo = salida.MotivoRechazo,
+                MotivoCancelacion = salida.MotivoCancelacion,
+                FechaCancelacion = salida.FechaCancelacion,
+                Detalles = salida.Detalles.OrderBy(d => d.NumeroLinea).Select(d => new SalidaDetalleDto
+                {
+                    IdSalidasDetalles = d.IdSalidaDetalle,
+                    NumeroLinea = d.NumeroLinea,
+                    Cantidad = d.Cantidad,
+                    IdUnidad = d.IdUnidad,
+                    Descripcion = d.Descripcion,
+                    Comentario = d.Comentario
+                }).ToList(),
+                Historial = salida.Historial.OrderByDescending(h => h.Fecha).Select(h => new HistorialSalidaDto
+                {
+                    IdHistorialSalida = h.IdHistorialSalida,
+                    Accion = h.Accion,
+                    Descripcion = h.Descripcion,
+                    Fecha = h.Fecha
+                }).ToList(),
+                PuedeEditar = salida.Estado == "Borrador" && (salida.IdUsuario == usuarioId || esSuper),
+                PuedeEliminar = salida.Estado == "Borrador" && (salida.IdUsuario == usuarioId || esAdmin || esSuper),
+                PuedeEnviarAprobacion = salida.Estado == "Borrador" && (salida.IdUsuario == usuarioId || esAdmin || esSuper),
+                PuedeAprobar = salida.Estado == "PendienteAprobacion" && (salida.AprobadorAsignado == usuarioId || esAprobador || esAdmin || esSuper),
+                PuedeRechazar = salida.Estado == "PendienteAprobacion" && (salida.AprobadorAsignado == usuarioId || esAdmin || esSuper),
+                PuedeCancelar = salida.Estado == "PendienteAprobacion" && salida.IdUsuario == usuarioId,
+                PuedeClonar = salida.Estado == "Aprobada" || salida.Estado == "Rechazada" || salida.Estado == "Cancelada",
+                PuedeDescargarPdf = salida.Estado == "Aprobada"
+            };
+        }
+
+        // =============================================
+        // CREAR / EDITAR / ELIMINAR
+        // =============================================
+
+        public async Task<CrearSalidaViewModel> GetCrearSalidaViewModelAsync(int? id = null)
+        {
+            var model = new CrearSalidaViewModel
+            {
+                Fecha = DateTime.Now,
+                Detalles = new List<SalidaDetalleDto>()
+            };
+
+            if (id.HasValue)
+            {
+                var salida = await GetSalidaByIdAsync(id.Value);
+                if (salida != null)
+                {
+                    model.IdSalida = salida.IdSalida;
+                    model.Folio = salida.Folio;
+                    model.EsDefinitiva = salida.EsDefinitiva;
+                    model.RetornoEsperado = salida.RetornoEsperado;
+                    model.IdDepartamento = salida.IdDepartamento;
+                    model.IdEmpresa = salida.IdEmpresa;
+                    model.ContactoNombre = salida.ContactoNombre;
+                    model.Descripcion = salida.Descripcion;
+                    model.CausaMotivo = salida.CausaMotivo;
+                    model.Categoria = salida.Categoria;
+                    model.Comentarios = salida.Comentarios;
+                    model.AprobadorAsignado = salida.AprobadorAsignado;
+                    model.Detalles = salida.Detalles.OrderBy(d => d.NumeroLinea).Select(d => new SalidaDetalleDto
+                    {
+                        IdSalidasDetalles = d.IdSalidaDetalle,
+                        NumeroLinea = d.NumeroLinea,
+                        Cantidad = d.Cantidad,
+                        IdUnidad = d.IdUnidad,
+                        Descripcion = d.Descripcion,
+                        Comentario = d.Comentario
+                    }).ToList();
+                }
+            }
+            else
+            {
+                model.Detalles.Add(new SalidaDetalleDto { NumeroLinea = 1 });
+            }
+
+            await CargarListasSeleccionAsync(model);
+            return model;
+        }
+
+        public async Task<(bool Exito, string Mensaje, int? IdSalida)> CrearSalidaAsync(CrearSalidaViewModel model, int usuarioId)
+        {
+            try
+            {
+                if (!model.Detalles.Any(d => d.Cantidad > 0))
+                    return (false, "Debe agregar al menos un material.", null);
+
+                if (model.Detalles.Count > 50)
+                    return (false, "Máximo 50 materiales.", null);
+
+                var descripciones = model.Detalles.Where(d => !string.IsNullOrWhiteSpace(d.Descripcion))
+                    .Select(d => d.Descripcion.Trim().ToLowerInvariant()).ToList();
+
+                if (descripciones.Count != descripciones.Distinct().Count())
+                    return (false, "Hay materiales duplicados.", null);
+
+                var usuario = await _usuarioRepository.GetByIdAsync(usuarioId);
+                if (usuario == null) return (false, "Usuario no encontrado.", null);
+
+                if (!usuario.IdDepartamento.HasValue)
+                    return (false, "El usuario no tiene departamento asignado.", null);
+
+                var salida = new Salida
+                {
+                    Estado = "Borrador",
+                    EsDefinitiva = model.EsDefinitiva,
+                    RetornoEsperado = model.RetornoEsperado,
+                    IdUsuario = usuarioId,
+                    IdDepartamento = model.IdDepartamento ?? usuario.IdDepartamento.Value,
+                    IdEmpresa = model.IdEmpresa,
+                    ContactoNombre = model.ContactoNombre,
+                    Descripcion = model.Descripcion,
+                    CausaMotivo = model.CausaMotivo,
+                    Categoria = model.Categoria,
+                    Comentarios = model.Comentarios,
+                    AprobadorAsignado = model.AprobadorAsignado,
+                    FechaCreacion = DateTime.Now
+                };
+
+                int linea = 1;
+                foreach (var d in model.Detalles.Where(d => d.Cantidad > 0))
+                {
+                    salida.Detalles.Add(new SalidaDetalle
+                    {
+                        NumeroLinea = linea++,
+                        Cantidad = d.Cantidad,
+                        IdUnidad = d.IdUnidad,
+                        Descripcion = d.Descripcion,
+                        Comentario = d.Comentario
+                    });
+                }
+
+                _context.Salidas.Add(salida);
+                await _context.SaveChangesAsync();
+
+                await _historialService.RegistrarEventoAsync(salida.IdSalida, "Creación",
+                    "Salida creada en borrador", null, usuarioId);
+
+                return (true, "Salida creada en borrador.", salida.IdSalida);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al crear salida");
+                return (false, $"Error al crear la salida: {ex.Message}", null);
+            }
+        }
+
+        public async Task<(bool Exito, string Mensaje)> ActualizarSalidaAsync(CrearSalidaViewModel model, int usuarioId)
+        {
+            try
+            {
+                if (!model.IdSalida.HasValue) return (false, "ID no válido.");
+
+                var salida = await GetSalidaByIdAsync(model.IdSalida.Value);
+                if (salida == null) return (false, "Salida no encontrada.");
+                if (salida.Estado != "Borrador") return (false, "Solo se edita en Borrador.");
+
+                var esSuper = await _usuarioRepository.EsSuperusuarioAsync(usuarioId);
+                if (salida.IdUsuario != usuarioId && !esSuper)
+                    return (false, "Sin permiso para modificar.");
+
+                var descripciones = model.Detalles.Where(d => !string.IsNullOrWhiteSpace(d.Descripcion))
+                    .Select(d => d.Descripcion.Trim().ToLowerInvariant()).ToList();
+                if (descripciones.Count != descripciones.Distinct().Count())
+                    return (false, "Hay materiales duplicados.");
+
+                salida.EsDefinitiva = model.EsDefinitiva;
+                salida.RetornoEsperado = model.RetornoEsperado;
+                salida.IdDepartamento = model.IdDepartamento ?? salida.IdDepartamento;
+                salida.IdEmpresa = model.IdEmpresa;
+                salida.ContactoNombre = model.ContactoNombre;
+                salida.Descripcion = model.Descripcion;
+                salida.CausaMotivo = model.CausaMotivo;
+                salida.Categoria = model.Categoria;
+                salida.Comentarios = model.Comentarios;
+                salida.AprobadorAsignado = model.AprobadorAsignado;
+                salida.FechaModificacion = DateTime.Now;
+
+                _context.SalidasDetalles.RemoveRange(salida.Detalles);
+
+                int linea = 1;
+                foreach (var d in model.Detalles.Where(d => d.Cantidad > 0))
+                {
+                    salida.Detalles.Add(new SalidaDetalle
+                    {
+                        NumeroLinea = linea++,
+                        Cantidad = d.Cantidad,
+                        IdUnidad = d.IdUnidad,
+                        Descripcion = d.Descripcion,
+                        Comentario = d.Comentario
+                    });
+                }
+
+                await _context.SaveChangesAsync();
+                await _historialService.RegistrarEventoAsync(salida.IdSalida, "Edición",
+                    "Salida actualizada", null, usuarioId);
+                return (true, "Salida actualizada.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al actualizar salida");
+                return (false, $"Error: {ex.Message}");
+            }
+        }
+
+        public async Task<(bool Exito, string Mensaje)> EliminarBorradorAsync(int idSalida, int usuarioId)
+        {
+            var salida = await GetSalidaByIdAsync(idSalida);
+            if (salida == null) return (false, "No encontrada.");
+            if (salida.Estado != "Borrador") return (false, "Solo se eliminan borradores.");
+
+            var esSuper = await _usuarioRepository.EsSuperusuarioAsync(usuarioId);
+            var esAdmin = await _usuarioRepository.EsAdministradorAsync(usuarioId);
+            if (salida.IdUsuario != usuarioId && !esAdmin && !esSuper)
+                return (false, "Sin permiso.");
+
+            _context.Salidas.Remove(salida);
+            await _context.SaveChangesAsync();
+            return (true, "Borrador eliminado.");
+        }
+
+        // =============================================
+        // FLUJO
+        // =============================================
+
+        public async Task<(bool Exito, string Mensaje)> EnviarAprobacionAsync(int idSalida, int usuarioId)
+        {
+            var salida = await GetSalidaByIdAsync(idSalida);
+            if (salida == null) return (false, "No encontrada.");
+            if (salida.Estado != "Borrador") return (false, "Solo desde Borrador.");
+            if (!salida.Detalles.Any()) return (false, "Debe tener al menos un material.");
+            if (!salida.AprobadorAsignado.HasValue) return (false, "Debe asignar un aprobador.");
+            if (salida.IdUsuario == salida.AprobadorAsignado.Value)
+                return (false, "El aprobador no puede ser el creador.");
+
+            var nuevoFolio = await GenerarFolioSecuencialAsync();
+            salida.Folio = nuevoFolio;
+            salida.Estado = "PendienteAprobacion";
+            salida.FechaModificacion = DateTime.Now;
+            await _context.SaveChangesAsync();
+
+            await _historialService.RegistrarEventoAsync(salida.IdSalida, "Envío",
+                $"Folio: {nuevoFolio}", null, usuarioId);
+
+            // Notificar al aprobador (Core)
+            await _core.Notificaciones.AddAsync(new Notificacion
+            {
+                IdUsuario = salida.AprobadorAsignado.Value,
+                Titulo = "📋 Nueva salida pendiente de aprobar",
+                Mensaje = $"La salida {nuevoFolio} está pendiente de tu aprobación.",
+                Tipo = "Salida",
+                ReferenciaId = salida.IdSalida,
+                FechaCreacion = DateTime.Now,
+                Leida = false
+            });
+            await _core.SaveChangesAsync();
+
+            return (true, $"Salida {nuevoFolio} enviada a aprobación.");
+        }
+
+        public async Task<(bool Exito, string Mensaje)> AprobarSalidaAsync(int idSalida, int usuarioId)
+        {
+            var salida = await GetSalidaByIdAsync(idSalida);
+            if (salida == null) return (false, "No encontrada.");
+            if (salida.Estado != "PendienteAprobacion") return (false, "Estado inválido.");
+
+            var esSuper = await _usuarioRepository.EsSuperusuarioAsync(usuarioId);
+            var esAdmin = await _usuarioRepository.EsAdministradorAsync(usuarioId);
+            var esAsignado = salida.AprobadorAsignado == usuarioId;
+            var esAprobador = await _usuarioRepository.TieneRolModuloAsync(usuarioId, "SalidasMaterial", "Aprobador");
+
+            if (!esAsignado && !esAprobador && !esAdmin && !esSuper)
+                return (false, "Sin permiso para aprobar.");
+
+            salida.Estado = "Aprobada";
+            salida.AprobadoPor = usuarioId;
+            salida.FechaAprobacion = DateTime.Now;
+            salida.FechaModificacion = DateTime.Now;
+            await _context.SaveChangesAsync();
+
+            await _historialService.RegistrarEventoAsync(salida.IdSalida, "Aprobación",
+                $"Aprobada por usuario {usuarioId}", null, usuarioId);
+
+            // Notificar al solicitante (Core)
+            await _core.Notificaciones.AddAsync(new Notificacion
+            {
+                IdUsuario = salida.IdUsuario,
+                Titulo = "✅ Salida aprobada",
+                Mensaje = $"Tu salida {salida.Folio} fue aprobada.",
+                Tipo = "Salida",
+                ReferenciaId = salida.IdSalida,
+                FechaCreacion = DateTime.Now,
+                Leida = false
+            });
+            await _core.SaveChangesAsync();
+
+            return (true, $"Salida {salida.Folio} aprobada.");
+        }
+
+        public async Task<(bool Exito, string Mensaje)> RechazarSalidaAsync(int idSalida, int usuarioId, string motivo)
+        {
+            var salida = await GetSalidaByIdAsync(idSalida);
+            if (salida == null) return (false, "No encontrada.");
+            if (salida.Estado != "PendienteAprobacion") return (false, "Estado inválido.");
+            if (string.IsNullOrWhiteSpace(motivo)) return (false, "Motivo obligatorio.");
+
+            var esSuper = await _usuarioRepository.EsSuperusuarioAsync(usuarioId);
+            var esAdmin = await _usuarioRepository.EsAdministradorAsync(usuarioId);
+            if (salida.AprobadorAsignado != usuarioId && !esAdmin && !esSuper)
+                return (false, "Sin permiso.");
+
+            salida.Estado = "Rechazada";
+            salida.AprobadoPor = usuarioId;
+            salida.FechaAprobacion = DateTime.Now;
+            salida.MotivoRechazo = motivo;
+            salida.FechaModificacion = DateTime.Now;
+            await _context.SaveChangesAsync();
+
+            await _historialService.RegistrarEventoAsync(salida.IdSalida, "Rechazo",
+                $"Motivo: {motivo}", null, usuarioId);
+
+            await _core.Notificaciones.AddAsync(new Notificacion
+            {
+                IdUsuario = salida.IdUsuario,
+                Titulo = "❌ Salida rechazada",
+                Mensaje = $"Tu salida {salida.Folio} fue rechazada. Motivo: {motivo}",
+                Tipo = "Salida",
+                ReferenciaId = salida.IdSalida,
+                FechaCreacion = DateTime.Now,
+                Leida = false
+            });
+            await _core.SaveChangesAsync();
+
+            return (true, "Salida rechazada.");
+        }
+
+        public async Task<(bool Exito, string Mensaje)> CancelarSalidaAsync(int idSalida, int usuarioId, string motivo)
+        {
+            var salida = await GetSalidaByIdAsync(idSalida);
+            if (salida == null) return (false, "No encontrada.");
+            if (salida.Estado != "PendienteAprobacion") return (false, "Estado inválido.");
+            if (salida.IdUsuario != usuarioId) return (false, "Solo el dueño puede cancelar.");
+
+            var envio = await _context.HistorialSalidas
+                .Where(h => h.IdSalida == idSalida && h.Accion == "Envío")
+                .OrderByDescending(h => h.Fecha).FirstOrDefaultAsync();
+
+            if (envio == null || (DateTime.Now - envio.Fecha).TotalDays > 1)
+                return (false, "Solo dentro de 1 día.");
+
+            if (string.IsNullOrWhiteSpace(motivo)) return (false, "Motivo obligatorio.");
+
+            salida.Estado = "Cancelada";
+            salida.MotivoCancelacion = motivo;
+            salida.FechaCancelacion = DateTime.Now;
+            salida.FechaModificacion = DateTime.Now;
+            await _context.SaveChangesAsync();
+
+            await _historialService.RegistrarEventoAsync(salida.IdSalida, "Cancelación",
+                $"Motivo: {motivo}", null, usuarioId);
+            return (true, "Salida cancelada.");
+        }
+
+        public async Task<(bool Exito, string Mensaje, int? NuevoIdSalida)> ClonarSalidaAsync(int idSalidaOrigen, int usuarioId)
+        {
+            var origen = await GetSalidaByIdAsync(idSalidaOrigen);
+            if (origen == null) return (false, "Origen no encontrado.", null);
+
+            if (origen.Estado != "Aprobada" && origen.Estado != "Rechazada" && origen.Estado != "Cancelada")
+                return (false, "Solo se clona desde Aprobada, Rechazada o Cancelada.", null);
+
+            var prefijo = origen.Folio != null ? $"Copia de {origen.Folio} - " : "Copia - ";
+            var max = 500 - prefijo.Length;
+            var desc = origen.Descripcion.Length > max ? origen.Descripcion.Substring(0, max) : origen.Descripcion;
+
+            var nueva = new Salida
+            {
+                Estado = "Borrador",
+                EsDefinitiva = origen.EsDefinitiva,
+                RetornoEsperado = origen.RetornoEsperado,
+                IdUsuario = usuarioId,
+                IdDepartamento = origen.IdDepartamento,
+                IdEmpresa = origen.IdEmpresa,
+                ContactoNombre = origen.ContactoNombre,
+                Descripcion = prefijo + desc,
+                CausaMotivo = origen.CausaMotivo,
+                Categoria = origen.Categoria,
+                Comentarios = origen.Comentarios,
+                AprobadorAsignado = origen.AprobadorAsignado,
+                FechaCreacion = DateTime.Now
+            };
+
+            int linea = 1;
+            foreach (var d in origen.Detalles.OrderBy(d => d.NumeroLinea))
+            {
+                nueva.Detalles.Add(new SalidaDetalle
+                {
+                    NumeroLinea = linea++,
+                    Cantidad = d.Cantidad,
+                    IdUnidad = d.IdUnidad,
+                    Descripcion = d.Descripcion,
+                    Comentario = d.Comentario
+                });
+            }
+
+            _context.Salidas.Add(nueva);
+            await _context.SaveChangesAsync();
+
+            await _historialService.RegistrarEventoAsync(nueva.IdSalida, "Clonación",
+                $"Clonada desde {origen.Folio ?? "(sin folio)"}", null, usuarioId);
+            return (true, "Salida clonada.", nueva.IdSalida);
+        }
+
+        // =============================================
+        // PDF
+        // =============================================
+
+        public async Task<byte[]> GenerarPdfAsync(int idSalida)
+        {
+            var salida = await GetSalidaByIdAsync(idSalida);
+            if (salida == null) throw new ArgumentException("Salida no encontrada");
+
+            var usuario = await _usuarioRepository.GetByIdAsync(salida.IdUsuario);
+            var empresa = await _empresaRepository.GetByIdAsync(salida.IdEmpresa);
+            var aprobador = salida.AprobadorAsignado.HasValue
+                ? await _usuarioRepository.GetByIdAsync(salida.AprobadorAsignado.Value) : null;
+
+            return await _pdfGenerator.GenerarPdfSalidaAsync(salida, usuario, empresa, aprobador);
+        }
+
+        // =============================================
+        // PERMISOS
+        // =============================================
+
+        public async Task<bool> PuedeEditarAsync(int idSalida, int usuarioId)
+        {
+            var s = await GetSalidaByIdAsync(idSalida);
+            if (s == null) return false;
+            var esSuper = await _usuarioRepository.EsSuperusuarioAsync(usuarioId);
+            if (s.Estado == "Borrador") return s.IdUsuario == usuarioId || esSuper;
+            if (s.Estado == "Cancelada" && s.FechaCancelacion.HasValue)
+                return (DateTime.Now - s.FechaCancelacion.Value).TotalDays <= 1
+                    && (s.IdUsuario == usuarioId || esSuper);
+            return false;
+        }
+
+        public async Task<bool> PuedeEliminarAsync(int idSalida, int usuarioId)
+        {
+            var s = await GetSalidaByIdAsync(idSalida);
+            if (s == null || s.Estado != "Borrador") return false;
+            var esSuper = await _usuarioRepository.EsSuperusuarioAsync(usuarioId);
+            var esAdmin = await _usuarioRepository.EsAdministradorAsync(usuarioId);
+            return s.IdUsuario == usuarioId || esAdmin || esSuper;
+        }
+
+        public async Task<bool> PuedeAprobarAsync(int idSalida, int usuarioId)
+        {
+            var s = await GetSalidaByIdAsync(idSalida);
+            if (s == null || s.Estado != "PendienteAprobacion") return false;
+            var esSuper = await _usuarioRepository.EsSuperusuarioAsync(usuarioId);
+            var esAdmin = await _usuarioRepository.EsAdministradorAsync(usuarioId);
+            var esAsignado = s.AprobadorAsignado == usuarioId;
+            var esAprobador = await _usuarioRepository.TieneRolModuloAsync(usuarioId, "SalidasMaterial", "Aprobador");
+            return esAsignado || esAprobador || esAdmin || esSuper;
+        }
+
+        public async Task<bool> PuedeCancelarAsync(int idSalida, int usuarioId)
+        {
+            var s = await GetSalidaByIdAsync(idSalida);
+            if (s == null || s.Estado != "PendienteAprobacion" || s.IdUsuario != usuarioId) return false;
+            var envio = await _context.HistorialSalidas
+                .Where(h => h.IdSalida == idSalida && h.Accion == "Envío")
+                .OrderByDescending(h => h.Fecha).FirstOrDefaultAsync();
+            return envio != null && (DateTime.Now - envio.Fecha).TotalDays <= 1;
+        }
+
+        public async Task<bool> PuedeClonarAsync(int idSalida, int usuarioId)
+        {
+            var s = await GetSalidaByIdAsync(idSalida);
+            return s != null && (s.Estado == "Aprobada" || s.Estado == "Rechazada" || s.Estado == "Cancelada");
+        }
+
+        // =============================================
+        // AUXILIARES
+        // =============================================
+
+        private async Task CargarListasSeleccionAsync(CrearSalidaViewModel model)
+        {
+            var empresas = await _empresaRepository.GetAllAsync();
+            model.Empresas = empresas.Select(e => new EmpresaDto
+            {
+                IdEmpresa = e.IdEmpresa,
+                Codigo = e.Codigo,
+                Nombre = e.Nombre,
+                Contacto = e.Contacto,
+                IdTipoEmpresa = e.IdTipoEmpresa,
+                TipoEmpresaNombre = e.TipoEmpresa?.Nombre ?? ""
+            }).ToList();
+
+            var aprobadores = await _usuarioRepository.GetAprobadoresParaModuloAsync("SalidasMaterial");
+            model.Aprobadores = aprobadores.Select(u => new UsuarioDto
+            {
+                IdUsuario = u.IdUsuario,
+                NombreCompleto = u.NombreCompleto,
+                NombreWindows = u.NombreWindows ?? ""
+            }).ToList();
+
+            var unidades = await _core.Unidades.Where(u => u.EsActivo)
+                .OrderBy(u => u.Nombre).ToListAsync();
+            model.Unidades = unidades.Select(u => new UnidadDto
+            {
+                IdUnidad = u.IdUnidad,
+                Nombre = u.Nombre,
+                Descripcion = u.Descripcion
+            }).ToList();
+        }
+
+        private async Task<string> GenerarFolioSecuencialAsync()
+        {
+            var strategy = _context.Database.CreateExecutionStrategy();
+            return await strategy.ExecuteAsync(async () =>
+            {
+                await using var tx = await _context.Database.BeginTransactionAsync(
+                    System.Data.IsolationLevel.Serializable);
+
+                var ultimo = await _context.Salidas
+                    .Where(s => s.Folio != null)
+                    .OrderByDescending(s => s.Folio)
+                    .Select(s => s.Folio).FirstOrDefaultAsync();
+
+                int sig = 1;
+                if (!string.IsNullOrEmpty(ultimo) && int.TryParse(ultimo, out int n)) sig = n + 1;
+
+                await tx.CommitAsync();
+                return sig.ToString("D8");
+            });
+        }
+    }
+}
+10. SWCORA.Modules/SalidasMaterial/Services/HistorialSalidaService.cs
+csharp
+using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
+using SWCORA.Modules.SalidasMaterial.Data;
+using SWCORA.Modules.SalidasMaterial.Entities;
+
+namespace SWCORA.Modules.SalidasMaterial.Services
+{
+    public class HistorialSalidaService : IHistorialSalidaService
+    {
+        private readonly SalidaDbContext _context;
+        private readonly ILogger<HistorialSalidaService> _logger;
+
+        public HistorialSalidaService(SalidaDbContext context, ILogger<HistorialSalidaService> logger)
+        {
+            _context = context;
+            _logger = logger;
+        }
+
+        public async Task RegistrarEventoAsync(int idSalida, string accion, string? descripcion, object? cambios, int usuarioId)
+        {
+            try
+            {
+                var json = cambios != null ? JsonSerializer.Serialize(cambios) : null;
+                if (json != null && json.Length > 2000)
+                    json = json.Substring(0, 1997) + "...";
+
+                _context.HistorialSalidas.Add(new HistorialSalida
+                {
+                    IdSalida = idSalida,
+                    Accion = accion,
+                    Descripcion = descripcion,
+                    Cambios = json,
+                    IdUsuario = usuarioId,
+                    Fecha = DateTime.Now
+                });
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al registrar historial");
+            }
+        }
+
+        public async Task<List<HistorialSalida>> ObtenerHistorialAsync(int idSalida) =>
+            await _context.HistorialSalidas.Where(h => h.IdSalida == idSalida)
+                .OrderByDescending(h => h.Fecha).ToListAsync();
+    }
+}
+11. SWCORA.Modules/SalidasMaterial/Services/PlantillaService.cs
+csharp
+using Microsoft.EntityFrameworkCore;
+using SWCORA.Infrastructure.Data;
+using SWCORA.Modules.SalidasMaterial.Data;
+using SWCORA.Modules.SalidasMaterial.Entities;
+using SWCORA.Modules.SalidasMaterial.Models;
+
+namespace SWCORA.Modules.SalidasMaterial.Services
+{
+    public class PlantillaService : IPlantillaService
+    {
+        private readonly SalidaDbContext _context;
+        private readonly ApplicationDbContext _core;
+
+        public PlantillaService(SalidaDbContext context, ApplicationDbContext core)
+        {
+            _context = context;
+            _core = core;
+        }
+
+        public async Task<List<PlantillaMaterial>> GetPlantillasByUsuarioAsync(int usuarioId) =>
+            await _context.PlantillaMaterial.Include(p => p.Detalles)
+                .Where(p => p.IdUsuario == usuarioId)
+                .OrderBy(p => p.Nombre).ToListAsync();
+
+        public async Task<PlantillaMaterial?> GetPlantillaByIdAsync(int id) =>
+            await _context.PlantillaMaterial.Include(p => p.Detalles).ThenInclude(d => d.Unidad)
+                .FirstOrDefaultAsync(p => p.IdPlantillaMaterial == id);
+
+        public async Task<PlantillaMaterial> CrearPlantillaAsync(PlantillaMaterial plantilla, List<SalidaDetalleDto> detalles)
+        {
+            plantilla.FechaCreacion = DateTime.Now;
+            int linea = 1;
+            foreach (var d in detalles.Where(x => x.Cantidad > 0))
+            {
+                plantilla.Detalles.Add(new PlantillaDetalle
+                {
+                    NumeroLinea = linea++,
+                    Cantidad = d.Cantidad,
+                    IdUnidad = d.IdUnidad,
+                    Descripcion = d.Descripcion
+                });
+            }
+            _context.PlantillaMaterial.Add(plantilla);
+            await _context.SaveChangesAsync();
+            return plantilla;
+        }
+
+        public async Task<PlantillaMaterial> ActualizarPlantillaAsync(PlantillaMaterial plantilla, List<SalidaDetalleDto> detalles, int usuarioId)
+        {
+            var existente = await GetPlantillaByIdAsync(plantilla.IdPlantillaMaterial);
+            if (existente == null) throw new ArgumentException("Plantilla no encontrada");
+            if (existente.IdUsuario != usuarioId) throw new UnauthorizedAccessException("Sin permiso");
+
+            existente.Nombre = plantilla.Nombre;
+            existente.Descripcion = plantilla.Descripcion;
+            existente.FechaModificacion = DateTime.Now;
+
+            _context.PlantillaDetalles.RemoveRange(existente.Detalles);
+
+            int linea = 1;
+            foreach (var d in detalles.Where(x => x.Cantidad > 0))
+            {
+                existente.Detalles.Add(new PlantillaDetalle
+                {
+                    NumeroLinea = linea++,
+                    Cantidad = d.Cantidad,
+                    IdUnidad = d.IdUnidad,
+                    Descripcion = d.Descripcion
+                });
+            }
+            await _context.SaveChangesAsync();
+            return existente;
+        }
+
+        public async Task<bool> EliminarPlantillaAsync(int id, int usuarioId)
+        {
+            var p = await _context.PlantillaMaterial
+                .FirstOrDefaultAsync(x => x.IdPlantillaMaterial == id && x.IdUsuario == usuarioId);
+            if (p == null) return false;
+            _context.PlantillaMaterial.Remove(p);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<List<SalidaDetalleDto>> AplicarPlantillaAsync(int plantillaId)
+        {
+            var p = await GetPlantillaByIdAsync(plantillaId);
+            if (p == null) throw new ArgumentException("Plantilla no encontrada");
+
+            return p.Detalles.OrderBy(d => d.NumeroLinea).Select(d => new SalidaDetalleDto
+            {
+                NumeroLinea = d.NumeroLinea,
+                Cantidad = d.Cantidad,
+                IdUnidad = d.IdUnidad,
+                Descripcion = d.Descripcion
+            }).ToList();
+        }
+    }
+}
+12. SWCORA.Modules/SalidasMaterial/Services/ExportacionService.cs
+csharp
+using OfficeOpenXml;
+using OfficeOpenXml.Style;
+using Microsoft.EntityFrameworkCore;
+using SWCORA.Infrastructure.Data;
+using SWCORA.Infrastructure.Data.Repositories;
+using SWCORA.Modules.SalidasMaterial.Data;
+
+namespace SWCORA.Modules.SalidasMaterial.Services
+{
+    public class ExportacionService : IExportacionService
+    {
+        private readonly SalidaDbContext _context;
+        private readonly ApplicationDbContext _core;
+        private readonly IUsuarioRepository _usuarioRepository;
+
+        public ExportacionService(
+            SalidaDbContext context,
+            ApplicationDbContext core,
+            IUsuarioRepository usuarioRepository)
+        {
+            _context = context;
+            _core = core;
+            _usuarioRepository = usuarioRepository;
+        }
+
+        public async Task<byte[]> ExportarSalidasAExcelAsync(int usuarioId, string? filtroEstado = null,
+            DateTime? fechaInicio = null, DateTime? fechaFin = null)
+        {
+            var esSuper = await _usuarioRepository.EsSuperusuarioAsync(usuarioId);
+            var esAdmin = await _usuarioRepository.EsAdministradorAsync(usuarioId);
+
+            var query = _context.Salidas.Include(s => s.Detalles).AsQueryable();
+            if (!esSuper && !esAdmin)
+                query = query.Where(s => s.IdUsuario == usuarioId
+                                      || s.AprobadorAsignado == usuarioId
+                                      || s.AprobadoPor == usuarioId);
+
+            if (!string.IsNullOrEmpty(filtroEstado)) query = query.Where(s => s.Estado == filtroEstado);
+            if (fechaInicio.HasValue) query = query.Where(s => s.FechaCreacion >= fechaInicio.Value);
+            if (fechaFin.HasValue) query = query.Where(s => s.FechaCreacion <= fechaFin.Value);
+
+            var salidas = await query.OrderByDescending(s => s.FechaCreacion).ToListAsync();
+
+            using var package = new ExcelPackage();
+            var ws = package.Workbook.Worksheets.Add("Salidas");
+
+            string[] headers = { "Folio", "Fecha", "Estado", "Descripción", "Causa/Motivo",
+                "Categoría", "Materiales", "Es Definitiva" };
+
+            for (int i = 0; i < headers.Length; i++)
+            {
+                ws.Cells[1, i + 1].Value = headers[i];
+                ws.Cells[1, i + 1].Style.Font.Bold = true;
+                ws.Cells[1, i + 1].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                ws.Cells[1, i + 1].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.FromArgb(79, 129, 189));
+                ws.Cells[1, i + 1].Style.Font.Color.SetColor(System.Drawing.Color.White);
+            }
+
+            int row = 2;
+            foreach (var s in salidas)
+            {
+                ws.Cells[row, 1].Value = s.Folio ?? "(Sin folio)";
+                ws.Cells[row, 2].Value = s.FechaCreacion.ToString("dd/MM/yyyy");
+                ws.Cells[row, 3].Value = s.Estado;
+                ws.Cells[row, 4].Value = s.Descripcion;
+                ws.Cells[row, 5].Value = s.CausaMotivo;
+                ws.Cells[row, 6].Value = s.Categoria;
+                ws.Cells[row, 7].Value = s.Detalles.Count;
+                ws.Cells[row, 8].Value = s.EsDefinitiva ? "Sí" : "No";
+                row++;
+            }
+
+            ws.Cells.AutoFitColumns();
+            package.Save();
+            return package.GetAsByteArray();
+        }
+    }
+}
+13. SWCORA.Modules/SalidasMaterial/Services/DashboardService.cs
+csharp
+using Microsoft.EntityFrameworkCore;
+using SWCORA.Infrastructure.Data;
+using SWCORA.Infrastructure.Data.Repositories;
+using SWCORA.Modules.SalidasMaterial.Data;
+using SWCORA.Modules.SalidasMaterial.Models;
+
+namespace SWCORA.Modules.SalidasMaterial.Services
+{
+    public class DashboardService : IDashboardService
+    {
+        private readonly SalidaDbContext _context;
+        private readonly IUsuarioRepository _usuarioRepository;
+
+        public DashboardService(SalidaDbContext context, IUsuarioRepository usuarioRepository)
+        {
+            _context = context;
+            _usuarioRepository = usuarioRepository;
+        }
+
+        public async Task<DashboardViewModel> GetDashboardDataAsync(int usuarioId)
+        {
+            var esSuper = await _usuarioRepository.EsSuperusuarioAsync(usuarioId);
+            var esAdmin = await _usuarioRepository.EsAdministradorAsync(usuarioId);
+
+            var query = _context.Salidas.AsQueryable();
+            if (!esSuper && !esAdmin)
+                query = query.Where(s => s.IdUsuario == usuarioId
+                                      || s.AprobadorAsignado == usuarioId
+                                      || s.AprobadoPor == usuarioId);
+
+            var total = await query.CountAsync();
+
+            var model = new DashboardViewModel
+            {
+                TotalSalidas = total,
+                TotalBorradores = await query.CountAsync(s => s.Estado == "Borrador"),
+                TotalPendientes = await query.CountAsync(s => s.Estado == "PendienteAprobacion"),
+                TotalAprobadas = await query.CountAsync(s => s.Estado == "Aprobada"),
+                TotalRechazadas = await query.CountAsync(s => s.Estado == "Rechazada"),
+                TotalCanceladas = await query.CountAsync(s => s.Estado == "Cancelada"),
+                TotalMateriales = await _context.SalidasDetalles
+                    .Where(d => query.Select(s => s.IdSalida).Contains(d.IdSalida)).CountAsync()
+            };
+
+            if (total > 0) model.PromedioMaterialesPorSalida = (double)model.TotalMateriales / total;
+
+            model.DistribucionPorEstado = await query.GroupBy(s => s.Estado)
+                .Select(g => new { Estado = g.Key, Cantidad = g.Count() })
+                .ToDictionaryAsync(x => x.Estado, x => x.Cantidad);
+
+            model.MaterialesMasSolicitados = await _context.SalidasDetalles
+                .Where(d => query.Select(s => s.IdSalida).Contains(d.IdSalida))
+                .GroupBy(d => d.Descripcion)
+                .Select(g => new MaterialMasSolicitadoDto
+                {
+                    Descripcion = g.Key,
+                    TotalSolicitado = g.Sum(d => d.Cantidad),
+                    VecesSolicitado = g.Count()
+                }).OrderByDescending(x => x.VecesSolicitado).Take(10).ToListAsync();
+
+            return model;
+        }
+    }
+}
