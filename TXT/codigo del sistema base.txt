@@ -9440,3 +9440,965 @@ namespace SWCORA.Modules.SalidasMaterial.Services
         }
     }
 }
+
+
+1. SWCORA.Modules/SalidasMaterial/ModuleEntryPoint.cs
+csharp
+using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.DependencyInjection;
+using SWCORA.Core.Interfaces;
+using SWCORA.Modules.SalidasMaterial.Helpers;
+using SWCORA.Modules.SalidasMaterial.Services;
+
+namespace SWCORA.Modules.SalidasMaterial
+{
+    /// <summary>
+    /// Punto de entrada del módulo.
+    /// El ModuleLoader lo descubre por reflexión y ejecuta ConfigureServices.
+    /// </summary>
+    public class ModuleEntryPoint : IModuleStartup
+    {
+        public void ConfigureServices(IServiceCollection services)
+        {
+            // Servicios del módulo
+            services.AddScoped<ISalidaService, SalidaService>();
+            services.AddScoped<IPlantillaService, PlantillaService>();
+            services.AddScoped<IHistorialSalidaService, HistorialSalidaService>();
+            services.AddScoped<IExportacionService, ExportacionService>();
+            services.AddScoped<IDashboardService, DashboardService>();
+            services.AddScoped<PdfGenerator>();
+        }
+
+        public void ConfigureEndpoints(IEndpointRouteBuilder endpoints)
+        {
+            // Las rutas del módulo se manejan con [Area] y [Route] en el controller.
+            // Este método queda vacío intencionalmente.
+        }
+    }
+}
+Cambio respecto a la versión anterior: ahora implementa IModuleStartup y registra los servicios del módulo. Ya no los registras manualmente en Program.cs.
+
+2. SWCORA.Modules/SalidasMaterial/Module.json
+json
+{
+  "ModuleId": "SalidasMaterial",
+  "ModuleName": "Salidas de Material",
+  "Description": "Control de salidas de material con flujo de aprobación y generación de PDF",
+  "Version": "1.0.0",
+  "Author": "SWCORA",
+  "AssemblyName": "SWCORA.Modules.SalidasMaterial.dll",
+  "EntryPoint": "SWCORA.Modules.SalidasMaterial.ModuleEntryPoint",
+  "Roles": [
+    {
+      "Codigo": "Generador",
+      "Nombre": "Generador de Salidas",
+      "Descripcion": "Puede crear y gestionar salidas de material",
+      "NivelJerarquico": 1
+    },
+    {
+      "Codigo": "Aprobador",
+      "Nombre": "Aprobador de Salidas",
+      "Descripcion": "Puede aprobar o rechazar salidas de material",
+      "NivelJerarquico": 2
+    }
+  ],
+  "Permisos": [
+    {
+      "Codigo": "Modulos.Salidas",
+      "Nombre": "📋 Salidas de Material",
+      "Descripcion": "Módulo de control de salidas",
+      "Tipo": "Modulo"
+    },
+    {
+      "Codigo": "Modulos.Salidas.Crear",
+      "Nombre": "➕ Crear salida",
+      "Descripcion": "Crear nuevas salidas en borrador",
+      "Tipo": "Accion",
+      "PadreCodigo": "Modulos.Salidas"
+    },
+    {
+      "Codigo": "Modulos.Salidas.Editar",
+      "Nombre": "✏️ Editar salida",
+      "Descripcion": "Editar salidas en borrador",
+      "Tipo": "Accion",
+      "PadreCodigo": "Modulos.Salidas"
+    },
+    {
+      "Codigo": "Modulos.Salidas.VerListado",
+      "Nombre": "👁️ Ver listado",
+      "Descripcion": "Ver el listado de salidas",
+      "Tipo": "Accion",
+      "PadreCodigo": "Modulos.Salidas"
+    },
+    {
+      "Codigo": "Modulos.Salidas.VerDetalles",
+      "Nombre": "👁️ Ver detalles",
+      "Descripcion": "Ver el detalle de una salida",
+      "Tipo": "Accion",
+      "PadreCodigo": "Modulos.Salidas"
+    },
+    {
+      "Codigo": "Modulos.Salidas.Aprobar",
+      "Nombre": "✅ Aprobar salida",
+      "Descripcion": "Aprobar salidas pendientes",
+      "Tipo": "Accion",
+      "PadreCodigo": "Modulos.Salidas"
+    },
+    {
+      "Codigo": "Modulos.Salidas.Rechazar",
+      "Nombre": "❌ Rechazar salida",
+      "Descripcion": "Rechazar salidas pendientes",
+      "Tipo": "Accion",
+      "PadreCodigo": "Modulos.Salidas"
+    },
+    {
+      "Codigo": "Modulos.Salidas.Cancelar",
+      "Nombre": "🚫 Cancelar salida",
+      "Descripcion": "Cancelar salidas pendientes",
+      "Tipo": "Accion",
+      "PadreCodigo": "Modulos.Salidas"
+    },
+    {
+      "Codigo": "Modulos.Salidas.DescargarPdf",
+      "Nombre": "📄 Descargar PDF",
+      "Descripcion": "Descargar el PDF de una salida aprobada",
+      "Tipo": "Accion",
+      "PadreCodigo": "Modulos.Salidas"
+    },
+    {
+      "Codigo": "Modulos.Salidas.Clonar",
+      "Nombre": "📋 Clonar salida",
+      "Descripcion": "Clonar salidas aprobadas, rechazadas o canceladas",
+      "Tipo": "Accion",
+      "PadreCodigo": "Modulos.Salidas"
+    },
+    {
+      "Codigo": "Modulos.Salidas.EliminarBorrador",
+      "Nombre": "🗑️ Eliminar borrador",
+      "Descripcion": "Eliminar salidas en estado borrador",
+      "Tipo": "Accion",
+      "PadreCodigo": "Modulos.Salidas"
+    },
+    {
+      "Codigo": "Modulos.Salidas.Plantillas",
+      "Nombre": "📑 Gestionar plantillas",
+      "Descripcion": "Crear, aplicar y eliminar plantillas de materiales",
+      "Tipo": "Accion",
+      "PadreCodigo": "Modulos.Salidas"
+    }
+  ]
+}
+Cambio: ahora incluye los permisos del módulo. El ModuleLoader los registrará en la tabla Permisos del Core.
+
+3. ModuleLoader.cs — actualización para registrar permisos
+El ModuleLoader necesita un método nuevo para procesar config.Permisos. Aquí está el archivo completo actualizado:
+
+csharp
+using System.Reflection;
+using System.Text.Json;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using SWCORA.Core.Entities;
+using SWCORA.Core.Interfaces;
+using SWCORA.Infrastructure.Data;
+
+namespace SWCORA.Infrastructure.Modules
+{
+    public class ModuleLoader
+    {
+        private readonly IHostEnvironment _env;
+        private readonly ILogger<ModuleLoader> _logger;
+        private readonly IServiceCollection _services;
+        private readonly string _connectionString;
+        private readonly ApplicationDbContext _dbContext;
+        private readonly List<ModuloInfo> _modulosCargados = new();
+
+        public ModuleLoader(
+            IHostEnvironment env,
+            ILogger<ModuleLoader> logger,
+            IServiceCollection services,
+            string connectionString,
+            ApplicationDbContext dbContext)
+        {
+            _env = env;
+            _logger = logger;
+            _services = services;
+            _connectionString = connectionString;
+            _dbContext = dbContext;
+        }
+
+        public async Task<List<ModuloInfo>> CargarModulosAsync()
+        {
+            var modulesPath = Path.Combine(_env.ContentRootPath, "wwwroot", "modules");
+            if (!Directory.Exists(modulesPath))
+            {
+                Directory.CreateDirectory(modulesPath);
+                _logger.LogWarning("Carpeta wwwroot/modules creada.");
+                return new List<ModuloInfo>();
+            }
+
+            _logger.LogInformation("🔍 Buscando módulos en {Path}", modulesPath);
+
+            foreach (var moduleDir in Directory.GetDirectories(modulesPath))
+            {
+                try
+                {
+                    var moduleJsonPath = Path.Combine(moduleDir, "Module.json");
+                    if (!File.Exists(moduleJsonPath))
+                    {
+                        _logger.LogWarning("⚠️ No hay Module.json en {Dir}", moduleDir);
+                        continue;
+                    }
+
+                    var json = await File.ReadAllTextAsync(moduleJsonPath);
+                    var config = JsonSerializer.Deserialize<ModuleConfig>(json,
+                        new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                    if (config == null)
+                    {
+                        _logger.LogError("❌ Module.json inválido en {Dir}", moduleDir);
+                        continue;
+                    }
+
+                    var dllPath = Path.Combine(moduleDir, config.AssemblyName);
+                    if (!File.Exists(dllPath))
+                    {
+                        _logger.LogError("❌ No se encontró {Dll}", config.AssemblyName);
+                        continue;
+                    }
+
+                    var assembly = Assembly.LoadFrom(dllPath);
+
+                    // 1. Registrar módulo y roles en BD
+                    var moduloId = await RegistrarModuloEnBaseDatosAsync(config);
+
+                    // 2. Registrar permisos del módulo en el árbol
+                    await RegistrarPermisosDelModuloAsync(config, moduloId);
+
+                    // 3. Registrar DbContext del módulo
+                    var registrationType = assembly.GetTypes()
+                        .FirstOrDefault(t => typeof(IModuleDbContextRegistration).IsAssignableFrom(t)
+                                          && !t.IsInterface && !t.IsAbstract);
+
+                    if (registrationType != null)
+                    {
+                        var registration = (IModuleDbContextRegistration)Activator.CreateInstance(registrationType)!;
+                        registration.RegisterDbContext(_services, _connectionString);
+                        _logger.LogInformation("✅ DbContext del módulo registrado: {Modulo}", config.ModuleName);
+                    }
+
+                    // 4. Registrar servicios vía IModuleStartup
+                    RegistrarServiciosDelModulo(assembly, config);
+
+                    // 5. Guardar info del módulo
+                    _modulosCargados.Add(new ModuloInfo
+                    {
+                        ModuleId = config.ModuleId,
+                        ModuleName = config.ModuleName,
+                        Description = config.Description ?? "",
+                        Version = config.Version ?? "1.0.0",
+                        Assembly = assembly,
+                        AssemblyPath = dllPath,
+                        ModuleDirectory = moduleDir,
+                        EntryPointType = config.EntryPoint ?? ""
+                    });
+
+                    _logger.LogInformation("✅ Módulo cargado: {Nombre}", config.ModuleName);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "❌ Error cargando módulo en {Dir}", moduleDir);
+                }
+            }
+
+            return _modulosCargados;
+        }
+
+        public void RegistrarApplicationParts(IMvcBuilder mvcBuilder)
+        {
+            foreach (var modulo in _modulosCargados)
+            {
+                try
+                {
+                    mvcBuilder.AddApplicationPart(modulo.Assembly);
+                    _logger.LogInformation("✅ ApplicationPart registrado: {Modulo}", modulo.ModuleName);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "❌ Error registrando ApplicationPart: {Modulo}", modulo.ModuleName);
+                }
+            }
+        }
+
+        public List<ModuloInfo> GetModulosCargados() => _modulosCargados;
+
+        private async Task<int> RegistrarModuloEnBaseDatosAsync(ModuleConfig config)
+        {
+            var existente = await _dbContext.Modulos.FirstOrDefaultAsync(m => m.Codigo == config.ModuleId);
+
+            if (existente == null)
+            {
+                var modulo = new Modulo
+                {
+                    Codigo = config.ModuleId,
+                    Nombre = config.ModuleName,
+                    Descripcion = config.Description,
+                    Version = config.Version ?? "1.0.0",
+                    AssemblyName = config.AssemblyName,
+                    EntryPoint = config.EntryPoint,
+                    EsActivo = true,
+                    FechaRegistro = DateTime.Now,
+                    UltimaActualizacion = DateTime.Now
+                };
+                _dbContext.Modulos.Add(modulo);
+                await _dbContext.SaveChangesAsync();
+
+                foreach (var rc in config.Roles ?? new List<RoleConfig>())
+                {
+                    _dbContext.Roles.Add(new Rol
+                    {
+                        Tipo = "Local",
+                        IdModulo = modulo.IdModulo,
+                        Codigo = rc.Codigo,
+                        Nombre = rc.Nombre,
+                        Descripcion = rc.Descripcion,
+                        NivelJerarquico = rc.NivelJerarquico,
+                        EsActivo = true,
+                        EsSistema = false,
+                        PuedeAprobar = rc.Codigo == "Aprobador",
+                        Origen = "Precargado",
+                        FechaCreacion = DateTime.Now
+                    });
+                }
+                await _dbContext.SaveChangesAsync();
+                _logger.LogInformation("✅ Módulo registrado en BD: {Nombre}", config.ModuleName);
+                return modulo.IdModulo;
+            }
+            else
+            {
+                existente.Nombre = config.ModuleName;
+                existente.Descripcion = config.Description;
+                existente.Version = config.Version ?? "1.0.0";
+                existente.UltimaActualizacion = DateTime.Now;
+                await _dbContext.SaveChangesAsync();
+                return existente.IdModulo;
+            }
+        }
+
+        /// <summary>
+        /// Registra los permisos del módulo en el árbol de Permisos.
+        /// Los nodos padre ("Modulos") se toman del Core.
+        /// </summary>
+        private async Task RegistrarPermisosDelModuloAsync(ModuleConfig config, int moduloId)
+        {
+            if (config.Permisos == null || !config.Permisos.Any()) return;
+
+            // Buscar el nodo raíz "Modulos" del Core
+            var padreModulos = await _dbContext.Permisos
+                .FirstOrDefaultAsync(p => p.Codigo == "Modulos");
+
+            if (padreModulos == null)
+            {
+                _logger.LogWarning("⚠️ No existe el nodo 'Modulos' en el árbol de permisos del Core.");
+                return;
+            }
+
+            // Diccionario de códigos ya registrados para asignar IdPadre
+            var permisosExistentes = await _dbContext.Permisos
+                .Where(p => p.ModuloId == moduloId)
+                .ToDictionaryAsync(p => p.Codigo, p => p.IdPermiso);
+
+            foreach (var permisoCfg in config.Permisos)
+            {
+                if (permisosExistentes.ContainsKey(permisoCfg.Codigo)) continue;
+
+                // Determinar el padre
+                int? idPadre;
+                if (!string.IsNullOrEmpty(permisoCfg.PadreCodigo))
+                {
+                    if (permisosExistentes.TryGetValue(permisoCfg.PadreCodigo, out int padreId))
+                        idPadre = padreId;
+                    else
+                        idPadre = padreModulos.IdPermiso;
+                }
+                else
+                {
+                    idPadre = padreModulos.IdPermiso;
+                }
+
+                var permiso = new Permiso
+                {
+                    Codigo = permisoCfg.Codigo,
+                    Nombre = permisoCfg.Nombre,
+                    Descripcion = permisoCfg.Descripcion,
+                    IdPadre = idPadre,
+                    ModuloId = moduloId,
+                    Tipo = permisoCfg.Tipo,
+                    EsActivo = true
+                };
+                _dbContext.Permisos.Add(permiso);
+                await _dbContext.SaveChangesAsync();
+
+                permisosExistentes[permiso.Codigo] = permiso.IdPermiso;
+            }
+        }
+
+        private void RegistrarServiciosDelModulo(Assembly assembly, ModuleConfig config)
+        {
+            if (string.IsNullOrEmpty(config.EntryPoint)) return;
+
+            try
+            {
+                var entryType = assembly.GetType(config.EntryPoint);
+                if (entryType == null) return;
+
+                var startupInterface = entryType.GetInterface(nameof(IModuleStartup));
+                if (startupInterface != null)
+                {
+                    var instance = Activator.CreateInstance(entryType);
+                    var method = entryType.GetMethod("ConfigureServices");
+                    method?.Invoke(instance, new object[] { _services });
+                    _logger.LogInformation("✅ Servicios del módulo registrados vía IModuleStartup.");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "❌ Error registrando servicios del módulo {Modulo}", config.ModuleName);
+            }
+        }
+    }
+
+    // =============================================
+    // MODELOS AUXILIARES
+    // =============================================
+
+    public class ModuleConfig
+    {
+        public string ModuleId { get; set; } = "";
+        public string ModuleName { get; set; } = "";
+        public string? Description { get; set; }
+        public string? Version { get; set; }
+        public string AssemblyName { get; set; } = "";
+        public string? EntryPoint { get; set; }
+        public List<RoleConfig> Roles { get; set; } = new();
+        public List<PermisoConfig> Permisos { get; set; } = new();
+    }
+
+    public class RoleConfig
+    {
+        public string Codigo { get; set; } = "";
+        public string Nombre { get; set; } = "";
+        public string? Descripcion { get; set; }
+        public int NivelJerarquico { get; set; } = 1;
+    }
+
+    public class PermisoConfig
+    {
+        public string Codigo { get; set; } = "";
+        public string Nombre { get; set; } = "";
+        public string? Descripcion { get; set; }
+        public string Tipo { get; set; } = "Accion";
+        public string? PadreCodigo { get; set; }
+    }
+
+    public class ModuloInfo
+    {
+        public string ModuleId { get; set; } = "";
+        public string ModuleName { get; set; } = "";
+        public string Description { get; set; } = "";
+        public string Version { get; set; } = "";
+        public Assembly Assembly { get; set; } = null!;
+        public string AssemblyPath { get; set; } = "";
+        public string ModuleDirectory { get; set; } = "";
+        public string EntryPointType { get; set; } = "";
+    }
+}
+4. SalidasController.cs
+csharp
+using Microsoft.AspNetCore.Mvc;
+using SWCORA.Core.Attributes;
+using SWCORA.Infrastructure.Data.Repositories;
+using SWCORA.Infrastructure.Web;
+using SWCORA.Modules.SalidasMaterial.Models;
+using SWCORA.Modules.SalidasMaterial.Services;
+
+namespace SWCORA.Modules.SalidasMaterial.Areas.SalidasMaterial.Controllers
+{
+    [Area("SalidasMaterial")]
+    [AuthorizeModulo("SalidasMaterial", "Generador")]
+    [AuthorizeModulo("SalidasMaterial", "Aprobador")]
+    [Route("SalidasMaterial/[controller]")]
+    public class SalidasController : BaseController
+    {
+        private readonly ISalidaService _salidaService;
+        private readonly IPlantillaService _plantillaService;
+        private readonly IExportacionService _exportacionService;
+        private readonly IDashboardService _dashboardService;
+        private readonly IEmpresaRepository _empresaRepository;
+
+        public SalidasController(
+            IUsuarioRepository usuarioRepository,
+            IEmpresaRepository empresaRepository,
+            ISalidaService salidaService,
+            IPlantillaService plantillaService,
+            IExportacionService exportacionService,
+            IDashboardService dashboardService) : base(usuarioRepository)
+        {
+            _empresaRepository = empresaRepository;
+            _salidaService = salidaService;
+            _plantillaService = plantillaService;
+            _exportacionService = exportacionService;
+            _dashboardService = dashboardService;
+        }
+
+        [HttpGet("")]
+        [HttpGet("Index")]
+        public async Task<IActionResult> Index(int pagina = 1, string? filtroEstado = null, string? busqueda = null)
+        {
+            var usuario = await GetUsuarioActualAsync();
+            if (usuario == null) return RedirectToAction("AccessDenied", "Home");
+
+            var model = await _salidaService.GetSalidasAsync(usuario.IdUsuario, pagina, 10, filtroEstado, busqueda);
+            return View(model);
+        }
+
+        [HttpGet("Crear")]
+        public async Task<IActionResult> Crear()
+        {
+            var usuario = await GetUsuarioActualAsync();
+            if (usuario == null) return RedirectToAction("AccessDenied", "Home");
+
+            var model = await _salidaService.GetCrearSalidaViewModelAsync();
+            model.Plantillas = (await _plantillaService.GetPlantillasByUsuarioAsync(usuario.IdUsuario))
+                .Select(p => new PlantillaDto
+                {
+                    IdPlantillaMaterial = p.IdPlantillaMaterial,
+                    Nombre = p.Nombre,
+                    Descripcion = p.Descripcion,
+                    CantidadMateriales = p.Detalles.Count
+                }).ToList();
+            return View(model);
+        }
+
+        [HttpPost("Crear")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Crear(CrearSalidaViewModel model)
+        {
+            var usuario = await GetUsuarioActualAsync();
+            if (usuario == null) return RedirectToAction("AccessDenied", "Home");
+
+            if (!ModelState.IsValid)
+            {
+                await RecargarListasAsync(model, usuario.IdUsuario);
+                return View(model);
+            }
+
+            var result = await _salidaService.CrearSalidaAsync(model, usuario.IdUsuario);
+            if (result.Exito)
+            {
+                AddNotification(result.Mensaje);
+                return RedirectToAction(nameof(Index));
+            }
+
+            AddNotification(result.Mensaje, "danger");
+            await RecargarListasAsync(model, usuario.IdUsuario);
+            return View(model);
+        }
+
+        [HttpGet("Editar/{id}")]
+        public async Task<IActionResult> Editar(int id)
+        {
+            var usuario = await GetUsuarioActualAsync();
+            if (usuario == null) return RedirectToAction("AccessDenied", "Home");
+
+            if (!await _salidaService.PuedeEditarAsync(id, usuario.IdUsuario))
+            {
+                AddNotification("No tienes permiso para editar.", "danger");
+                return RedirectToAction(nameof(Index));
+            }
+
+            var model = await _salidaService.GetCrearSalidaViewModelAsync(id);
+            model.Plantillas = (await _plantillaService.GetPlantillasByUsuarioAsync(usuario.IdUsuario))
+                .Select(p => new PlantillaDto
+                {
+                    IdPlantillaMaterial = p.IdPlantillaMaterial,
+                    Nombre = p.Nombre,
+                    Descripcion = p.Descripcion,
+                    CantidadMateriales = p.Detalles.Count
+                }).ToList();
+            return View(model);
+        }
+
+        [HttpPost("Editar/{id}")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Editar(CrearSalidaViewModel model)
+        {
+            var usuario = await GetUsuarioActualAsync();
+            if (usuario == null) return RedirectToAction("AccessDenied", "Home");
+
+            if (!ModelState.IsValid)
+            {
+                await RecargarListasAsync(model, usuario.IdUsuario);
+                return View(model);
+            }
+
+            var result = await _salidaService.ActualizarSalidaAsync(model, usuario.IdUsuario);
+            if (result.Exito)
+            {
+                AddNotification(result.Mensaje);
+                return RedirectToAction(nameof(Detalles), new { id = model.IdSalida });
+            }
+
+            AddNotification(result.Mensaje, "danger");
+            await RecargarListasAsync(model, usuario.IdUsuario);
+            return View(model);
+        }
+
+        [HttpGet("Detalles/{id}")]
+        public async Task<IActionResult> Detalles(int id)
+        {
+            var usuario = await GetUsuarioActualAsync();
+            if (usuario == null) return RedirectToAction("AccessDenied", "Home");
+
+            var model = await _salidaService.GetDetalleSalidaAsync(id, usuario.IdUsuario);
+            if (model == null) return NotFound();
+            return View(model);
+        }
+
+        [HttpPost("Eliminar/{id}")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Eliminar(int id)
+        {
+            var usuario = await GetUsuarioActualAsync();
+            if (usuario == null) return RedirectToAction("AccessDenied", "Home");
+
+            var result = await _salidaService.EliminarBorradorAsync(id, usuario.IdUsuario);
+            AddNotification(result.Mensaje, result.Exito ? "success" : "danger");
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost("EnviarAprobacion/{id}")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EnviarAprobacion(int id)
+        {
+            var usuario = await GetUsuarioActualAsync();
+            if (usuario == null) return RedirectToAction("AccessDenied", "Home");
+
+            var result = await _salidaService.EnviarAprobacionAsync(id, usuario.IdUsuario);
+            AddNotification(result.Mensaje, result.Exito ? "success" : "danger");
+            return RedirectToAction(nameof(Detalles), new { id });
+        }
+
+        [HttpPost("Aprobar/{id}")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Aprobar(int id)
+        {
+            var usuario = await GetUsuarioActualAsync();
+            if (usuario == null) return RedirectToAction("AccessDenied", "Home");
+
+            var result = await _salidaService.AprobarSalidaAsync(id, usuario.IdUsuario);
+            AddNotification(result.Mensaje, result.Exito ? "success" : "danger");
+            return RedirectToAction(nameof(Detalles), new { id });
+        }
+
+        [HttpPost("Rechazar/{id}")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Rechazar(int id, string motivo)
+        {
+            var usuario = await GetUsuarioActualAsync();
+            if (usuario == null) return RedirectToAction("AccessDenied", "Home");
+
+            var result = await _salidaService.RechazarSalidaAsync(id, usuario.IdUsuario, motivo);
+            AddNotification(result.Mensaje, result.Exito ? "success" : "danger");
+            return RedirectToAction(nameof(Detalles), new { id });
+        }
+
+        [HttpPost("Cancelar/{id}")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Cancelar(int id, string motivo)
+        {
+            var usuario = await GetUsuarioActualAsync();
+            if (usuario == null) return RedirectToAction("AccessDenied", "Home");
+
+            var result = await _salidaService.CancelarSalidaAsync(id, usuario.IdUsuario, motivo);
+            AddNotification(result.Mensaje, result.Exito ? "success" : "danger");
+            return RedirectToAction(nameof(Detalles), new { id });
+        }
+
+        [HttpPost("Clonar/{id}")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Clonar(int id)
+        {
+            var usuario = await GetUsuarioActualAsync();
+            if (usuario == null) return RedirectToAction("AccessDenied", "Home");
+
+            var result = await _salidaService.ClonarSalidaAsync(id, usuario.IdUsuario);
+            if (result.Exito && result.NuevoIdSalida.HasValue)
+            {
+                AddNotification(result.Mensaje);
+                return RedirectToAction(nameof(Editar), new { id = result.NuevoIdSalida });
+            }
+
+            AddNotification(result.Mensaje, "danger");
+            return RedirectToAction(nameof(Detalles), new { id });
+        }
+
+        [HttpGet("Pdf/{id}")]
+        public async Task<IActionResult> Pdf(int id)
+        {
+            var usuario = await GetUsuarioActualAsync();
+            if (usuario == null) return RedirectToAction("AccessDenied", "Home");
+
+            var salida = await _salidaService.GetSalidaByIdAsync(id);
+            if (salida == null || salida.Estado != "Aprobada")
+            {
+                AddNotification("El PDF solo está disponible para salidas aprobadas.", "warning");
+                return RedirectToAction(nameof(Detalles), new { id });
+            }
+
+            var pdf = await _salidaService.GenerarPdfAsync(id);
+            return File(pdf, "application/pdf", $"Salida_{salida.Folio}.pdf");
+        }
+
+        [HttpGet("Dashboard")]
+        public async Task<IActionResult> Dashboard()
+        {
+            var usuario = await GetUsuarioActualAsync();
+            if (usuario == null) return RedirectToAction("AccessDenied", "Home");
+
+            var data = await _dashboardService.GetDashboardDataAsync(usuario.IdUsuario);
+            return View(data);
+        }
+
+        [HttpGet("ExportarExcel")]
+        public async Task<IActionResult> ExportarExcel(string? filtroEstado = null)
+        {
+            var usuario = await GetUsuarioActualAsync();
+            if (usuario == null) return RedirectToAction("AccessDenied", "Home");
+
+            var bytes = await _exportacionService.ExportarSalidasAExcelAsync(usuario.IdUsuario, filtroEstado);
+            return File(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                $"Salidas_{DateTime.Now:yyyyMMdd}.xlsx");
+        }
+
+        [HttpGet("GetEmpresaContacto/{idEmpresa}")]
+        public async Task<IActionResult> GetEmpresaContacto(int idEmpresa)
+        {
+            var empresa = await _empresaRepository.GetByIdAsync(idEmpresa);
+            if (empresa == null) return NotFound();
+            return Json(new { contacto = empresa.Contacto });
+        }
+
+        private async Task RecargarListasAsync(CrearSalidaViewModel model, int usuarioId)
+        {
+            var temp = await _salidaService.GetCrearSalidaViewModelAsync();
+            model.Empresas = temp.Empresas;
+            model.Aprobadores = temp.Aprobadores;
+            model.Unidades = temp.Unidades;
+            model.Plantillas = (await _plantillaService.GetPlantillasByUsuarioAsync(usuarioId))
+                .Select(p => new PlantillaDto
+                {
+                    IdPlantillaMaterial = p.IdPlantillaMaterial,
+                    Nombre = p.Nombre,
+                    Descripcion = p.Descripcion,
+                    CantidadMateriales = p.Detalles.Count
+                }).ToList();
+        }
+    }
+}
+Cambios:
+
+Sigue igual en estructura, pero ahora los servicios se registran vía ModuleEntryPoint.ConfigureServices en lugar de Program.cs.
+
+El ModuleLoader registra los ApplicationPart, así que los controladores se descubren dinámicamente.
+
+5. SalidasHub.cs
+csharp
+using Microsoft.AspNetCore.SignalR;
+
+namespace SWCORA.Modules.SalidasMaterial.Hubs
+{
+    /// <summary>
+    /// Hub de SignalR para notificaciones en tiempo real del módulo de salidas.
+    /// </summary>
+    public class SalidasHub : Hub
+    {
+        public async Task NotificarCambioEstado(int salidaId, string estado)
+        {
+            await Clients.All.SendAsync("SalidaCambioEstado", salidaId, estado);
+        }
+
+        public async Task NotificarNuevaSalida(int salidaId, string folio)
+        {
+            await Clients.All.SendAsync("NuevaSalida", salidaId, folio);
+        }
+    }
+}
+Cambio: se añadió NotificarNuevaSalida para complementar el hub.
+
+6. Program.cs — actualización para mapear el Hub
+Como el Hub vive en el módulo, y SWCORA.Web referencia al módulo (por eso Program.cs puede usar SalidasHub directamente), el mapeo sigue siendo directo:
+
+csharp
+app.MapHub<SalidasHub>("/hubs/salidas");
+Nota: si quisieras cero referencias de compilación al módulo, el mapeo del Hub debería hacerse por reflexión. Pero como SWCORA.Web referencia al módulo para compilar los ApplicationParts, ya lo tienes accesible.
+
+7. Vistas Razor del módulo
+No cambian. Las vistas solo consumen los ViewModels (SalidaIndexViewModel, CrearSalidaViewModel, DetalleSalidaViewModel, DashboardViewModel), que no cambiaron por el DbContext ni por iText. Se mantienen exactamente como te las entregué antes.
+
+Los únicos ajustes posibles serían:
+
+Detalles.cshtml: si quieres mostrar notificaciones SignalR en tiempo real.
+
+_Layout.cshtml del módulo: si quieres incluir el cliente SignalR.
+
+8. SWCORA.Web/Program.cs — versión final actualizada
+csharp
+using Microsoft.AspNetCore.Authentication.Negotiate;
+using Microsoft.EntityFrameworkCore;
+using SWCORA.Infrastructure.Data;
+using SWCORA.Infrastructure.Data.Repositories;
+using SWCORA.Infrastructure.Modules;
+using SWCORA.Infrastructure.Services;
+using SWCORA.Modules.SalidasMaterial.Hubs;
+using SWCORA.Web.Middleware;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// =============================================
+// 1. CONFIGURACIÓN BÁSICA
+// =============================================
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")!;
+
+// =============================================
+// 2. DbContext del Core
+// =============================================
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+
+// =============================================
+// 3. Autenticación
+// =============================================
+builder.Services
+    .AddAuthentication(NegotiateDefaults.AuthenticationScheme)
+    .AddNegotiate()
+    .AddCookie("SuperAdmin", options =>
+    {
+        options.LoginPath = "/SuperAdmin/Login";
+        options.LogoutPath = "/SuperAdmin/Logout";
+        options.AccessDeniedPath = "/SuperAdmin/Login";
+        options.ExpireTimeSpan = TimeSpan.FromHours(8);
+        options.SlidingExpiration = true;
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SecurePolicy = builder.Environment.IsDevelopment()
+            ? CookieSecurePolicy.SameAsRequest
+            : CookieSecurePolicy.Always;
+        options.Cookie.Name = "SWCORA.SuperAdmin";
+    });
+
+builder.Services.AddAuthorization();
+
+// =============================================
+// 4. Repositorios del Core
+// =============================================
+builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+builder.Services.AddScoped<IRolRepository, RolRepository>();
+builder.Services.AddScoped<IPermisoRepository, PermisoRepository>();
+builder.Services.AddScoped<IModuloRepository, ModuloRepository>();
+builder.Services.AddScoped<IEmpresaRepository, EmpresaRepository>();
+builder.Services.AddScoped<ITipoEmpresaRepository, TipoEmpresaRepository>();
+builder.Services.AddScoped<IUnidadRepository, UnidadRepository>();
+builder.Services.AddScoped<IDepartamentoRepository, DepartamentoRepository>();
+builder.Services.AddScoped<ISolicitudAccesoRepository, SolicitudAccesoRepository>();
+builder.Services.AddScoped<INotificacionRepository, NotificacionRepository>();
+
+// =============================================
+// 5. Servicios del Core
+// =============================================
+builder.Services.AddScoped<NotificacionService>();
+builder.Services.AddScoped<LogService>();
+builder.Services.AddScoped<AuthenticationService>();
+
+// =============================================
+// 6. Claims Transformer
+// =============================================
+builder.Services.AddTransient<IClaimsTransformation, CustomClaimsTransformer>();
+
+// =============================================
+// 7. MVC
+// =============================================
+var mvcBuilder = builder.Services.AddControllersWithViews();
+builder.Services.AddRazorPages();
+
+// =============================================
+// 8. Infraestructura
+// =============================================
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddSignalR();
+builder.Services.AddMemoryCache();
+
+// =============================================
+// 9. ModuleLoader (ANTES de Build)
+//    Carga módulos, registra DbContexts, permisos y ApplicationParts.
+// =============================================
+var tempOptions = new DbContextOptionsBuilder<ApplicationDbContext>()
+    .UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))
+    .Options;
+using var tempDb = new ApplicationDbContext(tempOptions);
+
+var loggerFactory = LoggerFactory.Create(b => b.AddConsole());
+var moduleLoader = new ModuleLoader(
+    builder.Environment,
+    loggerFactory.CreateLogger<ModuleLoader>(),
+    builder.Services,
+    connectionString,
+    tempDb);
+
+moduleLoader.CargarModulosAsync().GetAwaiter().GetResult();
+moduleLoader.RegistrarApplicationParts(mvcBuilder);
+
+// =============================================
+// 10. Construir app
+// =============================================
+var app = builder.Build();
+
+// =============================================
+// 11. Pipeline
+// =============================================
+if (app.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
+}
+else
+{
+    app.UseExceptionHandler("/Home/Error");
+    app.UseHsts();
+}
+
+app.UseHttpsRedirection();
+app.UseStaticFiles();
+app.UseRouting();
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.UseMiddleware<RedirectUnauthorizedMiddleware>();
+app.UseMiddleware<AuditoriaMiddleware>();
+
+// =============================================
+// 12. Rutas
+// =============================================
+app.MapControllerRoute(
+    name: "areas",
+    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
+
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
+
+app.MapRazorPages();
+app.MapHub<SalidasHub>("/hubs/salidas");
+
+app.Run();
