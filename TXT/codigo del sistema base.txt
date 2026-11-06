@@ -7182,3 +7182,499 @@ Las vistas faltantes (Crear.cshtml, Editar.cshtml, Detalles.cshtml del módulo) 
 El mockup original está en wwwroot/modules/SalidasMaterial/ como referencia visual, pero las vistas Razor del módulo están en Areas/SalidasMaterial/Views/.
 
 Falta implementar: SignalR cliente en scripts.js, _Layout.cshtml del módulo (opcional, usa el del Core), y la vista _ArbolPermisosPartial.cshtml (parcial simple).
+
+
+
+
+
+
+
+*****************************************************
+
+
+1. Resolución de la referencia circular (sin tocar entidades)
+El ciclo entre SWCORA.Infrastructure y SWCORA.Modules.SalidasMaterial se rompe eliminando la referencia de Infrastructure al módulo. El ApplicationDbContext solo gestiona entidades del Core. El módulo gestiona las suyas con SalidaDbContext.
+
+SWCORA.Infrastructure/SWCORA.Infrastructure.csproj
+xml
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Negotiate" Version="10.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.0" />
+    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="10.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0" />
+    <PackageReference Include="System.Text.Json" Version="10.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- SOLO referencia a Core. SIN referencia al módulo. -->
+    <ProjectReference Include="..\SWCORA.Core\SWCORA.Core.csproj" />
+  </ItemGroup>
+</Project>
+SWCORA.Modules/SalidasMaterial/SWCORA.Modules.SalidasMaterial.csproj
+xml
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="10.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.2.0" />
+    <!-- iTextSharp ELIMINADO. iText 8 añadido. -->
+    <PackageReference Include="itext" Version="8.0.4" />
+    <PackageReference Include="EPPlus" Version="7.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Referencia a Core e Infrastructure (sin ciclo, porque Infrastructure ya no referencia al módulo) -->
+    <ProjectReference Include="..\..\SWCORA.Core\SWCORA.Core.csproj" />
+    <ProjectReference Include="..\..\SWCORA.Infrastructure\SWCORA.Infrastructure.csproj" />
+  </ItemGroup>
+</Project>
+2. ApplicationDbContext — solo Core
+Elimina los DbSet y configuraciones de Salida, SalidaDetalle, HistorialSalida, PlantillaMaterial, PlantillaDetalle. Queda solo el Core.
+
+csharp
+using Microsoft.EntityFrameworkCore;
+using SWCORA.Core.Entities;
+
+namespace SWCORA.Infrastructure.Data
+{
+    public class ApplicationDbContext : DbContext
+    {
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+            : base(options) { }
+
+        // Core únicamente
+        public DbSet<Usuario> Usuarios { get; set; }
+        public DbSet<Departamento> Departamentos { get; set; }
+        public DbSet<Modulo> Modulos { get; set; }
+        public DbSet<Rol> Roles { get; set; }
+        public DbSet<Permiso> Permisos { get; set; }
+        public DbSet<UsuarioRol> UsuariosRoles { get; set; }
+        public DbSet<RolPermiso> RolesPermisos { get; set; }
+        public DbSet<TipoEmpresa> TiposEmpresa { get; set; }
+        public DbSet<Empresa> Empresas { get; set; }
+        public DbSet<Unidad> Unidades { get; set; }
+        public DbSet<SolicitudAcceso> SolicitudesAcceso { get; set; }
+        public DbSet<Notificacion> Notificaciones { get; set; }
+        public DbSet<Log> Logs { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            // --- Usuario ---
+            modelBuilder.Entity<Usuario>().HasIndex(u => u.NombreWindows).IsUnique();
+            modelBuilder.Entity<Usuario>().HasIndex(u => u.NombreUsuario).IsUnique();
+            modelBuilder.Entity<Usuario>()
+                .HasOne(u => u.Departamento).WithMany(d => d.Usuarios)
+                .HasForeignKey(u => u.IdDepartamento).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<Usuario>()
+                .HasOne(u => u.Creador).WithMany()
+                .HasForeignKey(u => u.CreadoPor).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<Usuario>()
+                .HasOne(u => u.Modificador).WithMany()
+                .HasForeignKey(u => u.ModificadoPor).OnDelete(DeleteBehavior.Restrict);
+
+            // --- Rol ---
+            modelBuilder.Entity<Rol>().HasIndex(r => new { r.IdModulo, r.Codigo }).IsUnique();
+            modelBuilder.Entity<Rol>()
+                .HasOne(r => r.Modulo).WithMany(m => m.Roles)
+                .HasForeignKey(r => r.IdModulo).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<Rol>()
+                .HasOne(r => r.Creador).WithMany()
+                .HasForeignKey(r => r.CreadoPor).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<Rol>()
+                .HasOne(r => r.Modificador).WithMany()
+                .HasForeignKey(r => r.ModificadoPor).OnDelete(DeleteBehavior.Restrict);
+
+            // --- Permiso ---
+            modelBuilder.Entity<Permiso>().HasIndex(p => p.Codigo).IsUnique();
+            modelBuilder.Entity<Permiso>()
+                .HasOne(p => p.Padre).WithMany(p => p.Hijos)
+                .HasForeignKey(p => p.IdPadre).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<Permiso>()
+                .HasOne(p => p.Modulo).WithMany(m => m.Permisos)
+                .HasForeignKey(p => p.ModuloId).OnDelete(DeleteBehavior.Restrict);
+
+            // --- UsuarioRol ---
+            modelBuilder.Entity<UsuarioRol>()
+                .HasOne(ur => ur.Usuario).WithMany(u => u.UsuariosRoles)
+                .HasForeignKey(ur => ur.IdUsuario).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<UsuarioRol>()
+                .HasOne(ur => ur.Rol).WithMany(r => r.UsuariosRoles)
+                .HasForeignKey(ur => ur.IdRol).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<UsuarioRol>()
+                .HasOne(ur => ur.Asignador).WithMany()
+                .HasForeignKey(ur => ur.AsignadoPor).OnDelete(DeleteBehavior.Restrict);
+
+            // --- RolPermiso ---
+            modelBuilder.Entity<RolPermiso>()
+                .HasOne(rp => rp.Rol).WithMany(r => r.RolesPermisos)
+                .HasForeignKey(rp => rp.IdRol).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<RolPermiso>()
+                .HasOne(rp => rp.Permiso).WithMany(p => p.RolesPermisos)
+                .HasForeignKey(rp => rp.IdPermiso).OnDelete(DeleteBehavior.Restrict);
+
+            // --- Modulo ---
+            modelBuilder.Entity<Modulo>().HasIndex(m => m.Codigo).IsUnique();
+
+            // --- TipoEmpresa / Empresa ---
+            modelBuilder.Entity<TipoEmpresa>().HasIndex(t => t.Nombre).IsUnique();
+            modelBuilder.Entity<TipoEmpresa>()
+                .HasOne(t => t.Creador).WithMany()
+                .HasForeignKey(t => t.CreadoPor).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<TipoEmpresa>()
+                .HasOne(t => t.Modificador).WithMany()
+                .HasForeignKey(t => t.ModificadoPor).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<Empresa>().HasIndex(e => e.Codigo).IsUnique();
+            modelBuilder.Entity<Empresa>()
+                .HasOne(e => e.TipoEmpresa).WithMany(t => t.Empresas)
+                .HasForeignKey(e => e.IdTipoEmpresa).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<Empresa>()
+                .HasOne(e => e.Creador).WithMany()
+                .HasForeignKey(e => e.CreadoPor).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<Empresa>()
+                .HasOne(e => e.Modificador).WithMany()
+                .HasForeignKey(e => e.ModificadoPor).OnDelete(DeleteBehavior.Restrict);
+
+            // --- Unidad ---
+            modelBuilder.Entity<Unidad>().HasIndex(u => u.Nombre).IsUnique();
+            modelBuilder.Entity<Unidad>()
+                .HasOne(u => u.Creador).WithMany()
+                .HasForeignKey(u => u.CreadoPor).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<Unidad>()
+                .HasOne(u => u.Modificador).WithMany()
+                .HasForeignKey(u => u.ModificadoPor).OnDelete(DeleteBehavior.Restrict);
+
+            // --- SolicitudAcceso ---
+            modelBuilder.Entity<SolicitudAcceso>()
+                .HasOne(s => s.Usuario).WithMany(u => u.SolicitudesAcceso)
+                .HasForeignKey(s => s.IdUsuario).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<SolicitudAcceso>()
+                .HasOne(s => s.Rol).WithMany()
+                .HasForeignKey(s => s.IdRol).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<SolicitudAcceso>()
+                .HasOne(s => s.Aprobador).WithMany()
+                .HasForeignKey(s => s.AprobadorAsignado).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<SolicitudAcceso>()
+                .HasOne(s => s.Modulo).WithMany(m => m.SolicitudesAcceso)
+                .HasForeignKey(s => s.IdModulo).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<SolicitudAcceso>()
+                .HasOne(s => s.Respondedor).WithMany()
+                .HasForeignKey(s => s.RespondidoPor).OnDelete(DeleteBehavior.Restrict);
+
+            // --- Notificacion ---
+            modelBuilder.Entity<Notificacion>()
+                .HasOne(n => n.Usuario).WithMany(u => u.Notificaciones)
+                .HasForeignKey(n => n.IdUsuario).OnDelete(DeleteBehavior.Restrict);
+
+            // --- Log ---
+            modelBuilder.Entity<Log>()
+                .HasOne(l => l.Usuario).WithMany()
+                .HasForeignKey(l => l.IdUsuario).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<Log>()
+                .HasOne(l => l.Revisor).WithMany()
+                .HasForeignKey(l => l.RevisadoPor).OnDelete(DeleteBehavior.Restrict);
+        }
+    }
+}
+3. SalidaDbContext (módulo, independiente)
+csharp
+using Microsoft.EntityFrameworkCore;
+using SWCORA.Modules.SalidasMaterial.Entities;
+
+namespace SWCORA.Modules.SalidasMaterial.Data
+{
+    public class SalidaDbContext : DbContext
+    {
+        public SalidaDbContext(DbContextOptions<SalidaDbContext> options)
+            : base(options) { }
+
+        public DbSet<Salida> Salidas { get; set; }
+        public DbSet<SalidaDetalle> SalidasDetalles { get; set; }
+        public DbSet<HistorialSalida> HistorialSalidas { get; set; }
+        public DbSet<PlantillaMaterial> PlantillaMaterial { get; set; }
+        public DbSet<PlantillaDetalle> PlantillaDetalles { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Salida>().HasIndex(s => s.Folio).IsUnique();
+            modelBuilder.Entity<Salida>().HasIndex(s => s.Estado);
+            modelBuilder.Entity<Salida>().HasIndex(s => s.FechaCreacion);
+
+            modelBuilder.Entity<Salida>()
+                .HasMany(s => s.Detalles).WithOne(d => d.Salida)
+                .HasForeignKey(d => d.IdSalida).OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Salida>()
+                .HasMany(s => s.Historial).WithOne(h => h.Salida)
+                .HasForeignKey(h => h.IdSalida).OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<PlantillaMaterial>()
+                .HasMany(p => p.Detalles).WithOne(d => d.Plantilla)
+                .HasForeignKey(d => d.IdPlantillaMaterial).OnDelete(DeleteBehavior.Cascade);
+        }
+    }
+}
+4. Registro dinámico de SalidaDbContext en ModuleLoader
+El ModuleLoader debe descubrir el DbContext del módulo y registrarlo en el contenedor. El patrón recomendado por la comunidad es que cada módulo exponga un registrador que la app principal invoca .
+
+SWCORA.Core/Interfaces/IModuleDbContextRegistration.cs
+csharp
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace SWCORA.Core.Interfaces
+{
+    /// <summary>
+    /// Interfaz que cada módulo implementa para registrar su DbContext.
+    /// </summary>
+    public interface IModuleDbContextRegistration
+    {
+        void RegisterDbContext(IServiceCollection services, string connectionString);
+    }
+}
+SWCORA.Modules/SalidasMaterial/Data/SalidaDbContextRegistration.cs
+csharp
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using SWCORA.Core.Interfaces;
+
+namespace SWCORA.Modules.SalidasMaterial.Data
+{
+    public class SalidaDbContextRegistration : IModuleDbContextRegistration
+    {
+        public void RegisterDbContext(IServiceCollection services, string connectionString)
+        {
+            services.AddDbContext<SalidaDbContext>(options =>
+                options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+        }
+    }
+}
+ModuleLoader (fragmento relevante)
+csharp
+// Dentro de CargarModulosAsync, después de cargar el assembly:
+var registrationType = assembly.GetTypes()
+    .FirstOrDefault(t => typeof(IModuleDbContextRegistration).IsAssignableFrom(t)
+                      && !t.IsInterface && !t.IsAbstract);
+
+if (registrationType != null)
+{
+    var registration = (IModuleDbContextRegistration)Activator.CreateInstance(registrationType)!;
+    registration.RegisterDbContext(_services, _connectionString);
+}
+Nota: _services debe ser la colección antes de builder.Build(). El ModuleLoader debe ejecutarse en la fase de construcción, no después.
+
+5. Adaptación de SalidaService para dos contextos
+SalidaService inyecta SalidaDbContext (para salidas) y ApplicationDbContext (para usuarios, empresas, unidades, historial).
+
+csharp
+public class SalidaService : ISalidaService
+{
+    private readonly SalidaDbContext _context;      // Módulo
+    private readonly ApplicationDbContext _core;    // Core
+    private readonly IUsuarioRepository _usuarioRepository;
+    private readonly IEmpresaRepository _empresaRepository;
+    private readonly IHistorialSalidaService _historialService;
+    private readonly PdfGenerator _pdfGenerator;
+
+    public SalidaService(
+        SalidaDbContext context,
+        ApplicationDbContext core,
+        IUsuarioRepository usuarioRepository,
+        IEmpresaRepository empresaRepository,
+        IHistorialSalidaService historialService,
+        PdfGenerator pdfGenerator)
+    {
+        _context = context;
+        _core = core;
+        _usuarioRepository = usuarioRepository;
+        _empresaRepository = empresaRepository;
+        _historialService = historialService;
+        _pdfGenerator = pdfGenerator;
+    }
+
+    // Ejemplo: GetSalidasAsync debe consultar salidas en _context y usuarios/empresas en _core
+    // (consultas separadas, unidas en memoria)
+}
+6. PdfGenerator reescrito para iText 8
+iText 8 usa PdfDocument, Document, Paragraph, Table, Cell. La API es completamente distinta a iTextSharp 5 .
+
+csharp
+using iText.Kernel.Pdf;
+using iText.Layout;
+using iText.Layout.Element;
+using iText.Layout.Properties;
+using iText.IO.Image;
+using SWCORA.Core.Entities;
+using SWCORA.Modules.SalidasMaterial.Entities;
+
+namespace SWCORA.Modules.SalidasMaterial.Helpers
+{
+    public class PdfGenerator
+    {
+        private readonly ILogger<PdfGenerator> _logger;
+        private readonly IWebHostEnvironment _env;
+
+        public PdfGenerator(ILogger<PdfGenerator> logger, IWebHostEnvironment env)
+        {
+            _logger = logger;
+            _env = env;
+        }
+
+        public async Task<byte[]> GenerarPdfSalidaAsync(
+            Salida salida, Usuario? usuario, Empresa? empresa, Usuario? aprobador)
+        {
+            using var ms = new MemoryStream();
+            using var writer = new PdfWriter(ms);
+            using var pdf = new PdfDocument(writer);
+            using var document = new Document(pdf);
+
+            try
+            {
+                // --- Encabezado ---
+                var headerTable = new Table(2).UseAllAvailableWidth();
+                headerTable.SetWidths(new float[] { 30f, 70f });
+
+                var logoPath = Path.Combine(_env.WebRootPath, "images", "logo.png");
+                var logoCell = new Cell().SetBorder(iText.Layout.Borders.Border.NO_BORDER);
+                if (File.Exists(logoPath))
+                {
+                    var img = new Image(ImageDataFactory.Create(logoPath));
+                    img.ScaleToFit(80f, 60f);
+                    logoCell.Add(img);
+                }
+                headerTable.AddCell(logoCell);
+
+                var titleCell = new Cell().SetBorder(iText.Layout.Borders.Border.NO_BORDER)
+                    .SetTextAlignment(TextAlignment.CENTER);
+                titleCell.Add(new Paragraph("SWCORA")
+                    .SetFontSize(16).SetBold());
+                titleCell.Add(new Paragraph("CONTROL DE SALIDA DE MATERIAL")
+                    .SetFontSize(10).SetBold());
+                headerTable.AddCell(titleCell);
+                document.Add(headerTable);
+
+                // --- Datos principales ---
+                var dataTable = new Table(3).UseAllAvailableWidth();
+                dataTable.SetWidths(new float[] { 33f, 33f, 34f });
+                dataTable.AddCell(new Cell().Add(new Paragraph($"Folio: {salida.Folio}").SetBold().SetFontSize(9))
+                    .SetTextAlignment(TextAlignment.CENTER).SetPadding(5));
+                dataTable.AddCell(new Cell().Add(new Paragraph($"Fecha: {salida.FechaCreacion:dd/MM/yyyy}").SetBold().SetFontSize(9))
+                    .SetTextAlignment(TextAlignment.CENTER).SetPadding(5));
+                dataTable.AddCell(new Cell().Add(new Paragraph($"Estado: {salida.Estado.ToUpper()}").SetBold().SetFontSize(9))
+                    .SetTextAlignment(TextAlignment.CENTER).SetPadding(5));
+                document.Add(dataTable);
+
+                // --- Usuario / Empresa ---
+                var userTable = new Table(2).UseAllAvailableWidth();
+                userTable.AddCell(new Cell().Add(new Paragraph($"Usuario: {usuario?.NombreCompleto ?? "N/A"}").SetFontSize(9)).SetPadding(5));
+                userTable.AddCell(new Cell().Add(new Paragraph($"Empresa: {empresa?.Nombre ?? "N/A"}").SetFontSize(9)).SetPadding(5));
+                userTable.AddCell(new Cell().Add(new Paragraph($"Contacto: {salida.ContactoNombre}").SetFontSize(9)).SetPadding(5));
+                userTable.AddCell(new Cell().Add(new Paragraph($"Retorno: {salida.RetornoEsperado?.ToString("dd/MM/yyyy") ?? "N/A"}").SetFontSize(9)).SetPadding(5));
+                document.Add(userTable);
+
+                // --- Descripción ---
+                var descTable = new Table(1).UseAllAvailableWidth();
+                descTable.AddCell(new Cell().Add(new Paragraph($"Descripción: {salida.Descripcion}").SetFontSize(9)).SetPadding(5));
+                descTable.AddCell(new Cell().Add(new Paragraph($"Causa/Motivo: {salida.CausaMotivo}").SetFontSize(9)).SetPadding(5));
+                descTable.AddCell(new Cell().Add(new Paragraph($"Categoría: {salida.Categoria}").SetFontSize(9)).SetPadding(5));
+                descTable.AddCell(new Cell().Add(new Paragraph($"Comentarios: {salida.Comentarios}").SetFontSize(9)).SetPadding(5));
+                document.Add(descTable);
+
+                // --- Materiales ---
+                var matTable = new Table(5).UseAllAvailableWidth();
+                matTable.SetWidths(new float[] { 8f, 12f, 10f, 50f, 20f });
+
+                string[] headers = { "NL", "Cantidad", "Unidad", "Descripción", "Comentario" };
+                foreach (var h in headers)
+                {
+                    matTable.AddHeaderCell(new Cell()
+                        .Add(new Paragraph(h).SetBold().SetFontSize(9))
+                        .SetTextAlignment(TextAlignment.CENTER)
+                        .SetBackgroundColor(iText.Kernel.Colors.ColorConstants.LIGHT_GRAY));
+                }
+
+                foreach (var d in salida.Detalles.OrderBy(x => x.NumeroLinea))
+                {
+                    matTable.AddCell(new Cell().Add(new Paragraph(d.NumeroLinea.ToString()).SetFontSize(8)).SetTextAlignment(TextAlignment.CENTER));
+                    matTable.AddCell(new Cell().Add(new Paragraph(d.Cantidad.ToString("N2")).SetFontSize(8)).SetTextAlignment(TextAlignment.RIGHT));
+                    matTable.AddCell(new Cell().Add(new Paragraph(d.Unidad?.Nombre ?? "").SetFontSize(8)).SetTextAlignment(TextAlignment.CENTER));
+                    matTable.AddCell(new Cell().Add(new Paragraph(d.Descripcion).SetFontSize(8)));
+                    matTable.AddCell(new Cell().Add(new Paragraph(d.Comentario ?? "").SetFontSize(8)));
+                }
+                document.Add(matTable);
+
+                // --- Firmas ---
+                var firmaTable = new Table(4).UseAllAvailableWidth().SetMarginTop(30);
+                firmaTable.SetWidths(new float[] { 25f, 25f, 25f, 25f });
+
+                var firmas = new (string label, string nombre)[]
+                {
+                    ("Solicita", usuario?.NombreCompleto ?? "_________________"),
+                    ("Autoriza", aprobador?.NombreCompleto ?? "_________________"),
+                    ("Recibe", "_________________"),
+                    ("Vigilancia", "_________________")
+                };
+
+                foreach (var (label, nombre) in firmas)
+                {
+                    var cell = new Cell().SetBorder(iText.Layout.Borders.Border.NO_BORDER)
+                        .SetTextAlignment(TextAlignment.CENTER);
+                    cell.Add(new Paragraph(label).SetBold().SetFontSize(8));
+                    cell.Add(new Paragraph("_____________________").SetFontSize(8));
+                    cell.Add(new Paragraph(nombre).SetFontSize(8));
+                    firmaTable.AddCell(cell);
+                }
+                document.Add(firmaTable);
+
+                document.Add(new Paragraph($"\nGenerado: {DateTime.Now:dd/MM/yyyy HH:mm} | Documento sin valor fiscal")
+                    .SetFontSize(7).SetFontColor(iText.Kernel.Colors.ColorConstants.GRAY)
+                    .SetTextAlignment(TextAlignment.CENTER));
+            }
+            finally
+            {
+                document.Close();
+            }
+
+            return await Task.FromResult(ms.ToArray());
+        }
+    }
+}
+7. Ajuste en Program.cs
+El ModuleLoader debe registrar el SalidaDbContext antes de builder.Build(). Pasa la cadena de conexión al loader.
+
+csharp
+// En Program.cs, después de registrar los repositorios del Core:
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")!;
+
+// ModuleLoader registra DbContexts de módulos
+var moduleLoader = new ModuleLoader(builder.Environment, logger, builder.Services, connectionString);
+await moduleLoader.CargarModulosAsync();
+Y el ModuleLoader usa _services para registrar el SalidaDbContext vía IModuleDbContextRegistration.
+
+Resumen de archivos modificados
+Archivo	Cambio
+SWCORA.Infrastructure.csproj	Eliminada referencia al módulo
+SWCORA.Modules.SalidasMaterial.csproj	iTextSharp → itext 8.0.4
+ApplicationDbContext.cs	Solo Core (sin entidades del módulo)
+SalidaDbContext.cs	Nuevo, en el módulo
+SalidaDbContextRegistration.cs	Nuevo, registrador
+IModuleDbContextRegistration.cs	Nuevo, en Core
+ModuleLoader.cs	Registra DbContexts de módulos
+SalidaService.cs	Inyecta dos contextos
+PdfGenerator.cs	Reescrito para iText 8
