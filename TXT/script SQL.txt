@@ -1,0 +1,471 @@
+-- =============================================
+-- SCRIPT INICIAL - SWCORA
+-- Sistema Web de Control de Recursos y Activos
+-- Base de Datos: MariaDB
+-- Versión: 3.0 (consolidado final)
+-- =============================================
+
+CREATE DATABASE IF NOT EXISTS cora_db
+CHARACTER SET utf8mb4
+COLLATE utf8mb4_unicode_ci;
+
+USE cora_db;
+
+-- =============================================
+-- 1. TABLA: Usuarios
+-- =============================================
+CREATE TABLE IF NOT EXISTS Usuarios (
+    IdUsuario INT PRIMARY KEY AUTO_INCREMENT,
+    NombreWindows VARCHAR(100) NULL UNIQUE,
+    NombreUsuario VARCHAR(100) NULL UNIQUE,
+    Password VARCHAR(200) NULL COMMENT 'Almacenado como hash SHA256 + Salt',
+    EsSuperUsuario BOOLEAN DEFAULT FALSE NOT NULL,
+    NombreCompleto VARCHAR(200) NOT NULL,
+    Email VARCHAR(200) NULL,
+    EsActivo BOOLEAN DEFAULT TRUE NOT NULL,
+    IdDepartamento INT NULL,
+    FechaCreacion DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    UltimoAcceso DATETIME NULL,
+    SolicitudPendiente BOOLEAN DEFAULT FALSE NOT NULL,
+    CreadoPor INT NULL,
+    ModificadoPor INT NULL,
+    FechaModificacion DATETIME NULL,
+    INDEX idx_nombre_windows (NombreWindows),
+    INDEX idx_nombre_usuario (NombreUsuario),
+    INDEX idx_es_super_usuario (EsSuperUsuario),
+    INDEX idx_es_activo (EsActivo)
+);
+
+-- =============================================
+-- 2. TABLA: Departamentos
+-- =============================================
+CREATE TABLE IF NOT EXISTS Departamentos (
+    IdDepartamento INT PRIMARY KEY AUTO_INCREMENT,
+    Codigo VARCHAR(50) NOT NULL UNIQUE,
+    Nombre VARCHAR(200) NOT NULL,
+    Descripcion VARCHAR(500) NULL,
+    EsActivo BOOLEAN DEFAULT TRUE NOT NULL,
+    FechaCreacion DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    CreadoPor INT NULL,
+    ModificadoPor INT NULL,
+    FechaModificacion DATETIME NULL,
+    FOREIGN KEY (CreadoPor) REFERENCES Usuarios(IdUsuario) ON DELETE RESTRICT,
+    FOREIGN KEY (ModificadoPor) REFERENCES Usuarios(IdUsuario) ON DELETE RESTRICT,
+    INDEX idx_codigo (Codigo),
+    INDEX idx_es_activo (EsActivo)
+);
+
+-- FKs de Usuarios (después de crear Departamentos)
+ALTER TABLE Usuarios
+ADD CONSTRAINT fk_usuario_departamento
+FOREIGN KEY (IdDepartamento) REFERENCES Departamentos(IdDepartamento) ON DELETE RESTRICT;
+
+ALTER TABLE Usuarios
+ADD CONSTRAINT fk_usuario_creadopor
+FOREIGN KEY (CreadoPor) REFERENCES Usuarios(IdUsuario) ON DELETE RESTRICT;
+
+ALTER TABLE Usuarios
+ADD CONSTRAINT fk_usuario_modificadopor
+FOREIGN KEY (ModificadoPor) REFERENCES Usuarios(IdUsuario) ON DELETE RESTRICT;
+
+-- =============================================
+-- 3. TABLA: Modulos
+-- =============================================
+CREATE TABLE IF NOT EXISTS Modulos (
+    IdModulo INT PRIMARY KEY AUTO_INCREMENT,
+    Codigo VARCHAR(50) NOT NULL UNIQUE,
+    Nombre VARCHAR(100) NOT NULL,
+    Descripcion VARCHAR(500) NULL,
+    Version VARCHAR(20) NULL,
+    AssemblyName VARCHAR(200) NULL,
+    EntryPoint VARCHAR(200) NULL,
+    EsActivo BOOLEAN DEFAULT TRUE NOT NULL,
+    FechaRegistro DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    UltimaActualizacion DATETIME NULL,
+    INDEX idx_codigo (Codigo),
+    INDEX idx_es_activo (EsActivo)
+);
+
+-- =============================================
+-- 4. TABLA: Roles
+-- =============================================
+CREATE TABLE IF NOT EXISTS Roles (
+    IdRol INT PRIMARY KEY AUTO_INCREMENT,
+    Tipo VARCHAR(20) NOT NULL,
+    IdModulo INT NULL,
+    Codigo VARCHAR(50) NOT NULL,
+    Nombre VARCHAR(100) NOT NULL,
+    Descripcion VARCHAR(200) NULL,
+    NivelJerarquico INT DEFAULT 1 NOT NULL,
+    EsActivo BOOLEAN DEFAULT TRUE NOT NULL,
+    EsSistema BOOLEAN DEFAULT FALSE NOT NULL,
+    PuedeAprobar BOOLEAN DEFAULT FALSE NOT NULL,
+    Origen VARCHAR(20) NOT NULL DEFAULT 'Personalizado',
+    CreadoPor INT NULL,
+    FechaCreacion DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    ModificadoPor INT NULL,
+    FechaModificacion DATETIME NULL,
+    FOREIGN KEY (IdModulo) REFERENCES Modulos(IdModulo) ON DELETE RESTRICT,
+    FOREIGN KEY (CreadoPor) REFERENCES Usuarios(IdUsuario) ON DELETE RESTRICT,
+    FOREIGN KEY (ModificadoPor) REFERENCES Usuarios(IdUsuario) ON DELETE RESTRICT,
+    UNIQUE KEY uk_modulo_codigo (IdModulo, Codigo),
+    INDEX idx_tipo (Tipo),
+    INDEX idx_es_activo (EsActivo)
+);
+
+-- =============================================
+-- 5. TABLA: Permisos
+-- =============================================
+CREATE TABLE IF NOT EXISTS Permisos (
+    IdPermiso INT PRIMARY KEY AUTO_INCREMENT,
+    Codigo VARCHAR(100) NOT NULL UNIQUE,
+    Nombre VARCHAR(200) NOT NULL,
+    Descripcion VARCHAR(500) NULL,
+    IdPadre INT NULL,
+    ModuloId INT NULL,
+    Tipo VARCHAR(50) NOT NULL,
+    EsActivo BOOLEAN DEFAULT TRUE NOT NULL,
+    FOREIGN KEY (IdPadre) REFERENCES Permisos(IdPermiso) ON DELETE RESTRICT,
+    FOREIGN KEY (ModuloId) REFERENCES Modulos(IdModulo) ON DELETE RESTRICT,
+    INDEX idx_padre (IdPadre),
+    INDEX idx_codigo (Codigo),
+    INDEX idx_es_activo (EsActivo)
+);
+
+-- =============================================
+-- 6. TABLA: UsuariosRoles
+-- =============================================
+CREATE TABLE IF NOT EXISTS UsuariosRoles (
+    IdUsuarioRol INT PRIMARY KEY AUTO_INCREMENT,
+    IdUsuario INT NOT NULL,
+    IdRol INT NOT NULL,
+    AsignadoPor INT NULL,
+    FechaAsignacion DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    FOREIGN KEY (IdUsuario) REFERENCES Usuarios(IdUsuario) ON DELETE RESTRICT,
+    FOREIGN KEY (IdRol) REFERENCES Roles(IdRol) ON DELETE RESTRICT,
+    FOREIGN KEY (AsignadoPor) REFERENCES Usuarios(IdUsuario) ON DELETE RESTRICT,
+    UNIQUE KEY uk_usuario_rol (IdUsuario, IdRol),
+    INDEX idx_usuario (IdUsuario),
+    INDEX idx_rol (IdRol)
+);
+
+-- =============================================
+-- 7. TABLA: RolesPermisos
+-- =============================================
+CREATE TABLE IF NOT EXISTS RolesPermisos (
+    IdRolPermiso INT PRIMARY KEY AUTO_INCREMENT,
+    IdRol INT NOT NULL,
+    IdPermiso INT NOT NULL,
+    FechaAsignacion DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    FOREIGN KEY (IdRol) REFERENCES Roles(IdRol) ON DELETE RESTRICT,
+    FOREIGN KEY (IdPermiso) REFERENCES Permisos(IdPermiso) ON DELETE RESTRICT,
+    UNIQUE KEY uk_rol_permiso (IdRol, IdPermiso),
+    INDEX idx_rol (IdRol),
+    INDEX idx_permiso (IdPermiso)
+);
+
+-- =============================================
+-- 8. TABLA: TiposEmpresa
+-- =============================================
+CREATE TABLE IF NOT EXISTS TiposEmpresa (
+    IdTipoEmpresa INT PRIMARY KEY AUTO_INCREMENT,
+    Nombre VARCHAR(50) NOT NULL UNIQUE,
+    EsActivo BOOLEAN DEFAULT TRUE NOT NULL,
+    FechaCreacion DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    CreadoPor INT NULL,
+    ModificadoPor INT NULL,
+    FechaModificacion DATETIME NULL,
+    FOREIGN KEY (CreadoPor) REFERENCES Usuarios(IdUsuario) ON DELETE RESTRICT,
+    FOREIGN KEY (ModificadoPor) REFERENCES Usuarios(IdUsuario) ON DELETE RESTRICT,
+    INDEX idx_nombre (Nombre),
+    INDEX idx_es_activo (EsActivo)
+);
+
+-- =============================================
+-- 9. TABLA: Empresas
+-- =============================================
+CREATE TABLE IF NOT EXISTS Empresas (
+    IdEmpresa INT PRIMARY KEY AUTO_INCREMENT,
+    Codigo VARCHAR(50) NOT NULL UNIQUE,
+    Nombre VARCHAR(200) NOT NULL,
+    Contacto VARCHAR(200) NULL,
+    IdTipoEmpresa INT NOT NULL,
+    EsActivo BOOLEAN DEFAULT TRUE NOT NULL,
+    FechaCreacion DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    CreadoPor INT NULL,
+    ModificadoPor INT NULL,
+    FechaModificacion DATETIME NULL,
+    FOREIGN KEY (IdTipoEmpresa) REFERENCES TiposEmpresa(IdTipoEmpresa) ON DELETE RESTRICT,
+    FOREIGN KEY (CreadoPor) REFERENCES Usuarios(IdUsuario) ON DELETE RESTRICT,
+    FOREIGN KEY (ModificadoPor) REFERENCES Usuarios(IdUsuario) ON DELETE RESTRICT,
+    INDEX idx_codigo (Codigo),
+    INDEX idx_tipo_empresa (IdTipoEmpresa),
+    INDEX idx_es_activo (EsActivo)
+);
+
+-- =============================================
+-- 10. TABLA: Unidades
+-- =============================================
+CREATE TABLE IF NOT EXISTS Unidades (
+    IdUnidad INT PRIMARY KEY AUTO_INCREMENT,
+    Nombre VARCHAR(20) NOT NULL UNIQUE,
+    Descripcion VARCHAR(200) NULL,
+    EsActivo BOOLEAN DEFAULT TRUE NOT NULL,
+    FechaCreacion DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    CreadoPor INT NULL,
+    ModificadoPor INT NULL,
+    FechaModificacion DATETIME NULL,
+    FOREIGN KEY (CreadoPor) REFERENCES Usuarios(IdUsuario) ON DELETE RESTRICT,
+    FOREIGN KEY (ModificadoPor) REFERENCES Usuarios(IdUsuario) ON DELETE RESTRICT,
+    INDEX idx_nombre (Nombre),
+    INDEX idx_es_activo (EsActivo)
+);
+
+-- =============================================
+-- 11. TABLA: SolicitudesAcceso
+-- =============================================
+CREATE TABLE IF NOT EXISTS SolicitudesAcceso (
+    IdSolicitudAcceso INT PRIMARY KEY AUTO_INCREMENT,
+    IdUsuario INT NOT NULL,
+    IdRol INT NOT NULL,
+    AprobadorAsignado INT NULL,
+    IdModulo INT NOT NULL,
+    Motivo VARCHAR(500) NULL,
+    Estado VARCHAR(20) NOT NULL DEFAULT 'Pendiente',
+    FechaCreacion DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    FechaRespuesta DATETIME NULL,
+    RespondidoPor INT NULL,
+    MotivoRespuesta VARCHAR(500) NULL,
+    FOREIGN KEY (IdUsuario) REFERENCES Usuarios(IdUsuario) ON DELETE RESTRICT,
+    FOREIGN KEY (IdRol) REFERENCES Roles(IdRol) ON DELETE RESTRICT,
+    FOREIGN KEY (AprobadorAsignado) REFERENCES Usuarios(IdUsuario) ON DELETE RESTRICT,
+    FOREIGN KEY (IdModulo) REFERENCES Modulos(IdModulo) ON DELETE RESTRICT,
+    FOREIGN KEY (RespondidoPor) REFERENCES Usuarios(IdUsuario) ON DELETE RESTRICT,
+    INDEX idx_usuario_estado (IdUsuario, Estado),
+    INDEX idx_modulo_estado (IdModulo, Estado),
+    INDEX idx_fecha (FechaCreacion)
+);
+
+-- =============================================
+-- 12. TABLA: Notificaciones
+-- =============================================
+CREATE TABLE IF NOT EXISTS Notificaciones (
+    IdNotificacion INT PRIMARY KEY AUTO_INCREMENT,
+    IdUsuario INT NOT NULL,
+    Titulo VARCHAR(200) NOT NULL,
+    Mensaje VARCHAR(1000) NOT NULL,
+    Tipo VARCHAR(50) DEFAULT 'General' NOT NULL,
+    ReferenciaId INT NULL,
+    Leida BOOLEAN DEFAULT FALSE NOT NULL,
+    FechaCreacion DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    FechaLeida DATETIME NULL,
+    FOREIGN KEY (IdUsuario) REFERENCES Usuarios(IdUsuario) ON DELETE RESTRICT,
+    INDEX idx_usuario_leida (IdUsuario, Leida),
+    INDEX idx_fecha (FechaCreacion)
+);
+
+-- =============================================
+-- 13. TABLA: Salidas
+-- =============================================
+CREATE TABLE IF NOT EXISTS Salidas (
+    IdSalida INT PRIMARY KEY AUTO_INCREMENT,
+    Folio VARCHAR(20) NULL UNIQUE,
+    Estado VARCHAR(30) NOT NULL DEFAULT 'Borrador',
+    EsDefinitiva BOOLEAN DEFAULT FALSE NOT NULL,
+    RetornoEsperado DATETIME NULL,
+    IdUsuario INT NOT NULL,
+    IdDepartamento INT NOT NULL,
+    IdEmpresa INT NOT NULL,
+    ContactoNombre VARCHAR(200) NULL,
+    Descripcion VARCHAR(500) NOT NULL,
+    CausaMotivo VARCHAR(500) NOT NULL,
+    Categoria VARCHAR(200) NOT NULL,
+    Comentarios VARCHAR(1000) NOT NULL,
+    AprobadorAsignado INT NULL,
+    FechaCreacion DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    FechaModificacion DATETIME NULL,
+    FechaAprobacion DATETIME NULL,
+    FechaCancelacion DATETIME NULL,
+    AprobadoPor INT NULL,
+    MotivoRechazo VARCHAR(500) NULL,
+    MotivoCancelacion VARCHAR(500) NULL,
+    FOREIGN KEY (IdUsuario) REFERENCES Usuarios(IdUsuario) ON DELETE RESTRICT,
+    FOREIGN KEY (IdDepartamento) REFERENCES Departamentos(IdDepartamento) ON DELETE RESTRICT,
+    FOREIGN KEY (IdEmpresa) REFERENCES Empresas(IdEmpresa) ON DELETE RESTRICT,
+    FOREIGN KEY (AprobadorAsignado) REFERENCES Usuarios(IdUsuario) ON DELETE RESTRICT,
+    FOREIGN KEY (AprobadoPor) REFERENCES Usuarios(IdUsuario) ON DELETE RESTRICT,
+    INDEX idx_folio (Folio),
+    INDEX idx_estado (Estado),
+    INDEX idx_fecha_creacion (FechaCreacion),
+    INDEX idx_usuario (IdUsuario),
+    INDEX idx_empresa (IdEmpresa)
+);
+
+-- =============================================
+-- 14. TABLA: SalidasDetalles
+-- =============================================
+CREATE TABLE IF NOT EXISTS SalidasDetalles (
+    IdSalidaDetalle INT PRIMARY KEY AUTO_INCREMENT,
+    IdSalida INT NOT NULL,
+    NumeroLinea INT NOT NULL,
+    Cantidad DECIMAL(18,2) NOT NULL,
+    IdUnidad INT NOT NULL,
+    Descripcion VARCHAR(200) NOT NULL,
+    Comentario VARCHAR(500) NULL,
+    FOREIGN KEY (IdSalida) REFERENCES Salidas(IdSalida) ON DELETE CASCADE,
+    FOREIGN KEY (IdUnidad) REFERENCES Unidades(IdUnidad) ON DELETE RESTRICT,
+    UNIQUE KEY uk_salida_linea (IdSalida, NumeroLinea),
+    INDEX idx_salida (IdSalida),
+    INDEX idx_unidad (IdUnidad)
+);
+
+-- =============================================
+-- 15. TABLA: HistorialSalidas
+-- =============================================
+CREATE TABLE IF NOT EXISTS HistorialSalidas (
+    IdHistorialSalida INT PRIMARY KEY AUTO_INCREMENT,
+    IdSalida INT NOT NULL,
+    Accion VARCHAR(50) NOT NULL,
+    Descripcion VARCHAR(500) NULL,
+    Cambios VARCHAR(2000) NULL,
+    IdUsuario INT NOT NULL,
+    Fecha DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    FOREIGN KEY (IdSalida) REFERENCES Salidas(IdSalida) ON DELETE CASCADE,
+    FOREIGN KEY (IdUsuario) REFERENCES Usuarios(IdUsuario) ON DELETE RESTRICT,
+    INDEX idx_salida (IdSalida),
+    INDEX idx_usuario (IdUsuario),
+    INDEX idx_fecha (Fecha),
+    INDEX idx_accion (Accion)
+);
+
+-- =============================================
+-- 16. TABLA: PlantillaMaterial
+-- =============================================
+CREATE TABLE IF NOT EXISTS PlantillaMaterial (
+    IdPlantillaMaterial INT PRIMARY KEY AUTO_INCREMENT,
+    Nombre VARCHAR(100) NOT NULL,
+    Descripcion VARCHAR(500) NULL,
+    IdUsuario INT NOT NULL,
+    FechaCreacion DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    FechaModificacion DATETIME NULL,
+    FOREIGN KEY (IdUsuario) REFERENCES Usuarios(IdUsuario) ON DELETE RESTRICT,
+    INDEX idx_usuario (IdUsuario)
+);
+
+-- =============================================
+-- 17. TABLA: PlantillaDetalles
+-- =============================================
+CREATE TABLE IF NOT EXISTS PlantillaDetalles (
+    IdPlantillaDetalle INT PRIMARY KEY AUTO_INCREMENT,
+    IdPlantillaMaterial INT NOT NULL,
+    NumeroLinea INT NOT NULL,
+    Cantidad DECIMAL(18,2) NOT NULL,
+    IdUnidad INT NOT NULL,
+    Descripcion VARCHAR(200) NOT NULL,
+    FOREIGN KEY (IdPlantillaMaterial) REFERENCES PlantillaMaterial(IdPlantillaMaterial) ON DELETE CASCADE,
+    FOREIGN KEY (IdUnidad) REFERENCES Unidades(IdUnidad) ON DELETE RESTRICT,
+    UNIQUE KEY uk_plantilla_linea (IdPlantillaMaterial, NumeroLinea),
+    INDEX idx_plantilla (IdPlantillaMaterial),
+    INDEX idx_unidad (IdUnidad)
+);
+
+-- =============================================
+-- 18. TABLA: Logs
+-- =============================================
+CREATE TABLE IF NOT EXISTS Logs (
+    IdLog INT PRIMARY KEY AUTO_INCREMENT,
+    IdUsuario INT NOT NULL,
+    Accion VARCHAR(100) NOT NULL,
+    Modulo VARCHAR(100) NOT NULL,
+    Descripcion VARCHAR(500) NULL,
+    Detalles VARCHAR(2000) NULL,
+    Fecha DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    EsCritico BOOLEAN DEFAULT FALSE NOT NULL,
+    Revisado BOOLEAN DEFAULT FALSE NOT NULL,
+    RevisadoPor INT NULL,
+    FechaRevision DATETIME NULL,
+    FOREIGN KEY (IdUsuario) REFERENCES Usuarios(IdUsuario) ON DELETE RESTRICT,
+    FOREIGN KEY (RevisadoPor) REFERENCES Usuarios(IdUsuario) ON DELETE RESTRICT,
+    INDEX idx_usuario (IdUsuario),
+    INDEX idx_modulo (Modulo),
+    INDEX idx_fecha (Fecha),
+    INDEX idx_revisado (Revisado),
+    INDEX idx_critico (EsCritico)
+);
+
+-- =============================================
+-- DATOS INICIALES
+-- =============================================
+
+-- =============================================
+-- 1. Roles del Sistema
+-- =============================================
+-- Rol 1: Superusuario (Global) - Solo asignable al Superadmin (Id=2)
+-- Rol 2: Administrador (Global) - Asignable por Superadmin
+-- Rol 3: Generador (Local - SalidasMaterial)
+-- Rol 4: Aprobador (Local - SalidasMaterial)
+
+INSERT INTO Roles (IdRol, Tipo, IdModulo, Codigo, Nombre, Descripcion, NivelJerarquico, EsSistema, PuedeAprobar, Origen)
+VALUES 
+(1, 'Global', NULL, 'Superusuario', 'Superusuario', 'Acceso TOTAL a todo el sistema. Solo asignable al Superadmin.', 0, TRUE, FALSE, 'Sistema'),
+(2, 'Global', NULL, 'Administrador', 'Administrador', 'Gestión de usuarios, módulos y configuración.', 1, TRUE, TRUE, 'Sistema');
+
+-- Los roles locales (Generador, Aprobador) se registrarán automáticamente
+-- al cargar el módulo SalidasMaterial desde su Module.json
+
+-- =============================================
+-- 2. Usuario System (Id=1) - Creación automática por el sistema
+-- =============================================
+INSERT INTO Usuarios (IdUsuario, NombreWindows, NombreUsuario, Password, EsSuperUsuario, NombreCompleto, Email, EsActivo, CreadoPor)
+VALUES 
+(1, NULL, 'system', NULL, FALSE, 'Sistema', NULL, TRUE, NULL);
+
+-- =============================================
+-- 3. Usuario Superadmin (Id=2) - Único con rol Superusuario
+-- =============================================
+-- ⚠️ IMPORTANTE: Reemplaza 'HASH_GENERADO_AQUI' con el hash SHA256 + Salt
+-- Contraseña por defecto: 'Superadmin!1' (CÁMBIALA en producción)
+-- Salt por defecto: 'CORASALT2026!'
+-- =============================================
+-- El hash se calcula así:
+--   SHA256('Superadmin!1' + 'CORASALT2026!') → Base64
+-- =============================================
+INSERT INTO Usuarios (IdUsuario, NombreWindows, NombreUsuario, Password, EsSuperUsuario, NombreCompleto, Email, EsActivo, CreadoPor)
+VALUES 
+(2, NULL, 'superadmin', 'HASH_GENERADO_AQUI', TRUE, 'Superusuario del Sistema', NULL, TRUE, 1);
+
+-- =============================================
+-- 4. Asignar rol Superusuario al Superadmin (Id=2)
+-- =============================================
+INSERT INTO UsuariosRoles (IdUsuario, IdRol, AsignadoPor)
+VALUES 
+(2, 1, 1);
+
+-- =============================================
+-- NOTA SOBRE DEPARTAMENTOS
+-- =============================================
+-- La tabla Departamentos queda VACÍA intencionalmente.
+-- El Administrador creará los departamentos desde la UI cuando sea necesario.
+-- El Superadmin (Id=2) NO tiene departamento asignado (IdDepartamento = NULL).
+
+-- =============================================
+-- NOTA SOBRE CATÁLOGOS
+-- =============================================
+-- TiposEmpresa y Unidades quedan VACÍAS intencionalmente.
+-- El Administrador las creará desde la UI (submódulos de Administración).
+-- El sistema validará que existan registros antes de permitir crear Empresas
+-- o Salidas que las requieran.
+
+-- =============================================
+-- AJUSTE DE AUTO_INCREMENT
+-- =============================================
+-- System=1, Superadmin=2 → el siguiente usuario es 3
+ALTER TABLE Usuarios AUTO_INCREMENT = 3;
+
+-- Roles: Superusuario=1, Administrador=2, 
+-- Generador y Aprobador se registran al cargar el módulo (3 y 4)
+ALTER TABLE Roles AUTO_INCREMENT = 3;
+
+-- =============================================
+-- FIN DEL SCRIPT
+-- =============================================

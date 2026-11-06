@@ -1,0 +1,200 @@
+📁 SWCORA/
+│
+├── 📄 SWCORA.sln
+│
+├── 📁 SWCORA.Core/                          (Class Library - net10.0)
+│   ├── 📁 Entities/
+│   │   ├── Usuario.cs
+│   │   ├── Departamento.cs
+│   │   ├── Modulo.cs
+│   │   ├── Rol.cs
+│   │   ├── Permiso.cs
+│   │   ├── UsuarioRol.cs
+│   │   ├── RolPermiso.cs
+│   │   ├── TipoEmpresa.cs
+│   │   ├── Empresa.cs
+│   │   ├── Unidad.cs
+│   │   ├── SolicitudAcceso.cs
+│   │   ├── Notificacion.cs
+│   │   └── Log.cs
+│   ├── 📁 Constants/
+│   │   ├── RolesSistema.cs
+│   │   ├── RolesSolicitables.cs
+│   │   └── EstadosSalida.cs
+│   ├── 📁 Interfaces/
+│   │   ├── IModuleStartup.cs
+│   │   └── IModuloInfo.cs
+│   ├── 📁 Attributes/
+│   │   └── AuthorizeModuloAttribute.cs
+│   └── 📄 SWCORA.Core.csproj
+│
+├── 📁 SWCORA.Infrastructure/                (Class Library - net10.0)
+│   ├── 📁 Data/
+│   │   ├── ApplicationDbContext.cs
+│   │   └── 📁 Repositories/
+│   │       ├── IUsuarioRepository.cs
+│   │       ├── UsuarioRepository.cs
+│   │       ├── IRolRepository.cs
+│   │       ├── RolRepository.cs
+│   │       ├── IPermisoRepository.cs
+│   │       ├── PermisoRepository.cs
+│   │       ├── IModuloRepository.cs
+│   │       ├── ModuloRepository.cs
+│   │       ├── IEmpresaRepository.cs
+│   │       ├── EmpresaRepository.cs
+│   │       ├── ITipoEmpresaRepository.cs
+│   │       ├── TipoEmpresaRepository.cs
+│   │       ├── IUnidadRepository.cs
+│   │       ├── UnidadRepository.cs
+│   │       ├── IDepartamentoRepository.cs
+│   │       ├── DepartamentoRepository.cs
+│   │       ├── ISolicitudAccesoRepository.cs
+│   │       ├── SolicitudAccesoRepository.cs
+│   │       ├── INotificacionRepository.cs
+│   │       └── NotificacionRepository.cs
+│   ├── 📁 Services/
+│   │   ├── CustomClaimsTransformer.cs
+│   │   ├── AuthenticationService.cs
+│   │   ├── NotificacionService.cs
+│   │   └── LogService.cs
+│   ├── 📁 Modules/
+│   │   └── ModuleLoader.cs
+│   ├── 📁 Web/
+│   │   └── BaseController.cs
+│   └── 📄 SWCORA.Infrastructure.csproj
+│
+├── 📁 SWCORA.Web/                           (ASP.NET Core MVC - net10.0)
+│   ├── 📁 Controllers/
+│   │   ├── HomeController.cs
+│   │   ├── SuperAdminController.cs
+│   │   ├── PerfilController.cs
+│   │   ├── ConfiguracionController.cs
+│   │   ├── NotificacionesController.cs
+│   │   ├── 📁 Admin/
+│   │   │   ├── DashboardController.cs
+│   │   │   ├── UsuariosController.cs
+│   │   │   ├── RolesController.cs
+│   │   │   ├── ModulosController.cs
+│   │   │   ├── EmpresasController.cs
+│   │   │   ├── TiposEmpresaController.cs
+│   │   │   ├── UnidadesController.cs
+│   │   │   ├── DepartamentosController.cs
+│   │   │   └── LogsController.cs
+│   │   └── 📁 Acceso/
+│   │       ├── SolicitarAccesoController.cs
+│   │       ├── MisSolicitudesController.cs
+│   │       └── AprobarSolicitudesController.cs
+│   ├── 📁 Middleware/
+│   │   ├── RedirectUnauthorizedMiddleware.cs
+│   │   └── AuditoriaMiddleware.cs
+│   ├── 📁 Models/
+│   │   ├── 📁 Admin/
+│   │   │   ├── UsuariosViewModel.cs
+│   │   │   ├── RolesViewModel.cs
+│   │   │   ├── ModulosViewModel.cs
+│   │   │   ├── EmpresasViewModel.cs
+│   │   │   ├── UnidadesViewModel.cs
+│   │   │   ├── DepartamentosViewModel.cs
+│   │   │   └── LogsViewModel.cs
+│   │   ├── 📁 Acceso/
+│   │   │   ├── SolicitarAccesoViewModel.cs
+│   │   │   ├── MisSolicitudesViewModel.cs
+│   │   │   └── AprobarSolicitudesViewModel.cs
+│   │   ├── LoginViewModel.cs
+│   │   ├── PerfilViewModel.cs
+│   │   ├── ConfiguracionViewModel.cs
+│   │   └── NotificacionesViewModel.cs
+│   ├── 📁 Views/
+│   │   ├── 📁 Shared/
+│   │   │   ├── _Layout.cshtml
+│   │   │   ├── _LayoutSimple.cshtml
+│   │   │   ├── _ValidationScriptsPartial.cshtml
+│   │   │   ├── _LoginPartial.cshtml
+│   │   │   └── _NotificationsPartial.cshtml
+│   │   ├── 📁 Home/
+│   │   │   ├── Index.cshtml
+│   │   │   ├── AccessDenied.cshtml
+│   │   │   └── Error.cshtml
+│   │   ├── 📁 SuperAdmin/
+│   │   │   └── Login.cshtml
+│   │   ├── 📁 Perfil/
+│   │   │   └── Index.cshtml
+│   │   ├── 📁 Configuracion/
+│   │   │   └── Index.cshtml
+│   │   ├── 📁 Notificaciones/
+│   │   │   └── Index.cshtml
+│   │   ├── 📁 Admin/
+│   │   │   ├── 📁 Dashboard/Index.cshtml
+│   │   │   ├── 📁 Usuarios/Index.cshtml
+│   │   │   ├── 📁 Roles/
+│   │   │   │   ├── Index.cshtml
+│   │   │   │   └── _ArbolPermisosPartial.cshtml
+│   │   │   ├── 📁 Modulos/Index.cshtml
+│   │   │   ├── 📁 Empresas/
+│   │   │   │   ├── Index.cshtml
+│   │   │   │   ├── _ModalEmpresa.cshtml
+│   │   │   │   └── _ModalTiposEmpresa.cshtml
+│   │   │   ├── 📁 Unidades/Index.cshtml
+│   │   │   ├── 📁 Departamentos/Index.cshtml
+│   │   │   └── 📁 Logs/Index.cshtml
+│   │   └── 📁 Acceso/
+│   │       ├── 📁 SolicitarAcceso/Index.cshtml
+│   │       ├── 📁 MisSolicitudes/Index.cshtml
+│   │       └── 📁 AprobarSolicitudes/Index.cshtml
+│   ├── 📁 wwwroot/
+│   │   ├── 📁 css/styles.css
+│   │   ├── 📁 js/scripts.js
+│   │   ├── 📁 images/logo.png
+│   │   └── 📁 modules/
+│   ├── 📄 appsettings.json
+│   ├── 📄 appsettings.Development.json
+│   ├── 📄 Program.cs
+│   └── 📄 SWCORA.Web.csproj
+│
+├── 📁 SWCORA.Modules/
+│   └── 📁 SalidasMaterial/
+│       ├── 📁 Entities/
+│       │   ├── Salida.cs
+│       │   ├── SalidaDetalle.cs
+│       │   ├── HistorialSalida.cs
+│       │   ├── PlantillaMaterial.cs
+│       │   └── PlantillaDetalle.cs
+│       ├── 📁 Data/
+│       │   └── SalidaDbExtensions.cs
+│       ├── 📁 Models/
+│       │   ├── SalidaIndexViewModel.cs
+│       │   ├── CrearSalidaViewModel.cs
+│       │   ├── DetalleSalidaViewModel.cs
+│       │   ├── DashboardViewModel.cs
+│       │   └── ClonarSalidaViewModel.cs
+│       ├── 📁 Services/
+│       │   ├── ISalidaService.cs
+│       │   ├── SalidaService.cs
+│       │   ├── IPlantillaService.cs
+│       │   ├── PlantillaService.cs
+│       │   ├── IHistorialSalidaService.cs
+│       │   ├── HistorialSalidaService.cs
+│       │   ├── IExportacionService.cs
+│       │   ├── ExportacionService.cs
+│       │   ├── IDashboardService.cs
+│       │   └── DashboardService.cs
+│       ├── 📁 Helpers/
+│       │   └── PdfGenerator.cs
+│       ├── 📁 Hubs/
+│       │   └── SalidasHub.cs
+│       ├── 📁 Areas/SalidasMaterial/
+│       │   ├── 📁 Controllers/SalidasController.cs
+│       │   └── 📁 Views/
+│       │       ├── 📁 Salidas/
+│       │       │   ├── Index.cshtml
+│       │       │   ├── Crear.cshtml
+│       │       │   ├── Editar.cshtml
+│       │       │   ├── Detalles.cshtml
+│       │       │   └── Dashboard.cshtml
+│       │       └── 📁 Shared/_Layout.cshtml
+│       ├── 📄 ModuleEntryPoint.cs
+│       ├── 📄 Module.json
+│       └── 📄 SWCORA.Modules.SalidasMaterial.csproj
+│
+└── 📁 Database/
+    └── 📄 ScriptInicial.sql

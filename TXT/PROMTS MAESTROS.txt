@@ -1,0 +1,1219 @@
+🎯 PROMPT MAESTRO - PROYECTO CORA
+Sistema Modular de Control de Recursos - ASP.NET Core MVC
+📋 CONTEXTO GENERAL DEL PROYECTO
+Estoy desarrollando CORA (Sistema Modular de Control de Recursos), una aplicación web empresarial basada en ASP.NET Core MVC con .NET 10.0.11, diseñada para ser altamente modular mediante un sistema de plugins que permite agregar nuevos módulos sin recompilar el núcleo del sistema.
+
+Filosofía del Proyecto
+Modularidad extrema: Cada módulo es autocontenido (tablas propias, controladores, vistas, servicios)
+
+Sin recompilación del núcleo: Agregar un módulo = copiar carpeta + Module.json + recargar
+
+Roles granulares: Roles globales (Superusuario, Administrador) + roles por módulo (Usuario Estándar, Aprobador)
+
+Autenticación híbrida: Windows (Negotiate/Kerberos) para usuarios de dominio + login especial para Superusuario
+
+Auditoría completa: Todos los cambios quedan registrados
+
+🛠️ STACK TECNOLÓGICO
+Componente	Tecnología	Versión
+Framework	ASP.NET Core MVC	.NET 10.0.11
+Base de Datos	MariaDB	10.5+ (XAMPP)
+ORM	Entity Framework Core	10.0.0
+Provider MySQL	Pomelo.EntityFrameworkCore.MySql	10.0.0
+Autenticación	Microsoft.AspNetCore.Authentication.Negotiate	10.0.0
+PDF	iTextSharp	5.5.13.4
+Excel	EPPlus	7.5.0
+Tiempo Real	SignalR	1.2.0
+Logging	Serilog	4.0.0
+Frontend	Bootstrap 5 + Bootstrap Icons + Chart.js	-
+Arquitectura	MVC con Áreas + Plugins (Application Parts)	-
+🎨 PALETA DE COLORES (OBLIGATORIA)
+css
+:root {
+    --cora-bg: #F2F3F5;           /* Fondo claro */
+    --cora-gray-light: #B9BCC2;   /* Gris claro (bordes) */
+    --cora-gray: #70757F;         /* Gris medio (textos secundarios) */
+    --cora-accent: #C02F4A;       /* Rojo acento (botones, marca) */
+    --cora-dark: #1F2328;         /* Negro suave (navbar, texto principal) */
+}
+Reglas de uso:
+
+Navbar: Fondo #1F2328, acento en #C02F4A
+
+Botones principales: #C02F4A con hover #A62641
+
+Cards: Fondo blanco con borde #B9BCC2
+
+Tablas (headers): Fondo #F2F3F5, texto #70757F
+
+Texto principal: #1F2328
+
+Texto secundario: #70757F
+
+🏗️ ARQUITECTURA DE LA SOLUCIÓN
+text
+📁 CORA/
+├── 📁 CORA.Core/                    (Class Library - net10.0)
+│   ├── 📁 Entities/                 (Entidades compartidas)
+│   ├── 📁 Enums/
+│   ├── 📁 Interfaces/
+│   └── 📁 Attributes/
+│       ├── AuthorizeModuloAttribute.cs
+│       ├── AuthorizeGlobalAttribute.cs
+│       └── AuthorizeDeleteAttribute.cs
+│
+├── 📁 CORA.Infrastructure/          (Class Library - net10.0)
+│   ├── 📁 Data/
+│   │   ├── ApplicationDbContext.cs
+│   │   └── 📁 Repositories/
+│   ├── 📁 Services/
+│   │   ├── CustomClaimsTransformer.cs
+│   │   └── NotificacionService.cs
+│   └── 📁 Modules/
+│       └── ModuleLoader.cs
+│
+├── 📁 CORA.Web/                     (ASP.NET Core MVC - net10.0)
+│   ├── 📁 Controllers/
+│   │   ├── BaseController.cs
+│   │   ├── HomeController.cs
+│   │   ├── 📁 Admin/
+│   │   │   ├── DashboardController.cs
+│   │   │   ├── UsuariosController.cs
+│   │   │   ├── RolesController.cs
+│   │   │   ├── ModulosController.cs
+│   │   │   ├── EmpresasController.cs
+│   │   │   ├── DepartamentosController.cs
+│   │   │   └── LogsController.cs
+│   │   └── 📁 Access/
+│   │       ├── SolicitarAccesoController.cs
+│   │       ├── AprobarSolicitudesController.cs
+│   │       └── MisSolicitudesController.cs
+│   ├── 📁 Views/
+│   │   ├── 📁 Shared/
+│   │   │   ├── _Layout.cshtml
+│   │   │   └── _LayoutSimple.cshtml
+│   │   ├── 📁 Home/
+│   │   ├── 📁 Admin/
+│   │   ├── 📁 Access/
+│   │   ├── 📁 Notificaciones/
+│   │   └── 📁 SuperAdmin/
+│   ├── 📁 Middleware/
+│   │   ├── RedirectUnauthorizedMiddleware.cs
+│   │   └── AuditoriaMiddleware.cs
+│   ├── 📁 wwwroot/
+│   │   ├── 📁 css/
+│   │   │   └── styles.css
+│   │   ├── 📁 js/
+│   │   │   └── scripts.js
+│   │   └── 📁 modules/              ← Carpeta de módulos (Plugins)
+│   │       ├── 📁 SalidasMaterial/
+│   │       │   ├── CORA.Modules.SalidasMaterial.dll
+│   │       │   └── Module.json
+│   │       └── 📁 (FuturoModulo)/
+│   │
+│   ├── 📄 Program.cs
+│   └── 📄 appsettings.json
+│
+├── 📁 CORA.Modules/
+│   └── 📁 SalidasMaterial/          (Razor Class Library - net10.0)
+│       ├── 📁 Areas/SalidasMaterial/
+│       │   ├── 📁 Controllers/
+│       │   │   ├── SalidasController.cs
+│       │   │   ├── UnidadesController.cs
+│       │   │   ├── CategoriasController.cs
+│       │   │   └── CausasController.cs
+│       │   ├── 📁 Views/
+│       │   └── 📄 ModuleEntryPoint.cs
+│       ├── 📁 Models/
+│       ├── 📁 Services/
+│       ├── 📁 Entities/
+│       │   ├── Salida.cs
+│       │   ├── SalidaDetalle.cs
+│       │   ├── HistorialSalida.cs
+│       │   ├── PlantillaMaterial.cs
+│       │   ├── UnidadMedida.cs
+│       │   ├── Categoria.cs
+│       │   └── Causa.cs
+│       ├── 📁 Data/
+│       │   └── SalidaDbContext.cs
+│       ├── 📁 Helpers/
+│       │   └── PdfGenerator.cs
+│       ├── 📄 Module.json
+│       └── 📄 CORA.Modules.SalidasMaterial.csproj
+│
+├── 📁 Database/
+│   └── 📄 ScriptInicial.sql
+│
+└── 📄 CORA.sln
+🗄️ MODELO RELACIONAL (3FN)
+Tablas del Núcleo (11 tablas)
+#	Tabla	Propósito	Campos clave
+1	Usuarios	Usuarios del sistema (Windows + Superusuario)	Id, NombreWindows (NULL para Super), NombreCompleto, Email, NombreUsuario (Super), PasswordHash (Super), EsSuperUsuario, Activo, FechaRegistro, UltimoAcceso, CreadoPor, ModificadoPor
+2	Roles	Roles globales y locales unificados	Id, Tipo ('Global'/'Local'), ModuloId (NULL si global), Codigo, Nombre, NivelJerarquico, PermisoCrear/Leer/Actualizar/Eliminar/Aprobar, EsSistema, EsPrecargado, EsPersonalizado, EsActivo
+3	UsuarioRoles	Relación N:M Usuarios-Roles	Id, UsuarioId, RoleId, AsignadoPor, FechaAsignacion
+4	Modulos	Módulos instalados	Id, Codigo, Nombre, Descripcion, Version, AssemblyName, EntryPoint, Activo
+5	Permisos	Permisos jerárquicos (árbol)	Id, Codigo, Nombre, PadreId, ModuloId, Tipo ('Sistema'/'Modulo'/'Funcionalidad'/'Accion'), Icono, Orden
+6	RolesPermisos	Relación N:M Roles-Permisos	Id, RoleId, PermisoId, Permitido, FechaAsignacion
+7	SolicitudesAcceso	Solicitudes de acceso a módulos	Id, UsuarioId, ModuloId, RoleId, AprobadorId, Motivo, Estado, FechaSolicitud, FechaRespuesta, RespondidoPor, MotivoRespuesta
+8	Notificaciones	Notificaciones de usuarios	Id, UsuarioId, Titulo, Mensaje, Tipo, ReferenciaId, Leida, FechaCreacion, FechaLeida
+9	Empresas	Proveedores, clientes e internos	Id, Codigo, Nombre, RUC, Direccion, Telefono, Email, Contacto, Tipo ('PROVEEDOR'/'CLIENTE'/'INTERNO'), Activo
+10	Departamentos	Departamentos/áreas	Id, Codigo, Nombre, Descripcion, Activo
+11	ModulosAdminMenu	Menús de administración por módulo	Id, ModuloId, Titulo, Icono, Url, PadreId, Orden, Activo, RequierePermiso, Tipo ('General'/'Catalogo')
+Tablas del Módulo SalidasMaterial (7 tablas)
+#	Tabla	Propósito	Campos clave
+1	Salidas	Salidas de material	Id, Folio, Fecha, Estado ('EnEdicion'/'PendienteAprobacion'/'Aprobada'/'Cancelada'), EsDefinitiva, RetornoEsperado, UsuarioId, Departamento, Nivel, EmpresaId, Descripcion, CausaMotivo, Categoria, Comentarios, SolicitaId, AutorizacionId, RecibeId, VigilanciaId, AprobadoPor, ComentarioAprobacion, MotivoCancelacion
+2	SalidaDetalles	Materiales de cada salida	Id, SalidaId, NumeroLinea, Cantidad, Unidad, CodigoMaterial, Descripcion, EsDevolucion, Comentario
+3	HistorialSalidas	Registro de cambios (auditoría)	Id, SalidaId, Accion, Descripcion, Cambios (JSON), UsuarioId, Fecha
+4	PlantillaMaterial	Plantillas de materiales por usuario	Id, Nombre, Descripcion, UsuarioId, FechaCreacion, FechaModificacion
+5	PlantillaDetalles	Materiales de cada plantilla	Id, PlantillaId, NumeroLinea, Cantidad, Unidad, CodigoMaterial, Descripcion, EsDevolucion
+6	UnidadesMedida	Catálogo de unidades (PZS, KG, MTS)	Id, Codigo, Nombre, Descripcion, Activo
+7	Categorias	Catálogo de categorías	Id, Codigo, Nombre, Descripcion, Activo
+8	Causas	Catálogo de causas/motivos	Id, Codigo, Nombre, Descripcion, Activo
+⚠️ NOTA IMPORTANTE:
+
+NO existe tabla SuperUsuarios: El Superusuario es un usuario más de la tabla Usuarios con EsSuperUsuario = true, NombreUsuario, PasswordHash (los demás usuarios tienen estos campos en NULL y se autentican por Windows)
+
+NO existe tabla VersionSalidas: Se eliminó porque el historial de cambios se registra en HistorialSalidas
+
+Campo IP eliminado de todo el sistema (por requerimiento del cliente)
+
+🔐 SISTEMA DE AUTENTICACIÓN
+Flujo Dual de Autenticación
+text
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                   AUTENTICACIÓN HÍBRIDA                                             │
+├─────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                                     │
+│  USUARIOS NORMALES (99%)                          SUPERUSUARIO (1)                                  │
+│  ─────────────────────────                        ─────────────────────────                         │
+│                                                                                                     │
+│  1. Accede a https://cora.dominio.com             1. Accede a https://cora.dominio.com/SuperAdmin/Login │
+│  2. Autenticación Windows (Negotiate)             2. Formulario usuario/contraseña                  │
+│  3. Kerberos (principal) o NTLM (fallback)        3. Validación SHA256 + Salt                       │
+│  4. CustomClaimsTransformer busca usuario         4. CustomClaimsTransformer busca por NombreUsuario│
+│  5. Asigna roles globales + por módulo            5. Asigna rol "Superusuario"                     │
+│  6. Acceso según roles                            6. Acceso total                                   │
+│                                                                                                     │
+│  ⚠️ NO existe pantalla de login para usuarios normales                                             │
+│  ⚠️ El Superusuario NO usa autenticación Windows                                                   │
+│  ⚠️ Se captura el NombreWindows real del superusuario para auditoría                               │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────┘
+SPN (Service Principal Name) - Requisito para Kerberos
+powershell
+# Ejecutar en CMD como Administrador (solo en producción)
+setspn -S HTTP/servidor.dominio.com usuario_servicio
+setspn -S HTTP/servidor usuario_servicio
+setspn -L usuario_servicio
+👥 JERARQUÍA DE ROLES
+text
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                   ROLES DEL SISTEMA                                                 │
+├─────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                                     │
+│  👑 SUPERUSUARIO (Global - EsSistema = true)                                                       │
+│     • Acceso TOTAL a TODO el sistema                                                               │
+│     • Puede crear/editar/ELIMINAR cualquier registro                                               │
+│     • Login con usuario/contraseña en /SuperAdmin/Login                                            │
+│                                                                                                     │
+│  🔧 ADMINISTRADOR (Global - EsSistema = true)                                                      │
+│     • Puede AGREGAR y MODIFICAR registros (NO eliminar)                                            │
+│     • Acceso a secciones globales                                                                  │
+│     • Autenticación Windows                                                                        │
+│                                                                                                     │
+│  ✅ APROBADOR (Local - por módulo)                                                                 │
+│     • Todo lo que hace un Usuario Estándar                                                         │
+│     • Puede aprobar/rechazar solicitudes                                                           │
+│     • Puede aprobar solicitudes no asignadas (con advertencia)                                     │
+│                                                                                                     │
+│  👤 USUARIO ESTÁNDAR (Local - por módulo)                                                          │
+│     • Crear salidas, ver historial, solicitar acceso                                               │
+│                                                                                                     │
+│  🚫 SIN ROL                                                                                        │
+│     • Solo ver Inicio, Solicitar Acceso, Mis Solicitudes                                           │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────┘
+📜 REQUERIMIENTOS FUNCIONALES CLAVE
+Módulo: Autenticación y Acceso
+RF-001 a RF-010: Autenticación Windows + login Superusuario + Claims Transformation
+
+RF-006 a RF-010: Solicitud de acceso, aprobación cruzada, aprobación masiva
+
+Módulo: Administración
+RF-016 a RF-027: CRUD de Usuarios, Roles, Departamentos, Empresas, Módulos, Logs
+
+Roles unificados: Globales y locales en una sola tabla con campo Tipo
+
+Módulo: Salidas de Material
+RF-S01 a RF-S41: Gestión de salidas, flujo de aprobación, PDF, dashboard, funcionalidades avanzadas
+
+Estados: EnEdicion → PendienteAprobacion → Aprobada/Cancelada
+
+Aprobación cruzada y masiva
+
+Sin código de barras (removido por requerimiento)
+
+🎯 MÓDULO DE SALIDAS DE MATERIAL
+Ciclo de Vida de una Salida
+text
+📝 En Edición → ⏳ Pendiente Aprobación → ✅ Aprobada
+                                        → ❌ Cancelada
+Flujo de Aprobación
+text
+Usuario Estándar           Aprobador                Sistema
+     │                         │                       │
+     │ 1. Crear salida         │                       │
+     ├─────────────────────────┼──────────────────────►│
+     │                         │                       │
+     │ 2. Enviar a aprobación  │                       │
+     ├─────────────────────────┼──────────────────────►│
+     │                         │                       │
+     │                         │ 3. Recibe notificación│
+     │                         │◄──────────────────────┤
+     │                         │                       │
+     │                         │ 4. Aprobar/Rechazar   │
+     │                         ├──────────────────────►│
+     │                         │                       │
+     │ 5. Recibe notificación  │                       │
+     │◄────────────────────────┼───────────────────────┤
+     │                         │                       │
+Generación de PDF
+Formato: "Control de Salida de Bienes sin Factura"
+
+Incluye: encabezado, datos de salida, tabla de materiales, firmas (Solicita, Autorización, Recibe, Vigilancia)
+
+Se genera automáticamente al aprobar la salida
+
+🎛️ MENÚ DE NAVEGACIÓN APROBADO
+text
+⚡ CORA
+├── 🏠 Inicio
+├── 📦 Módulos
+│   └── 📋 Salidas de Material
+│       ├── 📋 Listado
+│       ├── 📝 Nueva Salida
+│       └── 📊 Dashboard
+├── ⚙️ Administración (Admin/Superusuario)
+│   ├── 👥 Usuarios
+│   ├── 🌐 Roles
+│   ├── 📦 Módulos
+│   ├── 🏢 Empresas
+│   ├── 📋 Departamentos
+│   ├── 📝 Logs
+│   └── 📚 Catálogos           ← NUEVO
+│       ├── 📦 Salidas de Material
+│       │   ├── 📏 Unidades de Medida
+│       │   ├── 📂 Categorías
+│       │   └── 📋 Causas
+│       └── 📦 (Otros módulos futuros)
+├── 🔑 Acceso a Módulos
+│   ├── 📝 Solicitar acceso (solo sin roles globales)
+│   ├── 📋 Mis solicitudes (solo sin roles globales)
+│   └── ✅ Solicitudes pendientes (Aprobadores/Admin/Super)
+├── 🔔 Notificaciones
+└── 👤 Usuario / 🚪 Cerrar sesión (Superusuario)
+📅 CRONOGRAMA (15 Sprints + Preparación)
+Sprint	Nombre	Fechas	Duración
+0	Preparación	29/07/2026 - 06/08/2026	9 días
+1	Arquitectura y Setup	07/08/2026 - 20/08/2026	14 días
+2	Autenticación y Usuarios	21/08/2026 - 03/09/2026	14 días
+3	Roles y Árbol de Permisos	04/09/2026 - 17/09/2026	14 días
+4	Acceso a Módulos	18/09/2026 - 01/10/2026	14 días
+5	Datos Maestros	02/10/2026 - 15/10/2026	14 días
+6	Salidas - Base	16/10/2026 - 29/10/2026	14 días
+7	Salidas - Creación/Edición	30/10/2026 - 12/11/2026	14 días
+8	Salidas - Aprobación	13/11/2026 - 26/11/2026	14 días
+9	Salidas - PDF/Dashboard	27/11/2026 - 10/12/2026	14 días
+10	Salidas - Avanzadas	11/12/2026 - 24/12/2026	14 días
+11	Notificaciones y Alertas	25/12/2026 - 07/01/2027	14 días
+12	Módulos y Seguridad	08/01/2027 - 21/01/2027	14 días
+13	Pruebas y Optimización	22/01/2027 - 04/02/2027	14 días
+14	UAT y Preparación	05/02/2027 - 18/02/2027	14 días
+15	Despliegue y Soporte	19/02/2027 - 28/02/2027	10 días
+🔒 MECANISMOS DE SEGURIDAD IMPLEMENTADOS
+#	Mecanismo	Implementación
+1	Autenticación Windows	AddNegotiate() (Kerberos/NTLM)
+2	Login Superusuario	/SuperAdmin/Login con SHA256 + Salt
+3	HTTPS	UseHttpsRedirection() + HSTS
+4	CSRF	[ValidateAntiForgeryToken] en POST
+5	Autorización por Roles	[Authorize], [AuthorizeGlobal], [AuthorizeModulo]
+6	Claims Transformation	CustomClaimsTransformer
+7	Validación de Datos	ModelState + DataAnnotations
+8	Rate Limiting	RateLimitingMiddleware (30/min)
+9	Auditoría	AuditoriaMiddleware
+10	Prevención SQL Injection	EF Core (consultas parametrizadas)
+11	Hash de Contraseñas	SHA256 + Salt (solo Superusuario)
+12	Logs Estructurados	Serilog (JSON)
+13	Historial de Cambios	HistorialSalidas
+14	Redirección Segura	RedirectUnauthorizedMiddleware
+🧩 MÓDULO: SISTEMA DE PLUGINS
+Cómo Agregar un Nuevo Módulo
+text
+PASO 1: Crear carpeta en wwwroot/modules/MiNuevoModulo/
+PASO 2: Agregar Module.json con configuración y roles
+PASO 3: Copiar MiNuevoModulo.dll
+PASO 4: Admin → Módulos → [🔄 Recargar Módulos]
+PASO 5: El sistema:
+        • Detecta el módulo
+        • Registra en tabla Modulos
+        • Crea roles en tabla Roles (Tipo='Local')
+        • Registra menús en ModulosAdminMenu (Tipo='Catalogo')
+        • Ejecuta scripts SQL para crear tablas del módulo
+PASO 6: Administrador ve los nuevos menús en "Catálogos"
+Estructura de Module.json
+json
+{
+  "ModuleId": "MiNuevoModulo",
+  "ModuleName": "Mi Nuevo Módulo",
+  "Description": "Descripción",
+  "Version": "1.0.0",
+  "AssemblyName": "MiNuevoModulo.dll",
+  "EntryPoint": "MiNuevoModulo.ModuleEntryPoint",
+  "Roles": [
+    { "Codigo": "UsuarioEstandar", "Nombre": "Usuario Estándar", "NivelJerarquico": 1 },
+    { "Codigo": "Aprobador", "Nombre": "Aprobador", "NivelJerarquico": 2 }
+  ],
+  "AdminMenu": [
+    {
+      "Titulo": "Mi Nuevo Módulo",
+      "Icono": "bi-box",
+      "Orden": 20,
+      "Hijos": [
+        {
+          "Titulo": "Catálogo 1",
+          "Icono": "bi-tag",
+          "Url": "/MiNuevoModulo/Catalogo1",
+          "Orden": 1,
+          "RequierePermiso": "Administracion.MiNuevoModulo.Catalogo1"
+        }
+      ]
+    }
+  ],
+  "Database": {
+    "CreateTables": [
+      { "Tabla": "MiTabla", "Script": "Scripts/CreateMiTabla.sql" }
+    ]
+  }
+}
+🎨 COMPONENTES UI IMPLEMENTADOS
+Componente	Uso
+Navbar dinámico	Menú según roles del usuario
+Cards	Tarjetas de resumen, módulos
+Tablas	Listados con paginación, filtros, ordenamiento
+Badges	Estados (Aprobada, Pendiente, En Edición, Cancelada)
+Modales	Confirmaciones, crear rol con árbol de permisos
+Toasts/Alerts	Notificaciones de éxito/error/advertencia
+Árbol de permisos	Checkboxes jerárquicos con estado indeterminado
+Formularios	Validación en tiempo real, DataAnnotations
+Dashboard	Gráficos con Chart.js, estadísticas
+Modales anidados	Submenús de catálogos
+📝 CONVENCIONES DE CÓDIGO
+Comentarios
+Todos los comentarios en español
+
+Documentar cada método público con /// <summary>
+
+Comentar lógica de negocio compleja
+
+Nombres
+Entidades: PascalCase singular (Usuario, Salida, UnidadMedida)
+
+Tablas BD: PascalCase plural (Usuarios, Salidas, UnidadesMedida)
+
+Controladores: [Nombre]Controller (UsuariosController, SalidasController)
+
+Vistas: PascalCase (Index.cshtml, Crear.cshtml, Detalles.cshtml)
+
+Servicios: I[Nombre]Service + [Nombre]Service
+
+Patrones
+Repository Pattern: Para acceso a datos
+
+Service Pattern: Para lógica de negocio
+
+Dependency Injection: En todos los servicios
+
+BaseController: Herencia para funcionalidad común
+
+🚀 ESTADO ACTUAL DEL PROYECTO
+✅ Completado
+Definición completa de requerimientos funcionales y no funcionales
+
+Modelo relacional 3FN (18 tablas)
+
+Arquitectura modular con plugins
+
+Sistema de autenticación híbrido
+
+Jerarquía de roles (globales + locales)
+
+Sistema de permisos jerárquico (árbol)
+
+Mapa de navegación aprobado
+
+Paleta de colores elegante definida
+
+Cronograma de 15 sprints
+
+Mockup HTML estático completo (20+ páginas)
+
+🔄 En Desarrollo
+Implementación del sistema base en ASP.NET Core MVC
+
+Sistema de plugins (ModuleLoader)
+
+Módulo de Salidas de Material
+
+📋 Pendiente
+Pruebas unitarias e integración
+
+Documentación de usuario
+
+Despliegue a producción
+
+🎯 INSTRUCCIONES PARA CONTINUAR
+Al iniciar una nueva conversación, proporciona este prompt y luego indica qué necesitas específicamente:
+Ejemplos de solicitudes:
+
+"Implementa el CustomClaimsTransformer completo con soporte para roles globales y locales"
+
+"Muéstrame el código del ModuleLoader que detecta y carga módulos desde wwwroot/modules/"
+
+"Implementa el controlador UsuariosController con CRUD completo y asignación de roles"
+
+"Crea la vista del árbol de permisos con checkboxes jerárquicos y estado indeterminado"
+
+"Implementa el SalidaService con lógica de aprobación cruzada y masiva"
+
+"Genera el PdfGenerator con el formato oficial de salida de bienes sin factura"
+
+"Crea el script SQL completo de la base de datos CORA en 3FN"
+
+"Implementa el menú dinámico de catálogos con submenús anidados"
+
+"Migra el mockup HTML estático a vistas Razor con lógica MVC"
+
+"Implementa el sistema de notificaciones con SignalR"
+
+⚠️ RESTRICCIONES Y DECISIONES IMPORTANTES
+Decisión	Estado
+❌ Sin bloqueo por intentos fallidos en login Superusuario	Aprobado
+❌ Sin campo IP en logs ni auditoría	Aprobado
+❌ Sin tabla SuperUsuarios (integrado en Usuarios)	Aprobado
+❌ Sin tabla VersionSalidas (usar HistorialSalidas)	Aprobado
+❌ Sin funcionalidad de código de barras	Aprobado
+❌ Sin módulo EPP (solo como ejemplo futuro)	Aprobado
+✅ Superusuario con login usuario/contraseña (no Windows)	Aprobado
+✅ Empresas (renombrado de Proveedores)	Aprobado
+✅ Catálogos agrupados por módulo en Administración	Aprobado
+✅ Roles unificados con campo Tipo	Aprobado
+✅ Árbol de permisos con checkboxes	Aprobado
+📌 NOTAS FINALES
+Este prompt contiene TODO lo necesario para continuar el desarrollo de CORA en cualquier momento. Al iniciar una nueva conversación, copia este prompt completo y luego indica la tarea específica que necesitas.
+
+Repositorio esperado: Los archivos se organizarán según la estructura mostrada arriba.
+
+Próximo paso recomendado: Implementar el sistema base (Program.cs, CustomClaimsTransformer, ModuleLoader, ApplicationDbContext, y los controladores del sistema base) antes de comenzar con el módulo de Salidas de Material.
+
+
+
+-----------------------------------------------------------------
+PROMT MAESTRO ADICIONAL CON CAMBIOS Y CORRECCIONES
+
+📋 PROMPT MAESTRO — SWCORA
+Copia y pega este prompt completo al iniciar un nuevo chat. Contiene todo el contexto necesario para continuar el desarrollo sin perder coherencia.
+
+🎯 INSTRUCCIONES GENERALES PARA EL ASISTENTE
+Vas a asistir en el desarrollo del proyecto SWCORA. Lee todo el contexto antes de responder. Cuando algo no esté claro, pregunta antes de asumir. Cuando propongas cambios estructurales, documenta el impacto antes de tocar código. Todos los comentarios, mensajes y documentación se escriben en español.
+
+1. INFORMACIÓN GENERAL DEL PROYECTO
+Aspecto	Valor
+Nombre del sistema	SWCORA (Sistema Web de Control de Recursos y Activos)
+Antecesor	CORA (renombrado)
+Tipo	Sistema modular tipo SAP
+Framework	ASP.NET Core MVC (.NET 10)
+ORM	Entity Framework Core 10 + Pomelo.EntityFrameworkCore.MySql
+Base de datos	MariaDB (vía XAMPP, nombre: cora_db)
+Frontend	Bootstrap 5.3 + Bootstrap Icons (según mockup)
+Arquitectura	Modular por plugins (MEF) + MVC con Áreas
+Autenticación	Windows (Negotiate/Kerberos) + Cookie SuperAdmin para login especial
+Metodología	Scrum
+Periodo	29 julio 2026 - 28 febrero 2027
+Namespace raíz	SWCORA.* (código) — cora_db (BD)
+Idioma	Español (código, comentarios, UI, docs)
+2. ESTRUCTURA DE PROYECTOS
+text
+📁 SWCORA/
+├── 📄 SWCORA.sln
+│
+├── 📁 SWCORA.Core/                          (Class Library - net10.0)
+│   ├── Entities/                            (13 entidades del Core)
+│   ├── Constants/                           (RolesSistema, RolesSolicitables, EstadosSalida)
+│   ├── Interfaces/                          (IModuleStartup, IModuloInfo)
+│   ├── Attributes/                          (AuthorizeModuloAttribute, AuthorizeGlobalAttribute)
+│   └── SWCORA.Core.csproj
+│
+├── 📁 SWCORA.Infrastructure/                (Class Library - net10.0)
+│   ├── Data/
+│   │   ├── ApplicationDbContext.cs          (Único DbContext con TODAS las entidades)
+│   │   └── Repositories/                    (10 repositorios)
+│   ├── Services/                            (CustomClaimsTransformer, AuthenticationService, NotificacionService, LogService)
+│   ├── Modules/                             (ModuleLoader)
+│   ├── Web/                                 (BaseController)
+│   └── SWCORA.Infrastructure.csproj
+│
+├── 📁 SWCORA.Web/                           (ASP.NET Core MVC - net10.0)
+│   ├── Controllers/                         (Home, SuperAdmin, Perfil, Configuracion, Notificaciones)
+│   │   ├── Admin/                           (Dashboard, Usuarios, Roles, Modulos, Empresas, TiposEmpresa, Unidades, Departamentos, Logs)
+│   │   └── Acceso/                          (SolicitarAcceso, AprobarSolicitudes, MisSolicitudes)
+│   ├── Middleware/                          (RedirectUnauthorized, Auditoria)
+│   ├── Models/                              (ViewModels)
+│   ├── Views/                               (Razor)
+│   ├── wwwroot/                             (css/styles.css, js/scripts.js, images/, modules/)
+│   ├── Program.cs
+│   ├── appsettings.json
+│   └── SWCORA.Web.csproj
+│
+├── 📁 SWCORA.Modules/
+│   └── 📁 SalidasMaterial/
+│       ├── Entities/                        (Salida, SalidaDetalle, HistorialSalida, PlantillaMaterial, PlantillaDetalle)
+│       ├── Data/                            (SalidaDbExtensions)
+│       ├── Models/                          (5 ViewModels)
+│       ├── Services/                        (SalidaService, PlantillaService, HistorialSalidaService, ExportacionService, DashboardService)
+│       ├── Helpers/                         (PdfGenerator con iTextSharp 5)
+│       ├── Hubs/                            (SalidasHub - SignalR)
+│       ├── Areas/SalidasMaterial/           (Controller + Vistas)
+│       ├── ModuleEntryPoint.cs
+│       ├── Module.json
+│       └── SWCORA.Modules.SalidasMaterial.csproj
+│
+└── 📁 Database/
+    └── ScriptInicial.sql
+3. BASE DE DATOS — 18 TABLAS EN 3FN
+Conexión: Server=localhost;Database=cora_db;User=root;Password=;
+
+3.1 Tablas del Core
+Usuarios
+Campo	Tipo	Nulo	Llave
+IdUsuario	INT	No	PK
+NombreWindows	VARCHAR(100)	Sí	UQ
+NombreUsuario	VARCHAR(100)	Sí	UQ
+Password	VARCHAR(200)	Sí	—
+EsSuperUsuario	BOOLEAN	No	—
+NombreCompleto	VARCHAR(200)	No	—
+Email	VARCHAR(200)	Sí	—
+EsActivo	BOOLEAN	No	—
+IdDepartamento	INT	Sí	FK
+FechaCreacion	DATETIME	No	—
+UltimoAcceso	DATETIME	Sí	—
+SolicitudPendiente	BOOLEAN	No	—
+CreadoPor	INT	Sí	FK
+ModificadoPor	INT	Sí	FK
+FechaModificacion	DATETIME	Sí	—
+Datos iniciales:
+
+IdUsuario=1: System (creación automática, sin contraseña)
+
+IdUsuario=2: Superadmin (superadmin / Superadmin!1, hash SHA256 + Salt CORASALT2026!)
+
+Departamentos
+Campo	Tipo	Nulo	Llave
+IdDepartamento	INT	No	PK
+Codigo	VARCHAR(50)	No	UQ
+Nombre	VARCHAR(200)	No	—
+Descripcion	VARCHAR(500)	Sí	—
+EsActivo	BOOLEAN	No	—
+FechaCreacion	DATETIME	No	—
+CreadoPor	INT	Sí	FK
+ModificadoPor	INT	Sí	FK
+FechaModificacion	DATETIME	Sí	—
+Datos iniciales: VACÍA (el admin los crea desde UI)
+
+Modulos
+Campo	Tipo	Nulo	Llave
+IdModulo	INT	No	PK
+Codigo	VARCHAR(50)	No	UQ
+Nombre	VARCHAR(100)	No	—
+Descripcion	VARCHAR(500)	Sí	—
+Version	VARCHAR(20)	Sí	—
+AssemblyName	VARCHAR(200)	Sí	—
+EntryPoint	VARCHAR(200)	Sí	—
+EsActivo	BOOLEAN	No	—
+FechaRegistro	DATETIME	No	—
+UltimaActualizacion	DATETIME	Sí	—
+Nota: FechaRegistro se mantiene (no FechaCreacion) porque el sistema descubre el módulo, no lo crea el usuario.
+
+Roles
+Campo	Tipo	Nulo	Llave
+IdRol	INT	No	PK
+Tipo	VARCHAR(20)	No	—
+IdModulo	INT	Sí	FK
+Codigo	VARCHAR(50)	No	—
+Nombre	VARCHAR(100)	No	—
+Descripcion	VARCHAR(200)	Sí	—
+NivelJerarquico	INT	No	—
+EsActivo	BOOLEAN	No	—
+EsSistema	BOOLEAN	No	—
+PuedeAprobar	BOOLEAN	No	—
+Origen	VARCHAR(20)	No	—
+CreadoPor	INT	Sí	FK
+FechaCreacion	DATETIME	No	—
+ModificadoPor	INT	Sí	FK
+FechaModificacion	DATETIME	Sí	—
+Sin VisibleParaSolicitud (eliminado; se controla con constante RolesSolicitables.Codigos = { "Generador" })
+
+Datos iniciales:
+
+IdRol=1: Superusuario (Global, Sistema) — solo asignable al Superadmin (Id=2)
+
+IdRol=2: Administrador (Global, Sistema)
+
+Roles locales Generador y Aprobador se registran dinámicamente al cargar el módulo
+
+Permisos
+Campo	Tipo	Nulo	Llave
+IdPermiso	INT	No	PK
+Codigo	VARCHAR(100)	No	UQ
+Nombre	VARCHAR(200)	No	—
+Descripcion	VARCHAR(500)	Sí	—
+IdPadre	INT	Sí	FK (auto-ref)
+ModuloId	INT	Sí	FK
+Tipo	VARCHAR(50)	No	—
+EsActivo	BOOLEAN	No	—
+Tipo: Sistema, Modulo, Funcionalidad, Accion
+Árbol precargado: ~50 nodos del Core (ver detalle abajo)
+
+UsuariosRoles
+Campo	Tipo	Nulo	Llave
+IdUsuarioRol	INT	No	PK
+IdUsuario	INT	No	FK
+IdRol	INT	No	FK
+AsignadoPor	INT	Sí	FK
+FechaAsignacion	DATETIME	No	—
+Unique: (IdUsuario, IdRol)
+Datos iniciales: 1 fila (Superadmin → Superusuario)
+
+RolesPermisos
+Campo	Tipo	Nulo	Llave
+IdRolPermiso	INT	No	PK
+IdRol	INT	No	FK
+IdPermiso	INT	No	FK
+FechaAsignacion	DATETIME	No	—
+Unique: (IdRol, IdPermiso)
+Datos iniciales: VACÍA (solo nodos hoja Tipo=Accion)
+
+TiposEmpresa
+Campo	Tipo	Nulo	Llave
+IdTipoEmpresa	INT	No	PK
+Nombre	VARCHAR(50)	No	UQ
+EsActivo	BOOLEAN	No	—
+FechaCreacion	DATETIME	No	—
+CreadoPor	INT	Sí	FK
+ModificadoPor	INT	Sí	FK
+FechaModificacion	DATETIME	Sí	—
+Datos iniciales: VACÍA (se crea desde UI en modal anidado de Empresas)
+
+Empresas
+Campo	Tipo	Nulo	Llave
+IdEmpresa	INT	No	PK
+Codigo	VARCHAR(50)	No	UQ
+Nombre	VARCHAR(200)	No	—
+Contacto	VARCHAR(200)	Sí	—
+IdTipoEmpresa	INT	No	FK
+EsActivo	BOOLEAN	No	—
+FechaCreacion	DATETIME	No	—
+CreadoPor	INT	Sí	FK
+ModificadoPor	INT	Sí	FK
+FechaModificacion	DATETIME	Sí	—
+Datos iniciales: VACÍA
+
+Unidades
+Campo	Tipo	Nulo	Llave
+IdUnidad	INT	No	PK
+Nombre	VARCHAR(20)	No	UQ
+Descripcion	VARCHAR(200)	Sí	—
+EsActivo	BOOLEAN	No	—
+FechaCreacion	DATETIME	No	—
+CreadoPor	INT	Sí	FK
+ModificadoPor	INT	Sí	FK
+FechaModificacion	DATETIME	Sí	—
+Datos iniciales: VACÍA (se crea desde UI en submódulo Unidades)
+
+SolicitudesAcceso
+Campo	Tipo	Nulo	Llave
+IdSolicitudAcceso	INT	No	PK
+IdUsuario	INT	No	FK
+IdRol	INT	No	FK
+AprobadorAsignado	INT	Sí	FK
+IdModulo	INT	No	FK
+Motivo	VARCHAR(500)	Sí	—
+Estado	VARCHAR(20)	No	—
+FechaCreacion	DATETIME	No	—
+FechaRespuesta	DATETIME	Sí	—
+RespondidoPor	INT	Sí	FK
+MotivoRespuesta	VARCHAR(500)	Sí	—
+Estado: Pendiente, Aprobada, Rechazada, Cancelada
+
+Notificaciones
+Campo	Tipo	Nulo	Llave
+IdNotificacion	INT	No	PK
+IdUsuario	INT	No	FK
+Titulo	VARCHAR(200)	No	—
+Mensaje	VARCHAR(1000)	No	—
+Tipo	VARCHAR(50)	No	—
+ReferenciaId	INT	Sí	— (genérico)
+Leida	BOOLEAN	No	—
+FechaCreacion	DATETIME	No	—
+FechaLeida	DATETIME	Sí	—
+Logs
+Campo	Tipo	Nulo	Llave
+IdLog	INT	No	PK
+IdUsuario	INT	No	FK
+Accion	VARCHAR(100)	No	—
+Modulo	VARCHAR(100)	No	—
+Descripcion	VARCHAR(500)	Sí	—
+Detalles	VARCHAR(2000)	Sí	—
+Fecha	DATETIME	No	—
+EsCritico	BOOLEAN	No	—
+Revisado	BOOLEAN	No	—
+RevisadoPor	INT	Sí	FK
+FechaRevision	DATETIME	Sí	—
+3.2 Tablas del Módulo SalidasMaterial
+Salidas
+Campo	Tipo	Nulo	Llave
+IdSalida	INT	No	PK
+Folio	VARCHAR(20)	Sí	UQ
+Estado	VARCHAR(30)	No	—
+EsDefinitiva	BOOLEAN	No	—
+RetornoEsperado	DATETIME	Sí	—
+IdUsuario	INT	No	FK
+IdDepartamento	INT	No	FK
+IdEmpresa	INT	No	FK
+ContactoNombre	VARCHAR(200)	Sí	—
+Descripcion	VARCHAR(500)	No	—
+CausaMotivo	VARCHAR(500)	No	—
+Categoria	VARCHAR(200)	No	—
+Comentarios	VARCHAR(1000)	No	—
+AprobadorAsignado	INT	Sí	FK
+FechaCreacion	DATETIME	No	—
+FechaModificacion	DATETIME	Sí	—
+FechaAprobacion	DATETIME	Sí	—
+FechaCancelacion	DATETIME	Sí	—
+AprobadoPor	INT	Sí	FK
+MotivoRechazo	VARCHAR(500)	Sí	—
+MotivoCancelacion	VARCHAR(500)	Sí	—
+IMPORTANTE:
+
+NO existe campo Fecha — solo FechaCreacion. En C# Fecha es [NotMapped] (alias de FechaCreacion).
+
+NO existe ComentarioAprobacion — eliminado.
+
+Estados: Borrador, PendienteAprobacion, Aprobada, Rechazada, Cancelada
+
+Folio: 8 dígitos, NULL en Borrador, generado al enviar con transacción Serializable
+
+SalidasDetalles
+Campo	Tipo	Nulo	Llave
+IdSalidaDetalle	INT	No	PK
+IdSalida	INT	No	FK
+NumeroLinea	INT	No	—
+Cantidad	DECIMAL(18,2)	No	—
+IdUnidad	INT	No	FK
+Descripcion	VARCHAR(200)	No	—
+Comentario	VARCHAR(500)	Sí	—
+Unique: (IdSalida, NumeroLinea)
+CASCADE al borrar Salida.
+
+HistorialSalidas
+Campo	Tipo	Nulo	Llave
+IdHistorialSalida	INT	No	PK
+IdSalida	INT	No	FK
+Accion	VARCHAR(50)	No	—
+Descripcion	VARCHAR(500)	Sí	—
+Cambios	VARCHAR(2000)	Sí	—
+IdUsuario	INT	No	FK
+Fecha	DATETIME	No	—
+CASCADE al borrar Salida. Cambios se trunca a 2000 caracteres.
+
+PlantillaMaterial
+Campo	Tipo	Nulo	Llave
+IdPlantillaMaterial	INT	No	PK
+Nombre	VARCHAR(100)	No	—
+Descripcion	VARCHAR(500)	Sí	—
+IdUsuario	INT	No	FK
+FechaCreacion	DATETIME	No	—
+FechaModificacion	DATETIME	Sí	—
+Es la ÚNICA entidad eliminable (por su dueño).
+
+PlantillaDetalles
+Campo	Tipo	Nulo	Llave
+IdPlantillaDetalle	INT	No	PK
+IdPlantillaMaterial	INT	No	FK
+NumeroLinea	INT	No	—
+Cantidad	DECIMAL(18,2)	No	—
+IdUnidad	INT	No	FK
+Descripcion	VARCHAR(200)	No	—
+Unique: (IdPlantillaMaterial, NumeroLinea)
+CASCADE al borrar PlantillaMaterial.
+
+4. ÁRBOL DE PERMISOS DEL CORE (precargado)
+text
+🌐 SWCORA (Sistema)                                 Id=1,   Padre=NULL
+├── 📦 Módulos                                      Id=2,   Padre=1
+├── 🔑 Acceso a Módulos                             Id=3,   Padre=1
+│   ├── Acceso.Solicitar                            Id=30
+│   ├── Acceso.VerMisSolicitudes                    Id=31
+│   ├── Acceso.VerPendientes                        Id=32
+│   ├── Acceso.Aprobar                              Id=33
+│   ├── Acceso.Rechazar                             Id=34
+│   ├── Acceso.Cancelar                             Id=35
+│   └── Acceso.ExportarCSV                          Id=36
+├── ⚙️ Administración                               Id=4,   Padre=1
+│   ├── Admin.Usuarios                              Id=40
+│   │   ├── Admin.Usuarios.Ver                      Id=400
+│   │   ├── Admin.Usuarios.Editar                   Id=401
+│   │   ├── Admin.Usuarios.AsignarRolGlobal         Id=402
+│   │   ├── Admin.Usuarios.QuitarRolGlobal          Id=403
+│   │   ├── Admin.Usuarios.GestionarModulos         Id=404
+│   │   ├── Admin.Usuarios.ToggleActivo             Id=405
+│   │   └── Admin.Usuarios.ExportarCSV              Id=406
+│   ├── Admin.Roles                                 Id=41
+│   │   └── (Ver, Crear, Editar, ToggleActivo, AsignarPermisos, ExportarCSV)
+│   ├── Admin.Modulos                               Id=42
+│   │   └── (Ver, ToggleActivo, Recargar, VerModuleJson, VerRoles)
+│   ├── Admin.Empresas                              Id=43
+│   │   ├── (Ver, Crear, Editar, ToggleActivo, ExportarCSV)
+│   │   └── Admin.Empresas.Tipos                    Id=435
+│   │       └── (Ver, Crear, Editar, ToggleActivo)
+│   ├── Admin.Unidades                              Id=44
+│   │   └── (Ver, Crear, Editar, ToggleActivo)
+│   ├── Admin.Departamentos                         Id=45
+│   │   └── (Ver, Crear, Editar, ToggleActivo, ExportarCSV)
+│   └── Admin.Logs                                  Id=46
+│       └── (Ver, Filtrar, MarcarRevisado, ExportarCSV)
+└── 🔔 Notificaciones                               Id=5,   Padre=1
+    ├── Notif.Ver                                   Id=50
+    ├── Notif.MarcarLeida                           Id=51
+    └── Notif.MarcarTodas                           Id=52
+Reglas del árbol:
+
+Los permisos de módulos (SalidasMaterial, etc.) se registran dinámicamente desde Module.json al cargar el módulo.
+
+Solo los nodos hoja (Tipo=Accion) se persisten en RolesPermisos.
+
+Los nodos padre (Sistema, Funcionalidad) son agrupadores visuales.
+
+El Superusuario tiene acceso total por código (no necesita permisos en RolesPermisos).
+
+El Administrador también tiene acceso total al panel Admin por código.
+
+5. REGLAS DE NEGOCIO CONSOLIDADAS
+5.1 Acceso y roles
+Superusuario: acceso TOTAL. Solo asignable al Superadmin (Id=2).
+
+Administrador: acceso total al panel Admin. Asignable por Superadmin.
+
+Generador: rol local. Crea salidas.
+
+Aprobador: rol local. Solo aprueba/rechaza (NO crea).
+
+Solicitables: solo Generador (por RolesSolicitables.Codigos).
+
+Usuarios se crean automáticamente al primer login Windows (CreadoPor=1).
+
+5.2 Estados de Salida
+text
+Borrador → PendienteAprobacion → Aprobada (inmutable)
+                               → Rechazada (inmutable)
+                               → Cancelada (editable 1 día)
+Clonable desde: Aprobada, Rechazada, Cancelada
+Borrador: folio NULL, editable, eliminable.
+
+PendienteAprobacion: folio 8 dígitos, cancelable solo 1 día por dueño.
+
+Aprobada/Rechazada: inmutables.
+
+Cancelada: editable 1 día.
+
+5.3 Salidas
+Mín 1 material, máx 50.
+
+Cantidad > 0.
+
+Sin descripciones duplicadas (comparar por Descripción).
+
+Folio secuencial de 8 dígitos, GenerarFolioSecuencialAsync con transacción Serializable.
+
+Aprobador ≠ creador.
+
+Al aprobar no requiere comentario (campo eliminado).
+
+PDF solo para salidas aprobadas.
+
+5.4 Empresas, Unidades, Tipos de Empresa
+Nada se elimina — solo se desactiva (EsActivo).
+
+Empresa cambia de tipo cambiando IdTipoEmpresa.
+
+Tipos y Unidades se crean desde el panel Admin.
+
+En el modal de Empresa hay un botón "Ver todos" que abre modal anidado de Tipos con opción "Agregar Nuevo Tipo".
+
+5.5 Módulos
+Los módulos NO se eliminan, solo se deshabilitan.
+
+Se descubren al escanear wwwroot/modules/ con su Module.json.
+
+Los roles locales se registran automáticamente al cargar.
+
+5.6 Solicitudes de acceso
+Usuario sin roles → /SolicitarAcceso.
+
+Solicita un módulo y un rol (solo los de RolesSolicitables).
+
+Debe elegir un aprobador (usuario con PuedeAprobar=true).
+
+Al aprobar, se crea UsuarioRol automáticamente.
+
+6. STACK TECNOLÓGICO Y DECISIONES
+Aspecto	Decisión
+Framework	.NET 10
+ORM	EF Core 10 + Pomelo
+DB	MariaDB
+Frontend	Bootstrap 5.3 + Bootstrap Icons
+PDF	iTextSharp 5.5.x
+Excel	EPPlus 7
+Logs	Serilog (futuro)
+Auth	Negotiate + Cookie SuperAdmin
+Hash	SHA256 + Salt (CORASALT2026!) — decisión final, sin cambios
+SignalR	Para notificaciones en tiempo real (pendiente cliente)
+Módulos	MEF vía ModuleLoader + Module.json
+DbContext	Único ApplicationDbContext con TODAS las entidades
+Cascadas	RESTRICT en todo excepto SalidaDetalle, HistorialSalida, PlantillaDetalle (composición)
+Convenciones de código
+Namespaces: SWCORA.*
+
+PKs: IdXxx (INT AUTO_INCREMENT)
+
+FKs: IdXxx o XxxPor (INT)
+
+Fechas: FechaCreacion / FechaModificacion — excepto Modulo.FechaRegistro y Log.Fecha
+
+Booleanos: prefijo Es (ej: EsActivo)
+
+Comentarios en español
+
+Una línea por relación en diagramas (auditoría se documenta, no se dibuja)
+
+7. MOCKUP HTML/CSS/JS — LA BASE VISUAL
+Existe un mockup HTML funcional con 16 vistas que es la referencia visual definitiva. Está construido con:
+
+Bootstrap 5.3 (CDN)
+
+Bootstrap Icons (CDN)
+
+css/styles.css con paleta corporativa:
+
+css
+--cora-bg: #F2F3F5;
+--cora-gray-light: #B9BCC2;
+--cora-gray: #70757F;
+--cora-accent: #C02F4A;   /* rojo acento */
+--cora-dark: #1F2328;     /* negro suave */
+--cora-white: #FFFFFF;
+--cora-success: #4A8B5C;
+--cora-warning: #D9A441;
+--cora-info: #5A7BA5;
+js/scripts.js con lógica de:
+
+Árbol de permisos tri-state con checkboxes
+
+Acordeones exclusivos
+
+Filtros y paginación client-side
+
+Modales anidados
+
+Toggle "Ver todos los tipos" en Empresa
+
+Validación de duplicados en materiales
+
+Vistas del mockup (todas implementadas)
+index.html (dashboard inicio)
+
+superadmin-login.html (login Superadmin)
+
+mi-perfil.html, configuracion.html, notificaciones.html
+
+admin-usuarios.html, admin-roles.html (con árbol de permisos), admin-modulos.html
+
+admin-empresas.html (con modal Tipos anidado), admin-unidades.html, admin-departamentos.html, admin-logs.html
+
+acceso-solicitar.html, acceso-mis-solicitudes.html, acceso-aprobar.html
+
+salidas-index.html, salidas-crear.html, salidas-editar.html, salidas-detalles.html
+
+Los archivos styles.css y scripts.js se copian tal cual desde el mockup a wwwroot/.
+
+8. ESTADO ACTUAL DEL PROYECTO
+✅ Completado
+Modelo de datos cerrado — 18 tablas en 3FN, script SQL final v3.0
+
+Decisiones de arquitectura — DbContext único, MEF, nombres
+
+Reglas de negocio consolidadas — ~120 reglas
+
+Árbol de permisos del Core — ~50 nodos
+
+Mockup HTML/CSS/JS — 16 vistas
+
+Script de PowerShell para crear estructura de archivos
+
+Código base del sistema — entregado completo:
+
+13 entidades Core + 5 entidades módulo
+
+ApplicationDbContext único con todas las configuraciones
+
+10 repositorios con interfaces
+
+4 servicios del Core
+
+ModuleLoader + ModuleEntryPoint
+
+BaseController reutilizable
+
+17 controladores (Core + Admin + Acceso)
+
+5 servicios del módulo + PdfGenerator + SalidasHub
+
+~30 vistas Razor del Core y del módulo
+
+Program.cs con DI completo
+
+appsettings.json con conexión
+
+⚠️ Pendiente de implementar
+Cliente SignalR en scripts.js (notificaciones en tiempo real)
+
+Vista _ArbolPermisosPartial.cshtml (parcial simple del árbol)
+
+Conexión completa del árbol de permisos a RolesPermisos desde UI
+
+Módulo Dashboard de salidas (vista ya creada, sin datos)
+
+Importar CSV/Excel en materiales de salida
+
+Documentación UML:
+
+✅ ER crow's foot (hecho)
+
+✅ Diagrama de clases de entidades (hecho)
+
+✅ Diagrama de secuencia Crear→Enviar→Aprobar (hecho)
+
+❌ Diagrama de secuencia Cancelar/Clonar/Rechazar
+
+❌ Diagrama de componentes/paquetes/despliegue
+
+Diccionario de datos completo (existe versión simplificada de 5 columnas)
+
+Matriz CRUD
+
+Pruebas unitarias
+
+Compilación y pruebas en Visual Studio — no se ha compilado aún
+
+9. CÓMO DEBES ASISTIR
+Reglas de respuesta
+Mantén coherencia con todas las reglas de negocio y decisiones documentadas.
+
+Usa la nomenclatura exacta:
+
+SWCORA (sistema)
+
+Generador / Aprobador / Administrador / Superusuario
+
+Borrador, PendienteAprobacion, Aprobada, Rechazada, Cancelada
+
+FechaCreacion / FechaModificacion (NO FechaRegistro ni ModificadoEn, excepto Modulo)
+
+IdSolicitudAcceso, AprobadorAsignado
+
+Password (no PasswordHash)
+
+Respeta la arquitectura: Core → Infrastructure → Web + Modules
+
+Usa ApplicationDbContext único — no hay SalidaDbContext.
+
+Comenta código en español.
+
+Usa PlantUML para diagramas.
+
+Si hay ambigüedad, pregunta antes de asumir.
+
+Cuando propongas cambios estructurales, documenta:
+
+Qué cambia
+
+Qué archivos afecta
+
+Impacto en BD (si aplica)
+
+Impacto en UML (si aplica)
+
+Impacto en el prompt maestro
+
+NO cambies tecnologías ya decididas (iTextSharp, SHA256, Pomelo, etc.) sin autorización.
+
+NO elimines entidades sin confirmación (solo plantillas se eliminan).
+
+Formato esperado de respuestas
+Tablas para diccionarios de datos y reglas
+
+Bloques de código con lenguaje identificado
+
+Diagramas PlantUML completos y ejecutables
+
+Checklist al final de propuestas grandes
+
+Preguntas concretas cuando falte info
+
+10. PROMPTS SUGERIDOS PARA CONTINUAR
+Al iniciar el nuevo chat, puedes pedir:
+
+"Compila mentalmente el código entregado y dime qué errores esperas encontrar."
+
+"Implementa el cliente SignalR para notificaciones en tiempo real."
+
+"Genera el _ArbolPermisosPartial.cshtml completo con tri-state."
+
+"Documenta el diagrama de secuencia de Cancelar Salida."
+
+"Genera la matriz CRUD de todo el sistema."
+
+"Dame el diccionario de datos completo de 18 tablas con las 5 columnas."
+
+"Actualiza el prompt maestro con los cambios que discutamos hoy."
+
+"Ayúdame a depurar este error de compilación: [...]"
+
+"Implementa Importar CSV/Excel en materiales de salida."
+
+"Genera los diagramas de componentes, paquetes y despliegue."
+
+11. GLOSARIO DE TÉRMINOS
+Término	Significado
+Módulo	Plugin MEF cargado dinámicamente (ej: SalidasMaterial)
+Área	Concepto MVC de ASP.NET Core para agrupar controladores/vistas
+Árbol de permisos	Jerarquía de Permisos con IdPadre auto-referencial
+RolesPermisos	Relación N:M que asigna nodos hoja a roles
+Folio	Identificador único de 8 dígitos generado al enviar a aprobación
+Aprobador cruzado	Aprobador distinto del asignado que aprueba por tener el rol
+Clonación	Crear nueva salida en Borrador a partir de una Aprobada/Rechazada/Cancelada
+Solicitable	Rol que un usuario estándar puede pedir desde /SolicitarAcceso
+Delegación	Método de gestión desde el agregado raíz (Salida gestiona SalidaDetalle)
+Composición	Relación todo-parte fuerte (parte NO existe sin el todo)
+Agregación	Relación todo-parte débil (parte existe sin el todo)
+
+
+
+CONFIRMA QUE SE HAYA COMPRENDIDO LA INFORMACIÓN E INDICA SI HAY INCONSISTENCIAS, TAMBIÉN SOLICITA INFORMACIÓN SI HACE FALTA

@@ -1,0 +1,351 @@
+<#
+.SYNOPSIS
+    Crea la estructura completa de archivos del proyecto SWCORA.
+
+.DESCRIPTION
+    Genera todas las carpetas y archivos del sistema base SWCORA,
+    incluyendo Core, Infrastructure, Web y el módulo SalidasMaterial.
+    Los archivos se crean vacíos (0 bytes).
+
+.EXAMPLE
+    .\Crear-Estructura.ps1
+#>
+
+# =============================================
+# CONFIGURACIÓN
+# =============================================
+$ErrorActionPreference = "Stop"
+
+# Ruta raíz donde se creará el proyecto (cambia si lo necesitas)
+$Root = Join-Path -Path $PWD -ChildPath "SWCORA"
+
+Write-Host "=========================================" -ForegroundColor Cyan
+Write-Host " SWCORA - Generador de Estructura" -ForegroundColor Cyan
+Write-Host "=========================================" -ForegroundColor Cyan
+Write-Host "Ruta raíz: $Root" -ForegroundColor Yellow
+Write-Host ""
+
+# =============================================
+# FUNCIÓN AUXILIAR
+# =============================================
+function New-File {
+    param([string]$Path)
+
+    $fullPath = Join-Path -Path $Root -ChildPath $Path
+    $dir = Split-Path -Parent $fullPath
+
+    if (-not (Test-Path -Path $dir)) {
+        New-Item -ItemType Directory -Path $dir -Force | Out-Null
+    }
+
+    if (-not (Test-Path -Path $fullPath)) {
+        New-Item -ItemType File -Path $fullPath -Force | Out-Null
+        Write-Host "  [+] $Path" -ForegroundColor Green
+    } else {
+        Write-Host "  [=] $Path (ya existía)" -ForegroundColor DarkGray
+    }
+}
+
+# =============================================
+# CREAR RAIZ
+# =============================================
+if (-not (Test-Path -Path $Root)) {
+    New-Item -ItemType Directory -Path $Root -Force | Out-Null
+    Write-Host "Raíz creada: $Root" -ForegroundColor Green
+    Write-Host ""
+}
+
+# =============================================
+# 1. SOLUCIÓN
+# =============================================
+Write-Host "1. Solución" -ForegroundColor Cyan
+New-File "SWCORA.sln"
+
+# =============================================
+# 2. SWCORA.CORE
+# =============================================
+Write-Host ""
+Write-Host "2. SWCORA.Core" -ForegroundColor Cyan
+
+# Proyecto
+New-File "SWCORA.Core\SWCORA.Core.csproj"
+
+# Entities
+New-File "SWCORA.Core\Entities\Usuario.cs"
+New-File "SWCORA.Core\Entities\Departamento.cs"
+New-File "SWCORA.Core\Entities\Modulo.cs"
+New-File "SWCORA.Core\Entities\Rol.cs"
+New-File "SWCORA.Core\Entities\Permiso.cs"
+New-File "SWCORA.Core\Entities\UsuarioRol.cs"
+New-File "SWCORA.Core\Entities\RolPermiso.cs"
+New-File "SWCORA.Core\Entities\TipoEmpresa.cs"
+New-File "SWCORA.Core\Entities\Empresa.cs"
+New-File "SWCORA.Core\Entities\Unidad.cs"
+New-File "SWCORA.Core\Entities\SolicitudAcceso.cs"
+New-File "SWCORA.Core\Entities\Notificacion.cs"
+New-File "SWCORA.Core\Entities\Log.cs"
+
+# Constants
+New-File "SWCORA.Core\Constants\RolesSistema.cs"
+New-File "SWCORA.Core\Constants\RolesSolicitables.cs"
+New-File "SWCORA.Core\Constants\EstadosSalida.cs"
+
+# Interfaces
+New-File "SWCORA.Core\Interfaces\IModuleStartup.cs"
+New-File "SWCORA.Core\Interfaces\IModuloInfo.cs"
+
+# Attributes
+New-File "SWCORA.Core\Attributes\AuthorizeModuloAttribute.cs"
+
+# =============================================
+# 3. SWCORA.INFRASTRUCTURE
+# =============================================
+Write-Host ""
+Write-Host "3. SWCORA.Infrastructure" -ForegroundColor Cyan
+
+# Proyecto
+New-File "SWCORA.Infrastructure\SWCORA.Infrastructure.csproj"
+
+# Data
+New-File "SWCORA.Infrastructure\Data\ApplicationDbContext.cs"
+
+# Data/Repositories
+New-File "SWCORA.Infrastructure\Data\Repositories\IUsuarioRepository.cs"
+New-File "SWCORA.Infrastructure\Data\Repositories\UsuarioRepository.cs"
+New-File "SWCORA.Infrastructure\Data\Repositories\IRolRepository.cs"
+New-File "SWCORA.Infrastructure\Data\Repositories\RolRepository.cs"
+New-File "SWCORA.Infrastructure\Data\Repositories\IPermisoRepository.cs"
+New-File "SWCORA.Infrastructure\Data\Repositories\PermisoRepository.cs"
+New-File "SWCORA.Infrastructure\Data\Repositories\IModuloRepository.cs"
+New-File "SWCORA.Infrastructure\Data\Repositories\ModuloRepository.cs"
+New-File "SWCORA.Infrastructure\Data\Repositories\IEmpresaRepository.cs"
+New-File "SWCORA.Infrastructure\Data\Repositories\EmpresaRepository.cs"
+New-File "SWCORA.Infrastructure\Data\Repositories\ITipoEmpresaRepository.cs"
+New-File "SWCORA.Infrastructure\Data\Repositories\TipoEmpresaRepository.cs"
+New-File "SWCORA.Infrastructure\Data\Repositories\IUnidadRepository.cs"
+New-File "SWCORA.Infrastructure\Data\Repositories\UnidadRepository.cs"
+New-File "SWCORA.Infrastructure\Data\Repositories\IDepartamentoRepository.cs"
+New-File "SWCORA.Infrastructure\Data\Repositories\DepartamentoRepository.cs"
+New-File "SWCORA.Infrastructure\Data\Repositories\ISolicitudAccesoRepository.cs"
+New-File "SWCORA.Infrastructure\Data\Repositories\SolicitudAccesoRepository.cs"
+New-File "SWCORA.Infrastructure\Data\Repositories\INotificacionRepository.cs"
+New-File "SWCORA.Infrastructure\Data\Repositories\NotificacionRepository.cs"
+
+# Services
+New-File "SWCORA.Infrastructure\Services\CustomClaimsTransformer.cs"
+New-File "SWCORA.Infrastructure\Services\AuthenticationService.cs"
+New-File "SWCORA.Infrastructure\Services\NotificacionService.cs"
+New-File "SWCORA.Infrastructure\Services\LogService.cs"
+
+# Modules
+New-File "SWCORA.Infrastructure\Modules\ModuleLoader.cs"
+
+# Web
+New-File "SWCORA.Infrastructure\Web\BaseController.cs"
+
+# =============================================
+# 4. SWCORA.WEB
+# =============================================
+Write-Host ""
+Write-Host "4. SWCORA.Web" -ForegroundColor Cyan
+
+# Proyecto y configuración
+New-File "SWCORA.Web\SWCORA.Web.csproj"
+New-File "SWCORA.Web\Program.cs"
+New-File "SWCORA.Web\appsettings.json"
+New-File "SWCORA.Web\appsettings.Development.json"
+
+# Controllers (raíz)
+New-File "SWCORA.Web\Controllers\HomeController.cs"
+New-File "SWCORA.Web\Controllers\SuperAdminController.cs"
+New-File "SWCORA.Web\Controllers\PerfilController.cs"
+New-File "SWCORA.Web\Controllers\ConfiguracionController.cs"
+New-File "SWCORA.Web\Controllers\NotificacionesController.cs"
+
+# Controllers/Admin
+New-File "SWCORA.Web\Controllers\Admin\DashboardController.cs"
+New-File "SWCORA.Web\Controllers\Admin\UsuariosController.cs"
+New-File "SWCORA.Web\Controllers\Admin\RolesController.cs"
+New-File "SWCORA.Web\Controllers\Admin\ModulosController.cs"
+New-File "SWCORA.Web\Controllers\Admin\EmpresasController.cs"
+New-File "SWCORA.Web\Controllers\Admin\TiposEmpresaController.cs"
+New-File "SWCORA.Web\Controllers\Admin\UnidadesController.cs"
+New-File "SWCORA.Web\Controllers\Admin\DepartamentosController.cs"
+New-File "SWCORA.Web\Controllers\Admin\LogsController.cs"
+
+# Controllers/Acceso
+New-File "SWCORA.Web\Controllers\Acceso\SolicitarAccesoController.cs"
+New-File "SWCORA.Web\Controllers\Acceso\AprobarSolicitudesController.cs"
+New-File "SWCORA.Web\Controllers\Acceso\MisSolicitudesController.cs"
+
+# Middleware
+New-File "SWCORA.Web\Middleware\RedirectUnauthorizedMiddleware.cs"
+New-File "SWCORA.Web\Middleware\AuditoriaMiddleware.cs"
+
+# Models (raíz)
+New-File "SWCORA.Web\Models\LoginViewModel.cs"
+New-File "SWCORA.Web\Models\PerfilViewModel.cs"
+New-File "SWCORA.Web\Models\ConfiguracionViewModel.cs"
+New-File "SWCORA.Web\Models\NotificacionesViewModel.cs"
+
+# Models/Admin
+New-File "SWCORA.Web\Models\Admin\UsuariosViewModel.cs"
+New-File "SWCORA.Web\Models\Admin\RolesViewModel.cs"
+New-File "SWCORA.Web\Models\Admin\ModulosViewModel.cs"
+New-File "SWCORA.Web\Models\Admin\EmpresasViewModel.cs"
+New-File "SWCORA.Web\Models\Admin\UnidadesViewModel.cs"
+New-File "SWCORA.Web\Models\Admin\DepartamentosViewModel.cs"
+New-File "SWCORA.Web\Models\Admin\LogsViewModel.cs"
+
+# Models/Acceso
+New-File "SWCORA.Web\Models\Acceso\SolicitarAccesoViewModel.cs"
+New-File "SWCORA.Web\Models\Acceso\MisSolicitudesViewModel.cs"
+New-File "SWCORA.Web\Models\Acceso\AprobarSolicitudesViewModel.cs"
+
+# Views/Shared
+New-File "SWCORA.Web\Views\Shared\_Layout.cshtml"
+New-File "SWCORA.Web\Views\Shared\_LayoutSimple.cshtml"
+New-File "SWCORA.Web\Views\Shared\_ValidationScriptsPartial.cshtml"
+New-File "SWCORA.Web\Views\Shared\_LoginPartial.cshtml"
+New-File "SWCORA.Web\Views\Shared\_NotificationsPartial.cshtml"
+
+# Views/Home
+New-File "SWCORA.Web\Views\Home\Index.cshtml"
+New-File "SWCORA.Web\Views\Home\AccessDenied.cshtml"
+New-File "SWCORA.Web\Views\Home\Error.cshtml"
+
+# Views/SuperAdmin
+New-File "SWCORA.Web\Views\SuperAdmin\Login.cshtml"
+
+# Views/Perfil
+New-File "SWCORA.Web\Views\Perfil\Index.cshtml"
+
+# Views/Configuracion
+New-File "SWCORA.Web\Views\Configuracion\Index.cshtml"
+
+# Views/Notificaciones
+New-File "SWCORA.Web\Views\Notificaciones\Index.cshtml"
+
+# Views/Admin
+New-File "SWCORA.Web\Views\Admin\Dashboard\Index.cshtml"
+New-File "SWCORA.Web\Views\Admin\Usuarios\Index.cshtml"
+New-File "SWCORA.Web\Views\Admin\Roles\Index.cshtml"
+New-File "SWCORA.Web\Views\Admin\Roles\_ArbolPermisosPartial.cshtml"
+New-File "SWCORA.Web\Views\Admin\Modulos\Index.cshtml"
+New-File "SWCORA.Web\Views\Admin\Empresas\Index.cshtml"
+New-File "SWCORA.Web\Views\Admin\Empresas\_ModalEmpresa.cshtml"
+New-File "SWCORA.Web\Views\Admin\Empresas\_ModalTiposEmpresa.cshtml"
+New-File "SWCORA.Web\Views\Admin\Unidades\Index.cshtml"
+New-File "SWCORA.Web\Views\Admin\Departamentos\Index.cshtml"
+New-File "SWCORA.Web\Views\Admin\Logs\Index.cshtml"
+
+# Views/Acceso
+New-File "SWCORA.Web\Views\Acceso\SolicitarAcceso\Index.cshtml"
+New-File "SWCORA.Web\Views\Acceso\MisSolicitudes\Index.cshtml"
+New-File "SWCORA.Web\Views\Acceso\AprobarSolicitudes\Index.cshtml"
+
+# wwwroot
+New-File "SWCORA.Web\wwwroot\css\styles.css"
+New-File "SWCORA.Web\wwwroot\js\scripts.js"
+New-File "SWCORA.Web\wwwroot\images\logo.png"
+
+# Asegurar la existencia de la carpeta modules (sin archivos)
+$modulesDir = Join-Path -Path $Root -ChildPath "SWCORA.Web\wwwroot\modules"
+if (-not (Test-Path -Path $modulesDir)) {
+    New-Item -ItemType Directory -Path $modulesDir -Force | Out-Null
+    Write-Host "  [+] SWCORA.Web\wwwroot\modules\" -ForegroundColor Green
+}
+
+# =============================================
+# 5. SWCORA.MODULES - SalidasMaterial
+# =============================================
+Write-Host ""
+Write-Host "5. SWCORA.Modules / SalidasMaterial" -ForegroundColor Cyan
+
+$mod = "SWCORA.Modules\SalidasMaterial"
+
+# Proyecto
+New-File "$mod\SWCORA.Modules.SalidasMaterial.csproj"
+
+# Entities
+New-File "$mod\Entities\Salida.cs"
+New-File "$mod\Entities\SalidaDetalle.cs"
+New-File "$mod\Entities\HistorialSalida.cs"
+New-File "$mod\Entities\PlantillaMaterial.cs"
+New-File "$mod\Entities\PlantillaDetalle.cs"
+
+# Data
+New-File "$mod\Data\SalidaDbExtensions.cs"
+
+# Models
+New-File "$mod\Models\SalidaIndexViewModel.cs"
+New-File "$mod\Models\CrearSalidaViewModel.cs"
+New-File "$mod\Models\DetalleSalidaViewModel.cs"
+New-File "$mod\Models\DashboardViewModel.cs"
+New-File "$mod\Models\ClonarSalidaViewModel.cs"
+
+# Services
+New-File "$mod\Services\ISalidaService.cs"
+New-File "$mod\Services\SalidaService.cs"
+New-File "$mod\Services\IPlantillaService.cs"
+New-File "$mod\Services\PlantillaService.cs"
+New-File "$mod\Services\IHistorialSalidaService.cs"
+New-File "$mod\Services\HistorialSalidaService.cs"
+New-File "$mod\Services\IExportacionService.cs"
+New-File "$mod\Services\ExportacionService.cs"
+New-File "$mod\Services\IDashboardService.cs"
+New-File "$mod\Services\DashboardService.cs"
+
+# Helpers
+New-File "$mod\Helpers\PdfGenerator.cs"
+
+# Hubs
+New-File "$mod\Hubs\SalidasHub.cs"
+
+# Areas/SalidasMaterial/Controllers
+New-File "$mod\Areas\SalidasMaterial\Controllers\SalidasController.cs"
+
+# Areas/SalidasMaterial/Views/Salidas
+New-File "$mod\Areas\SalidasMaterial\Views\Salidas\Index.cshtml"
+New-File "$mod\Areas\SalidasMaterial\Views\Salidas\Crear.cshtml"
+New-File "$mod\Areas\SalidasMaterial\Views\Salidas\Editar.cshtml"
+New-File "$mod\Areas\SalidasMaterial\Views\Salidas\Detalles.cshtml"
+New-File "$mod\Areas\SalidasMaterial\Views\Salidas\Dashboard.cshtml"
+
+# Areas/SalidasMaterial/Views/Shared
+New-File "$mod\Areas\SalidasMaterial\Views\Shared\_Layout.cshtml"
+
+# Module metadata
+New-File "$mod\ModuleEntryPoint.cs"
+New-File "$mod\Module.json"
+
+# =============================================
+# 6. DATABASE
+# =============================================
+Write-Host ""
+Write-Host "6. Database" -ForegroundColor Cyan
+
+New-File "Database\ScriptInicial.sql"
+
+# =============================================
+# RESUMEN FINAL
+# =============================================
+Write-Host ""
+Write-Host "=========================================" -ForegroundColor Cyan
+Write-Host " ESTRUCTURA CREADA CORRECTAMENTE" -ForegroundColor Green
+Write-Host "=========================================" -ForegroundColor Cyan
+Write-Host "Ruta: $Root" -ForegroundColor Yellow
+
+# Contar archivos creados
+$totalFiles = (Get-ChildItem -Path $Root -Recurse -File | Measure-Object).Count
+$totalDirs = (Get-ChildItem -Path $Root -Recurse -Directory | Measure-Object).Count
+
+Write-Host "Total archivos: $totalFiles" -ForegroundColor White
+Write-Host "Total carpetas: $totalDirs" -ForegroundColor White
+Write-Host ""
+Write-Host "Siguiente paso:" -ForegroundColor Cyan
+Write-Host "  1. Copia el contenido de cada archivo desde la documentación." -ForegroundColor Gray
+Write-Host "  2. Genera el hash del Superadmin (SHA256 + Salt)." -ForegroundColor Gray
+Write-Host "  3. Ejecuta el ScriptInicial.sql en MariaDB." -ForegroundColor Gray
+Write-Host "  4. Abre la solución en Visual Studio y compila." -ForegroundColor Gray
+Write-Host ""
