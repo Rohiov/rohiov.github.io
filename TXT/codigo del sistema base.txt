@@ -7217,7 +7217,7 @@ xml
     <!-- SOLO referencia a Core. SIN referencia al módulo. -->
     <ProjectReference Include="..\SWCORA.Core\SWCORA.Core.csproj" />
   </ItemGroup>
-</Project>
+</Project> 
 SWCORA.Modules/SalidasMaterial/SWCORA.Modules.SalidasMaterial.csproj
 xml
 <Project Sdk="Microsoft.NET.Sdk">
